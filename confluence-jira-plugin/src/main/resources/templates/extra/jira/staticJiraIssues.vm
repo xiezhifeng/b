@@ -63,10 +63,10 @@
 #end
 <div id="refresh-module-$refreshId">
     <p>
-        #if ($enableRefresh && !$singleIssueTable)
-        <div id="refresh-$refreshId" class="refresh-macro">
-            <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($refreshTitle)</em> &hellip;
-        </div>
+        #if ($placeholder || ($enableRefresh && !$singleIssueTable))
+            <div id="refresh-$refreshId" class="refresh-macro">
+                <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($refreshTitle)</em> &hellip;
+            </div>
         #end
 
         #if ($trustedConnection)
@@ -226,7 +226,7 @@
                 </tbody>
             </table>
         </div>
-        #if (!$singleIssueTable)
+        #if ($placeholder || !$singleIssueTable)
             <div class="refresh-issues-bottom">
                 #if ($totalIssues)
                     <span id="total-issues-count-$refreshId">
@@ -248,7 +248,7 @@
                         #end
                     </span>
                 #end
-                #if ($enableRefresh)
+                #if ($placeholder || $enableRefresh)
                     <span class="refresh-action-group">
                         <div id="refresh-issues-loading-$refreshId" class="button-spinner hidden"></div>
                         <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
