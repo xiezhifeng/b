@@ -61,7 +61,7 @@
         }
     </style>
 #end
-<div id="refresh-module-$refreshId">
+<div id="refresh-module-$refreshId" class="refresh-module-id">
     <p>
         #if ($placeholder || ($enableRefresh && !$singleIssueTable))
             <div id="refresh-$refreshId" class="refresh-macro">
@@ -93,7 +93,7 @@
         #end
 
         <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
-                <table class="aui" #if($email) style="padding:5px !important;vertical-align: top;"#end>
+            <table class="aui" #if($email) style="padding:5px !important;vertical-align: top;"#end>
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
