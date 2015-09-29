@@ -95,13 +95,13 @@ public class ConfluenceEventListener implements DisposableBean
         updateJiraRemoteLinks(event.getPage(), null, event.getBlueprintKey().getCompleteKey(), event.getContext());
     }
 
-    private void updateJiraRemoteLinks(final AbstractPage currentPage, final AbstractPage previousVersionPage, final String bluePrintKey, final Map<String, ?> context)
+    private void updateJiraRemoteLinks(final AbstractPage currentPage, final AbstractPage originalPage, final String bluePrintKey, final Map<String, ?> context)
     {
         Callable jiraRemoteLinkCallable = threadLocalDelegateExecutorFactory.createCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception
             {
-                if (previousVersionPage == null) //create page/blogpost/blueprint page
+                if (originalPage == null) //create page/blogpost/blueprint page
                 {
                     // A PageCreateEvent was also triggered (and handled) but only the BlueprintPageCreateEvent's context
                     // contains the parameters we're checking for (when the page being created is a blueprint)
@@ -110,9 +110,10 @@ public class ConfluenceEventListener implements DisposableBean
                         jiraRemoteLinkCreator.createLinksForEmbeddedMacros(currentPage);
                     }
                     handlePageCreateInitiatedFromJIRAEntity(currentPage, bluePrintKey, Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
-                } else //update page/blogpost
+                }
+                else //update page/blogpost
                 {
-                    jiraRemoteLinkCreator.createLinksForEmbeddedMacros(previousVersionPage, currentPage);
+                    jiraRemoteLinkCreator.createLinksForEmbeddedMacros(originalPage, currentPage);
                 }
                 return null;
             }
