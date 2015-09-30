@@ -5,6 +5,7 @@ import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.ModuleCompleteKey;
+import com.atlassian.test.concurrent.MockThreadLocalDelegateExecutorFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -49,8 +50,7 @@ public class TestConfluenceEventListener
 
         when(jiraRemoteLinkCreator.createLinkToEpic(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
         when(jiraRemoteLinkCreator.createLinkToSprint(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
-
-        event = new ConfluenceEventListener(eventPublisher, jiraRemoteLinkCreator, jiraConnectorManager);
+        event = new ConfluenceEventListener(eventPublisher, jiraRemoteLinkCreator, jiraConnectorManager, new MockThreadLocalDelegateExecutorFactory());
     }
 
     @Test
@@ -111,8 +111,7 @@ public class TestConfluenceEventListener
         {
             fail("NullPointerException Encountered.");
         }
-
-        verify(eventPublisher, times(1)).publish(any());
+        verify(eventPublisher, timeout(100).times(1)).publish(any());
     }
 
     @Test
@@ -134,6 +133,6 @@ public class TestConfluenceEventListener
             fail("NullPointerException Encountered.");
         }
 
-        verify(eventPublisher, times(1)).publish(any());
+        verify(eventPublisher, timeout(100).times(1)).publish(any());
     }
 }
