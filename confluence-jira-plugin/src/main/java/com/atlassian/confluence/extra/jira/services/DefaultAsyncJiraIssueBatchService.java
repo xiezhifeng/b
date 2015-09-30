@@ -34,11 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean, DisposableBean
 {
@@ -51,8 +47,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private Cache jiraIssuesCache;
     private CacheEntryListener cacheEntryListener;
 
-    private final ThreadPoolExecutor jiraIssueExecutor = new ThreadPoolExecutor(0, 10, 60L, TimeUnit.SECONDS,
-            new LinkedBlockingQueue<Runnable>(), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
+    private final ThreadPoolExecutor jiraIssueExecutor = new ThreadPoolExecutor(0, 5, 60L, TimeUnit.SECONDS,
+            new ArrayBlockingQueue<Runnable>(Integer.MAX_VALUE, true), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory,
@@ -90,6 +86,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             jiraIssueBatchTask = buildBatchTask(clientId, serverId,
                                                 batchRequest, macroDefinitions,
                                                 conversionContext);
+            logger.info("Creating thread. Active count: " + jiraIssueExecutor.getActiveCount());
 
             jiraIssueExecutor.submit(jiraIssueBatchTask);
         }
@@ -140,6 +137,9 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     if (batchRequest.contains(issueKey))
                     {
                         Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
+
+                        logger.info("Creating thread. Active count: " + jiraIssueExecutor.getActiveCount());
+
                         Future<String> futureHtmlMacro = jiraIssueExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
                         jiraResultMap.put(issueKey, futureHtmlMacro.get());
                     }
