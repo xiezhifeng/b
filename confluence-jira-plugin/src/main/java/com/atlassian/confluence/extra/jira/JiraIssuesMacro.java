@@ -805,6 +805,26 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 contextMap.put(TOTAL_ISSUES, element.getChildren("item").size());
             }
             contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
+
+            if (null != appLink)
+            {
+                contextMap.put(JIRA_SERVER_URL, JiraUtil.normalizeUrl(appLink.getDisplayUrl()));
+            }
+            else
+            {
+                try
+                {
+                    URL sourceUrl = new URL(channel.getSourceUrl());
+                    String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority();
+                    contextMap.put(JIRA_SERVER_URL, jiraServerUrl);
+                }
+                catch (MalformedURLException e)
+                {
+                    LOGGER.debug("MalformedURLException thrown when retrieving sourceURL from the channel", e);
+                    LOGGER.info("Set jiraServerUrl to empty string");
+                    contextMap.put(JIRA_SERVER_URL, "");
+                }
+            }
         }
         else
         {
@@ -816,26 +836,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("jiraIssuesManager", jiraIssuesManager);
         contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         contextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
-
-        if (null != appLink)
-        {
-            contextMap.put(JIRA_SERVER_URL, JiraUtil.normalizeUrl(appLink.getDisplayUrl()));
-        }
-        else
-        {
-            try
-            {
-                URL sourceUrl = new URL(channel.getSourceUrl());
-                String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority();
-                contextMap.put(JIRA_SERVER_URL, jiraServerUrl);
-            }
-            catch (MalformedURLException e)
-            {
-                LOGGER.debug("MalformedURLException thrown when retrieving sourceURL from the channel", e);
-                LOGGER.info("Set jiraServerUrl to empty string");
-                contextMap.put(JIRA_SERVER_URL, "");
-            }
-        }
 
         Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
         contextMap.put("dateFormat", new SimpleDateFormat(formatSettingsManager.getDateFormat(), locale));
