@@ -286,7 +286,7 @@ public class TestJiraIssuesMacro extends TestCase
         page.setId(1l);
         DefaultConversionContext conversionContext = new DefaultConversionContext(new PageContext(page));
         conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, isClearCache);
-        conversionContext.setProperty(JiraIssuesMacro.FETCHING_REAL_JIRA, Boolean.TRUE);
+        conversionContext.setProperty(JiraIssuesMacro.PARAM_PLACEHOLDER, Boolean.FALSE);
         return conversionContext;
     }
 

@@ -84,7 +84,7 @@ public final class RefreshRenderer extends HttpServlet
         conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, clearCache);
         conversionContext.setProperty("orderColumnName", columnName);
         conversionContext.setProperty("order", order);
-        conversionContext.setProperty(JiraIssuesMacro.FETCHING_REAL_JIRA, Boolean.TRUE);
+        conversionContext.setProperty(JiraIssuesMacro.PARAM_PLACEHOLDER, Boolean.FALSE);
         return viewRenderer.render(wiki, conversionContext);
     }
 

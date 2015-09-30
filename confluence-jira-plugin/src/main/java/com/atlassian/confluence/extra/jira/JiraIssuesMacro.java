@@ -108,7 +108,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     // This parameter to distinguish the placeholder & real data mode for jira table
-    public static final String FETCHING_REAL_JIRA = "fetching-real-jira";
     public static final String PARAM_PLACEHOLDER = "placeholder";
 
     public static enum Type {KEY, JQL, URL}
@@ -709,15 +708,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
         try
         {
-            boolean fetchingJira = true;
-            if (RenderContext.DISPLAY.equals(conversionContext.getOutputType()) ||
-                    RenderContext.PREVIEW.equals(conversionContext.getOutputType()))
-            {
-                contextMap.put(ENABLE_REFRESH, Boolean.TRUE);
+            boolean isDisplayedOnBrowser =
+                    RenderContext.DISPLAY.equals(conversionContext.getOutputType()) ||
+                    RenderContext.PREVIEW.equals(conversionContext.getOutputType());
 
-                // only do lazy loading for table in this 2 output type
-                fetchingJira = getBooleanProperty(conversionContext.getProperty(FETCHING_REAL_JIRA));
-            }
+            contextMap.put(ENABLE_REFRESH, isDisplayedOnBrowser);
+
+            // only do lazy loading for table in this 2 output type
+            boolean placeholder = isDisplayedOnBrowser
+                    && getBooleanProperty(conversionContext.getProperty(PARAM_PLACEHOLDER, true));
 
             if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
             {
@@ -730,7 +729,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
 
             JiraIssuesManager.Channel channel = null;
-            if (fetchingJira)
+            if (!placeholder)
             {
                 channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                         forceAnonymous, useCache);
