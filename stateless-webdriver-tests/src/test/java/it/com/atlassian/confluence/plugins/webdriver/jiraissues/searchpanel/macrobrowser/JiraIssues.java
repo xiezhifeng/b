@@ -32,7 +32,6 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
     }
 
     @Test
-    @Category(OnDemandAcceptanceTest.class)
     public void testJiraChartMacroLink() throws Exception
     {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);

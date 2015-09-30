@@ -143,13 +143,19 @@
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence-test-support</artifactId>
-            <version>5.7</version>
+            <version>${confluence.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-func-tests</artifactId>
             <version>${jira.data.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-rest-client</artifactId>
+            <version>${confluence.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
