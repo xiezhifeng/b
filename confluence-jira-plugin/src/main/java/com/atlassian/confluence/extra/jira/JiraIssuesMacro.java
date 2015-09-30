@@ -714,10 +714,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
             contextMap.put(ENABLE_REFRESH, isDisplayedOnBrowser);
 
-            // only do lazy loading for table in this 2 output type
-            boolean placeholder = isDisplayedOnBrowser
-                    && getBooleanProperty(conversionContext.getProperty(PARAM_PLACEHOLDER, true));
-
             if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
             {
                 contextMap.put("orderColumnName", conversionContext.getProperty("orderColumnName"));
@@ -728,13 +724,21 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
             }
 
-            JiraIssuesManager.Channel channel = null;
+            // only do lazy loading for table in this 2 output type
+            boolean placeholder = isDisplayedOnBrowser
+                    && getBooleanProperty(conversionContext.getProperty(PARAM_PLACEHOLDER, true));
+            contextMap.put(PARAM_PLACEHOLDER, placeholder);
             if (!placeholder)
             {
-                channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
+                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                         forceAnonymous, useCache);
+                setupContextMapForStaticTable(contextMap, channel, appLink);
             }
-            setupContextMapForStaticTable(contextMap, channel, appLink);
+            else
+            {
+                // Placeholder mode for table
+                contextMap.put("trustedConnection", false);
+            }
         }
         catch (CredentialsRequiredException e)
         {
@@ -784,58 +788,47 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ApplicationLink appLink)
     {
-        contextMap.put(PARAM_PLACEHOLDER, channel == null);
-        if (channel != null)
+        Element element = channel.getChannelElement();
+        contextMap.put("trustedConnection", channel.isTrustedConnection());
+        contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
+        contextMap.put("channel", element);
+        contextMap.put("entries", element.getChildren("item"));
+        JiraUtil.checkAndCorrectDisplayUrl(element.getChildren(ITEM), appLink);
+        try
         {
-            Element element = channel.getChannelElement();
-            contextMap.put("trustedConnection", channel.isTrustedConnection());
-            contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
-            contextMap.put("channel", element);
-            contextMap.put("entries", element.getChildren("item"));
-            JiraUtil.checkAndCorrectDisplayUrl(element.getChildren(ITEM), appLink);
-            try
+            if(element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)
             {
-                if (element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)
-                {
-                    contextMap.put(TOTAL_ISSUES, element.getChild("issue").getAttribute("total").getIntValue());
-                }
-            }
-            catch (DataConversionException e)
-            {
-                contextMap.put(TOTAL_ISSUES, element.getChildren("item").size());
-            }
-            contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
-
-            if (null != appLink)
-            {
-                contextMap.put(JIRA_SERVER_URL, JiraUtil.normalizeUrl(appLink.getDisplayUrl()));
-            }
-            else
-            {
-                try
-                {
-                    URL sourceUrl = new URL(channel.getSourceUrl());
-                    String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority();
-                    contextMap.put(JIRA_SERVER_URL, jiraServerUrl);
-                }
-                catch (MalformedURLException e)
-                {
-                    LOGGER.debug("MalformedURLException thrown when retrieving sourceURL from the channel", e);
-                    LOGGER.info("Set jiraServerUrl to empty string");
-                    contextMap.put(JIRA_SERVER_URL, "");
-                }
+                contextMap.put(TOTAL_ISSUES, element.getChild("issue").getAttribute("total").getIntValue());
             }
         }
-        else
+        catch (DataConversionException e)
         {
-            // Placeholder mode for table
-            contextMap.put("trustedConnection", false);
+            contextMap.put(TOTAL_ISSUES, element.getChildren("item").size());
         }
-
         contextMap.put("xmlXformer", xmlXformer);
         contextMap.put("jiraIssuesManager", jiraIssuesManager);
         contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         contextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
+        contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
+        if (null != appLink)
+        {
+            contextMap.put(JIRA_SERVER_URL, JiraUtil.normalizeUrl(appLink.getDisplayUrl()));
+        }
+        else
+        {
+            try
+            {
+                URL sourceUrl = new URL(channel.getSourceUrl());
+                String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority();
+                contextMap.put(JIRA_SERVER_URL, jiraServerUrl);
+            }
+            catch (MalformedURLException e)
+            {
+                LOGGER.debug("MalformedURLException thrown when retrieving sourceURL from the channel", e);
+                LOGGER.info("Set jiraServerUrl to empty string");
+                contextMap.put(JIRA_SERVER_URL, "");
+            }
+        }
 
         Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
         contextMap.put("dateFormat", new SimpleDateFormat(formatSettingsManager.getDateFormat(), locale));

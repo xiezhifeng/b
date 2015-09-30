@@ -61,6 +61,9 @@ span.refresh-action-group {
     vertical-align: middle;
 }
 
+/**
+ * The position of spinner is now set by JS as inline style. To override it, we have to use !important here.
+ */
 .refresh-issues-bottom .button-spinner .spinner {
     left: 8px !important;
     top: 8px !important;
