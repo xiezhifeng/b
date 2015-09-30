@@ -35,10 +35,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean, DisposableBean
 {
@@ -51,9 +51,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private Cache jiraIssuesCache;
     private CacheEntryListener cacheEntryListener;
 
-    private final ExecutorService jiraIssueExecutorService = Executors.newCachedThreadPool(ThreadFactories.named("JIM Marshaller-")
-            .type(ThreadFactories.Type.USER).build());
-
+    private final ThreadPoolExecutor jiraIssueExecutor = new ThreadPoolExecutor(0, 10, 60L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<Runnable>(), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory,
@@ -92,7 +91,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                                                 batchRequest, macroDefinitions,
                                                 conversionContext);
 
-            jiraIssueExecutorService.submit(jiraIssueBatchTask);
+            jiraIssueExecutor.submit(jiraIssueBatchTask);
         }
     }
 
@@ -141,7 +140,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     if (batchRequest.contains(issueKey))
                     {
                         Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
-                        Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
+                        Future<String> futureHtmlMacro = jiraIssueExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
                         jiraResultMap.put(issueKey, futureHtmlMacro.get());
                     }
                 }
