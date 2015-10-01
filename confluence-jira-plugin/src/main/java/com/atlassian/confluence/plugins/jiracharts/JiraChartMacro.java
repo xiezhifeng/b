@@ -35,6 +35,9 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 
+import com.atlassian.renderer.RenderContext;
+import com.atlassian.renderer.v2.RenderMode;
+import com.atlassian.renderer.v2.macro.BaseMacro;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * The macro to display Jira chart
  *
  */
-public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
+public class JiraChartMacro extends BaseMacro implements StreamableMacro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
@@ -183,4 +186,23 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         this.jqlValidator = jqlValidator;
     }
+
+    @Override
+    public boolean hasBody()
+    {
+        return true;
+    }
+
+    @Override
+    public RenderMode getBodyRenderMode()
+    {
+        return RenderMode.NO_RENDER;
+    }
+
+    @Override
+    public String execute(Map parameters, String body, RenderContext renderContext)
+    {
+        return this.execute((Map<String, String>) parameters, body, renderContext);
+    }
+
 }
