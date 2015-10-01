@@ -48,7 +48,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private CacheEntryListener cacheEntryListener;
 
     private final ThreadPoolExecutor jiraIssueExecutor = new ThreadPoolExecutor(0, 5, 60L, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<Runnable>(Integer.MAX_VALUE, true), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
+            new ArrayBlockingQueue<Runnable>(10000, true), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory,
@@ -86,9 +86,10 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             jiraIssueBatchTask = buildBatchTask(clientId, serverId,
                                                 batchRequest, macroDefinitions,
                                                 conversionContext);
-            logger.info("Creating thread. Active count: " + jiraIssueExecutor.getActiveCount());
 
             jiraIssueExecutor.submit(jiraIssueBatchTask);
+
+            logger.debug("Submitted task to thread pool. " + jiraIssueExecutor.toString());
         }
     }
 
@@ -138,9 +139,10 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     {
                         Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
 
-                        logger.info("Creating thread. Active count: " + jiraIssueExecutor.getActiveCount());
-
                         Future<String> futureHtmlMacro = jiraIssueExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
+
+                        logger.debug("Submitted task to thread pool. " + jiraIssueExecutor.toString());
+
                         jiraResultMap.put(issueKey, futureHtmlMacro.get());
                     }
                 }
