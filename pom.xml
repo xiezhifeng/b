@@ -81,7 +81,7 @@
         <confluence.data.version>${confluence.version}</confluence.data.version>
         <junit.version>4.11</junit.version>
 
-        <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
+        <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.6</atlassian.product.test-lib.version>
 
