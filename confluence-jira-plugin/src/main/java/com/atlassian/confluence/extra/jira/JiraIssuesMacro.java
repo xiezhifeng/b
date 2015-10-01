@@ -5,6 +5,7 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputDeviceType;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
@@ -708,11 +709,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
         try
         {
-            boolean isDisplayedOnBrowser =
+            boolean isViewingOrPreviewing =
                     RenderContext.DISPLAY.equals(conversionContext.getOutputType()) ||
                     RenderContext.PREVIEW.equals(conversionContext.getOutputType());
 
-            contextMap.put(ENABLE_REFRESH, isDisplayedOnBrowser);
+            contextMap.put(ENABLE_REFRESH, isViewingOrPreviewing);
 
             if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
             {
@@ -724,8 +725,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
             }
 
-            // only do lazy loading for table in this 2 output type
-            boolean placeholder = isDisplayedOnBrowser
+            // only do lazy loading for table in this 2 output types & in desktop env
+            boolean placeholder = isViewingOrPreviewing
+                    && ConversionContextOutputDeviceType.DESKTOP.equals(conversionContext.getOutputDeviceType())
                     && getBooleanProperty(conversionContext.getProperty(PARAM_PLACEHOLDER, true));
             contextMap.put(PARAM_PLACEHOLDER, placeholder);
             if (!placeholder)
