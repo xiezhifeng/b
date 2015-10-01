@@ -47,8 +47,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private Cache jiraIssuesCache;
     private CacheEntryListener cacheEntryListener;
 
-    private final ThreadPoolExecutor jiraIssueExecutor = new ThreadPoolExecutor(0, 5, 60L, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<Runnable>(10000, true), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
+    private final ThreadPoolExecutor jiraIssueExecutor = new ThreadPoolExecutor(5, 5, 60L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<Runnable>(1000), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory,
@@ -68,6 +68,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                         .expireAfterWrite(2, TimeUnit.MINUTES)
                         .build()
         );
+
+        jiraIssueExecutor.allowCoreThreadTimeOut(true);
     }
 
     @Override
