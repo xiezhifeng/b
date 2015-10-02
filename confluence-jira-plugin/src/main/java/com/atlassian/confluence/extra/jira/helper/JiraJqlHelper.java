@@ -24,7 +24,7 @@ public class JiraJqlHelper
     public static final String FILTER_XML_REGEX = ".+searchrequest-xml/([0-9]+)/SearchRequest.+";
     public static final String SORTING_REGEX = "(Order\\s*BY) (.?)";
     public static final String XML_SORT_REGEX = ".+(jqlQuery|jql)=([^&]+).+tempMax=([0-9]+)";
-    public static final String SINGLE_ISSUE_REGEX = "^\\s*((KEY|ISSUEKEY)\\s*=)?\\s*[A-Z]+[0-9]*[A-Z]*-[0-9]+\\s*$";
+    public static final String SINGLE_ISSUE_REGEX = "^\\s*((KEY|ISSUEKEY)\\s*=)?\\s*\"*[A-Z]+[0-9]*[A-Z]*-[0-9]+\"*\\s*$";
 
     public static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX);
     public static final Pattern XML_KEY_PATTERN = Pattern.compile(XML_KEY_REGEX);

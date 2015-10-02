@@ -19,6 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.apache.commons.lang.BooleanUtils;
+
 /**
  * Servlet that processes render requests from the refresh event
  */
@@ -58,7 +60,7 @@ public final class RefreshRenderer extends HttpServlet
         i18NBeanFactory = i18nBeanFactory;
     }
 
-    private String convertPageWikiToHtml(long id, String wiki, String columnName, String order) throws ServletException
+    private String convertPageWikiToHtml(long id, String wiki, String columnName, String order, boolean clearCache) throws ServletException
     {
         ConversionContext conversionContext = null;
         if (id == -1)
@@ -79,9 +81,10 @@ public final class RefreshRenderer extends HttpServlet
             }
         }
         // conversionContext should be available now
-        conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, Boolean.TRUE);
+        conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, clearCache);
         conversionContext.setProperty("orderColumnName", columnName);
         conversionContext.setProperty("order", order);
+        conversionContext.setProperty(JiraIssuesMacro.PARAM_PLACEHOLDER, Boolean.FALSE);
         return viewRenderer.render(wiki, conversionContext);
     }
 
@@ -98,10 +101,13 @@ public final class RefreshRenderer extends HttpServlet
         String wikiMarkup = httpServletRequest.getParameter("wikiMarkup");
         String columnName = httpServletRequest.getParameter("columnName");
         String order = httpServletRequest.getParameter("order");
+        // this parameter is to explicitly ask the render to use the cached data. Normally, the cache will
+        // be cleared if user clicks on the Refresh button. However, cache will be used if it is from the asynchronous rendering
+        boolean clearCache = BooleanUtils.toBoolean(httpServletRequest.getParameter("clearCache"));
 
         long pageId = Long.parseLong(pageIdString);
 
-        String result = convertPageWikiToHtml(pageId, wikiMarkup, columnName, order);
+        String result = convertPageWikiToHtml(pageId, wikiMarkup, columnName, order, clearCache);
 
         httpServletResponse.setContentType("text/html");
 
