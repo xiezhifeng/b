@@ -1,0 +1,16 @@
+
+<span class="jira sprint jira-issue#if($resolved) resolved#end" data-issue-key="$key" #if($clientId) data-client-id="$clientId" #end>
+    <a href="$clickableUrl" class="jira-issue-key">
+        #if($isPlaceholder)
+            <span class="aui-icon aui-icon-wait issue-placeholder"></span>
+        #else
+            <span class="aui-icon aui-icon-small aui-iconfont-layout-2col-large"></span>
+        #end$key
+    </a>
+    #if($status == "active")
+        #set($statusColor = "aui-lozenge-success")
+    #else
+        #set($statusColor = "aui-lozenge-default")
+    #end
+    <span class="aui-lozenge $statusColor">$status</span>
+</span>

@@ -342,6 +342,30 @@
             </parameter>
         </parameters>
     </xhtml-macro>
+
+    <!-- JIRA SPRINT MACRO -->
+    <xhtml-macro name='jirasprint' class='com.atlassian.confluence.plugins.sprint.JiraSprintMacro' key='jirasprint-xhtml'
+                 icon="/download/resources/confluence.extra.jira/images/jira-chart-macro-icon.png" documentation-url="help.jirachart.macro">
+        <description key="jirachart.macro.description"/>
+        <category name="development"/>
+        <parameters>
+            <default>
+                <option key="showValueInPlaceholder" value="true" />
+            </default>
+            <parameter name="serverId" type="string">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
+            </parameter>
+            <parameter name="boardId" type="string">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
+            </parameter>
+            <parameter name="key" type="string">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="true" />
+            </parameter>
+        </parameters>
+    </xhtml-macro>
     
     <web-resource key="jirachart-macro" name="JIRA Chart Macro">
         <description>process dialog for jira chart macro.</description>

@@ -4,6 +4,7 @@
 http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd" default-autowire="autodetect" osgi:default-timeout="30000">
   <beans:bean id="jiraIssuesSettingsManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesSettingsManager"/>
   <beans:bean id="jiraIssueBatchService" autowire="default" class="com.atlassian.confluence.extra.jira.services.DefaultJiraIssueBatchService"/>
+  <beans:bean id="jiraAgileService" autowire="default" class="com.atlassian.confluence.plugins.sprint.services.DefaultJiraAgileService"/>
   <beans:bean id="asyncJiraIssueBatchService" autowire="default" class="com.atlassian.confluence.extra.jira.services.DefaultAsyncJiraIssueBatchService"/>
   <beans:bean id="trustedApplicationConfig" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultTrustedApplicationConfig"/>
   <beans:bean id="jiratrust" autowire="default" class="com.atlassian.confluence.extra.jira.JiraTrustComponent"/>
