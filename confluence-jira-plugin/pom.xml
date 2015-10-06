@@ -542,7 +542,7 @@
                             com.atlassian.confluence.extra.jira,
                             com.atlassian.confluence.extra.jira.api.services
                         </Export-Package>
-                        <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
+                        <Atlassian-Plugin-Key>confluence.extra.jira</Atlassian-Plugin-Key>
                     </instructions>
 
                     <systemPropertyVariables>
