@@ -1,13 +1,5 @@
 package com.atlassian.confluence.extra.jira.executor;
 
-import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.content.render.xhtml.Streamable;
-import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
-import com.atlassian.confluence.macro.MacroExecutionException;
-import com.atlassian.confluence.util.i18n.I18NBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.util.concurrent.ExecutionException;
@@ -15,12 +7,26 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.extra.jira.metrics.EventBuilder;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.util.i18n.I18NBean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static com.google.common.base.Objects.firstNonNull;
 /**
  * Converts a future to an xhtml streamable, handling errors in the stream in by
  * writing error messages into the result.
  *
  */
+@ParametersAreNonnullByDefault
 public class FutureStreamableConverter implements Streamable
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(FutureStreamableConverter.class);
@@ -72,6 +78,10 @@ public class FutureStreamableConverter implements Streamable
         {
             logStreamableError(writer, getConnectionTimeoutErrorMsg(), e);
         }
+        finally
+        {
+            builder.metrics.publish();
+        }
     }
 
     public String getConnectionTimeoutErrorMsg()
@@ -101,7 +111,7 @@ public class FutureStreamableConverter implements Streamable
      * @param e
      * @throws IOException
      */
-    private void logStreamableError(Writer writer, String exceptionKey, Exception e) throws IOException
+    private void logStreamableError(Writer writer, @Nullable String exceptionKey, @Nullable Exception e) throws IOException
     {
         if (exceptionKey != null)
         {
@@ -121,16 +131,18 @@ public class FutureStreamableConverter implements Streamable
         private final Future<String> futureResult;
         private final ConversionContext context;
         private final I18NBean i18NBean;
+        private final EventBuilder metrics;
         private String executionTimeoutErrorMsg;
         private String connectionTimeoutErrorMsg;
         private String interruptedErrorMsg;
         private String executionErrorMsg;
 
-        public Builder(Future<String> futureResult, final ConversionContext context, I18NBean i18NBean)
+        public Builder(Future<String> futureResult, final ConversionContext context, I18NBean i18NBean, EventBuilder metrics)
         {
             this.futureResult = futureResult;
             this.context = context;
             this.i18NBean = i18NBean;
+            this.metrics = metrics;
         }
         
         public Builder executionTimeoutErrorMsg(String i18nErrorMsg)

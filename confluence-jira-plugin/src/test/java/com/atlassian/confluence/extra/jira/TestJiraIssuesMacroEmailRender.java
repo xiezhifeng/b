@@ -68,7 +68,7 @@ public class TestJiraIssuesMacroEmailRender
                   formatSettingsManager,
                   jiraIssueSortingManager,
                   jiraExceptionHelper,
-                  localeManager);
+                  localeManager, macroMetricsService);
         }
     }
 
@@ -163,8 +163,8 @@ public class TestJiraIssuesMacroEmailRender
                 true,
                 false,
                 JiraIssuesMacro.JiraIssuesType.SINGLE,
-                conversionContext
-        );
+                conversionContext,
+                metrics);
 
         //test:
         verify(jiraIssuesManager, never())

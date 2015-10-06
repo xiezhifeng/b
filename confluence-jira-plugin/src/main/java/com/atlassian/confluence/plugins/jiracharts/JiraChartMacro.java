@@ -16,6 +16,7 @@ import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.extra.jira.metrics.EventBuilder;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
@@ -163,7 +164,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         Future<String> futureResult = executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, context, this,
                 AuthenticatedUserThreadLocal.get()));
 
-        return new FutureStreamableConverter.Builder(futureResult, context, i18NBeanFactory.getI18NBean())
+        return new FutureStreamableConverter.Builder(futureResult, context, i18NBeanFactory.getI18NBean(), EventBuilder.DEVNULL)
                 .executionErrorMsg("jirachart.error.execution")
                 .executionTimeoutErrorMsg("jirachart.error.timeout.execution")
                 .connectionTimeoutErrorMsg("jirachart.error.timeout.connection")

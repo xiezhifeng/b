@@ -1,6 +1,17 @@
 package com.atlassian.confluence.extra.jira;
 
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
@@ -12,13 +23,16 @@ import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
-import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
+import com.atlassian.confluence.extra.jira.metrics.JiraIssuesMacroMetricsEvent;
+import com.atlassian.confluence.extra.jira.metrics.MacroMetricsService;
+import com.atlassian.confluence.extra.jira.metrics.MetricsTimer;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
@@ -44,7 +58,9 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+
 import com.google.common.annotations.VisibleForTesting;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -52,17 +68,6 @@ import org.jdom.DataConversionException;
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -73,23 +78,24 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     /**
      * Default constructor to get all necessary beans injected
-     * @param i18NBeanFactory          see {@link com.atlassian.confluence.util.i18n.I18NBeanFactory}
-     * @param jiraIssuesManager        see {@link com.atlassian.confluence.extra.jira.JiraIssuesManager}
-     * @param settingsManager          see {@link com.atlassian.confluence.setup.settings.SettingsManager}
-     * @param jiraIssuesColumnManager  see {@link com.atlassian.confluence.extra.jira.JiraIssuesColumnManager}
-     * @param trustedApplicationConfig see {@link com.atlassian.confluence.extra.jira.TrustedApplicationConfig}
-     * @param permissionManager        see {@link com.atlassian.confluence.security.PermissionManager}
-     * @param applicationLinkResolver  see {@link com.atlassian.confluence.extra.jira.ApplicationLinkResolver}
-     * @param jiraIssuesDateFormatter  see {@link com.atlassian.confluence.extra.jira.JiraIssuesDateFormatter}
-     * @param macroMarshallingFactory  see {@link com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory}
-     * @param jiraCacheManager         see {@link com.atlassian.confluence.extra.jira.JiraCacheManager}
-     * @param imagePlaceHolderHelper   see {@link com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper}
-     * @param formatSettingsManager    see {@link com.atlassian.confluence.core.FormatSettingsManager}
-     * @param jiraIssueSortingManager  see {@link com.atlassian.confluence.extra.jira.JiraIssueSortingManager}
-     * @param jiraExceptionHelper      see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
-     * @param localeManager            see {@link com.atlassian.confluence.languages.LocaleManager}
+     * @param i18NBeanFactory          see {@link I18NBeanFactory}
+     * @param jiraIssuesManager        see {@link JiraIssuesManager}
+     * @param settingsManager          see {@link SettingsManager}
+     * @param jiraIssuesColumnManager  see {@link JiraIssuesColumnManager}
+     * @param trustedApplicationConfig see {@link TrustedApplicationConfig}
+     * @param permissionManager        see {@link PermissionManager}
+     * @param applicationLinkResolver  see {@link ApplicationLinkResolver}
+     * @param jiraIssuesDateFormatter  see {@link JiraIssuesDateFormatter}
+     * @param macroMarshallingFactory  see {@link MacroMarshallingFactory}
+     * @param jiraCacheManager         see {@link JiraCacheManager}
+     * @param imagePlaceHolderHelper   see {@link ImagePlaceHolderHelper}
+     * @param formatSettingsManager    see {@link FormatSettingsManager}
+     * @param jiraIssueSortingManager  see {@link JiraIssueSortingManager}
+     * @param jiraExceptionHelper      see {@link JiraExceptionHelper}
+     * @param localeManager            see {@link LocaleManager}
+     * @param macroMetricsService
      */
-    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager)
+    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, final MacroMetricsService macroMetricsService)
     {
         this.i18NBeanFactory = i18NBeanFactory;
         this.jiraIssuesManager = jiraIssuesManager;
@@ -106,6 +112,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.jiraIssueSortingManager = jiraIssueSortingManager;
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.localeManager = localeManager;
+        this.macroMetricsService = macroMetricsService;
     }
 
     // This parameter to distinguish the placeholder & real data mode for jira table
@@ -184,6 +191,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
     private LocaleManager localeManager;
+
+    protected final MacroMetricsService macroMetricsService;
 
     private MacroMarshallingFactory macroMarshallingFactory;
 
@@ -278,16 +287,22 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
-                    String requestData, Type requestType, ApplicationLink applink,
-                    boolean staticMode, boolean isMobile, JiraIssuesType issuesType, ConversionContext conversionContext) throws MacroExecutionException
+            String requestData, Type requestType, ApplicationLink applink,
+            boolean staticMode, boolean isMobile, JiraIssuesType issuesType, ConversionContext conversionContext,
+            final JiraIssuesMacroMetricsEvent.Builder metrics) throws MacroExecutionException
     {
         // Prepare the maxIssuesToDisplay for velocity template
         int maximumIssues = staticMode ? JiraUtil.getMaximumIssues(params.get(MAXIMUM_ISSUES)) : JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
         contextMap.put(MAX_ISSUES_TO_DISPLAY, maximumIssues);
+        metrics.maximumIssues(maximumIssues);
 
         String clickableUrl = JiraIssueUtil.getClickableUrl(requestData, requestType, applink, params.get(BASE_URL));
         contextMap.put(CLICKABLE_URL, clickableUrl);
-        Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+        final Map<String, JiraColumnInfo> jiraColumns;
+        try (MetricsTimer timer = metrics.fetchColumnInfoFromJira())
+        {
+            jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+        }
         if(issuesType == JiraIssuesType.TABLE)
         {
             requestData = jiraIssueSortingManager.getRequestDataForSorting(params, requestData, requestType, jiraColumns, conversionContext, applink);
@@ -991,6 +1006,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
     {
+        final JiraIssuesMacroMetricsEvent.Builder metrics = macroMetricsService.getOrCreateMetricsBuilder(this, conversionContext, parameters);
         Map<String, Object> contextMap = null;
         try
         {
@@ -1001,12 +1017,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
             contextMap.put(ISSUE_TYPE, issuesType);
 
+            metrics.jiraRequestType(requestType)
+                    .jiraIssuesType(issuesType);
+
             List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(parameters, COLUMNS, JiraUtil.PARAM_POSITION_1));
             // it will be overided by below code. At here, we need default column first for exception case.
             contextMap.put(COLUMNS, columnNames);
 
             ApplicationLink applink = null;
-            try
+            try (MetricsTimer timer = metrics.resolveAppLink())
             {
                 applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
             }
@@ -1017,7 +1036,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
             boolean staticMode = !dynamicRenderModeEnabled(parameters, conversionContext);
             boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
-            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, issuesType, conversionContext);
+            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, issuesType, conversionContext, metrics);
 
             if (isMobile)
             {

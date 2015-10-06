@@ -88,7 +88,7 @@
         <jira.version>6.3.9</jira.version>
         <jira.data.version>6.5-OD-03-002</jira.data.version>
 
-        <jdkLevel>1.6</jdkLevel>
+        <jdkLevel>1.7</jdkLevel>
         <jvmArgs>-Xmx1024m -XX:MaxPermSize=512m</jvmArgs>
 
         <http.port>1990</http.port>
