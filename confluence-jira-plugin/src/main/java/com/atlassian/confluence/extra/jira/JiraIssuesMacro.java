@@ -5,6 +5,7 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputDeviceType;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
@@ -106,6 +107,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.localeManager = localeManager;
     }
+
+    // This parameter to distinguish the placeholder & real data mode for jira table
+    public static final String PARAM_PLACEHOLDER = "placeholder";
 
     public static enum Type {KEY, JQL, URL}
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE}
@@ -705,11 +709,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
         try
         {
-            if (RenderContext.DISPLAY.equals(conversionContext.getOutputType()) ||
-                    RenderContext.PREVIEW.equals(conversionContext.getOutputType()))
-            {
-                contextMap.put(ENABLE_REFRESH, Boolean.TRUE);
-            }
+            boolean isViewingOrPreviewing =
+                    RenderContext.DISPLAY.equals(conversionContext.getOutputType()) ||
+                    RenderContext.PREVIEW.equals(conversionContext.getOutputType());
+
+            contextMap.put(ENABLE_REFRESH, isViewingOrPreviewing);
+
             if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
             {
                 contextMap.put("orderColumnName", conversionContext.getProperty("orderColumnName"));
@@ -720,9 +725,22 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
             }
 
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
-                    forceAnonymous, useCache);
-            setupContextMapForStaticTable(contextMap, channel, appLink);
+            // only do lazy loading for table in this 2 output types & in desktop env
+            boolean placeholder = isViewingOrPreviewing
+                    && ConversionContextOutputDeviceType.DESKTOP.equals(conversionContext.getOutputDeviceType())
+                    && getBooleanProperty(conversionContext.getProperty(PARAM_PLACEHOLDER, true));
+            contextMap.put(PARAM_PLACEHOLDER, placeholder);
+            if (!placeholder)
+            {
+                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
+                        forceAnonymous, useCache);
+                setupContextMapForStaticTable(contextMap, channel, appLink);
+            }
+            else
+            {
+                // Placeholder mode for table
+                contextMap.put("trustedConnection", false);
+            }
         }
         catch (CredentialsRequiredException e)
         {
@@ -730,6 +748,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, true);
             }
+            // this exception only happens if the real jira data is fetched while users is not authenticated,
+            // which means that asynchronous loading has been kicked-in
             populateContextMapForStaticTableByAnonymous(contextMap, columnNames, url, appLink, forceAnonymous, useCache);
             contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
         }
@@ -744,6 +764,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
+    /**
+     * This method is called inside the asynchronous call inside method
+     * {@link #populateContextMapForStaticTable(Map, List, String, ApplicationLink, boolean, boolean, ConversionContext)}
+     */
     private void populateContextMapForStaticTableByAnonymous(Map<String, Object> contextMap, List<String> columnNames,
             String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache)
             throws MacroExecutionException
