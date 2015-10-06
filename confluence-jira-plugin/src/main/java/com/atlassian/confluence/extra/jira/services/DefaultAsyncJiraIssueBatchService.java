@@ -88,9 +88,17 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                                                 batchRequest, macroDefinitions,
                                                 conversionContext);
 
-            jiraIssueExecutor.submit(jiraIssueBatchTask);
+            try
+            {
+                jiraIssueExecutor.submit(jiraIssueBatchTask);
 
-            logger.debug("Submitted task to thread pool. " + jiraIssueExecutor.toString());
+                logger.debug("Submitted task to thread pool. " + jiraIssueExecutor.toString());
+            }
+            catch (RejectedExecutionException e)
+            {
+                logger.warn("JIM Marshaller rejected task because there are more than 1000 tasks queued." + jiraIssueExecutor.toString() + " Exception: " + e);
+                throw e;
+            }
         }
     }
 
@@ -140,11 +148,19 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     {
                         Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
 
-                        Future<String> futureHtmlMacro = jiraIssueExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
+                        try
+                        {
+                            Future<String> futureHtmlMacro = jiraIssueExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
 
-                        logger.debug("Submitted task to thread pool. " + jiraIssueExecutor.toString());
+                            logger.debug("Submitted task to thread pool. " + jiraIssueExecutor.toString());
 
-                        jiraResultMap.put(issueKey, futureHtmlMacro.get());
+                            jiraResultMap.put(issueKey, futureHtmlMacro.get());
+                        }
+                        catch (RejectedExecutionException e)
+                        {
+                            logger.warn("JIM Marshaller rejected task because there are more than 1000 tasks queued." + jiraIssueExecutor.toString() + " Exception: " + e);
+                            throw e;
+                        }
                     }
                 }
 
