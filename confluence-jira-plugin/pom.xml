@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.7.3-SNAPSHOT</version>
+        <version>5.7.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -143,6 +143,12 @@
             <artifactId>analytics-api</artifactId>
             <version>3.3</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.upm</groupId>
+            <artifactId>testing</artifactId>
+            <version>2.18.4</version>
+            <scope>test</scope>
         </dependency>
         <!-- for some reason maven resolves this one with scope test -->
         <dependency>

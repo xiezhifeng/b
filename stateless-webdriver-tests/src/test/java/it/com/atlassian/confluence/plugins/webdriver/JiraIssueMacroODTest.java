@@ -4,6 +4,7 @@ import com.atlassian.confluence.test.api.model.person.UserWithDetails;
 import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.test.categories.OnDemandAcceptanceTest;
 import com.atlassian.test.categories.OnDemandSuiteTest;
 import com.atlassian.webdriver.utils.by.ByJquery;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
@@ -19,7 +20,7 @@ import org.openqa.selenium.By;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@Category(OnDemandSuiteTest.class)
+@Category({OnDemandAcceptanceTest.class, OnDemandSuiteTest.class})
 public class JiraIssueMacroODTest extends AbstractJiraODTest{
 
     protected static final String NO_ISSUES_COUNT_TEXT = "No issues found";

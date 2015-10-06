@@ -60,11 +60,10 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         this.jiraExceptionHelper = jiraExceptionHelper;
         jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,
                 new CacheSettingsBuilder()
-                        .remote()
-                        .replicateViaCopy()
-                        .replicateAsynchronously()
+                        .local()
                         .maxEntries(500)
                         .unflushable()
+                        .expireAfterAccess(1, TimeUnit.MINUTES)
                         .expireAfterWrite(2, TimeUnit.MINUTES)
                         .build()
         );

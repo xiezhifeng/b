@@ -15,6 +15,9 @@ var RefreshMacro = {
             var widget = RefreshWidget.get(refresh.id);
             widget.getRefreshButton().bind("click", refresh, RefreshMacro.handleRefreshClick);
             widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
+
+            // submit the loading table asynchronously - always use cache here
+            RefreshMacro.processRefreshWithData(refresh, false);
         });
         HeaderWidget.getAll().each(function() {
             RefreshMacro.registerSort(this.getSortable());
@@ -39,8 +42,9 @@ var RefreshMacro = {
         var macroPanel = $("#refresh-" + refeshId);
         var refresh = new RefreshMacro.Refresh(refeshId, wikiMakup, pageId, macroPanel.html());
         var refreshWiget = RefreshWidget.get(refeshId);
+        var useCache = false;
         refreshWiget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
-        RefreshMacro.processRefresh(refresh, columnName, order);
+        RefreshMacro.processRefresh(refresh, useCache, columnName, order);
     },
     replaceRefresh: function(oldId, newId) {
         var widget = RefreshWidget.get(oldId);
@@ -74,19 +78,22 @@ var RefreshMacro = {
             throw AJS.I18n.getText("jiraissues.error.refresh.type");
         RefreshMacro.sortables.push(sort);
     },
-    handleRefreshClick: function(e) {
-        var refresh = e.data;
+    processRefreshWithData: function(refresh, clearCache) {
         var widget = RefreshWidget.get(refresh.id);
         widget.getMacroPanel().html(refresh.loadingMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
-        RefreshMacro.processRefresh(refresh);
+        RefreshMacro.processRefresh(refresh, clearCache);
     },
-    processRefresh: function(refresh, columnName, order) {
+    handleRefreshClick: function(e) {
+        // always clear cache here
+        RefreshMacro.processRefreshWithData(e.data, true);
+    },
+    processRefresh: function(refresh, clearCache, columnName, order) {
         var data = {};
-        if (arguments.length == 1) {
-            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki};
-        } else if (arguments.length == 3) {
-            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki,columnName:columnName, order:order};
+        if (arguments.length == 2) {
+            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki, clearCache: clearCache};
+        } else if (arguments.length == 4) {
+            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki, clearCache: clearCache, columnName:columnName, order:order};
         }
         AJS.$.ajax({
             type: "POST",
@@ -94,13 +101,19 @@ var RefreshMacro = {
             url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
             data: data,
             success: function(reply) {
-                var refreshNewId = $(reply).attr("id");
-                if (refreshNewId) {
-                    refreshNewId = refreshNewId.replace("refresh-module-", "");
+                // if the reply is from the servlet's error handler, simply render it
+                if ($(reply).hasClass('jim-error-message-table')) {
+                    RefreshWidget.get(refresh.id).removeDarkLayer();
                     RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
-                    new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
                 } else {
-                    new RefreshMacro.CallbackSupport(refresh).errorHandler(reply);
+                    var refreshNewId = $(reply).attr("id");
+                    if (refreshNewId) {
+                        refreshNewId = refreshNewId.replace("refresh-module-", "");
+                        RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
+                        new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
+                    } else {
+                        new RefreshMacro.CallbackSupport(refresh).errorHandler(reply);
+                    }
                 }
             },
             error: function (xhr, textStatus, errorThrown) {
@@ -197,14 +210,8 @@ RefreshWidget.prototype.displayDarkLayer = function() {
     var position = container.position();
     $('<div />', {
         id: 'jim-dark-layout-' + this.id,
-        'class': 'jim-sortable-dark-layout',
-        css: {
-            top: position.top + 'px',
-            left: position.left + 'px',
-            width: container.width() + 'px',
-            height: container.height() + 'px'
-        }
-    }).appendTo(container.parent());
+        'class': 'jim-sortable-dark-layout'
+    }).appendTo(container);
 };
 
 RefreshWidget.prototype.getMacroPanel = function() {
@@ -233,6 +240,10 @@ RefreshWidget.prototype.getRefreshButton = function() {
     return $("#refresh-issues-button-" + this.id);
 };
 
+RefreshWidget.prototype.getLoadingButton = function() {
+    return $("#refresh-issues-loading-" + this.id);
+};
+
 HeaderWidget.prototype.getHeadersTable = function() {
     return $("#jira-issues-" + this.id + " .jira-tablesorter-header");
 };
@@ -253,14 +264,22 @@ RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
         this.displayDarkLayer();
         this.getErrorMessagePanel().addClass('hidden');
+        this.getRefreshLink().text(AJS.I18n.getText("jiraissues.loading"));
+        this.getRefreshButton().hide();
+        this.getLoadingButton().removeClass('hidden').spin();
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
         this.getRefreshButton().show();
         this.getRefreshLink().show();
         this.removeDarkLayer();
         this.getErrorMessagePanel().removeClass('hidden');
+        this.getLoadingButton().addClass('hidden').spinStop();
+        this.getRefreshLink().text(AJS.I18n.getText("jiraissues.refresh"));
     } else if (state === RefreshMacro.REFRESH_STATE_DONE) {
         // No need to un-hide elements since they will be replaced
         this.removeDarkLayer();
+        this.getRefreshButton().show();
+        this.getLoadingButton().addClass('hidden').spinStop();
+        this.getRefreshLink().text(AJS.I18n.getText("jiraissues.refresh"));
     }
 };
 

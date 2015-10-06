@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin-parent</artifactId>
-    <version>5.7.3-SNAPSHOT</version>
+    <version>5.7.4-SNAPSHOT</version>
 
     <organization>
         <name>Atlassian</name>
@@ -118,7 +118,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jira.integration.version>2.0.3</jira.integration.version>
+        <jira.integration.version>3.0.2</jira.integration.version>
 
         <maven.release.plugin.version>2.5.2</maven.release.plugin.version>
         <od.testing.configuration>use-maven,3</od.testing.configuration>
