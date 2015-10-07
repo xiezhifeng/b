@@ -386,7 +386,25 @@
         <resource type="download" name="twodimensionalchart-panel.js" location="/jirachart/twodimensionalchart-panel.js"/>
         <context>editor</context>
     </web-resource>
-    
+
+    <web-resource key="jirasprint-macro" name="JIRA Sprint Macro">
+        <description>process dialog for jira sprint macro.</description>
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+        <resource type="download" name="jirasprint-dialog.js" location="/jirasprint/jirasprint-dialog.js"/>
+        <resource type="download" name="jirasprint-helper.js" location="/jirasprint/jirasprint-helper.js"/>
+        <resource type="download" name="jirasprint-panel.js" location="/jirasprint/jirasprint-panel.js"/>
+        <resource type="download" name="piechart-jirasprint-panel.js" location="/jirasprint/sprint-panel-content.js"/>
+        <context>editor</context>
+    </web-resource>
+
     <web-resource key="jirachart-resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
