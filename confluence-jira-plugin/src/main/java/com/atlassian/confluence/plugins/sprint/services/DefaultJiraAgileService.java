@@ -1,70 +1,66 @@
 package com.atlassian.confluence.plugins.sprint.services;
 
 import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
-import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
-import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.sprint.model.JiraSprintModel;
-import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.ResponseException;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Map;
 
 public class DefaultJiraAgileService implements JiraAgileService
 {
-    private static final Logger LOGGER = Logger.getLogger(DefaultJiraAgileService.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultJiraAgileService.class);
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final String AGILE_REST_PATH = "/rest/agile/1.0";
+    private static final String AGILE_BOARD_REST_PATH = AGILE_REST_PATH + "/board";
+    private static final String AGILE_SPRINT_REST_PATH_TEMPLATE = AGILE_REST_PATH + "/board/%s/sprint";
+    private static final String AGILE_SPRINT_INFO_REST_PATH_TEMPLATE = AGILE_REST_PATH + "/sprint/%s";
 
     private final JiraIssuesManager jiraIssuesManager;
-    private final ApplicationLinkResolver applicationLinkResolver;
-    private final JiraConnectorManager jiraConnectorManager;
     private final JiraExceptionHelper jiraExceptionHelper;
 
-    /**
-     * Default constructor
-     *
-     * @param jiraIssuesManager       see {@link JiraIssuesManager}
-     * @param applicationLinkResolver see {@link ApplicationLinkResolver}
-     * @param jiraConnectorManager    see {@link JiraConnectorManager}
-     * @param jiraExceptionHelper     see {@link JiraExceptionHelper}
-     */
-    public DefaultJiraAgileService(JiraIssuesManager jiraIssuesManager, ApplicationLinkResolver applicationLinkResolver, JiraConnectorManager jiraConnectorManager, JiraExceptionHelper jiraExceptionHelper)
+    public DefaultJiraAgileService(JiraIssuesManager jiraIssuesManager, JiraExceptionHelper jiraExceptionHelper)
     {
         this.jiraIssuesManager = jiraIssuesManager;
-        this.applicationLinkResolver = applicationLinkResolver;
-        this.jiraConnectorManager = jiraConnectorManager;
         this.jiraExceptionHelper = jiraExceptionHelper;
     }
 
-    public JiraSprintModel getJiraSprint(String serverId, String key) throws MacroExecutionException, CredentialsRequiredException, IOException, ResponseException {
-        ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
-        if (appLink == null)
-        {
-            throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
-        }
-        String restUrl = "/rest/agile/1.0/sprint/" + key;
-        JsonObject jsonObject = retrieveJQLFromFilter(restUrl, appLink);
-        JiraSprintModel jiraSprintModel = new Gson().fromJson(jsonObject.toString(), JiraSprintModel.class);
-        generateBoardLink(appLink, jiraSprintModel);
-        return jiraSprintModel;
+    @Nonnull
+    @Override
+    public String getBoards(@Nonnull ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException
+    {
+        String jsonStringResult = retrieveJsonString(applicationLink, AGILE_BOARD_REST_PATH);
+        return readValues(jsonStringResult);
     }
 
-    public JsonObject retrieveJQLFromFilter(String url, ApplicationLink appLink) throws ResponseException, CredentialsRequiredException
+    @Nonnull
+    @Override
+    public String getSprints(@Nonnull ApplicationLink applicationLink, @Nonnull final String boardId) throws CredentialsRequiredException, ResponseException
     {
-        final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
-        ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, appLink.getDisplayUrl() + url);
-        JsonObject jsonObject = (JsonObject) new JsonParser().parse(request.execute());
-        return jsonObject;
+        String jsonStringResult = retrieveJsonString(applicationLink, String.format(AGILE_SPRINT_REST_PATH_TEMPLATE, boardId));
+        return readValues(jsonStringResult);
+    }
+
+    @Nonnull
+    @Override
+    public JiraSprintModel getJiraSprint(@Nonnull ApplicationLink applicationLink, String key) throws CredentialsRequiredException, ResponseException
+    {
+        String restUrl = String.format(AGILE_SPRINT_INFO_REST_PATH_TEMPLATE, key);
+        String jsonData = retrieveJsonString(applicationLink, restUrl);
+        JiraSprintModel jiraSprintModel = new Gson().fromJson(jsonData, JiraSprintModel.class);
+        generateBoardLink(applicationLink, jiraSprintModel);
+        return jiraSprintModel;
     }
 
     private void generateBoardLink(ApplicationLink applicationLink, JiraSprintModel jiraSprintModel)
@@ -81,4 +77,30 @@ public class DefaultJiraAgileService implements JiraAgileService
         jiraSprintModel.setBoardUrl(rapidBoardUrl);
     }
 
+    private String retrieveJsonString(@Nonnull ApplicationLink applicationId, String restUrl) throws CredentialsRequiredException, ResponseException
+    {
+        try
+        {
+            return jiraIssuesManager.retrieveXMLAsString(restUrl, null, applicationId, false, false);
+        }
+        catch (IOException e)
+        {
+            throw new ResponseException("There is a problem processing the response from JIRA: unrecognisable response:" + e.getMessage(), e);
+        }
+    }
+
+    private String readValues(String responseString) throws ResponseException
+    {
+        try
+        {
+            Map o = OBJECT_MAPPER.reader(Map.class).readValue(responseString);
+            StringWriter writer = new StringWriter();
+            OBJECT_MAPPER.writeValue(writer, o.get("values"));
+            return writer.toString();
+        }
+        catch (IOException e)
+        {
+            throw new ResponseException("There is a problem processing the response, no 'values' tag", e);
+        }
+    }
 }

@@ -1,8 +1,8 @@
 package com.atlassian.confluence.plugins.sprint;
 
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
@@ -18,11 +18,9 @@ import com.atlassian.confluence.plugins.sprint.services.JiraAgileService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.sal.api.net.ResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -34,7 +32,7 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
     private static Logger log = LoggerFactory.getLogger(JiraSprintMacro.class);
     private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
     private static final String TEMPLATE_PATH = "templates/sprint/";
-    private ApplicationLinkService applicationLinkService;
+    private final ApplicationLinkResolver applicationLinkResolver;
 
     private JQLValidator jqlValidator;
 
@@ -50,16 +48,16 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
      * JiraChartMacro constructor
      *
      * @param executorService executorService
-     * @param applicationLinkService applink service to get applink
+     * @param applicationLinkResolver applink service to get applink
      * @param i18NBeanFactory I18n bean factory
      */
-    public JiraSprintMacro(MacroExecutorService executorService, ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory,
+    public JiraSprintMacro(MacroExecutorService executorService, ApplicationLinkResolver applicationLinkResolver, I18NBeanFactory i18NBeanFactory,
                            JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory, JiraExceptionHelper jiraExceptionHelper,
                            ImagePlaceHolderHelper imagePlaceHolderHelper, JiraAgileService jiraAgileService)
     {
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
-        this.applicationLinkService = applicationLinkService;
+        this.applicationLinkResolver = applicationLinkResolver;
         this.jiraConnectorManager = jiraConnectorManager;
         this.jiraChartFactory = jiraChartFactory;
         this.jiraExceptionHelper = jiraExceptionHelper;
@@ -70,15 +68,16 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
     @Override
     public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
     {
+        ApplicationLink applicationLink = applicationLinkResolver.getAppLinkForServer("", parameters.get("serverId"));
         try {
-            JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(parameters.get("serverId"), parameters.get("key"));
+            JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(applicationLink, parameters.get("key"));
             Map<String, Object> contextMap =  MacroUtils.defaultVelocityContext();
             contextMap.put("key", jiraSprintModel.getName());
             contextMap.put("status", jiraSprintModel.getState());
             contextMap.put("clickableUrl", jiraSprintModel.getBoardUrl());
             return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "jirasprint.vm", contextMap);
         } catch (Exception e) {
-            throw new MacroExecutionException(e);
+            return jiraExceptionHelper.renderNormalJIMExceptionMessage(e);
         }
     }
 
