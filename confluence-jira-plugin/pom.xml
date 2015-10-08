@@ -105,6 +105,24 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>freezer-release-profile</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.atlassian.maven.plugins</groupId>
+                        <artifactId>maven-confluence-plugin</artifactId>
+                        <version>${amps.version}</version>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <xvfb.enable>true</xvfb.enable>
+                                <xvfb.display>${xvfb.display}</xvfb.display>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
     <dependencies>
         <dependency>
