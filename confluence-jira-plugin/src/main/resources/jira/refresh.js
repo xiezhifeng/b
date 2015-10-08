@@ -100,13 +100,14 @@ var RefreshMacro = {
             dataType: "html",
             url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
             data: data,
-            success: function(reply) {
+            success: function(reply, textStatus) {
+                var refreshNewId;
                 // if the reply is from the servlet's error handler, simply render it
                 if ($(reply).hasClass('jim-error-message-table')) {
                     RefreshWidget.get(refresh.id).removeDarkLayer();
                     RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
                 } else {
-                    var refreshNewId = $(reply).attr("id");
+                    refreshNewId = $(reply).attr("id");
                     if (refreshNewId) {
                         refreshNewId = refreshNewId.replace("refresh-module-", "");
                         RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
@@ -115,9 +116,12 @@ var RefreshMacro = {
                         new RefreshMacro.CallbackSupport(refresh).errorHandler(reply);
                     }
                 }
+                //CONFDEV-36972 notify to DDR plugin
+                AJS.trigger('confluence.extra.jira:jira-table:completed', {id: refreshNewId || -1, data: reply, status: textStatus });
             },
             error: function (xhr, textStatus, errorThrown) {
                 new RefreshMacro.CallbackSupport(refresh).errorHandler(errorThrown);
+                AJS.trigger('confluence.extra.jira:jira-table:completed', {id: -1, data: errorThrown, status: textStatus });
             }
         });
     }
