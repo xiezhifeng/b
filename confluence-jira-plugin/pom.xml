@@ -286,23 +286,23 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>${maven.release.plugin.version}</version>
-                    <configuration>
-                        <!-- Fixes OOM issue with javadoc -->
-                        <arguments>-Dmaxmemory=512m -DskipTests=true</arguments>
-                    </configuration>
-                    <dependencies>
-                        <!-- Fix for SCM-574 -->
-                        <dependency>
-                            <groupId>org.apache.maven.scm</groupId>
-                            <artifactId>maven-scm-provider-gitexe</artifactId>
-                            <version>1.4</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
+                <!--<plugin>-->
+                    <!--<groupId>org.apache.maven.plugins</groupId>-->
+                    <!--<artifactId>maven-release-plugin</artifactId>-->
+                    <!--<version>${maven.release.plugin.version}</version>-->
+                    <!--<configuration>-->
+                        <!--&lt;!&ndash; Fixes OOM issue with javadoc &ndash;&gt;-->
+                        <!--<arguments>-Dmaxmemory=512m -DskipTests=true</arguments>-->
+                    <!--</configuration>-->
+                    <!--<dependencies>-->
+                        <!--&lt;!&ndash; Fix for SCM-574 &ndash;&gt;-->
+                        <!--<dependency>-->
+                            <!--<groupId>org.apache.maven.scm</groupId>-->
+                            <!--<artifactId>maven-scm-provider-gitexe</artifactId>-->
+                            <!--<version>1.4</version>-->
+                        <!--</dependency>-->
+                    <!--</dependencies>-->
+                <!--</plugin>-->
                 <plugin>
                     <groupId>com.atlassian.maven.plugins</groupId>
                     <artifactId>maven-amps-plugin</artifactId>
@@ -343,15 +343,15 @@
                     <target>${jdkLevel}</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${maven.release.plugin.version}</version>
-                <configuration>
-                    <!-- When using atlassian-public-pom as parent POM we need this configuration to skip tests, -->
-                    <!-- as command line arguments are ignored. -->
-                    <arguments>-Prelease -DskipTests</arguments>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<artifactId>maven-release-plugin</artifactId>-->
+                <!--<version>${maven.release.plugin.version}</version>-->
+                <!--<configuration>-->
+                    <!--&lt;!&ndash; When using atlassian-public-pom as parent POM we need this configuration to skip tests, &ndash;&gt;-->
+                    <!--&lt;!&ndash; as command line arguments are ignored. &ndash;&gt;-->
+                    <!--<arguments>-Prelease -DskipTests</arguments>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
