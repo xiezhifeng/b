@@ -29,10 +29,23 @@ AJS.Editor.JiraChart = (function($) {
                 var dlgPanel = popup.getCurrentPanel();
                 panels[i].init(dlgPanel);
             }
-            
+
+            var $container = popup.popup.element;
             // add button for opening JIRA Issue dialog
-            $('#jira-chart ul.dialog-page-menu').show()
-                .append(Confluence.Templates.ConfluenceJiraPlugin.addCrossMacroLink({'id': 'open-jira-issue-dialog', 'label' : AJS.I18n.getText("jira.issue")}));
+            var links = Confluence.Templates.ConfluenceJiraPlugin.addCrossMacroLinks({
+                links: [
+                    {
+                        id: 'open-jira-issue-dialog',
+                        label: AJS.I18n.getText('jira.issue')
+                    },
+                    {
+                        id: 'open-jira-sprint-dialog',
+                        label: AJS.I18n.getText('jira.sprint.label')
+                    }
+                ]
+            });
+
+            $container.find('ul.dialog-page-menu').append(links);
 
             popup.addButton(insertText, function() {
                 var currentChart = panels[popup.getCurrentPanel().id];
@@ -84,7 +97,7 @@ AJS.Editor.JiraChart = (function($) {
         popup.gotoPanel(getIndexPanel(jirachartsIndexes, macro));
         popup.overrideLastTab();
         popup.show();
-        processPostPopup();
+        processPostPopup(popup);
     };
 
     var getIndexPanel = function (jirachartsIndexes, macro) {
@@ -105,11 +118,18 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var processPostPopup = function() {
-        $('#open-jira-issue-dialog').click(function() {
+        var $container = popup.popup.element;
+
+        $container.find('#open-jira-issue-dialog').on('click', function() {
             AJS.Editor.JiraChart.close();
             if (AJS.Editor.JiraConnector) {
                 AJS.Editor.JiraConnector.openCleanDialog(false);
             }
+        });
+
+        $container.find('#open-jira-sprint-dialog').on('click', function() {
+            AJS.Editor.JiraChart.close();
+            AJS.trigger('jim.jira.sprint.open');
         });
     };
 

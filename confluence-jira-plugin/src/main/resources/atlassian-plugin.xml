@@ -183,7 +183,26 @@
         </transformation>
         <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
         <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency>
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
+    </web-resource>
+
+    <web-resource key="common-editor-resources" name="Common editor resources">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
+        <resource type="download" name="jim-editor-config.js" location="editor/util/config.js"/>
+        <resource type="download" name="jim-editor-helper.js" location="editor/util/helper.js"/>
+        <resource type="download" name="jim-editor-service.js" location="editor/util/service.js"/>
+        <resource type="download" name="jim-editor-select2-mixin.js" location="editor/util/select2-mixin.js"/>
+
+        <resource type="download" name="jim-editor-abstract-dialog-view.js" location="editor/dialog/abstract-dialog-view.js"/>
+        <resource type="download" name="jim-editor-abstract-panel-view.js" location="editor/dialog/abstract-panel-view.js"/>
+
+        <dependency>confluence.web.resources:amd</dependency>
+        <dependency>com.atlassian.auiplugin:aui-select2</dependency>
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
     </web-resource>
 
@@ -343,68 +362,6 @@
         </parameters>
     </xhtml-macro>
 
-    <!-- JIRA SPRINT MACRO -->
-    <xhtml-macro name='jirasprint' class='com.atlassian.confluence.plugins.sprint.JiraSprintMacro' key='jirasprint-xhtml'
-                 icon="/download/resources/confluence.extra.jira/images/jira-chart-macro-icon.png" documentation-url="help.jirachart.macro">
-        <description key="jirachart.macro.description"/>
-        <category name="development"/>
-        <parameters>
-            <default>
-                <option key="showValueInPlaceholder" value="true" />
-            </default>
-            <parameter name="serverId" type="string">
-                <option key="showKeyInPlaceholder" value="false" />
-                <option key="showValueInPlaceholder" value="false" />
-            </parameter>
-            <parameter name="boardId" type="string">
-                <option key="showKeyInPlaceholder" value="false" />
-                <option key="showValueInPlaceholder" value="false" />
-            </parameter>
-            <parameter name="key" type="string">
-                <option key="showKeyInPlaceholder" value="false" />
-                <option key="showValueInPlaceholder" value="true" />
-            </parameter>
-        </parameters>
-    </xhtml-macro>
-    
-    <web-resource key="jirachart-macro" name="JIRA Chart Macro">
-        <description>process dialog for jira chart macro.</description>
-        <transformation extension="js">
-            <transformer key="jsI18n"/>
-        </transformation>
-
-        <transformation extension="soy">
-            <transformer key="soyTransformer">
-                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
-               </transformer>
-        </transformation>
-        <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
-        <resource type="download" name="jirachart-helper.js" location="/jirachart/jirachart-helper.js"/>
-        <resource type="download" name="jirachart-panel.js" location="/jirachart/jirachart-panel.js"/>
-        <resource type="download" name="piechart-panel.js" location="/jirachart/piechart-panel.js"/>
-        <resource type="download" name="createdvsresolvedchart-panel.js" location="/jirachart/createdvsresolvedchart-panel.js"/>
-        <resource type="download" name="twodimensionalchart-panel.js" location="/jirachart/twodimensionalchart-panel.js"/>
-        <context>editor</context>
-    </web-resource>
-
-    <web-resource key="jirasprint-macro" name="JIRA Sprint Macro">
-        <description>process dialog for jira sprint macro.</description>
-        <transformation extension="js">
-            <transformer key="jsI18n"/>
-        </transformation>
-
-        <transformation extension="soy">
-            <transformer key="soyTransformer">
-                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
-            </transformer>
-        </transformation>
-        <resource type="download" name="jirasprint-dialog.js" location="/jirasprint/jirasprint-dialog.js"/>
-        <resource type="download" name="jirasprint-helper.js" location="/jirasprint/jirasprint-helper.js"/>
-        <resource type="download" name="jirasprint-panel.js" location="/jirasprint/jirasprint-panel.js"/>
-        <resource type="download" name="piechart-jirasprint-panel.js" location="/jirasprint/sprint-panel-content.js"/>
-        <context>editor</context>
-    </web-resource>
-
     <web-resource key="jirachart-resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -419,6 +376,75 @@
         <context>page</context>
         <context>blogpost</context>
         <context>preview</context>
+    </web-resource>
+
+    <web-resource key="jirachart-macro" name="JIRA Chart Macro">
+        <description>process dialog for jira chart macro.</description>
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+        <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
+        <resource type="download" name="jirachart-helper.js" location="/jirachart/jirachart-helper.js"/>
+        <resource type="download" name="jirachart-panel.js" location="/jirachart/jirachart-panel.js"/>
+        <resource type="download" name="piechart-panel.js" location="/jirachart/piechart-panel.js"/>
+        <resource type="download" name="createdvsresolvedchart-panel.js" location="/jirachart/createdvsresolvedchart-panel.js"/>
+        <resource type="download" name="twodimensionalchart-panel.js" location="/jirachart/twodimensionalchart-panel.js"/>
+        <context>editor</context>
+    </web-resource>
+
+    <!-- JIRA SPRINT MACRO -->
+    <xhtml-macro name='jirasprint' class='com.atlassian.confluence.plugins.sprint.JiraSprintMacro' key='jirasprint-xhtml'
+                 icon="/download/resources/confluence.extra.jira/images/jira-chart-macro-icon.png" documentation-url="help.jirasprint.macro">
+        <description key="jira.sprint.macro.description"/>
+        <category name="development"/>
+        <parameters>
+            <default>
+                <option key="showValueInPlaceholder" value="true" />
+            </default>
+            <parameter name="serverId" type="string" required="true">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
+            </parameter>
+            <parameter name="boardId" type="string" required="true">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
+            </parameter>
+            <parameter name="sprintId" type="string" required="true">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="true" />
+            </parameter>
+        </parameters>
+    </xhtml-macro>
+
+    <web-resource key="jirasprint-macro-resource" name="Jira sprint macro resource">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+        <transformation extension="less">
+            <transformer key="less-transformer"/>
+        </transformation>
+
+        <resource type="download" name="jirasprint-main.css" location="editor/jira-sprint-dialog/main.less"/>
+        <resource type="download" name="jirasprint-template.soy.js" location="editor/jira-sprint-dialog/template.soy"/>
+
+        <resource type="download" name="jirasprint-dialog-view.js" location="editor/jira-sprint-dialog/dialog-view.js"/>
+        <resource type="download" name="jirasprint-panel-view.js" location="editor/jira-sprint-dialog/sprint-panel-view.js"/>
+        <resource type="download" name="jirasprint-init.js" location="editor/jira-sprint-dialog/init.js"/>
+
+        <dependency>confluence.extra.jira:common-editor-resources</dependency>
+
+        <context>editor</context>
     </web-resource>
 
     <resource type="download" name="jirachart_images/" location="jirachart/images/"/>
