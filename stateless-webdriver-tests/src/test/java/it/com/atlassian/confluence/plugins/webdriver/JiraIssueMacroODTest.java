@@ -20,7 +20,6 @@ import org.openqa.selenium.By;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@Category({OnDemandAcceptanceTest.class, OnDemandSuiteTest.class})
 public class JiraIssueMacroODTest extends AbstractJiraODTest{
 
     protected static final String NO_ISSUES_COUNT_TEXT = "No issues found";
