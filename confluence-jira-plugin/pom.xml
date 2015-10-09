@@ -116,7 +116,7 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <xvfb.enable>true</xvfb.enable>
-                                <xvfb.display>${xvfb.display}</xvfb.display>
+                                <xvfb.display>true</xvfb.display>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>
