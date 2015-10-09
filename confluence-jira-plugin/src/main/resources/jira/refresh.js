@@ -117,11 +117,11 @@ var RefreshMacro = {
                     }
                 }
                 //CONFDEV-36972 notify to DDR plugin
-                AJS.trigger('confluence.extra.jira:jira-table:completed', {id: refreshNewId || -1, data: reply, status: textStatus });
+                AJS.trigger('confluence.extra.jira:jira-table:completed.success', {id: refreshNewId || -1, data: reply, status: textStatus });
             },
             error: function (xhr, textStatus, errorThrown) {
                 new RefreshMacro.CallbackSupport(refresh).errorHandler(errorThrown);
-                AJS.trigger('confluence.extra.jira:jira-table:completed', {id: -1, data: errorThrown, status: textStatus });
+                AJS.trigger('confluence.extra.jira:jira-table:completed.error', {id: -1, data: errorThrown, status: textStatus });
             }
         });
     }
