@@ -1,16 +1,24 @@
-
-<span class="jira sprint jira-issue#if($resolved) resolved#end" data-issue-key="$key" #if($clientId) data-client-id="$clientId" #end>
-    <a href="$clickableUrl" class="jira-issue-key">
-        #if($isPlaceholder)
-            <span class="aui-icon aui-icon-wait issue-placeholder"></span>
+#if ($oAuthUrl)
+    <span class="jira-issue lock-jira-issue $key" data-issue-key="$key" #if($clientId) data-client-id="$clientId" #end>
+        <a class=issue-link" href="$oAuthUrl">$key</a>
+        <span class="oauth-msg"> -
+            <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
+        </span>
+    </span>
+#else
+    <span class="jira sprint jira-issue#if($resolved) resolved#end" data-issue-key="$key" #if($clientId) data-client-id="$clientId" #end>
+        <a href="$clickableUrl" class="jira-issue-key">
+            #if($isPlaceholder)
+                <span class="aui-icon aui-icon-wait issue-placeholder"></span>
+            #else
+                <span class="aui-icon aui-icon-small aui-iconfont-layout-2col-large"></span>
+            #end$key
+        </a>
+        #if($status == "active")
+            #set($statusColor = "aui-lozenge-success")
         #else
-            <span class="aui-icon aui-icon-small aui-iconfont-layout-2col-large"></span>
-        #end$key
-    </a>
-    #if($status == "active")
-        #set($statusColor = "aui-lozenge-success")
-    #else
-        #set($statusColor = "aui-lozenge-default")
-    #end
-    <span class="aui-lozenge $statusColor">$status</span>
-</span>
+            #set($statusColor = "aui-lozenge-default")
+        #end
+        <span class="aui-lozenge $statusColor">$status</span>
+    </span>
+#end

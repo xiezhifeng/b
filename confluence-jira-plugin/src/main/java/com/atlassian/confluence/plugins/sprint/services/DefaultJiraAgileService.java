@@ -68,7 +68,7 @@ public class DefaultJiraAgileService implements JiraAgileService
         String rapidBoardUrl = applicationLink.getDisplayUrl() + "/secure/RapidBoard.jspa?rapidView=" + jiraSprintModel.getOriginBoardId();
         if (StringUtils.equalsIgnoreCase(jiraSprintModel.getState(), "closed"))
         {
-            rapidBoardUrl += "&view=reporting&sprint=" + jiraSprintModel.getId();
+            rapidBoardUrl += "&view=reporting&chart=burndownChart&sprint=" + jiraSprintModel.getId();
         }
         else if (StringUtils.equalsIgnoreCase(jiraSprintModel.getState(), "future"))
         {

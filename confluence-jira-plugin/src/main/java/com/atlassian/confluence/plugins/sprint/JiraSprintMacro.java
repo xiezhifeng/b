@@ -1,6 +1,7 @@
 package com.atlassian.confluence.plugins.sprint;
 
 import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
@@ -69,14 +70,25 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
     {
         ApplicationLink applicationLink = applicationLinkResolver.getAppLinkForServer("", parameters.get("serverId"));
-        try {
-            JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(applicationLink, parameters.get("key"));
+        try
+        {
             Map<String, Object> contextMap =  MacroUtils.defaultVelocityContext();
-            contextMap.put("key", jiraSprintModel.getName());
-            contextMap.put("status", jiraSprintModel.getState());
-            contextMap.put("clickableUrl", jiraSprintModel.getBoardUrl());
+            try
+            {
+                JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(applicationLink, parameters.get("key"));
+                contextMap.put("key", jiraSprintModel.getName());
+                contextMap.put("status", jiraSprintModel.getState());
+                contextMap.put("clickableUrl", jiraSprintModel.getBoardUrl());
+            }
+            catch (CredentialsRequiredException credentialsRequiredException)
+            {
+                contextMap.put("key", "Jira Sprint");
+                contextMap.put("oAuthUrl", credentialsRequiredException.getAuthorisationURI().toString());
+            }
             return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "jirasprint.vm", contextMap);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             return jiraExceptionHelper.renderNormalJIMExceptionMessage(e);
         }
     }
