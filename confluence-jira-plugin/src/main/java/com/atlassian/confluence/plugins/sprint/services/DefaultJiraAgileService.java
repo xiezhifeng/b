@@ -23,7 +23,7 @@ public class DefaultJiraAgileService implements JiraAgileService
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String AGILE_REST_PATH = "/rest/agile/1.0";
-    private static final String AGILE_BOARD_REST_PATH = AGILE_REST_PATH + "/board";
+    private static final String AGILE_BOARD_REST_PATH = AGILE_REST_PATH + "/board?type=scrum";
     private static final String AGILE_SPRINT_REST_PATH_TEMPLATE = AGILE_REST_PATH + "/board/%s/sprint";
     private static final String AGILE_SPRINT_INFO_REST_PATH_TEMPLATE = AGILE_REST_PATH + "/sprint/%s";
 
