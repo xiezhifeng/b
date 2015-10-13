@@ -1,7 +1,7 @@
-define('confluence/jim/editor/util/helper', [
+define('confluence/jim/macro-browser/editor/util/helper', [
     'underscore',
     'ajs',
-    'confluence/jim/editor/util/config'
+    'confluence/jim/macro-browser/editor/util/config'
 ],
 function(
     _,

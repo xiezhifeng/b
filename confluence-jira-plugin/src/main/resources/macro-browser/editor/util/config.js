@@ -1,4 +1,4 @@
-define('confluence/jim/editor/util/config', [],
+define('confluence/jim/macro-browser/editor/util/config', [],
 function(
 ) {
     'use strict';

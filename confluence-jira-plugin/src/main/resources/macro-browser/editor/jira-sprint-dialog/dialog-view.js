@@ -1,7 +1,7 @@
-define('confluence/jim/editor/jirasprint/dialog-view', [
+define('confluence/jim/macro-browser/editor/jirasprint/dialog-view', [
     'ajs',
-    'confluence/jim/editor/dialog/abstract-dialog-view',
-    'confluence/jim/editor/util/config'
+    'confluence/jim/macro-browser/editor/dialog/abstract-dialog-view',
+    'confluence/jim/macro-browser/editor/util/config'
 ],
 function(
     AJS,

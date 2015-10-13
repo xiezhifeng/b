@@ -1,4 +1,4 @@
-define('confluence/jim/editor/util/service', [
+define('confluence/jim/macro-browser/editor/util/service', [
     'jquery',
     'underscore',
     'ajs'

@@ -187,18 +187,18 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
     </web-resource>
 
-    <web-resource key="common-editor-resources" name="Common editor resources">
+    <web-resource key="common-macro-browser-editor-resources" name="Common macro browser editor resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
 
-        <resource type="download" name="jim-editor-config.js" location="editor/util/config.js"/>
-        <resource type="download" name="jim-editor-helper.js" location="editor/util/helper.js"/>
-        <resource type="download" name="jim-editor-service.js" location="editor/util/service.js"/>
-        <resource type="download" name="jim-editor-select2-mixin.js" location="editor/util/select2-mixin.js"/>
+        <resource type="download" name="macro-browser-editor-config.js" location="macro-browser/editor/util/config.js"/>
+        <resource type="download" name="macro-browser-editor-helper.js" location="macro-browser/editor/util/helper.js"/>
+        <resource type="download" name="macro-browser-editor-service.js" location="macro-browser/editor/util/service.js"/>
+        <resource type="download" name="macro-browser-editor-select2-mixin.js" location="macro-browser/editor/util/select2-mixin.js"/>
 
-        <resource type="download" name="jim-editor-abstract-dialog-view.js" location="editor/dialog/abstract-dialog-view.js"/>
-        <resource type="download" name="jim-editor-abstract-panel-view.js" location="editor/dialog/abstract-panel-view.js"/>
+        <resource type="download" name="macro-browser-editor-abstract-dialog-view.js" location="macro-browser/editor/dialog/abstract-dialog-view.js"/>
+        <resource type="download" name="macro-browser-editor-abstract-panel-view.js" location="macro-browser/editor/dialog/abstract-panel-view.js"/>
 
         <dependency>confluence.web.resources:amd</dependency>
         <dependency>com.atlassian.auiplugin:aui-select2</dependency>
@@ -422,7 +422,7 @@
         </parameters>
     </xhtml-macro>
 
-    <web-resource key="jirasprint-macro-resource" name="Jira sprint macro resource">
+    <web-resource key="macro-browser-editor-jirasprint-resource" name="Jira sprint macro in edit mode resource">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
@@ -435,14 +435,15 @@
             <transformer key="less-transformer"/>
         </transformation>
 
-        <resource type="download" name="jirasprint-main.css" location="editor/jira-sprint-dialog/main.less"/>
-        <resource type="download" name="jirasprint-template.soy.js" location="editor/jira-sprint-dialog/template.soy"/>
+        <resource type="download" name="macro-browser-editor-jirasprint-main.css" location="macro-browser/editor/jira-sprint-dialog/main.less"/>
+        <resource type="download" name="macro-browser-editor-jirasprint-template.soy.js" location="macro-browser/editor/jira-sprint-dialog/template.soy"/>
 
-        <resource type="download" name="jirasprint-dialog-view.js" location="editor/jira-sprint-dialog/dialog-view.js"/>
-        <resource type="download" name="jirasprint-panel-view.js" location="editor/jira-sprint-dialog/sprint-panel-view.js"/>
-        <resource type="download" name="jirasprint-init.js" location="editor/jira-sprint-dialog/init.js"/>
+        <resource type="download" name="macro-browser-editor-jirasprint-dialog-view.js" location="macro-browser/editor/jira-sprint-dialog/dialog-view.js"/>
+        <resource type="download" name="macro-browser-editor-jirasprint-panel-view.js" location="macro-browser/editor/jira-sprint-dialog/sprint-panel-view.js"/>
+        <resource type="download" name="macro-browser-editor-jirasprint-init.js" location="macro-browser/editor/jira-sprint-dialog/init.js"/>
 
-        <dependency>confluence.extra.jira:common-editor-resources</dependency>
+        <dependency>confluence.extra.jira:common-macro-browser-editor-resources</dependency>
+        <dependency>com.atlassian.confluence.plugins.confluence-macro-browser:macro-browser-js</dependency>
 
         <context>editor</context>
     </web-resource>
