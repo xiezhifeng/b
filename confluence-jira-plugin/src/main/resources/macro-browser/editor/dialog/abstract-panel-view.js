@@ -54,7 +54,11 @@ function(
             this.panelDialog = options.panelDialog;
 
             // reset container
-            this.$el = this.panelDialog.body;
+            if (options.$el) {
+                this.$el = options.$el;
+            } else {
+                this.$el = this.panelDialog.body;
+            }
             this.el = this.$el[0];
             this.delegateEvents();
 
@@ -93,12 +97,17 @@ function(
                 this.macroOptions = macroOptions;
 
                 this._fillServersData().done(function() {
-                    this.removeEmptyOption(this.view.$server);
+                    this.removeEmptyOptionInSelect2(this.view.$server);
                     this.view.$server.select2('val', macroOptions.params['jira-server-id'], true);
                 }.bind(this));
             } else {
                 this.macroOptions = null;
-                this._fillServersData().done(this.reset.bind(this));
+                this._fillServersData().done(function() {
+                    if (this.view.$server) {
+                        this.selectFirstValueInSelect2(this.view.$server);
+                    }
+                    this.reset();
+                }.bind(this));
             }
         },
 
@@ -110,10 +119,6 @@ function(
                 $this.val('');
                 _this.toggleSiblingErrorMessage($this, false);
             });
-
-            if (this.view.$server) {
-                this.selectFirstValueInSelect2(this.view.$server);
-            }
         },
 
         toggleEnablePanel: function(isEnabled) {
@@ -288,7 +293,7 @@ function(
                         // only have one server, select it and hide server select2
                         if (this.servers.length === 1) {
                             this.view.$server.parent().addClass('hidden');
-                            this.removeDefaultOptionOfSelect2(this.view.$server);
+                            this.removeEmptyOptionInSelect2(this.view.$server);
 
                             // trigger change to load other data, such as board data
                             this.view.$server.select2('val', this.servers[0].id, true);

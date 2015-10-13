@@ -10,9 +10,16 @@ function(
 ) {
     'use strict';
 
+    var cacheServerData = null;
+
     return {
         loadJiraServers: function() {
             var dfd = $.Deferred();
+
+            if (cacheServerData) {
+                dfd.resolve(cacheServerData);
+                return dfd.promise();
+            }
 
             $.ajax({
                 dataType: 'json',
@@ -21,10 +28,12 @@ function(
             .done(function(servers) {
                 var primaryServer = _.findWhere(servers, {selected: true});
 
-                dfd.resolve({
+                cacheServerData = {
                     servers: servers,
                     primaryServer: primaryServer
-                });
+                };
+
+                dfd.resolve(cacheServerData);
             })
             .fail(dfd.reject);
 

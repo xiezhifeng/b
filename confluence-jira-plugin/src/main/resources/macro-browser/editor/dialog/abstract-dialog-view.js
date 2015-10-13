@@ -34,12 +34,12 @@ function(
             this.popup = null;
 
             // list of panel objects
-            this.panels = options.panels ? options.panels : [];
+            this.panels = options && options.panels ? options.panels : [];
 
             // macroId is used to insert content to editor
-            this.macroId = options.macroId ? options.macroId : '';
+            this.macroId = options && options.macroId ? options.macroId : '';
 
-            this.externalLinks = options.externalLinks ? options.externalLinks : [];
+            this.externalLinks = options && options.externalLinks ? options.externalLinks : [];
 
             // essential DOM elements
             this.view = {

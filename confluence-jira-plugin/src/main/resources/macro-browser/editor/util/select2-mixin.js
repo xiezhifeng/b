@@ -35,19 +35,14 @@ function(
             $el.auiSelect2(opts);
 
             if (isRequired) {
+                // clear empty option when opening select2 first name
                 $el.on('select2-opening', function() {
-                    if ($el.val() === config.DEFAULT_OPTION_VALUE) {
-                        $el.find('option[value="' + config.DEFAULT_OPTION_VALUE + '"]').addClass('hidden');
-                    }
+                    $el.find('option[value="' + config.DEFAULT_OPTION_VALUE + '"]').addClass('hidden');
                 });
             }
 
             // set placeholder
             this.$(dropDownCSS + ' .select2-input').attr('placeholder', placeholderText);
-        },
-
-        removeDefaultOptionOfSelect2: function($el) {
-            $el.find('option[value=' + config.DEFAULT_OPTION_VALUE + ']').remove();
         },
 
         fillDataSelect2: function($el, templateName, option) {
@@ -100,10 +95,11 @@ function(
         },
 
         selectFirstValueInSelect2: function($el) {
+            this.removeEmptyOptionInSelect2($el);
             $el.auiSelect2('val', null, true);
         },
 
-        removeEmptyOption: function($el) {
+        removeEmptyOptionInSelect2: function($el) {
             $el.find('option[value="' + config.DEFAULT_OPTION_VALUE + '"]').remove();
         }
 

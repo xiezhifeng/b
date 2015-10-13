@@ -42,7 +42,7 @@ function(
             }.bind(this));
         },
 
-        render: function() {
+        render: function(options) {
             AbstractPanelView.prototype.render.apply(this, arguments);
 
             var template = this.template.serverBoardSprintTemplate({});
@@ -102,19 +102,6 @@ function(
 
             this.resetSelect2Options(this.view.$board);
             this.resetSelect2Options(this.view.$sprint);
-        },
-
-        /**
-         * Allow third-party change container and then re-render UI
-         * @param options
-         */
-        setOptionsAndRerender: function(options) {
-            // update this.el for current view.
-            this.el = options.el;
-            this.$el = $(this.el);
-            this.delegateEvents();
-
-            this.render();
         },
 
         /**
