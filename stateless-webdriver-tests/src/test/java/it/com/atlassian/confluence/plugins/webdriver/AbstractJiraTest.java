@@ -10,11 +10,7 @@ import javax.inject.Inject;
 
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.it.User;
-import com.atlassian.jira.testkit.client.Backdoor;
-import com.atlassian.jira.testkit.client.util.TestKitLocalEnvironmentData;
-import com.atlassian.jira.testkit.client.util.TimeBombLicence;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.model.JiraProjectModel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraChartViewPage;
@@ -51,8 +47,7 @@ import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 import com.atlassian.webdriver.utils.element.WebDriverPoller;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
-import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.SprintDialog;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.hamcrest.Matchers;
@@ -65,14 +60,6 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.List;
-
-import static com.atlassian.confluence.test.properties.TestProperties.isOnDemandMode;
-import static com.atlassian.pageobjects.elements.query.Poller.by;
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -90,6 +77,8 @@ public class AbstractJiraTest
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
     public static final String JIRA_CHART_MACRO_NAME = "jirachart";
     public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
+    public static final String JIRA_SPRINT_MACRO_NAME = "jirasprint";
+
     private static final int RETRY_TIME = 8;
 
     protected static final String PROJECT_TSTT = "Test Project";
@@ -113,6 +102,7 @@ public class AbstractJiraTest
     @Inject protected WebDriverPoller poller;
 
     protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
+    protected SprintDialog sprintDialog;
     protected static EditContentPage editPage;
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
     protected JiraMacroRecentPanelDialog dialogJiraRecentView;
@@ -243,23 +233,15 @@ public class AbstractJiraTest
 
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelDialogFromMacroBrowser(EditContentPage editPage) throws Exception
     {
-        JiraMacroSearchPanelDialog dialog;
+        openDialogFromMacroBrowser("embed jira issues");
+        return pageBinder.bind(JiraMacroSearchPanelDialog.class);
 
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
+    }
 
-        // Although, `MacroBrowserDialog` has `searchFor` method to do search. But it's flaky test.
-        // Here we tried to clearn field search first then try to search the searching term.
-        PageElement searchFiled = macroBrowserDialog.getDialog().find(By.id("macro-browser-search"));
-        searchFiled.clear();
-        Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("embed jira issues");
-        Poller.waitUntil(searchFiled.timed().getValue(), Matchers.equalToIgnoringCase("embed jira issues"));
-
-        MacroForm macroForm = macroItems.iterator().next().select();
-        macroForm.waitUntilHidden();
-
-        dialog = pageBinder.bind(JiraMacroSearchPanelDialog.class);
-
-        return dialog;
+    protected SprintDialog openSprintDialogFromMacroBrowser(EditContentPage editPage) throws Exception
+    {
+        openDialogFromMacroBrowser("jira sprints");
+        return pageBinder.bind(SprintDialog.class);
     }
 
     /**
@@ -317,22 +299,7 @@ public class AbstractJiraTest
 
     protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication)
     {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
-
-        // "searchForFirst" method is flaky test. It types and search too fast.
-        // macroBrowserDialog.searchForFirst("jira chart").select();
-
-        // Although, `MacroBrowserDialog` has `searchFor` method to do search. But it's flaky test.
-        // Here we tried to clearn field search first then try to search the searching term.
-        PageElement searchFiled = macroBrowserDialog.getDialog().find(By.id("macro-browser-search"));
-        searchFiled.clear();
-
-        Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("jira chart");
-        Poller.waitUntil(searchFiled.timed().getValue(), Matchers.equalToIgnoringCase("jira chart"));
-
-        MacroForm macroForm = macroItems.iterator().next().select();
-        macroForm.waitUntilHidden();
-
+        openDialogFromMacroBrowser("jira chart");
         PieChartDialog dialogPieChart = pageBinder.bind(PieChartDialog.class);
 
         if (isAutoAuthentication)
@@ -382,4 +349,22 @@ public class AbstractJiraTest
         return pageBinder.bind(TwoDimensionalChartDialog.class);
     }
 
+    private void openDialogFromMacroBrowser(String macroName)
+    {
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
+
+        // "searchForFirst" method is flaky test. It types and search too fast.
+        // macroBrowserDialog.searchForFirst("jira chart").select();
+
+        // Although, `MacroBrowserDialog` has `searchFor` method to do search. But it's flaky test.
+        // Here we tried to clear field search first then try to search the searching term.
+        PageElement searchFiled = macroBrowserDialog.getDialog().find(By.id("macro-browser-search"));
+        searchFiled.clear();
+
+        Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor(macroName);
+        Poller.waitUntil(searchFiled.timed().getValue(), Matchers.equalToIgnoringCase(macroName));
+
+        MacroForm macroForm = macroItems.iterator().next().select();
+        macroForm.waitUntilHidden();
+    }
 }
