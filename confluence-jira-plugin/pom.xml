@@ -586,11 +586,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <od.testing.configuration>
-            include-artifact,self
-            set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
-        </od.testing.configuration>
-    </properties>
 </project>

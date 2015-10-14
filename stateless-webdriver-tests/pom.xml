@@ -370,11 +370,6 @@
 
     <properties>
         <testkit.version>6.5.11</testkit.version>
-        <od.testing.configuration>
-            use-maven,3
-            use-java,8
-            actions,ssh-tunnel(4990:4990)
-        </od.testing.configuration>
         <confluence-stateless-test-runner.version>2.0.1</confluence-stateless-test-runner.version>
         <greenhopper.version>6.6.68</greenhopper.version>
     </properties>
