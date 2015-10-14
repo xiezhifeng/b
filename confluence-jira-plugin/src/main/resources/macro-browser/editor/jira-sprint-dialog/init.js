@@ -1,16 +1,18 @@
 require([
     'jquery',
     'ajs',
-    'confluence/jim/editor/jirasprint/sprint-panel-view',
-    'confluence/jim/editor/jirasprint/dialog-view',
-    'confluence/jim/editor/util/config'
+    'confluence/jim/macro-browser/editor/jirasprint/sprint-panel-view',
+    'confluence/jim/macro-browser/editor/jirasprint/dialog-view',
+    'confluence/jim/macro-browser/editor/util/config',
+    'confluence-macro-browser/macro-browser'
 ],
 function(
     $,
     AJS,
     JiraSprintPanelView,
     JiraSprintDialogView,
-    config
+    config,
+    macroBrowser
 ) {
     'use strict';
 
@@ -46,7 +48,7 @@ function(
         jiraSprintDialogView.open();
     });
 
-    AJS.MacroBrowser.setMacroJsOverride(config.macroIdSprint, {
+    macroBrowser.setMacroJsOverride(config.macroIdSprint, {
         opener: jiraSprintDialogView.open.bind(jiraSprintDialogView)
     });
 });

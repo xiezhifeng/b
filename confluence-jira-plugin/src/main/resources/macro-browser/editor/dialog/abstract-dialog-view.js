@@ -1,4 +1,4 @@
-define('confluence/jim/editor/dialog/abstract-dialog-view', [
+define('confluence/jim/macro-browser/editor/dialog/abstract-dialog-view', [
     'jquery',
     'underscore',
     'ajs',
@@ -34,12 +34,12 @@ function(
             this.popup = null;
 
             // list of panel objects
-            this.panels = options.panels ? options.panels : [];
+            this.panels = options && options.panels ? options.panels : [];
 
             // macroId is used to insert content to editor
-            this.macroId = options.macroId ? options.macroId : '';
+            this.macroId = options && options.macroId ? options.macroId : '';
 
-            this.externalLinks = options.externalLinks ? options.externalLinks : [];
+            this.externalLinks = options && options.externalLinks ? options.externalLinks : [];
 
             // essential DOM elements
             this.view = {
@@ -50,7 +50,7 @@ function(
             this.isValid = true;
 
             this.on('dialog.process.finish', this.renderExternalLinks);
-            this.on('dialog.process.finish', this.validatePre);
+            this.on('dialog.process.finish', this.preRenderValidation);
         },
 
         /**
@@ -134,7 +134,7 @@ function(
          * Some some validation on early state.
          * If the dialog is in invalid state after validation, the dialog should not appear.
          */
-        validatePre: function() {
+        preRenderValidation: function() {
             // TODO: because we are storing servers data in global variable which is populated when editor is opening.
             this.servers = AJS.Editor.JiraConnector.servers;
 

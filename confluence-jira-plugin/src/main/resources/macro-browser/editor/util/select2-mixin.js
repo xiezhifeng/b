@@ -1,9 +1,9 @@
-define('confluence/jim/editor/util/select2-mixin', [
+define('confluence/jim/macro-browser/editor/util/select2-mixin', [
     'jquery',
     'underscore',
     'ajs',
     'backbone',
-    'confluence/jim/editor/util/config'
+    'confluence/jim/macro-browser/editor/util/config'
 ],
 function(
     $,
@@ -35,10 +35,9 @@ function(
             $el.auiSelect2(opts);
 
             if (isRequired) {
+                // clear empty option when opening select2 first name
                 $el.on('select2-opening', function() {
-                    if ($el.val() === config.DEFAULT_OPTION_VALUE) {
-                        $el.find('option[value="' + config.DEFAULT_OPTION_VALUE + '"]').addClass('hidden');
-                    }
+                    $el.find('option[value="' + config.DEFAULT_OPTION_VALUE + '"]').addClass('hidden');
                 });
             }
 
@@ -46,17 +45,24 @@ function(
             this.$(dropDownCSS + ' .select2-input').attr('placeholder', placeholderText);
         },
 
-        removeDefaultOptionOfSelect2: function($el) {
-            $el.find('option[value=' + config.DEFAULT_OPTION_VALUE + ']').remove();
-        },
-
         fillDataSelect2: function($el, templateName, option) {
-            this.resetSelect2Options($el);
+            this.toggleEnableSelect2($el, false);
+            this.resetAndAddDefaultOption($el);
 
             var markup = templateName(option);
             $el.append(markup);
 
             this.toggleEnableSelect2($el, true);
+        },
+
+        resetAndAddDefaultOption: function($el) {
+            $el.empty();
+
+            var markup = this.template.defaultOption({
+                defaultValue: config.DEFAULT_OPTION_VALUE
+            });
+            $el.append(markup);
+            $el.auiSelect2('val', config.DEFAULT_OPTION_VALUE);
         },
 
         toggleEnableSelect2: function($el, isEnable) {
@@ -85,18 +91,18 @@ function(
 
         resetSelect2Options: function($el) {
             $el.empty();
-            $el.auiSelect2('val', config.DEFAULT_OPTION_VALUE);
+            $el.auiSelect2('data', null);
         },
 
-        resetAndAddDefaultOption: function($el) {
-            $el.empty();
+        selectFirstValueInSelect2: function($el) {
+            this.removeEmptyOptionInSelect2($el);
+            $el.auiSelect2('val', null, true);
+        },
 
-            var markup = this.template.defaultOption({
-                defaultValue: config.DEFAULT_OPTION_VALUE
-            });
-            $el.append(markup);
-            $el.auiSelect2('val', config.DEFAULT_OPTION_VALUE);
+        removeEmptyOptionInSelect2: function($el) {
+            $el.find('option[value="' + config.DEFAULT_OPTION_VALUE + '"]').remove();
         }
+
     };
 
     return Select2Mixin;

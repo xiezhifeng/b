@@ -8,17 +8,17 @@
         <div class="error-messages hidden"></div>
 
         <fieldset>
-            /*server*/
+            /* server */
             <div class="field-group">
                 <label for="jira-sprint-servers">
                     {getText('jira.sprint.label.server')}
                     <span class="aui-icon icon-required"> required</span>
                 </label>
-                <select id="jira-sprint-servers" class="select long-field" name="jira-sprint-servers" />
+                <select id="jira-sprint-servers" class="jira-servers select long-field" name="jira-servers" />
                 <div class="error hidden"></div>
             </div>
 
-            /*board*/
+            /* board */
             <div class="field-group">
                 <label for="jira-sprint-board">
                     {getText('jira.sprint.label.board')}
@@ -28,7 +28,7 @@
                 <div class="error hidden"></div>
             </div>
 
-            /*sprint*/
+            /* sprint */
             <div class="field-group">
                 <label for="jira-sprint-sprint">
                     {getText('jira.sprint.label.sprint')}
