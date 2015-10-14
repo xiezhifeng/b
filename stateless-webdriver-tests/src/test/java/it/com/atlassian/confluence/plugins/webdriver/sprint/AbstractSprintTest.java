@@ -1,12 +1,26 @@
 package it.com.atlassian.confluence.plugins.webdriver.sprint;
 
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
+import it.com.atlassian.confluence.plugins.webdriver.model.BoardModel;
+import it.com.atlassian.confluence.plugins.webdriver.model.KanbanBoardModel;
+import it.com.atlassian.confluence.plugins.webdriver.model.ScrumBoardModel;
+import it.com.atlassian.confluence.plugins.webdriver.model.SprintModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import static it.com.atlassian.confluence.plugins.webdriver.model.SprintStatus.*;
+
 public class AbstractSprintTest extends AbstractJiraTest
 {
+    protected static final BoardModel SRUM_BOARD_1 = new ScrumBoardModel("Scrum Board 1");
+    protected static final SprintModel SPRINT1 = new SprintModel("Sprint 1", CLOSED, SRUM_BOARD_1);
+    protected static final SprintModel SPRINT2 = new SprintModel("Sprint 2", ACTIVE, SRUM_BOARD_1);
+    protected static final SprintModel SPRINT3 = new SprintModel("Sprint 3", FUTURE, SRUM_BOARD_1);
+
+    protected static final BoardModel SRUM_BOARD_2 = new ScrumBoardModel("Scrum Board 2");
+    protected static final BoardModel KANBAN_BOARD = new KanbanBoardModel("Kanban Board");
+
     @BeforeClass
     public static void init() throws Exception
     {
