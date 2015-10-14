@@ -47,8 +47,8 @@ import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 import com.atlassian.webdriver.utils.element.WebDriverPoller;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.SprintDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.SprintPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.hamcrest.Matchers;
@@ -103,7 +103,7 @@ public class AbstractJiraTest
     @Inject protected WebDriverPoller poller;
 
     protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
-    protected SprintDialog sprintDialog;
+    protected JiraSprintMacroDialog sprintDialog;
     protected static EditContentPage editPage;
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
     protected JiraMacroRecentPanelDialog dialogJiraRecentView;
@@ -226,10 +226,10 @@ public class AbstractJiraTest
         return pageBinder.bind(JiraMacroSearchPanelDialog.class);
     }
 
-    protected SprintDialog openSprintDialogFromMacroPlaceholder(EditorContent editorContent, MacroPlaceholder macroPlaceholder)
+    protected JiraSprintMacroDialog openSprintDialogFromMacroPlaceholder(EditorContent editorContent, MacroPlaceholder macroPlaceholder)
     {
         editorContent.doubleClickEditInlineMacro(macroPlaceholder.getAttribute("data-macro-name"));
-        return pageBinder.bind(SprintDialog.class);
+        return pageBinder.bind(JiraSprintMacroDialog.class);
     }
 
     protected String getMacroParams(EditContentPage editPage, String macroName)
@@ -245,10 +245,10 @@ public class AbstractJiraTest
 
     }
 
-    protected SprintDialog openSprintDialogFromMacroBrowser(EditContentPage editPage) throws Exception
+    protected JiraSprintMacroDialog openSprintDialogFromMacroBrowser(EditContentPage editPage) throws Exception
     {
         openDialogFromMacroBrowser("jira sprints");
-        return pageBinder.bind(SprintDialog.class);
+        return pageBinder.bind(JiraSprintMacroDialog.class);
     }
 
     /**
@@ -304,9 +304,9 @@ public class AbstractJiraTest
         return pageBinder.bind(JiraIssuesPage.class);
     }
 
-    protected SprintPage bindCurrentPageToSprintPage()
+    protected JiraSprintMacroPage bindCurrentPageToSprintPage()
     {
-        return pageBinder.bind(SprintPage.class);
+        return pageBinder.bind(JiraSprintMacroPage.class);
     }
 
     protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication)

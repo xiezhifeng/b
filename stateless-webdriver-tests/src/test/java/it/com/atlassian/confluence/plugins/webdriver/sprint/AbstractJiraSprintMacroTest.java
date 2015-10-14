@@ -5,14 +5,14 @@ import it.com.atlassian.confluence.plugins.webdriver.model.BoardModel;
 import it.com.atlassian.confluence.plugins.webdriver.model.KanbanBoardModel;
 import it.com.atlassian.confluence.plugins.webdriver.model.ScrumBoardModel;
 import it.com.atlassian.confluence.plugins.webdriver.model.SprintModel;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.SprintPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 import static it.com.atlassian.confluence.plugins.webdriver.model.SprintStatus.*;
 
-public class AbstractSprintTest extends AbstractJiraTest
+public class AbstractJiraSprintMacroTest extends AbstractJiraTest
 {
     protected static final BoardModel SCRUM_BOARD_1 = new ScrumBoardModel("Scrum Board 1");
     protected static final SprintModel SPRINT1 = new SprintModel("Sprint 1", CLOSED, SCRUM_BOARD_1);
@@ -57,12 +57,12 @@ public class AbstractSprintTest extends AbstractJiraTest
         closeDialog(jiraMacroCreatePanelDialog);
     }
 
-    protected SprintPage createSprintPage(BoardModel board, SprintModel sprint)
+    protected JiraSprintMacroPage createSprintPage(BoardModel board, SprintModel sprint)
     {
         sprintDialog.selectBoard(board.getName());
         sprintDialog.selectSprint(sprint.getName());
 
-        sprintDialog.insert();
+        sprintDialog.clickInsertDialog();
         editPage.save();
 
         return bindCurrentPageToSprintPage();

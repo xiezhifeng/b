@@ -5,7 +5,7 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import org.openqa.selenium.By;
 
-public class SprintPage extends ViewPage
+public class JiraSprintMacroPage extends ViewPage
 {
     @ElementBy(cssSelector = ".sprint.jira-issue")
     private PageElement sprint;

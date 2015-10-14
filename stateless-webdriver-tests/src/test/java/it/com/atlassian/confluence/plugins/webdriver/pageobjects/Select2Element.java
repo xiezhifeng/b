@@ -72,7 +72,9 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
         for (PageElement select2Option : select2Options)
         {
-            options.add(select2Option.getText());
+            if (select2Option.isVisible()) {
+                options.add(select2Option.getText());
+            }
         }
         return options;
     }
