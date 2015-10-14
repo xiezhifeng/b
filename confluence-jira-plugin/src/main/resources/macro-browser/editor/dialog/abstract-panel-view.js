@@ -171,7 +171,7 @@ function(
 
             this.resetSelect2Options($el);
             this.toggleSiblingErrorMessage($el, false);
-            this.toggleEnableSelect2($el, true);
+            this.dialogView.toggleEnableInsertButton(false);
         },
 
         renderErrorNoAppLink: function() {

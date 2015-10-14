@@ -247,9 +247,8 @@ function(
                     name: this.macroId,
                     params: params
                 });
+                this.close();
             }
-
-            this.close();
         },
 
         /**
