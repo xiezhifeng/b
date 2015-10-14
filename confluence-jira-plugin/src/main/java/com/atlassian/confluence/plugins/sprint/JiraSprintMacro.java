@@ -75,7 +75,7 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
                 contextMap.put("oAuthUrl", credentialsRequiredException.getAuthorisationURI().toString());
             }
 
-            return soyTemplateRenderer.render("confluence.extra.jira:jirasprint-server-resource",
+            return soyTemplateRenderer.render("confluence.extra.jira:jirasprint-resources",
                     "Confluence.Templates.ConfluenceJiraPlugin.createSprintMacro", contextMap);
         }
         catch (Exception e)
