@@ -2,11 +2,14 @@ package it.com.atlassian.confluence.plugins.webdriver.sprint;
 
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.SprintPage;
 import org.junit.Test;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static it.com.atlassian.confluence.plugins.webdriver.model.SprintStatus.*;
+import static org.junit.Assert.assertTrue;
 
 public class SprintMacroTest extends AbstractSprintTest
 {
@@ -20,18 +23,18 @@ public class SprintMacroTest extends AbstractSprintTest
         // it should include only 2 scrum boards and no kanban board
         assertEquals("Boards are not correctly loaded", 2, boards.size());
 
-        sprintDialog.selectBoard(SRUM_BOARD_1.getName());
+        sprintDialog.selectBoard(SCRUM_BOARD_1.getName());
         List<String> sprints = sprintDialog.getAllSprintOptions();
         // remove first empty sprint option
         sprints.remove(0);
 
-        assertEquals("Sprints are not correctly loaded", SRUM_BOARD_1.getSprints().size(), sprints.size());
+        assertEquals("Sprints are not correctly loaded", SCRUM_BOARD_1.getSprints().size(), sprints.size());
     }
 
     @Test
-    public void testInsertSprintMacroSuccessEditMode() throws Exception
+    public void testInsertSprintMacroSuccessEditMode()
     {
-        sprintDialog.selectBoard(SRUM_BOARD_1.getName());
+        sprintDialog.selectBoard(SCRUM_BOARD_1.getName());
         sprintDialog.selectSprint(SPRINT2.getName());
 
         sprintDialog.insert();
@@ -55,20 +58,32 @@ public class SprintMacroTest extends AbstractSprintTest
         String selectedBoard = sprintDialog.getSeletedBoard();
         String selectedSprint = sprintDialog.getSelectedSprint();
 
-        assertEquals("Board is not displayed correctly", SRUM_BOARD_1.getName(), selectedBoard);
+        assertEquals("Board is not displayed correctly", SCRUM_BOARD_1.getName(), selectedBoard);
         assertEquals("Sprint is not displayed correctly", SPRINT2.getName(), selectedSprint);
     }
 
     @Test
-    public void testInsertSprintMacroSuccessViewMode() throws Exception
+    public void testInsertSprintMacroSuccessViewMode()
     {
-        sprintDialog.selectBoard(SRUM_BOARD_1.getName());
-        sprintDialog.selectSprint(SPRINT2.getName());
+        SprintPage sprintPage = createSprintPage(SCRUM_BOARD_1, SPRINT2);
 
-        sprintDialog.insert();
+        assertEquals("Sprint name is not stored correctly", SPRINT2.getName(), sprintPage.getSprintName());
+        assertEquals("Sprint status is not displayed correctly", ACTIVE.name(), sprintPage.getSprintStatus());
 
-        // TODO: check view mode
+        // return edit mode for other tests
+        sprintPage.edit();
+    }
 
-        // TODO: return edit status for other tests
+    @Test
+    public void testClosedSprintGoToSprintReport()
+    {
+        SprintPage sprintPage = createSprintPage(SCRUM_BOARD_1, SPRINT1);
+
+        assertEquals("Sprint name is not stored correctly", SPRINT1.getName(), sprintPage.getSprintName());
+        assertEquals("Sprint status is not displayed correctly", CLOSED.name(), sprintPage.getSprintStatus());
+        assertTrue("Sprint is not linked to sprint report", sprintPage.getSprintLink().contains("burndownChart"));
+
+        // return to edit mode for other tests
+        sprintPage.edit();
     }
 }
