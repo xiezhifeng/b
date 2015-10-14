@@ -5,9 +5,7 @@ define('confluence/jim/macro-browser/editor/jirasprint/sprint-panel-view', [
     'backbone',
     'confluence/jim/macro-browser/editor/dialog/abstract-panel-view',
     'confluence/jim/macro-browser/editor/util/config',
-    'confluence/jim/macro-browser/editor/util/service',
-    'confluence/jim/macro-browser/editor/util/helper',
-    'confluence/jim/macro-browser/editor/util/select2-mixin'
+    'confluence/jim/macro-browser/editor/util/service'
 ],
 function(
     $,
@@ -16,16 +14,14 @@ function(
     Backbone,
     AbstractPanelView,
     config,
-    service,
-    util,
-    Select2Mixin
+    service
 ) {
     'use strict';
 
     var JiraSprintPanelView = AbstractPanelView.extend({
         events: {
-            'change #jira-sprint-board': '_onSelectBoardChanged',
-            'change #jira-sprint-sprint': '_onSelectSprintChanged'
+            'change .jira-boards': '_onSelectBoardChanged',
+            'change .jira-sprints': '_onSelectSprintChanged'
         },
 
         initialize: function() {
@@ -36,10 +32,6 @@ function(
 
             // a map of template functions
             this.template = Confluence.Templates.JiraSprints.Dialog;
-
-            this.on('reload.data', function() {
-                this._fillServersData();
-            }.bind(this));
         },
 
         render: function(options) {
@@ -69,8 +61,8 @@ function(
             });
 
             _.extend(this.view, {
-                $board: this.$('#jira-sprint-board'),
-                $sprint: this.$('#jira-sprint-sprint'),
+                $boards: this.$('.jira-boards'),
+                $sprints: this.$('.jira-sprints'),
                 $errorMessage: this.$('.error-messages'),
                 $createButton: this.dialogView.$el.find('.create-dialog-create-button')
             });
@@ -81,13 +73,13 @@ function(
         },
 
         _initSelect2Fields: function() {
-            this.setupSelect2(this.view.$board,
+            this.setupSelect2(this.view.$boards,
                     'select2-board-container',
                     'select2-board-dropdown',
                     AJS.I18n.getText('jira.sprint.board.placeholder'),
                     true);
 
-            this.setupSelect2(this.view.$sprint,
+            this.setupSelect2(this.view.$sprints,
                     'select2-sprint-container',
                     'select2-sprint-dropdown',
                     AJS.I18n.getText('jira.sprint.sprint.placeholder'),
@@ -100,8 +92,8 @@ function(
         reset: function() {
             AbstractPanelView.prototype.reset.apply(this, arguments);
 
-            this.resetSelect2Options(this.view.$board);
-            this.resetSelect2Options(this.view.$sprint);
+            this.resetSelect2Options(this.view.$boards);
+            this.resetSelect2Options(this.view.$sprints);
         },
 
         /**
@@ -111,15 +103,15 @@ function(
         _fillBoardData: function() {
             var serverId = this.formData.get('selectedServer').id;
 
-            this.fillDataInSelect2(this.view.$board, service.loadBoardsData(serverId))
+            this.fillDataInSelect2(this.view.$boards, service.loadBoardsData(serverId))
                     .done(function(boards) {
                         this.boards = boards;
 
                         var templateSelect2Option = this.template.boardOptions;
-                        this.fillDataSelect2(this.view.$board, templateSelect2Option, {boards: boards});
+                        this.fillDataSelect2(this.view.$boards, templateSelect2Option, {boards: boards});
 
                         if (this.macroOptions) {
-                            this.setSelect2Value(this.view.$board, this.macroOptions.boardId);
+                            this.setSelect2Value(this.view.$boards, this.macroOptions.params.boardId);
                         }
 
                     }.bind(this));
@@ -134,29 +126,29 @@ function(
             var boardId = this.formData.get('selectedBoard').id;
 
             var dfd = service.loadSprintsData(serverId, boardId);
-            this.fillDataInSelect2(this.view.$sprint, dfd)
+            this.fillDataInSelect2(this.view.$sprints, dfd)
                     .done(function(sprints) {
                         this.sprints = sprints;
 
-                        var templateSelect2Option = this.template.sprintptions;
-                        this.fillDataSelect2(this.view.$sprint, templateSelect2Option, {sprints: sprints});
+                        var templateSelect2Option = this.template.sprintOptions;
+                        this.fillDataSelect2(this.view.$sprints, templateSelect2Option, {sprints: sprints});
 
                         if (this.macroOptions) {
-                            this.setSelect2Value(this.view.$sprint, this.macroOptions.params.sprintId);
+                            this.setSelect2Value(this.view.$sprints, this.macroOptions.params.sprintId);
                         }
 
                     }.bind(this));
         },
 
         _onSelectBoardChanged: function() {
-            var boardId = parseInt(this.view.$board.val(), 10);
+            var boardId = parseInt(this.view.$boards.val(), 10);
             var selectedBoard = _.findWhere(this.boards, {id: boardId});
             this.formData.set('selectedBoard', selectedBoard);
-            this.resetSelect2Options(this.view.$sprint);
+            this.resetSelect2Options(this.view.$sprints);
         },
 
         _onSelectSprintChanged: function() {
-            var sprintId = parseInt(this.view.$sprint.val(), 10);
+            var sprintId = parseInt(this.view.$sprints.val(), 10);
             var selectedSprint = _.findWhere(this.sprints, {id: sprintId});
             this.formData.set('selectedSprint', selectedSprint);
         },
@@ -165,7 +157,7 @@ function(
             var selectedBoard = this.formData.get('selectedBoard');
 
             if (!selectedBoard) {
-                this.resetSelect2Options(this.view.$board);
+                this.resetSelect2Options(this.view.$boards);
                 return;
             }
 
@@ -177,8 +169,7 @@ function(
             var selectedSprint = this.formData.get('selectedSprint');
 
             if (!selectedBoard || !selectedSprint) {
-                this.resetSelect2Options(this.view.$sprint);
-                return;
+                this.resetSelect2Options(this.view.$sprints);
             }
         },
 
@@ -204,16 +195,13 @@ function(
         validate: function() {
             var valid = true;
 
-            valid = valid && this.validateRequiredFields(this.view.$server, AJS.I18n.getText('jira.sprint.validation.server.required'));
-            valid = valid && this.validateRequiredFields(this.view.$board, AJS.I18n.getText('jira.sprint.validation.board.required'));
-            valid = valid && this.validateRequiredFields(this.view.$sprint, AJS.I18n.getText('jira.sprint.validation.sprint.required'));
+            valid = valid && this.validateRequiredFields(this.view.$servers, AJS.I18n.getText('jira.sprint.validation.server.required'));
+            valid = valid && this.validateRequiredFields(this.view.$boards, AJS.I18n.getText('jira.sprint.validation.board.required'));
+            valid = valid && this.validateRequiredFields(this.view.$sprints, AJS.I18n.getText('jira.sprint.validation.sprint.required'));
 
             return valid;
         }
     });
-
-    // extend with some mixins
-    _.extend(JiraSprintPanelView.prototype, Select2Mixin);
 
     return JiraSprintPanelView;
 });

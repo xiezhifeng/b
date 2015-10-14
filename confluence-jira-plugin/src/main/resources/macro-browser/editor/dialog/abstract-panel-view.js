@@ -5,7 +5,8 @@ define('confluence/jim/macro-browser/editor/dialog/abstract-panel-view', [
     'backbone',
     'confluence/jim/macro-browser/editor/util/helper',
     'confluence/jim/macro-browser/editor/util/config',
-    'confluence/jim/macro-browser/editor/util/service'
+    'confluence/jim/macro-browser/editor/util/service',
+    'confluence/jim/macro-browser/editor/util/select2-mixin'
 ],
 function(
     $,
@@ -14,7 +15,8 @@ function(
     Backbone,
     helper,
     config,
-    service
+    service,
+    Select2Mixin
 ) {
     'use strict';
 
@@ -40,13 +42,17 @@ function(
             // title of panel
             this.panelTitle = '';
 
-            // essential DOM elements
+            // essential DOM elements should be initialized in child panel view
             this.view = {
                 $errorMessage: null,
-                $server: null
+                $servers: null
             };
 
             this.servers = [];
+
+            this.on('reload.data', function() {
+                this._fillServersData();
+            }, this);
         },
 
         render: function(options) {
@@ -67,16 +73,19 @@ function(
             this.listenTo(this.dialogView, 'dialog.showing.begin', this.onOpenDialog);
 
             this.formData = new FormDataModel();
+            this.listenTo(this.formData, 'change:selectedServer', this._handleServerChanged);
         },
 
+        /**
+         * This method should be called by child panel view
+         * because child panel view will know exactly when it is ready for DOM stucture.
+         */
         initServerField: function() {
-            this.view.$server = this.$('.jira-servers');
-            this.view.$server.on('change', this._onSelectServerChanged.bind(this));
-
-            this.listenTo(this.formData, 'change:selectedServer', this._handleServerChanged);
+            this.view.$servers = this.$('.jira-servers');
+            this.view.$servers.on('change', this._onSelectServerChanged.bind(this));
 
             // init server select
-            this.setupSelect2(this.view.$server,
+            this.setupSelect2(this.view.$servers,
                     'select2-server-container',
                     'select2-server-dropdown',
                     AJS.I18n.getText('jira.server.placeholder'),
@@ -97,15 +106,13 @@ function(
                 this.macroOptions = macroOptions;
 
                 this._fillServersData().done(function() {
-                    this.removeEmptyOptionInSelect2(this.view.$server);
-                    this.setSelect2Value(this.view.$server, macroOptions.params.serverId);
+                    this.reset();
+                    this.setSelect2Value(this.view.$servers, macroOptions.params.serverId);
                 }.bind(this));
             } else {
                 this.macroOptions = null;
                 this._fillServersData().done(function() {
-                    if (this.view.$server) {
-                        this.selectFirstValueInSelect2(this.view.$server);
-                    }
+                    this.selectFirstValueInSelect2(this.view.$servers);
                     this.reset();
                 }.bind(this));
             }
@@ -164,7 +171,7 @@ function(
 
             this.resetSelect2Options($el);
             this.toggleSiblingErrorMessage($el, false);
-            this.toggleEnableSelect2($el, true);
+            this.dialogView.toggleEnableInsertButton(false);
         },
 
         renderErrorNoAppLink: function() {
@@ -276,8 +283,7 @@ function(
          * @private
          */
         _fillServersData: function() {
-            // TODO: do need to cache server data
-            return this.fillDataInSelect2(this.view.$server, service.loadJiraServers())
+            return this.fillDataInSelect2(this.view.$servers, service.loadJiraServers())
                     .done(function(data) {
                         this.servers = data.servers;
                         this.primaryServer = data.primaryServer;
@@ -288,15 +294,15 @@ function(
                         }
 
                         var templateSelect2Option = this.template.serverOptions;
-                        this.fillDataSelect2(this.view.$server, templateSelect2Option, {servers: this.servers});
+                        this.fillDataSelect2(this.view.$servers, templateSelect2Option, {servers: this.servers});
 
                         // only have one server, select it and hide server select2
                         if (this.servers.length === 1) {
-                            this.view.$server.parent().addClass('hidden');
-                            this.removeEmptyOptionInSelect2(this.view.$server);
+                            this.view.$servers.parent().addClass('hidden');
+                            this.removeEmptyOptionInSelect2(this.view.$servers);
 
                             // trigger change to load other data, such as board data
-                            this.setSelect2Value(this.view.$server, this.servers[0].id);
+                            this.setSelect2Value(this.view.$servers, this.servers[0].id);
                         }
                     }.bind(this));
         },
@@ -319,7 +325,7 @@ function(
         },
 
         _onSelectServerChanged: function() {
-            var serverId = this.view.$server.val();
+            var serverId = this.view.$servers.val();
 
             if (!serverId || serverId === config.DEFAULT_OPTION_VALUE) {
                 this.formData.set('isValid', false);
@@ -331,6 +337,9 @@ function(
             this.formData.set('selectedServer', selectedServer);
         }
     });
+
+    // extend with some mixins
+    _.extend(AbstractPanelView.prototype, Select2Mixin);
 
     return AbstractPanelView;
 });

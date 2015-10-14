@@ -14,7 +14,7 @@
                     {getText('jira.sprint.label.server')}
                     <span class="aui-icon icon-required"> required</span>
                 </label>
-                <select id="jira-sprint-servers" class="jira-servers select long-field" name="jira-servers" />
+                <select id="jira-sprint-servers" class="jira-servers select long-field" name="jira-server" />
                 <div class="error hidden"></div>
             </div>
 
@@ -24,7 +24,7 @@
                     {getText('jira.sprint.label.board')}
                     <span class="aui-icon icon-required"> required</span>
                 </label>
-                <select id="jira-sprint-board" name="jira-sprint-board"></select>
+                <select id="jira-sprint-board" class="jira-boards" name="jira-board"></select>
                 <div class="error hidden"></div>
             </div>
 
@@ -34,7 +34,7 @@
                     {getText('jira.sprint.label.sprint')}
                     <span class="aui-icon icon-required"> required</span>
                 </label>
-                <select id="jira-sprint-sprint" name="jira-sprint-sprint"></select>
+                <select id="jira-sprint-sprint" class="jira-sprints" name="jira-sprint"></select>
                 <div class="error hidden"></div>
             </div>
 
@@ -80,7 +80,7 @@
  * Option template for Sprint
  * @param sprints
  */
-{template .sprintptions}
+{template .sprintOptions}
     {foreach $sprint in $sprints}
         <option value="{$sprint.id}">{$sprint.name}</option>
     {/foreach}

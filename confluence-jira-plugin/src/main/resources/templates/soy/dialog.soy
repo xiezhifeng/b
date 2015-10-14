@@ -142,28 +142,49 @@
         <a href="{getText('help.jira.issues.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
 {/template}
 
+
 /**
-* Render content for jira sprint
+* Render content for jira chart
+* @param isMultiServer
+* @param chartType
 */
-{template .contentJiraSprint}
-<div id="jira-sprint-content">
-    <div class='jira-sprint-search'>
+{template .contentJiraChart}
+<div id="jira-chart-content-{$chartType}">
+    <div class='jira-chart-search'>
         <form class='aui'>
-            <p>JIRA Sprint</p>
             <fieldset class='inline'>
-                <label for="jira-sprint-server">Server</label>
-                <input type="text" name="jira-sprint-server" id="jira-sprint-server" class="text" value="26b2a3ae-9c3b-391d-8d61-2201bd0c5798">
+                {if $isMultiServer == true}
+                  <div class='jira-chart-search-input'>
+                        <input type='text' id="jira-chart-search-input" class='text search-text' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
+                  </div>
+                  <select id="jira-chart-servers" class="select" name="server" tabindex="0" />
+                {else}
+                  <div class='jira-chart-search-input one-server'>
+                        <input type='text' id="jira-chart-search-input" class='text one-server long-field' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
+                  </div>
+                {/if}
+                <button id="jira-chart-search-button" type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
             </fieldset>
-            <fieldset class='inline'>
-                <label for="jira-sprint-board">Board</label>
-                <input type="text" name="jira-sprint-board" id="jira-sprint-board" class="text" value="3">
-            </fieldset>
-            <fieldset class='inline'>
-                <label for="jira-sprint-sprintid">Sprint</label>
-                <input type="text" name="jira-sprint-sprintid" id="jira-sprint-sprintid" class="text" value="2">
-            </fieldset>
-            <p/>
-            <button id="jira-sprint-search-button" type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
+            <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
+        </form>
+    </div>
+    <div class="jira-chart-img">
+    </div>
+    <div class="jira-chart-option" data-js="display-option-wrapper" >
+        <form action="#" class="aui" id="jiraChartMacroOption">
+            <div class="jiraChartOption">
+                <a class="jirachart-display-opts-open" data-js="display-option-trigger" href="#">
+                    <span class="display-option-icon"></span>
+                    <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
+                </a>
+                 {if $chartType == 'pie'}
+                      {call .piechartForm/}
+                {elseif $chartType == 'createdvsresolved'}
+                      {call .createdVsResolved/}
+                {elseif $chartType == 'twodimensional'}
+                      {call .twoDimensional/}
+                {/if}
+           </div>
         </form>
     </div>
 </div>

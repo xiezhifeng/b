@@ -48,6 +48,7 @@ import com.atlassian.webdriver.utils.element.WebDriverPoller;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.SprintDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.SprintPage;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.hamcrest.Matchers;
@@ -225,6 +226,12 @@ public class AbstractJiraTest
         return pageBinder.bind(JiraMacroSearchPanelDialog.class);
     }
 
+    protected SprintDialog openSprintDialogFromMacroPlaceholder(EditorContent editorContent, MacroPlaceholder macroPlaceholder)
+    {
+        editorContent.doubleClickEditInlineMacro(macroPlaceholder.getAttribute("data-macro-name"));
+        return pageBinder.bind(SprintDialog.class);
+    }
+
     protected String getMacroParams(EditContentPage editPage, String macroName)
     {
         MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(macroName).iterator().next();
@@ -295,6 +302,11 @@ public class AbstractJiraTest
     protected JiraIssuesPage bindCurrentPageToJiraIssues()
     {
         return pageBinder.bind(JiraIssuesPage.class);
+    }
+
+    protected SprintPage bindCurrentPageToSprintPage()
+    {
+        return pageBinder.bind(SprintPage.class);
     }
 
     protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication)
