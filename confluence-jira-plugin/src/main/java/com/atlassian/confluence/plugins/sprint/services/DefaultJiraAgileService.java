@@ -54,27 +54,12 @@ public class DefaultJiraAgileService implements JiraAgileService
 
     @Nonnull
     @Override
-    public JiraSprintModel getJiraSprint(@Nonnull ApplicationLink applicationLink, String key) throws CredentialsRequiredException, ResponseException
+    public JiraSprintModel getJiraSprint(@Nonnull ApplicationLink applicationLink, @Nonnull String sprintId) throws CredentialsRequiredException, ResponseException
     {
-        String restUrl = String.format(AGILE_SPRINT_INFO_REST_PATH_TEMPLATE, key);
+        String restUrl = String.format(AGILE_SPRINT_INFO_REST_PATH_TEMPLATE, sprintId);
         String jsonData = retrieveJsonString(applicationLink, restUrl);
         JiraSprintModel jiraSprintModel = new Gson().fromJson(jsonData, JiraSprintModel.class);
-        generateBoardLink(applicationLink, jiraSprintModel);
         return jiraSprintModel;
-    }
-
-    private void generateBoardLink(ApplicationLink applicationLink, JiraSprintModel jiraSprintModel)
-    {
-        String rapidBoardUrl = applicationLink.getDisplayUrl() + "/secure/RapidBoard.jspa?rapidView=" + jiraSprintModel.getOriginBoardId();
-        if (StringUtils.equalsIgnoreCase(jiraSprintModel.getState(), "closed"))
-        {
-            rapidBoardUrl += "&view=reporting&chart=burndownChart&sprint=" + jiraSprintModel.getId();
-        }
-        else if (StringUtils.equalsIgnoreCase(jiraSprintModel.getState(), "future"))
-        {
-            rapidBoardUrl+="&view=planning";
-        }
-        jiraSprintModel.setBoardUrl(rapidBoardUrl);
     }
 
     private String retrieveJsonString(@Nonnull ApplicationLink applicationId, String restUrl) throws CredentialsRequiredException, ResponseException

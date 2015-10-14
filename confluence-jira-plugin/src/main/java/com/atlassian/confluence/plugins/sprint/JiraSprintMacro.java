@@ -4,43 +4,34 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
-import com.atlassian.confluence.extra.jira.JiraConnectorManager;
-import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
-import com.atlassian.confluence.plugins.jiracharts.JQLValidator;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
 import com.atlassian.confluence.plugins.sprint.model.JiraSprintModel;
 import com.atlassian.confluence.plugins.sprint.services.JiraAgileService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 /**
- * The macro to display Jira chart
+ * The macro to display Jira Sprint
  *
  */
 public class JiraSprintMacro implements Macro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraSprintMacro.class);
-    private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
+    private static final String MACRO_RESOURCE_PATH = "/download/resources/confluence.extra.jira:jirasprint-xhtml";
     private static final String TEMPLATE_PATH = "templates/sprint/";
+    private static final String MACRO_ID_PARAMETER = "sprintId";
+
     private final ApplicationLinkResolver applicationLinkResolver;
-
-    private JQLValidator jqlValidator;
-
-    private final MacroExecutorService executorService;
-    private final I18NBeanFactory i18NBeanFactory;
-    private final JiraConnectorManager jiraConnectorManager;
-    private final JiraChartFactory jiraChartFactory;
     private final JiraExceptionHelper jiraExceptionHelper;
     private final ImagePlaceHolderHelper imagePlaceHolderHelper;
     private final JiraAgileService jiraAgileService;
@@ -48,19 +39,15 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
     /**
      * JiraChartMacro constructor
      *
-     * @param executorService executorService
      * @param applicationLinkResolver applink service to get applink
-     * @param i18NBeanFactory I18n bean factory
+     * @param jiraExceptionHelper handle exception for macro
+     * @param imagePlaceHolderHelper image placeholder helper
+     * @param jiraAgileService jira agile service
      */
-    public JiraSprintMacro(MacroExecutorService executorService, ApplicationLinkResolver applicationLinkResolver, I18NBeanFactory i18NBeanFactory,
-                           JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory, JiraExceptionHelper jiraExceptionHelper,
-                           ImagePlaceHolderHelper imagePlaceHolderHelper, JiraAgileService jiraAgileService)
+    public JiraSprintMacro(ApplicationLinkResolver applicationLinkResolver,JiraExceptionHelper jiraExceptionHelper, ImagePlaceHolderHelper imagePlaceHolderHelper,
+                           JiraAgileService jiraAgileService)
     {
-        this.executorService = executorService;
-        this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkResolver = applicationLinkResolver;
-        this.jiraConnectorManager = jiraConnectorManager;
-        this.jiraChartFactory = jiraChartFactory;
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.imagePlaceHolderHelper = imagePlaceHolderHelper;
         this.jiraAgileService = jiraAgileService;
@@ -75,14 +62,14 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
             Map<String, Object> contextMap =  MacroUtils.defaultVelocityContext();
             try
             {
-                JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(applicationLink, parameters.get("key"));
-                contextMap.put("key", jiraSprintModel.getName());
+                JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(applicationLink, parameters.get(MACRO_ID_PARAMETER));
+                contextMap.put("sprintName", jiraSprintModel.getName());
                 contextMap.put("status", jiraSprintModel.getState());
-                contextMap.put("clickableUrl", jiraSprintModel.getBoardUrl());
+                contextMap.put("clickableUrl", generateBoardLink(applicationLink, parameters.get("boardId"), jiraSprintModel));
             }
             catch (CredentialsRequiredException credentialsRequiredException)
             {
-                contextMap.put("key", "Jira Sprint");
+                contextMap.put("sprintName", "Jira Sprint");
                 contextMap.put("oAuthUrl", credentialsRequiredException.getAuthorisationURI().toString());
             }
             return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "jirasprint.vm", contextMap);
@@ -108,8 +95,22 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
     @Override
     public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext context)
     {
-        String resourcePath = "/download/resources/confluence.extra.jira:jirasprint-xhtml";
-        String macroTemplate = String.format("{jirasprint:key=%s}", parameters.get("key"));
-        return imagePlaceHolderHelper.getMacroImagePlaceholder(macroTemplate, resourcePath);
+        String macroTemplate = String.format("{jirasprint:sprintId=%s}", parameters.get(MACRO_ID_PARAMETER));
+        return imagePlaceHolderHelper.getMacroImagePlaceholder(macroTemplate, MACRO_RESOURCE_PATH);
+    }
+
+    private String generateBoardLink(ApplicationLink applicationLink, String boardId, JiraSprintModel jiraSprintModel)
+    {
+        String board = StringUtils.defaultIfBlank(boardId, String.valueOf(jiraSprintModel.getOriginBoardId()));
+        String rapidBoardUrl = applicationLink.getDisplayUrl() + "/secure/RapidBoard.jspa?rapidView=" + board;
+        if (StringUtils.equalsIgnoreCase(jiraSprintModel.getState(), "closed"))
+        {
+            rapidBoardUrl += "&view=reporting&chart=burndownChart&sprint=" + jiraSprintModel.getId();
+        }
+        else if (StringUtils.equalsIgnoreCase(jiraSprintModel.getState(), "future"))
+        {
+            rapidBoardUrl += "&view=planning";
+        }
+        return rapidBoardUrl;
     }
 }

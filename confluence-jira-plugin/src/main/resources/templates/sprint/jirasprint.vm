@@ -1,6 +1,6 @@
 #if ($oAuthUrl)
     <span class="jira-issue lock-jira-issue $key" data-issue-key="$key" #if($clientId) data-client-id="$clientId" #end>
-        <a class=issue-link" href="$oAuthUrl">$key</a>
+        <a class=issue-link" href="$oAuthUrl">$sprintName</a>
         <span class="oauth-msg"> -
             <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
         </span>
@@ -12,7 +12,7 @@
                 <span class="aui-icon aui-icon-wait issue-placeholder"></span>
             #else
                 <span class="aui-icon aui-icon-small aui-iconfont-layout-2col-large"></span>
-            #end$key
+            #end$sprintName
         </a>
         #if($status == "active")
             #set($statusColor = "aui-lozenge-success")
