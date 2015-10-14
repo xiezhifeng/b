@@ -142,6 +142,54 @@
         <a href="{getText('help.jira.issues.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
 {/template}
 
+
+/**
+* Render content for jira chart
+* @param isMultiServer
+* @param chartType
+*/
+{template .contentJiraChart}
+<div id="jira-chart-content-{$chartType}">
+    <div class='jira-chart-search'>
+        <form class='aui'>
+            <fieldset class='inline'>
+                {if $isMultiServer == true}
+                  <div class='jira-chart-search-input'>
+                        <input type='text' id="jira-chart-search-input" class='text search-text' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
+                  </div>
+                  <select id="jira-chart-servers" class="select" name="server" tabindex="0" />
+                {else}
+                  <div class='jira-chart-search-input one-server'>
+                        <input type='text' id="jira-chart-search-input" class='text one-server long-field' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
+                  </div>
+                {/if}
+                <button id="jira-chart-search-button" type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
+            </fieldset>
+            <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
+        </form>
+    </div>
+    <div class="jira-chart-img">
+    </div>
+    <div class="jira-chart-option" data-js="display-option-wrapper" >
+        <form action="#" class="aui" id="jiraChartMacroOption">
+            <div class="jiraChartOption">
+                <a class="jirachart-display-opts-open" data-js="display-option-trigger" href="#">
+                    <span class="display-option-icon"></span>
+                    <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
+                </a>
+                 {if $chartType == 'pie'}
+                      {call .piechartForm/}
+                {elseif $chartType == 'createdvsresolved'}
+                      {call .createdVsResolved/}
+                {elseif $chartType == 'twodimensional'}
+                      {call .twoDimensional/}
+                {/if}
+           </div>
+        </form>
+    </div>
+</div>
+{/template}
+
 /**
  *  Form for pie chart
  */
