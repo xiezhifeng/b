@@ -49,8 +49,8 @@ function(
 
             this.isValid = true;
 
-            this.on('dialog.process.finish', this.renderExternalLinks);
-            this.on('dialog.process.finish', this.preRenderValidation);
+            this.on('dialog.process.finish', this.renderExternalLinks, this);
+            this.on('dialog.process.finish', this.preRenderValidation, this);
         },
 
         /**

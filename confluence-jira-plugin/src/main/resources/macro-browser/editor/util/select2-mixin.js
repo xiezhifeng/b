@@ -104,8 +104,10 @@ function(
         },
 
         setSelect2Value: function($el, value) {
-            // if value is null or '', select2 will reset all its options.
-            if (value) {
+            // if we set value which is null or '' or no existed for select2,
+            // select2 will reset all its options.
+            var $option = $el.find('option[value="' + value + '"]');
+            if (value && $option.length) {
                 $el.select2('val', value, true);
                 return true;
             }
