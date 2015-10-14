@@ -287,23 +287,6 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>${maven.release.plugin.version}</version>
-                    <configuration>
-                        <!-- Fixes OOM issue with javadoc -->
-                        <arguments>-Dmaxmemory=512m -DskipTests=true</arguments>
-                    </configuration>
-                    <dependencies>
-                        <!-- Fix for SCM-574 -->
-                        <dependency>
-                            <groupId>org.apache.maven.scm</groupId>
-                            <artifactId>maven-scm-provider-gitexe</artifactId>
-                            <version>1.4</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <plugin>
                     <groupId>com.atlassian.maven.plugins</groupId>
                     <artifactId>maven-amps-plugin</artifactId>
                     <version>${amps.version}</version>
@@ -341,15 +324,6 @@
                 <configuration>
                     <source>${jdkLevel}</source>
                     <target>${jdkLevel}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${maven.release.plugin.version}</version>
-                <configuration>
-                    <!-- When using atlassian-public-pom as parent POM we need this configuration to skip tests, -->
-                    <!-- as command line arguments are ignored. -->
-                    <arguments>-Prelease -DskipTests</arguments>
                 </configuration>
             </plugin>
             <plugin>
