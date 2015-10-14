@@ -101,6 +101,16 @@ function(
 
         removeEmptyOptionInSelect2: function($el) {
             $el.find('option[value="' + config.DEFAULT_OPTION_VALUE + '"]').remove();
+        },
+
+        setSelect2Value: function($el, value) {
+            // if value is null or '', select2 will reset all its options.
+            if (value) {
+                $el.select2('val', value, true);
+                return true;
+            }
+
+            return false;
         }
 
     };

@@ -98,7 +98,7 @@ function(
 
                 this._fillServersData().done(function() {
                     this.removeEmptyOptionInSelect2(this.view.$server);
-                    this.view.$server.select2('val', macroOptions.params['jira-server-id'], true);
+                    this.setSelect2Value(this.view.$server, macroOptions.params.serverId);
                 }.bind(this));
             } else {
                 this.macroOptions = null;
@@ -296,7 +296,7 @@ function(
                             this.removeEmptyOptionInSelect2(this.view.$server);
 
                             // trigger change to load other data, such as board data
-                            this.view.$server.select2('val', this.servers[0].id, true);
+                            this.setSelect2Value(this.view.$server, this.servers[0].id);
                         }
                     }.bind(this));
         },

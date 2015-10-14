@@ -119,7 +119,7 @@ function(
                         this.fillDataSelect2(this.view.$board, templateSelect2Option, {boards: boards});
 
                         if (this.macroOptions) {
-                            this.view.$board.select2('val', this.macroOptions.params['board-id'], true);
+                            this.setSelect2Value(this.view.$board, this.macroOptions.boardId);
                         }
 
                     }.bind(this));
@@ -142,7 +142,7 @@ function(
                         this.fillDataSelect2(this.view.$sprint, templateSelect2Option, {sprints: sprints});
 
                         if (this.macroOptions) {
-                            this.view.$sprint.select2('val', this.macroOptions.params['sprint-id'], true);
+                            this.setSelect2Value(this.view.$sprint, this.macroOptions.params.sprintId);
                         }
 
                     }.bind(this));
@@ -183,18 +183,18 @@ function(
         },
 
         getUserInputData: function() {
-            var jsonData = null;
+            var userInputData = null;
 
             if (this.validate()) {
-                jsonData = {};
-
                 // this.formData has all data users input.
-                jsonData['jira-server-id'] = this.formData.get('selectedServer').id;
-                jsonData['board-id'] = this.formData.get('selectedBoard').id;
-                jsonData['sprint-id'] = this.formData.get('selectedSprint').id;
+                userInputData = {
+                    serverId: this.formData.get('selectedServer').id,
+                    boardId: this.formData.get('selectedBoard').id,
+                    sprintId: this.formData.get('selectedSprint').id
+                };
             }
 
-            return jsonData;
+            return userInputData;
         },
 
         /**
