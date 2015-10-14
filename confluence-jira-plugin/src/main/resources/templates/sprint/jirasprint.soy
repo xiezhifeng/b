@@ -1,0 +1,43 @@
+{namespace Confluence.Templates.ConfluenceJiraPlugin}
+
+/**
+ * Renders sprint macro
+ * @param sprintId sprintId
+ * @param sprintName sprint name
+ * @param? oAuthUrl authentication link if required
+ * @param? clientId id if apply asynchronous loading
+ * @param? clickableUrl url to jira
+ * @param? isPlaceholder if render macro in placeholder mode
+ * @param? status status of sprint
+ */
+{template .createSprintMacro}
+    {if $oAuthUrl}
+        <span class="jira-issue lock-jira-issue jira-sprint" data-issue-key="{$sprintId}" {if $clientId} data-client-id="{$clientId}" {/if}>
+            <a class=issue-link" href="{$oAuthUrl}">{$sprintName}</a>
+            <span class="oauth-msg"> -
+                <a class="static-oauth-init" href="{$oAuthUrl}">{getText('jiraissues.oauth.linktext')}</a>
+                {getText('jiraissues.oauth.single.message')}
+            </span>
+        </span>
+    {else}
+        <span class="jira sprint jira-issue" data-issue-key="{$sprintId}" {if $clientId} data-client-id="{$clientId}" {/if}>
+            <a href="{$clickableUrl}" class="jira-issue-key">
+                {if $isPlaceholder}
+                    <span class="aui-icon aui-icon-wait issue-placeholder"></span>
+                {else}
+                    <span class="aui-icon aui-icon-small aui-iconfont-layout-2col-large"></span>
+                {/if}
+                {$sprintName}
+            </a>
+            {let $statusColor}
+                {if $status == 'active'}
+                    aui-lozenge-success
+                {else}
+                    aui-lozenge-default
+                {/if}
+            {/let}
+            <span/>
+            <span class="aui-lozenge {$statusColor}">{$status}</span>
+        </span>
+    {/if}
+{/template}

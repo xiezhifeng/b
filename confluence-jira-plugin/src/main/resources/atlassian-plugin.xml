@@ -422,6 +422,11 @@
         </parameters>
     </xhtml-macro>
 
+    <web-resource key="jirasprint-server-resource">
+        <resource type="soy" name="view" location="templates/sprint/jirasprint.soy"/>
+        <dependency>com.atlassian.auiplugin:aui-experimental-soy-templates</dependency>
+    </web-resource>
+
     <web-resource key="macro-browser-editor-jirasprint-resource" name="Jira sprint macro in edit mode resource">
         <transformation extension="js">
             <transformer key="jsI18n"/>

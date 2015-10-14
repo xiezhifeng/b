@@ -13,7 +13,7 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.sprint.model.JiraSprintModel;
 import com.atlassian.confluence.plugins.sprint.services.JiraAgileService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.soy.renderer.SoyTemplateRenderer;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +28,13 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraSprintMacro.class);
     private static final String MACRO_RESOURCE_PATH = "/download/resources/confluence.extra.jira:jirasprint-xhtml";
-    private static final String TEMPLATE_PATH = "templates/sprint/";
     private static final String MACRO_ID_PARAMETER = "sprintId";
 
     private final ApplicationLinkResolver applicationLinkResolver;
     private final JiraExceptionHelper jiraExceptionHelper;
     private final ImagePlaceHolderHelper imagePlaceHolderHelper;
     private final JiraAgileService jiraAgileService;
+    private final SoyTemplateRenderer soyTemplateRenderer;
 
     /**
      * JiraChartMacro constructor
@@ -45,12 +45,13 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
      * @param jiraAgileService jira agile service
      */
     public JiraSprintMacro(ApplicationLinkResolver applicationLinkResolver,JiraExceptionHelper jiraExceptionHelper, ImagePlaceHolderHelper imagePlaceHolderHelper,
-                           JiraAgileService jiraAgileService)
+                           JiraAgileService jiraAgileService, SoyTemplateRenderer soyTemplateRenderer)
     {
         this.applicationLinkResolver = applicationLinkResolver;
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.imagePlaceHolderHelper = imagePlaceHolderHelper;
         this.jiraAgileService = jiraAgileService;
+        this.soyTemplateRenderer = soyTemplateRenderer;
     }
 
     @Override
@@ -60,6 +61,7 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
         try
         {
             Map<String, Object> contextMap =  MacroUtils.defaultVelocityContext();
+            contextMap.put("sprintId", parameters.get("sprintId"));
             try
             {
                 JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(applicationLink, parameters.get(MACRO_ID_PARAMETER));
@@ -72,7 +74,9 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
                 contextMap.put("sprintName", "Jira Sprint");
                 contextMap.put("oAuthUrl", credentialsRequiredException.getAuthorisationURI().toString());
             }
-            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "jirasprint.vm", contextMap);
+
+            return soyTemplateRenderer.render("confluence.extra.jira:jirasprint-server-resource",
+                    "Confluence.Templates.ConfluenceJiraPlugin.createSprintMacro", contextMap);
         }
         catch (Exception e)
         {

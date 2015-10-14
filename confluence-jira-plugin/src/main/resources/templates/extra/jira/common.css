@@ -188,3 +188,7 @@ span.aui-lozenge-subtle.aui-lozenge-default.issue-placeholder {
 span.aui-icon-wait.issue-placeholder {
     padding-right: 3px;
 }
+
+.jira-sprint .static-oauth-init {
+    padding: 0 3px;
+}
