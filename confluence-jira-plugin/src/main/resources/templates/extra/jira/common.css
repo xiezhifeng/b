@@ -196,3 +196,7 @@ span.aui-icon-wait.issue-placeholder {
 .jira-sprint .aui-icon {
     padding-right: 4px;
 }
+
+.jira-sprint .icon-sprint {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAkklEQVR4AWP4TwBSTUGBS8Gqgv9geLcgDUNBQRpU8kzBOzA9E6EArBsiWCAIVlwO5oUiKQAbvgqhp6ADZBaMx8TAwBAKxBUMCNAJxMYwDhOE6r+HkO9/DyLRFBQqIQuiK1gNxB0IocI0IHEWSM8E0pi+QECIdxmAPjfGCAcEnAlUB1ICDUlMuBvFUGxW4FEACXAAIFLY7AkS01QAAAAASUVORK5CYII=');
+}
