@@ -192,3 +192,7 @@ span.aui-icon-wait.issue-placeholder {
 .jira-sprint .static-oauth-init {
     padding: 0 3px;
 }
+
+.jira-sprint .aui-icon {
+    padding-right: 4px;
+}

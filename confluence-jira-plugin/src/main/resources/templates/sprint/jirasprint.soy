@@ -13,21 +13,21 @@
 {template .createSprintMacro}
     {if $oAuthUrl}
         <span class="jira-issue lock-jira-issue jira-sprint" data-issue-key="{$sprintId}" {if $clientId} data-client-id="{$clientId}" {/if}>
-            <a class=issue-link" href="{$oAuthUrl}">{$sprintName}</a>
+            <a class="issue-link" href="{$oAuthUrl}">{$sprintName}</a>
             <span class="oauth-msg"> -
                 <a class="static-oauth-init" href="{$oAuthUrl}">{getText('jiraissues.oauth.linktext')}</a>
                 {getText('jiraissues.oauth.single.message')}
             </span>
         </span>
     {else}
-        <span class="jira sprint jira-issue" data-issue-key="{$sprintId}" {if $clientId} data-client-id="{$clientId}" {/if}>
+        <span class="jira-issue jira-sprint" data-issue-key="{$sprintId}" {if $clientId} data-client-id="{$clientId}" {/if}>
             <a href="{$clickableUrl}" class="jira-issue-key">
                 {if $isPlaceholder}
-                    <span class="aui-icon aui-icon-wait issue-placeholder"></span>
+                    <span class="aui-icon aui-icon-wait issue-placeholder" />
                 {else}
-                    <span class="aui-icon aui-icon-small aui-iconfont-layout-2col-large"></span>
+                    <span class="aui-icon aui-icon-small aui-iconfont-layout-2col-large" />
                 {/if}
-                {$sprintName}
+                <span class="aui-button-label">{$sprintName}</span>
             </a>
             {let $statusColor}
                 {if $status == 'active'}
