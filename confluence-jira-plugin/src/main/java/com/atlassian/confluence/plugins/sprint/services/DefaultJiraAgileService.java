@@ -7,10 +7,7 @@ import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.plugins.sprint.model.JiraSprintModel;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
-import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -19,8 +16,6 @@ import java.util.Map;
 
 public class DefaultJiraAgileService implements JiraAgileService
 {
-    private static final Logger log = LoggerFactory.getLogger(DefaultJiraAgileService.class);
-
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String AGILE_REST_PATH = "/rest/agile/1.0";
     private static final String AGILE_BOARD_REST_PATH = AGILE_REST_PATH + "/board?type=scrum";

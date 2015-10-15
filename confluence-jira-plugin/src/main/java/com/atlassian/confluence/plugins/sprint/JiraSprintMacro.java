@@ -15,9 +15,6 @@ import com.atlassian.confluence.plugins.sprint.services.JiraAgileService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 
 /**
@@ -26,7 +23,6 @@ import java.util.Map;
  */
 public class JiraSprintMacro implements Macro, EditorImagePlaceholder
 {
-    private static Logger log = LoggerFactory.getLogger(JiraSprintMacro.class);
     private static final String MACRO_RESOURCE_PATH = "/download/resources/confluence.extra.jira:jirasprint-xhtml";
     private static final String MACRO_ID_PARAMETER = "sprintId";
 
