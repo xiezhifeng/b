@@ -9,14 +9,29 @@ import javax.annotation.Nonnull;
 
 public interface JiraAgileService
 {
+    /**
+     * get all scrum boards on one JIRA server
+     * @param applicationLink
+     * @return a JsonString from JIRA
+     * @throws CredentialsRequiredException
+     * @throws ResponseException
+     */
     @Nonnull
     String getBoards(@Nonnull ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException;
 
+    /**
+     * get all sprints on one board
+     * @param applicationLink
+     * @param boardId
+     * @return a JsonString from JIRA
+     * @throws CredentialsRequiredException
+     * @throws ResponseException
+     */
     @Nonnull
     String getSprints(@Nonnull ApplicationLink applicationLink, @Nonnull String boardId) throws CredentialsRequiredException, ResponseException;
 
     /**
-     * Build the KEY IN JQL and send a GET request to JIRA fot the results
+     * Get sprint information
      *
      * @param applicationId          ID of the JIRA server
      * @param sprintId               ID of sprint
