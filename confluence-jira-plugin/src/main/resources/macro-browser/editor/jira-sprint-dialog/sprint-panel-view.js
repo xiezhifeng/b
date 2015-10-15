@@ -181,7 +181,8 @@ function(
                 userInputData = {
                     serverId: this.formData.get('selectedServer').id,
                     boardId: this.formData.get('selectedBoard').id,
-                    sprintId: this.formData.get('selectedSprint').id
+                    sprintId: this.formData.get('selectedSprint').id,
+                    sprintName: this.formData.get('selectedSprint').name
                 };
             }
 
