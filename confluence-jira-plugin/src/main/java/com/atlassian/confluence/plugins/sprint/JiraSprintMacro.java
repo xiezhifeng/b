@@ -16,6 +16,8 @@ import com.atlassian.confluence.plugins.sprint.services.JiraAgileService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Map;
 
 /**
@@ -75,7 +77,7 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
             }
             catch (CredentialsRequiredException credentialsRequiredException)
             {
-                contextMap.put("sprintName", i18nResolver.getText("confluence.extra.jira.jirasprint.label"));
+                contextMap.put("sprintName", getDefaultSprintName(parameters));
                 contextMap.put("oAuthUrl", credentialsRequiredException.getAuthorisationURI().toString());
             }
 
@@ -84,7 +86,7 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
         }
         catch (Exception e)
         {
-            contextMap.put("jiraLinkText", i18nResolver.getText("confluence.extra.jira.jirasprint.label"));
+            contextMap.put("jiraLinkText", getDefaultSprintName(parameters));
             return jiraExceptionHelper.renderNormalJIMExceptionMessage(new JiraIssueMacroException(e, contextMap));
         }
     }
@@ -104,8 +106,13 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
     @Override
     public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext context)
     {
-        String macroTemplate = String.format("{jirasprint:sprintId=%s}", parameters.get(MACRO_ID_PARAMETER));
+        String macroTemplate = String.format("{jirasprint:sprintId=%s}", getDefaultSprintName(parameters));
         return imagePlaceHolderHelper.getMacroImagePlaceholder(macroTemplate, MACRO_RESOURCE_PATH);
+    }
+
+    private String getDefaultSprintName(Map<String, String> parameters)
+    {
+        return StringUtils.defaultString(parameters.get("sprintName"), i18nResolver.getText("confluence.extra.jira.jirasprint.label"));
     }
 
     private String generateJiraSprintLink(ApplicationLink applicationLink, String sprintId)
