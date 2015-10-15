@@ -4,6 +4,7 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
@@ -15,7 +16,6 @@ import com.atlassian.confluence.plugins.sprint.services.JiraAgileService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
-import org.apache.commons.lang.StringUtils;
 import java.util.Map;
 
 /**
@@ -57,24 +57,25 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
     {
         ApplicationLink applicationLink = applicationLinkResolver.getAppLinkForServer("", parameters.get("serverId"));
+        Map<String, Object> contextMap =  MacroUtils.defaultVelocityContext();
+        String sprintId = parameters.get("sprintId");
+        contextMap.put("sprintId", sprintId);
         try
         {
             if (applicationLink == null)
             {
                 throw new MacroExecutionException(i18nResolver.getText("jira.sprint.error.noapplinks"));
             }
-            Map<String, Object> contextMap =  MacroUtils.defaultVelocityContext();
-            contextMap.put("sprintId", parameters.get("sprintId"));
+            contextMap.put("clickableUrl", generateJiraSprintLink(applicationLink, sprintId));
             try
             {
                 JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(applicationLink, parameters.get(MACRO_ID_PARAMETER));
                 contextMap.put("sprintName", jiraSprintModel.getName());
                 contextMap.put("status", jiraSprintModel.getState());
-                contextMap.put("clickableUrl", generateBoardLink(applicationLink, parameters.get("boardId"), jiraSprintModel));
             }
             catch (CredentialsRequiredException credentialsRequiredException)
             {
-                contextMap.put("sprintName", "Jira Sprint");
+                contextMap.put("sprintName", i18nResolver.getText("confluence.extra.jira.jirasprint.label"));
                 contextMap.put("oAuthUrl", credentialsRequiredException.getAuthorisationURI().toString());
             }
 
@@ -83,7 +84,8 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
         }
         catch (Exception e)
         {
-            return jiraExceptionHelper.renderNormalJIMExceptionMessage(e);
+            contextMap.put("jiraLinkText", i18nResolver.getText("confluence.extra.jira.jirasprint.label"));
+            return jiraExceptionHelper.renderNormalJIMExceptionMessage(new JiraIssueMacroException(e, contextMap));
         }
     }
 
@@ -106,18 +108,8 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
         return imagePlaceHolderHelper.getMacroImagePlaceholder(macroTemplate, MACRO_RESOURCE_PATH);
     }
 
-    private String generateBoardLink(ApplicationLink applicationLink, String boardId, JiraSprintModel jiraSprintModel)
+    private String generateJiraSprintLink(ApplicationLink applicationLink, String sprintId)
     {
-        String board = StringUtils.defaultIfBlank(boardId, String.valueOf(jiraSprintModel.getOriginBoardId()));
-        String rapidBoardUrl = applicationLink.getDisplayUrl() + "/secure/RapidBoard.jspa?rapidView=" + board;
-        if (StringUtils.equalsIgnoreCase(jiraSprintModel.getState(), "closed"))
-        {
-            rapidBoardUrl += "&view=reporting&chart=burndownChart&sprint=" + jiraSprintModel.getId();
-        }
-        else if (StringUtils.equalsIgnoreCase(jiraSprintModel.getState(), "future"))
-        {
-            rapidBoardUrl += "&view=planning";
-        }
-        return rapidBoardUrl;
+        return applicationLink.getDisplayUrl() + "/secure/GHGoToBoard.jspa?sprintId=" + sprintId;
     }
 }

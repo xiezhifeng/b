@@ -4,16 +4,16 @@
  * Renders sprint macro
  * @param sprintId sprintId
  * @param sprintName sprint name
+ * @param clickableUrl url to jira
  * @param? oAuthUrl authentication link if required
  * @param? clientId id if apply asynchronous loading
- * @param? clickableUrl url to jira
  * @param? isPlaceholder if render macro in placeholder mode
  * @param? status status of sprint
  */
 {template .createSprintMacro}
     {if $oAuthUrl}
         <span class="jira-issue lock-jira-issue jira-sprint" data-issue-key="{$sprintId}" {if $clientId} data-client-id="{$clientId}" {/if}>
-            <a class="issue-link" href="{$oAuthUrl}">{$sprintName}</a>
+            <a class="issue-link" href="{$clickableUrl}">{$sprintName}</a>
             <span class="oauth-msg"> -
                 <a class="static-oauth-init" href="{$oAuthUrl}">{getText('jiraissues.oauth.linktext')}</a>
                 {getText('jiraissues.oauth.single.message')}
