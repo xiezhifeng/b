@@ -3,6 +3,8 @@ package it.com.atlassian.confluence.plugins.webdriver.sprint;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -11,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static it.com.atlassian.confluence.plugins.webdriver.model.SprintStatus.*;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
 {
     @Test
