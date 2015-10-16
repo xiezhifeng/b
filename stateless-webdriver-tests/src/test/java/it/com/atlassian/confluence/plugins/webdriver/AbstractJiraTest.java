@@ -240,14 +240,14 @@ public class AbstractJiraTest
 
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelDialogFromMacroBrowser(EditContentPage editPage) throws Exception
     {
-        openDialogFromMacroBrowser("embed jira issues");
+        openDialogFromMacroBrowser(editPage, "embed jira issues");
         return pageBinder.bind(JiraMacroSearchPanelDialog.class);
 
     }
 
     protected JiraSprintMacroDialog openSprintDialogFromMacroBrowser(EditContentPage editPage) throws Exception
     {
-        openDialogFromMacroBrowser("jira sprints");
+        openDialogFromMacroBrowser(editPage, "jira sprints");
         return pageBinder.bind(JiraSprintMacroDialog.class);
     }
 
@@ -311,7 +311,7 @@ public class AbstractJiraTest
 
     protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication)
     {
-        openDialogFromMacroBrowser("jira chart");
+        openDialogFromMacroBrowser(editPage, "jira chart");
         PieChartDialog dialogPieChart = pageBinder.bind(PieChartDialog.class);
 
         if (isAutoAuthentication)
@@ -361,9 +361,9 @@ public class AbstractJiraTest
         return pageBinder.bind(TwoDimensionalChartDialog.class);
     }
 
-    private void openDialogFromMacroBrowser(String macroName)
+    private void openDialogFromMacroBrowser(EditContentPage editContentPage, String macroName)
     {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editContentPage);
 
         // "searchForFirst" method is flaky test. It types and search too fast.
         // macroBrowserDialog.searchForFirst("jira chart").select();
