@@ -591,8 +591,9 @@
 
     <properties>
         <od.testing.configuration>
-            include-artifact,self
-            set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
+            use-maven,3
+            use-java,8
+            include-artifact,com.atlassian.confluence.plugins:stateless-webdriver-tests
         </od.testing.configuration>
     </properties>
 </project>
