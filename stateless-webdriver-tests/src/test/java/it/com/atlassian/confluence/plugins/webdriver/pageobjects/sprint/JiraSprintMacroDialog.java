@@ -21,6 +21,9 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
     @ElementBy(id = "s2id_jira-sprint-sprint")
     protected SelectElement sprintSelect;
 
+    @ElementBy(cssSelector = ".insert-jira-sprint-macro-button")
+    protected PageElement insertButton;
+
     public JiraSprintMacroDialog()
     {
         super("jira-sprint");
@@ -40,6 +43,11 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
         return panelBodyDialog;
     }
 
+    public void insert()
+    {
+        insertButton.click();
+    }
+
     public void selectBoard(String boardName)
     {
 
@@ -51,6 +59,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
     public void selectSprint(String sprintName)
     {
         Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
+        select.openDropdown();
         select.chooseOption(sprintName);
     }
 
@@ -58,14 +67,22 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
     {
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
         select.openDropdown();
-        return select.getAllOptions();
+        List<String> options = select.getAllOptions();
+        options.remove(0);
+        select.closeDropdown();
+
+        return options;
     }
 
     public List<String> getAllSprintOptions()
     {
         Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
         select.openDropdown();
-        return select.getAllOptions();
+        List<String> options = select.getAllOptions();
+        options.remove(0);
+        select.closeDropdown();
+
+        return options;
     }
 
     public String getSelectedBoard()

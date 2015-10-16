@@ -7,7 +7,7 @@ import org.openqa.selenium.By;
 
 public class JiraSprintMacroPage extends ViewPage
 {
-    @ElementBy(cssSelector = ".sprint.jira-issue")
+    @ElementBy(cssSelector = ".jira-issue.jira-sprint")
     private PageElement sprint;
 
     public String getSprintName()

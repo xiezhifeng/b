@@ -4,7 +4,6 @@ import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorCon
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -13,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static it.com.atlassian.confluence.plugins.webdriver.model.SprintStatus.*;
 import static org.junit.Assert.assertTrue;
 
-@Ignore
 public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
 {
     @Test
@@ -36,7 +34,7 @@ public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
         sprintDialog.selectBoard(SCRUM_BOARD_1.getName());
         sprintDialog.selectSprint(SPRINT2.getName());
 
-        sprintDialog.clickInsertDialog();
+        sprintDialog.insert();
 
         // check edit mode
         EditorContent editorContent = editPage.getEditor().getContent();
@@ -80,7 +78,7 @@ public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
 
         assertEquals("Sprint name is not stored correctly", SPRINT1.getName(), sprintPage.getSprintName());
         assertEquals("Sprint status is not displayed correctly", CLOSED.name(), sprintPage.getSprintStatus());
-        assertTrue("Sprint is not linked to sprint report", sprintPage.getSprintLink().contains("burndownChart"));
+        assertTrue("Sprint is not linked to sprint report", sprintPage.getSprintLink().contains("GHGoToBoard.jspa?sprintId=1"));
 
         // return to edit mode for other tests
         sprintPage.edit();

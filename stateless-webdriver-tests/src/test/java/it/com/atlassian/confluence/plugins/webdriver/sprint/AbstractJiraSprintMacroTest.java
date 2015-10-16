@@ -9,11 +9,9 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSpri
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 
 import static it.com.atlassian.confluence.plugins.webdriver.model.SprintStatus.*;
 
-@Ignore
 public class AbstractJiraSprintMacroTest extends AbstractJiraTest
 {
     protected static final BoardModel SCRUM_BOARD_1 = new ScrumBoardModel("Scrum Board 1");
@@ -56,7 +54,7 @@ public class AbstractJiraSprintMacroTest extends AbstractJiraTest
     @After
     public void tearDown() throws Exception
     {
-        closeDialog(jiraMacroCreatePanelDialog);
+        closeDialog(sprintDialog);
     }
 
     protected JiraSprintMacroPage createSprintPage(BoardModel board, SprintModel sprint)
@@ -64,7 +62,7 @@ public class AbstractJiraSprintMacroTest extends AbstractJiraTest
         sprintDialog.selectBoard(board.getName());
         sprintDialog.selectSprint(sprint.getName());
 
-        sprintDialog.clickInsertDialog();
+        sprintDialog.insert();
         editPage.save();
 
         return bindCurrentPageToSprintPage();
