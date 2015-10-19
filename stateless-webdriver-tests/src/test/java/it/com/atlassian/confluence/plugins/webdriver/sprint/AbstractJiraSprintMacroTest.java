@@ -60,8 +60,9 @@ public class AbstractJiraSprintMacroTest extends AbstractJiraTest
     protected JiraSprintMacroPage createSprintPage(BoardModel board, SprintModel sprint)
     {
         sprintDialog.selectBoard(board.getName());
+        waitForAjaxRequest();
         sprintDialog.selectSprint(sprint.getName());
-
+        waitForAjaxRequest();
         sprintDialog.insert();
         editPage.save();
 
