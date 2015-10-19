@@ -10,15 +10,6 @@ import javax.inject.Inject;
 
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.it.User;
-import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraChartViewPage;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.TwoDimensionalChartDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.test.api.model.person.UserWithDetails;
 import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.confluence.test.rest.api.ConfluenceRestClient;
@@ -31,7 +22,6 @@ import com.atlassian.confluence.test.stateless.fixtures.GroupFixture;
 import com.atlassian.confluence.test.stateless.fixtures.SpaceFixture;
 import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
 import com.atlassian.confluence.webdriver.pageobjects.ConfluenceTestedProduct;
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroForm;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
@@ -42,13 +32,15 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPa
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.PageBinder;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Conditions;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 import com.atlassian.webdriver.utils.element.WebDriverPoller;
+
 import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.hamcrest.Matchers;
@@ -58,8 +50,23 @@ import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.AbstractJiraIssueMacroDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraChartViewPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.TwoDimensionalChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
 
 import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
@@ -105,14 +112,14 @@ public class AbstractJiraTest
     protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
     protected JiraSprintMacroDialog sprintDialog;
     protected static EditContentPage editPage;
-    protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
+    protected JiraMacroSearchPanelDialog dialogSearchPanel;
     protected JiraMacroRecentPanelDialog dialogJiraRecentView;
     protected CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart = null;
     protected TwoDimensionalChartDialog dialogTwoDimensionalChart;
     protected PieChartDialog dialogPieChart;
     protected static JiraChartViewPage pageJiraChartView;
     protected static ViewPage viewPage;
-    protected JiraMacroSearchPanelDialog dialogSearchPanel;
+
 
     public static final HttpClient client = new HttpClient();
 
@@ -189,12 +196,11 @@ public class AbstractJiraTest
         return editPage;
     }
 
-    protected void closeDialog(final Dialog dialog)
+    protected void closeDialog(AbstractJiraIssueMacroDialog dialog)
     {
         if (dialog != null && dialog.isVisible())
         {
             dialog.clickCancel();
-            dialog.waitUntilHidden();
         }
     }
 
@@ -241,8 +247,8 @@ public class AbstractJiraTest
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelDialogFromMacroBrowser(EditContentPage editPage) throws Exception
     {
         openDialogFromMacroBrowser(editPage, "embed jira issues");
-        return pageBinder.bind(JiraMacroSearchPanelDialog.class);
-
+        JiraMacroSearchPanelDialog dialog = pageBinder.bind(JiraMacroSearchPanelDialog.class);
+        return dialog;
     }
 
     protected JiraSprintMacroDialog openSprintDialogFromMacroBrowser(EditContentPage editPage) throws Exception
@@ -269,8 +275,7 @@ public class AbstractJiraTest
     protected JiraMacroCreatePanelDialog openJiraMacroCreateNewIssuePanelFromMenu() throws Exception
     {
         JiraMacroSearchPanelDialog dialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        dialog.selectMenuItem("Create New Issue");
-
+        dialog.selectTabItem("Create New Issue");
         jiraMacroCreatePanelDialog = pageBinder.bind(JiraMacroCreatePanelDialog.class);
         return jiraMacroCreatePanelDialog;
     }
@@ -282,19 +287,22 @@ public class AbstractJiraTest
 
     protected JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction) throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         if (withPasteAction)
         {
-            jiraMacroSearchPanelDialog.pasteJqlSearch(jql);
+            dialogSearchPanel.pasteJqlSearch(jql);
         }
         else
         {
-            jiraMacroSearchPanelDialog.inputJqlSearch(jql);
+            dialogSearchPanel.inputJqlSearch(jql);
         }
 
-        jiraMacroSearchPanelDialog.clickSearchButton();
+        dialogSearchPanel.clickSearchButton();
 
-        EditContentPage editContentPage = jiraMacroSearchPanelDialog.clickInsertDialog();
+        Poller.waitUntilTrue(dialogSearchPanel.isInsertButtonEnabledTimed());
+        EditContentPage editContentPage = dialogSearchPanel.clickInsertDialog();
+        dialogSearchPanel.waitUntilHidden();
+
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();
         return bindCurrentPageToJiraIssues();
@@ -313,18 +321,20 @@ public class AbstractJiraTest
     protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication)
     {
         openDialogFromMacroBrowser(editPage, "jira chart");
-        PieChartDialog dialogPieChart = pageBinder.bind(PieChartDialog.class);
+        PieChartDialog dialog = pageBinder.bind(PieChartDialog.class);
+        dialog.waitUntilVisible();
 
         if (isAutoAuthentication)
         {
-            if (dialogPieChart.needAuthentication())
+            if (dialog.needAuthentication())
             {
                 // going to authenticate
-                dialogPieChart.doOAuthenticate();
+                dialog.doOAuthenticate();
+                dialog = pageBinder.bind(PieChartDialog.class);
             }
         }
 
-        return dialogPieChart;
+        return dialog;
     }
 
     protected PieChartDialog openPieChartAndSearch()
@@ -349,17 +359,48 @@ public class AbstractJiraTest
     protected CreatedVsResolvedChartDialog openJiraChartCreatedVsResolvedPanelDialog()
     {
         PieChartDialog pieChartDialog = openPieChartDialog(true);
-        pieChartDialog.selectMenuItem("Created vs Resolved");
-
+        pieChartDialog.selectTabItem("Created vs Resolved");
+        closeExistingAlertIfHave();
         return pageBinder.bind(CreatedVsResolvedChartDialog.class);
     }
 
     protected TwoDimensionalChartDialog openTwoDimensionalChartDialog()
     {
         PieChartDialog pieChartDialog = openPieChartDialog(true);
-        pieChartDialog.selectMenuItem("Two Dimensional");
-
+        pieChartDialog.selectTabItem("Two Dimensional");
+        closeExistingAlertIfHave();
         return pageBinder.bind(TwoDimensionalChartDialog.class);
+    }
+
+
+    /**
+     * Try to close/dismiss any alert dialog if it appears in editor page.
+     * Somehow there is sometimes alert popup editor page. For instance,
+     * when users click a link to do authentication in editor, it will open a new tab/window and trigger "unload" event
+     * to trigger an alert popup in editor page.
+     */
+    public void closeExistingAlertIfHave()
+    {
+        try
+        {
+            WebDriver driver = product.getTester().getDriver();
+            WebDriverWait wait = new WebDriverWait(driver, 1);
+            wait.until(ExpectedConditions.alertIsPresent());
+            driver.switchTo().alert().dismiss();
+
+            Poller.waitUntilTrue("alert did not disappear after dismissing", Conditions.forSupplier(new Supplier<Boolean>()
+            {
+                @Override
+                public Boolean get()
+                {
+                    return ExpectedConditions.alertIsPresent().apply(product.getTester().getDriver()) == null;
+                }
+            }));
+        }
+        catch (Exception ignored)
+        {
+            log.error("There is no existing alert", ignored);
+        }
     }
 
     private void openDialogFromMacroBrowser(EditContentPage editContentPage, String macroName)
@@ -379,5 +420,30 @@ public class AbstractJiraTest
 
         MacroForm macroForm = macroItems.iterator().next().select();
         macroForm.waitUntilHidden();
+    }
+
+    /**
+     * Make sure we are in editing mode to run some tests.
+     * This method is usually called on before running a test.
+     */
+    public void getReadyOnEditTestPage()
+    {
+        if (editPage == null)
+        {
+            editPage = gotoEditTestPage(user.get());
+        }
+        else
+        {
+            if (editPage.getEditor().isCancelVisibleNow())
+            {
+                // in editor page.
+                editPage.getEditor().getContent().clear();
+            }
+            else
+            {
+                // in view page, and then need to go to edit page.
+                editPage = gotoEditTestPage(user.get());
+            }
+        }
     }
 }

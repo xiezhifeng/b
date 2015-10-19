@@ -33,7 +33,7 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
         thiz.chartElements.server.change(function() {
             AJS.Editor.JiraChart.Helper.populateStatType(thiz.container, thiz.chartElements.statType);
             if (thiz.isFormValid()) {
-                AJS.Editor.JiraChart.search(thiz.container);
+                thiz.doSearch();
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
@@ -73,5 +73,3 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
 
 AJS.Editor.JiraChart.Panel.PieChart.prototype = AJS.Editor.JiraChart.Panel.prototype;
 AJS.Editor.JiraChart.Panel.PieChart.prototype.constructor = AJS.Editor.JiraChart.Panel.PieChart;
-
-AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.PieChart(AJS.$));

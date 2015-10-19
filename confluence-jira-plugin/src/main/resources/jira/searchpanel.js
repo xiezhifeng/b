@@ -1,6 +1,8 @@
 AJS.Editor.JiraConnector.Panel.Search = function() {
     this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
+    this.COLLAPSED_OPTION_TOP_POSITION = 300;
 };
+
 AJS.Editor.JiraConnector.Select2 = AJS.Editor.JiraConnector.Select2 || {};
 
 AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions = function(jiraColumnSelectBox) {
@@ -18,6 +20,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         DEFAULT_MAX_ISSUES_VAL : 20,
         MAXIMUM_MAX_ISSUES_VAL : 1000,
         MINIMUM_MAX_ISSUES_VAL : 1,
+
         title: function() {
             return AJS.I18n.getText("insert.jira.issue.search");
         },
@@ -700,6 +703,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         }
                     });
         },
+
         expandDisplayOptPanel: function() {
             var displayOptsOverlay = AJS.$('.jql-display-opts-overlay');
             var currentHeighOfOptsOverlay = displayOptsOverlay.height();
@@ -713,8 +717,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             displayOptsOverlay.css("bottom", currentBottomPosition + "px");
             displayOptsOverlay.animate({
                 bottom: 0
-            }, 500 );
+            }, 500, function() {
+                displayOptsOverlay.attr('aria-disabled', false);
+            });
         },
+
         minimizeDisplayOptPanel: function() {
             var displayOptsOverlay = AJS.$('.jql-display-opts-overlay');
             //Need to get the current top value and set to the displayOptOverlay
@@ -722,15 +729,21 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             displayOptsOverlay.css("top", displayOptsOverlay.position().top + "px");
             displayOptsOverlay.css("bottom", "");
             displayOptsOverlay.animate({
-                top: 420
-            }, 500 );
+                top: this.COLLAPSED_OPTION_TOP_POSITION
+            }, 500, function() {
+                displayOptsOverlay.attr('aria-disabled', true);
+            });
 
         },
         disableAutoSelectColumns : function() {
-            AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
+            if (AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox) {
+                AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
+            }
         },
         enableAutoSelectColumns : function() {
-            AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
+            if (AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox) {
+                AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
+            }
         },
         checkAutoSelectColumns : function() {
             if (AJS.$('#opt-table').prop('checked')) {
@@ -743,18 +756,20 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         // bind event for new layout
         bindEventToDisplayOptionPanel: function(acceptNoResult, searchParams) {
             var thiz = this;
-            var displayOptsBtn = AJS.$('.jql-display-opts-close, .jql-display-opts-open'),
-            displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
-            optDisplayRadios = AJS.$('.jql-display-opts-inner .radio'),
-            ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
-            ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
+
+            var displayOptsOverlay = AJS.$('.jql-display-opts-overlay');
+            var displayOptsBtn = displayOptsOverlay.find('.jql-display-opts-close, .jql-display-opts-open');
+            var optDisplayRadios = displayOptsOverlay.find('.jql-display-opts-inner .radio');
+
+            var ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]');
+            var ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             var $maxiumIssues = AJS.$('#jira-maximum-issues');
 
             // CONF-30116
             $maxiumIssues.on("blur keyup", AJS.Editor.JiraConnector.Panel.Search.prototype.validateMaxIssues);
 
-            displayOptsOverlay.css("top", "420px");
-            
+            displayOptsOverlay.css('top', this.COLLAPSED_OPTION_TOP_POSITION + 'px');
+
             displayOptsBtn.click(function(e) {
                 e.preventDefault();
                 if(AJS.$(this).hasClass("disabled")) {
@@ -900,4 +915,3 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
     analyticPanelActionName: "confluence.jira.plugin.searchadded"
 
 });
-AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());

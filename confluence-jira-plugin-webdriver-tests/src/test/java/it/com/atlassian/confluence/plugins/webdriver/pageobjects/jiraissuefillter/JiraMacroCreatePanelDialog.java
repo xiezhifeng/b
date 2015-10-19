@@ -103,12 +103,6 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
         datepicker.type(duedate);
     }
 
-    public EditContentPage insertIssue()
-    {
-        clickButton("insert-issue-button", true);
-        return pageBinder.bind(EditContentPage.class);
-    }
-
     public TimedQuery<String> getJiraErrorMessages()
     {
         return jiraErrorMessages.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText();

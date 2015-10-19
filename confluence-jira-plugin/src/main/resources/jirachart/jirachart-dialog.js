@@ -120,16 +120,18 @@ AJS.Editor.JiraChart = (function($) {
     var processPostPopup = function() {
         var $container = popup.popup.element;
 
-        $container.find('#open-jira-issue-dialog').on('click', function() {
+        $container.find('#open-jira-issue-dialog').off('click').on('click', function() {
             AJS.Editor.JiraChart.close();
-            if (AJS.Editor.JiraConnector) {
-                AJS.Editor.JiraConnector.openCleanDialog(false);
-            }
+            AJS.trigger('jira.links.macro.dialog.open', {
+                name: 'jira' // macro id
+            });
         });
 
-        $container.find('#open-jira-sprint-dialog').on('click', function() {
+        $container.find('#open-jira-sprint-dialog').off('click').on('click', function() {
             AJS.Editor.JiraChart.close();
-            AJS.trigger('jim.jira.sprint.open');
+            AJS.trigger('jira.links.macro.dialog.open', {
+                name: 'jirasprint' // macro id
+            });
         });
     };
 
@@ -169,7 +171,6 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var validateServerSupportedChart = function(container) {
-
         if (container.find("#jira-chart-support-all-version").length) return true;
 
         var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer(container);
@@ -221,6 +222,7 @@ AJS.Editor.JiraChart = (function($) {
 
     var disableInsert = function() {
         $('#jira-chart').find('.insert-jira-chart-macro-button').disable();
+        AJS.trigger('jira.links.macro.dialog.disabled');
     };
 
     var enableInsert = function() {
@@ -228,6 +230,7 @@ AJS.Editor.JiraChart = (function($) {
         if ($insertButton.is(":disabled")) {
             $insertButton.enable();
         }
+        AJS.trigger('jira.links.macro.dialog.enabled');
     };
 
     var disableSearch = function(container) {
@@ -313,6 +316,8 @@ AJS.Editor.JiraChart = (function($) {
 
         },
 
+        checkOau: checkOau,
+
         search: doSearch,
         
         disableInsert : disableInsert,
@@ -334,10 +339,3 @@ AJS.Editor.JiraChart = (function($) {
         validateServerSupportedChart : validateServerSupportedChart
     };
 })(AJS.$);
-
-AJS.Editor.JiraChart.Panels = [];
-AJS.MacroBrowser.setMacroJsOverride('jirachart', {opener: AJS.Editor.JiraChart.edit});
-
-
-
-

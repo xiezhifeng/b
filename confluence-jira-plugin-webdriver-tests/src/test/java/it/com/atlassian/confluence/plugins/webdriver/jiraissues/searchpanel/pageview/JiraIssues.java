@@ -47,12 +47,15 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
 
     protected JiraIssuesPage createPageWithCountJiraIssueMacro(String jql) throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.inputJqlSearch(jql);
-        jiraMacroSearchPanelDialog.clickSearchButton();
-        jiraMacroSearchPanelDialog.openDisplayOption();
-        jiraMacroSearchPanelDialog.getDisplayOptionPanel().clickDisplayTotalCount();
-        EditContentPage editContentPage = jiraMacroSearchPanelDialog.clickInsertDialog();
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel.inputJqlSearch(jql);
+        dialogSearchPanel.clickSearchButton();
+        dialogSearchPanel.openDisplayOption();
+        dialogSearchPanel.getDisplayOptionPanel().clickDisplayTotalCount();
+
+        EditContentPage editContentPage = dialogSearchPanel.clickInsertDialog();
+        dialogSearchPanel.waitUntilHidden();
+
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();
         return bindCurrentPageToJiraIssues();
@@ -169,14 +172,14 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
     @Test
     public void testInsertTableByKeyQuery() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.inputJqlSearch("key = TP-1");
-        jiraMacroSearchPanelDialog.clickSearchButton();
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel.inputJqlSearch("key = TP-1");
+        dialogSearchPanel.clickSearchButton();
 
-        jiraMacroSearchPanelDialog.openDisplayOption();
-        jiraMacroSearchPanelDialog.getDisplayOptionPanel().clickDisplayTable();
+        dialogSearchPanel.openDisplayOption();
+        dialogSearchPanel.getDisplayOptionPanel().clickDisplayTable();
 
-        jiraMacroSearchPanelDialog.clickInsertDialog();
+        dialogSearchPanel.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
@@ -245,7 +248,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         globalTestAppLinkId = null;
     }
 
-     @Test
+    @Test
     public void testJIMTableIsCachedOnPageReload() throws Exception
     {
         ViewPage viewPage = createPageWithJiraIssueMacro("project = TSTT");

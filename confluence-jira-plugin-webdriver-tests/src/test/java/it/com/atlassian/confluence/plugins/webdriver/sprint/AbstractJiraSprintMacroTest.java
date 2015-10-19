@@ -32,23 +32,7 @@ public class AbstractJiraSprintMacroTest extends AbstractJiraTest
     @Before
     public void setup() throws Exception
     {
-        if (editPage == null)
-        {
-            editPage = gotoEditTestPage(user.get());
-        }
-        else
-        {
-            if (editPage.getEditor().isCancelVisibleNow())
-            {
-                // in editor page.
-                editPage.getEditor().getContent().clear();
-            }
-            else
-            {
-                // in view page, and then need to go to edit page.
-                editPage = gotoEditTestPage(user.get());
-            }
-        }
+        getReadyOnEditTestPage();
         sprintDialog = openSprintDialogFromMacroBrowser(editPage);
     }
 
@@ -68,7 +52,7 @@ public class AbstractJiraSprintMacroTest extends AbstractJiraTest
     {
         sprintDialog.selectBoard(board.getName());
         sprintDialog.selectSprint(sprint.getName());
-        sprintDialog.insert();
+        sprintDialog.clickInsertDialog();
         editPage.save();
 
         return bindCurrentPageToSprintPage();

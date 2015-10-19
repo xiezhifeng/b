@@ -12,6 +12,10 @@ public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
 {
     protected static final String CSS_SELECTOR_RECENT_PANEL = "#my-jira-search";
 
+    /**
+     * @deprecated Use {@link AbstractJiraIssueMacroDialog#getCurrentTabPanel()} instead.
+     */
+    @Deprecated
     @Override
     public PageElement getPanelBodyDialog()
     {
@@ -20,34 +24,35 @@ public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
         return panelBodyDialog;
     }
 
-    public JiraMacroSearchPanelDialog clickSearchButton()
-    {
-        Poller.waitUntilTrue(searchButton.timed().isVisible());
-        searchButton.click();
-        return this;
-    }
-
     public AbstractJiraIssueMacroDialog openDisplayOption()
     {
-        Poller.waitUntilTrue(getPanelBodyDialog().find(By.id("jiraMacroDlg")).timed().isVisible());
+        Poller.waitUntilTrue(getCurrentTabPanel().find(By.id("jiraMacroDlg")).timed().isVisible());
         return super.openDisplayOption();
     }
 
-    public TimedCondition hasInfoMessage(){
-        PageElement infoMessage = getPanelBodyDialog().find(By.cssSelector(".aui-message.info"));
-        return infoMessage.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible();
+    public TimedCondition hasInfoMessage()
+    {
+        return getInfoMessageElement().withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible();
     }
 
     public String getInfoMessage()
     {
-        return getPanelBodyDialog().find(By.cssSelector(".aui-message.info")).getText();
+        return getInfoMessageElement().getText();
     }
 
     public PageElement getWarningMessageElement()
     {
-        PageElement warningMessage = getPanelBodyDialog().find(By.cssSelector(".aui-message.warning"));
-        Poller.waitUntilTrue(warningMessage.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible());
+        PageElement el = getCurrentTabPanel().find(By.cssSelector('#' + JIRA_DIALOG_2_ID + " " + CSS_SELECTOR_RECENT_PANEL + " .aui-message.warning"));
+        Poller.waitUntilTrue(el.timed().isPresent());
+        Poller.waitUntilTrue(el.timed().isVisible());
+        return el;
+    }
 
-        return warningMessage;
+    public PageElement getInfoMessageElement()
+    {
+        PageElement el = getCurrentTabPanel().find(By.cssSelector("#" + JIRA_DIALOG_2_ID + " " + CSS_SELECTOR_RECENT_PANEL + " .aui-message.info"));
+        Poller.waitUntilTrue(el.timed().isPresent());
+        Poller.waitUntilTrue(el.timed().isVisible());
+        return el;
     }
 }

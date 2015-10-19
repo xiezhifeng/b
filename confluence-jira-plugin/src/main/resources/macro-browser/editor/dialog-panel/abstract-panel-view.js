@@ -6,7 +6,8 @@ define('confluence/jim/macro-browser/editor/dialog/abstract-panel-view', [
     'confluence/jim/macro-browser/editor/util/helper',
     'confluence/jim/macro-browser/editor/util/config',
     'confluence/jim/macro-browser/editor/util/service',
-    'confluence/jim/macro-browser/editor/util/select2-mixin'
+    'confluence/jim/macro-browser/editor/util/select2-mixin',
+    'confluence/jim/macro-browser/editor/dialog/validation-mixin'
 ],
 function(
     $,
@@ -16,12 +17,10 @@ function(
     helper,
     config,
     service,
-    Select2Mixin
+    Select2Mixin,
+    JiraDialogValidationMixin
 ) {
     'use strict';
-
-    // cache some global vars
-    var AppLinks = window.AppLinks;
 
     var FormDataModel = Backbone.Model.extend({
         defaults: {
@@ -35,13 +34,9 @@ function(
     });
 
     var AbstractPanelView = Backbone.View.extend({
-        initialize: function() {
-            // id of panel
-            this.panelId = '';
+        template: Confluence.Templates.JiraIssueMacro.Dialog,
 
-            // title of panel
-            this.panelTitle = '';
-
+        initialize: function(options) {
             // essential DOM elements should be initialized in child panel view
             this.view = {
                 $errorMessage: null,
@@ -49,31 +44,56 @@ function(
             };
 
             this.servers = [];
+            this.macroId = options && options.macroId ? options.macroId : ''; // macroIf of current panel.
+
+            // instance of dialog view.
+            this.dialogView = null;
 
             this.on('reload.data', function() {
-                this._fillServersData();
+                this.dialogView.refresh();
             }, this);
+
+            this.isAlreadyInit = false;
         },
 
         render: function(options) {
             this.dialogView = options.dialog;
-            this.panelDialog = options.panelDialog;
 
             // reset container
             if (options.$el) {
                 this.$el = options.$el;
-            } else {
-                this.$el = this.panelDialog.body;
+                this.el = this.$el[0];
+                this.delegateEvents();
             }
-            this.el = this.$el[0];
-            this.delegateEvents();
 
             this.listenTo(this.dialogView, 'dialog.process.begin', this.onBeginInitDialog);
             this.listenTo(this.dialogView, 'dialog.process.finish', this.onEndInitDialog);
-            this.listenTo(this.dialogView, 'dialog.showing.begin', this.onOpenDialog);
 
             this.formData = new FormDataModel();
             this.listenTo(this.formData, 'change:selectedServer', this._handleServerChanged);
+        },
+
+        init: function() {
+            this.initWithMacroOption({}, false);
+        },
+
+        initWithMacroOption: function(openDialogOptions, isOpenFromMacro) {
+            this.dialogView.toggleEnableInsertButton(true);
+
+            // just init once time because we want to keep view state when switching between panels/views
+            if (this.isAlreadyInit) {
+                return;
+            }
+
+            this.isAlreadyInit = true;
+
+            this.macroOptions = isOpenFromMacro ? openDialogOptions : null;
+            this.formData.reset();
+            this._fillServersData().done(function() {
+                if (isOpenFromMacro) {
+                    this.setSelect2Value(this.view.$servers, openDialogOptions.params.serverId);
+                }
+            }.bind(this));
         },
 
         /**
@@ -90,32 +110,12 @@ function(
                     'select2-server-dropdown',
                     AJS.I18n.getText('jira.server.placeholder'),
                     true);
-
-            this._fillServersData();
         },
 
         onBeginInitDialog: function() {
         },
 
         onEndInitDialog: function() {
-        },
-
-        onOpenDialog: function(macroOptions) {
-            this.formData.reset();
-            if (macroOptions && macroOptions.params && macroOptions.name === this.dialogView.macroId) {
-                this.macroOptions = macroOptions;
-
-                this._fillServersData().done(function() {
-                    this.reset();
-                    this.setSelect2Value(this.view.$servers, macroOptions.params.serverId);
-                }.bind(this));
-            } else {
-                this.macroOptions = null;
-                this._fillServersData().done(function() {
-                    this.selectFirstValueInSelect2(this.view.$servers);
-                    this.reset();
-                }.bind(this));
-            }
         },
 
         reset: function() {
@@ -130,9 +130,9 @@ function(
 
         toggleEnablePanel: function(isEnabled) {
             if (isEnabled) {
-                this.$('input, area').removeAttr('disabled');
+                this.$('input, area, button').enable();
             } else {
-                this.$('input, area').attr('disabled', 'disabled');
+                this.$('input, area, button').disable();
             }
 
             this.dialogView.toggleEnableInsertButton(isEnabled);
@@ -196,35 +196,8 @@ function(
             this.toggleCreateButton(false);
         },
 
-        validateServer: function(server) {
-            var _this = this;
-
-            var isValid = this.validateJiraServerSupported(server);
-
-            if (isValid && server && server.authUrl) {
-                var markup = this.template.errorMessageOauth();
-                this.view.$errorMessage
-                        .removeClass('hidden')
-                        .append(markup);
-
-                this.view.$errorMessage.find('a').click(function(e) {
-                    e.preventDefault();
-
-                    AppLinks.authenticateRemoteCredentials(server.authUrl, function() {
-                        server.authUrl = null;
-                        _this.view.$errorMessage.empty().addClass('hidden');
-                        _this.trigger('reload.data');
-                    });
-                });
-
-                isValid = false;
-            }
-
-            return isValid;
-        },
-
         validateRequiredFields: function($el, message) {
-            var val = $.trim($el.val());
+            var val = AJS.trim($el.val());
 
             if (!val || val === config.DEFAULT_OPTION_VALUE) {
                 this.toggleSiblingErrorMessage($el, true, message);
@@ -232,25 +205,6 @@ function(
             }
 
             this.toggleSiblingErrorMessage($el, false);
-
-            return true;
-        },
-
-        validateJiraServerSupported: function(server) {
-            if (helper.isJiraUnSupportedVersion(server)) {
-                var markup = Confluence.Templates.ConfluenceJiraPlugin.showJiraUnsupportedVersion({});
-
-                this.view.$errorMessage
-                        .html(markup)
-                        .removeClass('hidden');
-
-                this.toggleEnablePanel(false);
-
-                return false;
-            }
-
-            this.view.$errorMessage.empty().addClass('hidden');
-            this.toggleEnablePanel(true);
 
             return true;
         },
@@ -267,7 +221,6 @@ function(
             this.toggleSelect2Loading($select, true);
 
             dfd.done(function() {
-                this.toggleSelect2Loading($select, false);
                 this.view.$errorMessage.empty().addClass('hidden');
             }.bind(this));
 
@@ -293,17 +246,15 @@ function(
                             return;
                         }
 
-                        var templateSelect2Option = this.template.serverOptions;
-                        this.fillDataSelect2(this.view.$servers, templateSelect2Option, {servers: this.servers});
+                        this.fillDataSelect2(this.view.$servers, this.servers);
 
-                        // only have one server, select it and hide server select2
+                        // only have one server, hide server select2
                         if (this.servers.length === 1) {
                             this.view.$servers.parent().addClass('hidden');
                             this.removeEmptyOptionInSelect2(this.view.$servers);
-
-                            // trigger change to load other data, such as board data
-                            this.setSelect2Value(this.view.$servers, this.servers[0].id);
                         }
+
+                        this.selectFirstValueInSelect2(this.view.$servers);
                     }.bind(this));
         },
 
@@ -320,26 +271,37 @@ function(
             if (this.formData.get('isValid')) {
                 this.dialogView.toggleEnableInsertButton(true);
             } else {
+                // avoid "formData" model trigger change event
+                this.formData.attributes.selectedServer = null;
                 this.dialogView.toggleEnableInsertButton(false);
             }
         },
 
         _onSelectServerChanged: function() {
             var serverId = this.view.$servers.val();
+            var selectedServer = _.findWhere(this.servers, {id: serverId});
 
-            if (!serverId || serverId === config.DEFAULT_OPTION_VALUE) {
+            if (!selectedServer) {
                 this.formData.set('isValid', false);
             } else {
                 this.formData.set('isValid', true);
             }
 
-            var selectedServer = _.findWhere(this.servers, {id: serverId});
             this.formData.set('selectedServer', selectedServer);
+        },
+
+        destroy: function() {
+            this.remove();
+        },
+
+        validate: function() {
+            AJS.debug('Child view must implement "validate" method.');
         }
     });
 
     // extend with some mixins
     _.extend(AbstractPanelView.prototype, Select2Mixin);
+    _.extend(AbstractPanelView.prototype, JiraDialogValidationMixin);
 
     return AbstractPanelView;
 });

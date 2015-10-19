@@ -4,7 +4,6 @@ import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlac
 import com.atlassian.pageobjects.elements.PageElement;
 
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;

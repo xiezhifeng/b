@@ -19,8 +19,6 @@ function(
      * These methods will extend other object, such as a Backbone View.
      */
     var Select2Mixin = {
-        template: Confluence.Templates.JiraSprints.Dialog,
-
         setupSelect2: function($el, containerCSS, dropDownCSS, placeholderText, isRequired) {
             var opts = {
                 width: '300px',
@@ -45,11 +43,12 @@ function(
             this.$(dropDownCSS + ' .select2-input').attr('placeholder', placeholderText);
         },
 
-        fillDataSelect2: function($el, templateName, option) {
+        fillDataSelect2: function($el, data) {
+            this.toggleSelect2Loading($el, false);
             this.toggleEnableSelect2($el, false);
             this.resetAndAddDefaultOption($el);
 
-            var markup = templateName(option);
+            var markup = this.template.selectOptions({items: data});
             $el.append(markup);
 
             this.toggleEnableSelect2($el, true);
@@ -74,22 +73,26 @@ function(
         },
 
         toggleSelect2Loading: function($el, isLoading) {
+            this.resetSelect2Options($el);
+
             if (isLoading) {
-                this.resetSelect2Options($el);
+                $el.after('<span class="aui-icon aui-icon-wait">Loading...</span>');
                 this.toggleEnableSelect2($el, false);
 
                 var markup = this.template.loadingOption();
                 $el.append(markup);
 
-                $el.auiSelect2('val', 'loading');
-
+                this.selectFirstValueInSelect2($el);
             } else {
-                this.resetSelect2Options($el);
+                $el.parent().find('.aui-icon-wait').remove();
                 this.toggleEnableSelect2($el, true);
             }
         },
 
         resetSelect2Options: function($el) {
+            this.toggleEnableSelect2($el, true);
+            $el.parent().find('.aui-icon-wait').remove();
+
             $el.empty();
             $el.auiSelect2('data', null);
         },
@@ -114,7 +117,6 @@ function(
 
             return false;
         }
-
     };
 
     return Select2Mixin;

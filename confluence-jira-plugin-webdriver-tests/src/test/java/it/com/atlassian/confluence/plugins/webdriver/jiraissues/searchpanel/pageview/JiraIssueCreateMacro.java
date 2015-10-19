@@ -24,11 +24,11 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
     public void testCreateLinkMacroWithParamCount() throws Exception
     {
         openJiraIssueSearchPanelAndStartSearch(searchStr);
-        jiraMacroSearchPanelDialog.openDisplayOption();
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
+        dialogSearchPanel.openDisplayOption();
+        DisplayOptionPanel displayOptionPanel = dialogSearchPanel.getDisplayOptionPanel();
         displayOptionPanel.clickDisplayTotalCount();
 
-        editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
+        editPage = dialogSearchPanel.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
 
@@ -40,12 +40,12 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
     public void testCreatePageWithParamColumnMacro() throws Exception
     {
         openJiraIssueSearchPanelAndStartSearch(searchStr);
-        jiraMacroSearchPanelDialog.openDisplayOption();
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
+        dialogSearchPanel.openDisplayOption();
+        DisplayOptionPanel displayOptionPanel = dialogSearchPanel.getDisplayOptionPanel();
         displayOptionPanel.removeAllColumns();
         displayOptionPanel.addColumn("Key", "Summary");
 
-        editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
+        editPage = dialogSearchPanel.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
 

@@ -54,6 +54,13 @@ function(
                 url: AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/agile/' + serverId + '/boards/' + boardId + '/sprints',
                 timeout: AJS.Meta.getNumber('connection-timeout')
             });
+        },
+
+        getLabelsOfPage: function() {
+            var pageId =  AJS.Meta.get('page-id');
+            var url = AJS.contextPath() + '/rest/ui/1.0/content/' + pageId + '/labels';
+
+            return $.getJSON(url);
         }
     };
 });

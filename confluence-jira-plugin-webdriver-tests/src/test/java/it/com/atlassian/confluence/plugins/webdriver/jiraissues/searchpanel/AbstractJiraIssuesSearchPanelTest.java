@@ -36,29 +36,13 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     @Before
     public void setup() throws Exception
     {
-        if (editPage == null)
-        {
-            editPage = gotoEditTestPage(user.get());
-        }
-        else
-        {
-            if (editPage.getEditor().isCancelVisibleNow())
-            {
-                // in editor page.
-                editPage.getEditor().getContent().clear();
-            }
-            else
-            {
-                // in view page, and then need to go to edit page.
-                editPage = gotoEditTestPage(user.get());
-            }
-        }
+        getReadyOnEditTestPage();
     }
 
     @After
     public void tearDown() throws Exception
     {
-        closeDialog(jiraMacroSearchPanelDialog);
+        closeDialog(dialogSearchPanel);
     }
 
     @AfterClass
@@ -69,9 +53,9 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelAndStartSearch(String searchValue) throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.inputJqlSearch(searchValue);
-        return jiraMacroSearchPanelDialog.clickSearchButton();
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel.inputJqlSearch(searchValue);
+        return (JiraMacroSearchPanelDialog) dialogSearchPanel.clickSearchButton();
     }
 
     protected JiraMacroPropertyPanel getJiraMacroPropertyPanel(MacroPlaceholder macroPlaceholder)
@@ -89,20 +73,20 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 
     protected EditContentPage insertJiraIssueMacroWithEditColumn(List<String> columnNames, String jql) throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.inputJqlSearch(jql);
-        jiraMacroSearchPanelDialog.clickSearchButton();
-        jiraMacroSearchPanelDialog.openDisplayOption();
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel.inputJqlSearch(jql);
+        dialogSearchPanel.clickSearchButton();
+        dialogSearchPanel.openDisplayOption();
 
         //clean all column default and add new list column
-        jiraMacroSearchPanelDialog.cleanAllOptionColumn();
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
+        dialogSearchPanel.cleanAllOptionColumn();
+        DisplayOptionPanel displayOptionPanel = dialogSearchPanel.getDisplayOptionPanel();
         for(String columnName : columnNames)
         {
             displayOptionPanel.addColumn(columnName);
         }
 
-        EditContentPage editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
+        EditContentPage editPage = dialogSearchPanel.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         EditorContent editorContent = editPage.getEditor().getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);

@@ -1,5 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.pageobjects;
 
+import java.util.List;
+
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
@@ -9,14 +11,21 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.Queries;
 import com.atlassian.pageobjects.elements.query.TimedCondition;
+import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
+
 import com.google.common.base.Supplier;
+
+import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 
-import java.util.List;
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntilFalse;
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 
 /**
  * Some methods in this class are belong to "com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraIssueFilterDialog".
@@ -24,12 +33,19 @@ import java.util.List;
  */
 public abstract class AbstractJiraIssueMacroDialog extends Dialog
 {
+    public static final String JIRA_DIALOG_2_ID = "jira-issue-dialog";
+    public static final String OAUTH_URL = "/jira/plugins/servlet/oauth/authorize";
+    public static final String OAUTH_LOGIN_JIRA_URL = "/jira/login.jsp?permissionViolation=true";
+
     @ElementBy(cssSelector = ".jiraSearchResults")
     protected PageElement issuesTable;
 
-    public AbstractJiraIssueMacroDialog(String id)
+    @ElementBy(cssSelector = "#" + JIRA_DIALOG_2_ID + " .dialog-submit-button")
+    protected PageElement insertButton;
+
+    public AbstractJiraIssueMacroDialog()
     {
-        super(id);
+        super(JIRA_DIALOG_2_ID);
     }
 
     @Init
@@ -38,17 +54,41 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         waitUntilVisible();
     }
 
-    public void selectMenuItem(String menuItemText)
+    /**
+     * Select a tab by tab name
+     * @param tabText
+     */
+    public void selectTabItem(String tabText)
     {
-        List<PageElement> menuItems = getDialogMenu().findAll(By.tagName("button"));
-        for(PageElement menuItem : menuItems)
+        List<PageElement> tabAnchors = getDialogTabsOfCurrentPanel().findAll(By.tagName("a"));
+
+        for(PageElement anchor : tabAnchors)
         {
-            if(menuItemText.equals(menuItem.getText()))
+            if(tabText.equals(anchor.getText()))
             {
-                menuItem.click();
+                anchor.click();
+                Poller.waitUntilTrue(anchor.timed().hasAttribute("aria-selected", "true"));
                 break;
             }
         }
+    }
+
+    /**
+     * Get selected tab title
+     */
+    public String getSelectedTabItem()
+    {
+        List<PageElement> tabs = getDialogTabsOfCurrentPanel().findAll(By.tagName("li"));
+
+        for(PageElement tab : tabs)
+        {
+            if(tab.hasClass("active-tab"))
+            {
+                return tab.getText();
+            }
+        }
+
+        return "";
     }
 
     public boolean hasMaxIssuesErrorMsg()
@@ -130,12 +170,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return pageBinder.bind(DisplayOptionPanel.class);
     }
 
-    public EditContentPage clickInsertDialog()
-    {
-        clickButton("insert-issue-button", false);
-        waitUntilHidden();
-        return pageBinder.bind(EditContentPage.class);
-    }
 
     public AbstractJiraIssueMacroDialog cleanAllOptionColumn()
     {
@@ -192,15 +226,19 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return pageElementFinder.find(By.cssSelector(".issue-checkbox-column input[value='" + key + "']"));
     }
 
-    public void selectMenuItem(int index)
+    /**
+     * Switching between tabs by tab index.
+     * @param {Integer} index
+     */
+    public void selectTabItem(int index)
     {
-        Poller.waitUntilTrue(getDialogMenu().timed().isVisible());
-        getDialogMenu().find(By.cssSelector("li.page-menu-item:nth-child(" + index + ") > button.item-button")).click();
+        Poller.waitUntilTrue(getDialogTabsOfCurrentPanel().timed().isVisible());
+        getDialogTabsOfCurrentPanel().find(By.cssSelector("li.menu-item:nth-child(" + index + ") > a")).click();
     }
 
-    public PageElement getDialogMenu()
+    public PageElement getDialogTabsOfCurrentPanel()
     {
-        return find(".dialog-page-menu");
+        return getContainerOfSelectedPanel().find(By.cssSelector(".tabs-menu"));
     }
 
     public TimedCondition resultsTableIsVisible()
@@ -209,6 +247,26 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     }
 
     public abstract PageElement getPanelBodyDialog();
+
+    /**
+     * Get current active tab panel
+     * @return PageElement
+     */
+    public PageElement getCurrentTabPanel()
+    {
+        return getContainerOfSelectedPanel().find(By.cssSelector(".tabs-pane.active-pane"));
+    }
+
+    /**
+     * Get current selected panel container
+     * @return PageElement
+     */
+    public PageElement getContainerOfSelectedPanel()
+    {
+        PageElement selectedPanel = find(".page-menu-item.selected");
+        String selectedPanelId = selectedPanel.getAttribute("data-panel-id");
+        return find(".dialog-main-content-inner." + selectedPanelId);
+    }
 
     public PageElement queryPageElement(String cssSelector)
     {
@@ -220,5 +278,88 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     public void triggerChangeEvent(PageElement element)
     {
         element.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
+    }
+
+    /**
+     *
+     * Close dialog by clicking cancel button.
+     * Because we apply Dialog2, we have to override "clickCancel" method of parent class.
+     */
+    public void clickCancel()
+    {
+        find(".dialog-close-button").click();
+        waitUntilHidden();
+    }
+
+    /**
+     * Close dialog by clicking Insert button.
+     * @return EditContentPage
+     */
+    public EditContentPage clickInsertDialog()
+    {
+        waitUntilTrue(insertButton.timed().isEnabled());
+        waitUntil(insertButton.timed().getAttribute("aria-disabled"), Matchers.equalToIgnoringCase("false"));
+        insertButton.click();
+        return pageBinder.bind(EditContentPage.class);
+    }
+
+    public TimedQuery<Boolean> isInsertButtonEnabledTimed()
+    {
+        return insertButton.timed().isEnabled();
+    }
+
+    /**
+     * Check whether it is necessary to do authentication or not
+     * @return Boolean
+     */
+    public boolean needAuthentication()
+    {
+        PageElement pageElement = getAuthenticationLink();
+        return pageElement.isPresent() && pageElement.isVisible();
+    }
+
+    public PageElement getAuthenticationLink()
+    {
+        return getCurrentTabPanel().find(By.className("oauth-init"));
+    }
+
+    /**
+     *  Do login if we have Un-trust AppLink
+     */
+    public void doOAuthenticate()
+    {
+        getAuthenticationLink().click();
+
+        boolean isAuthenticateSuccess = false;
+        //before any pop ups are open
+        String parentHandle = driver.getWindowHandle();
+        //after you have pop ups
+        for (String popUpHandle : driver.getWindowHandles())
+        {
+            if(!popUpHandle.equals(parentHandle)){
+                driver.switchTo().window(popUpHandle);
+                // finding oauthentication page. Note we must login with JIRA first
+                if(driver.getCurrentUrl().contains(OAUTH_URL) || driver.getCurrentUrl().contains(OAUTH_LOGIN_JIRA_URL))
+                {
+                    JiraAuthenticationPage authenticationPage = pageBinder.bind(JiraAuthenticationPage.class);
+                    isAuthenticateSuccess = authenticationPage.doApprove();
+                }
+            }
+        }
+
+        Assert.assertTrue("Authenticate application link", isAuthenticateSuccess);
+
+        // switch back to main page
+        driver.switchTo().window(parentHandle);
+    }
+
+    public void waitUntilNoSpinner()
+    {
+        PageElement spinner = getContainerOfSelectedPanel().find(By.cssSelector(".loading-data .spinner"));
+        if (spinner.isPresent())
+        {
+            waitUntilFalse(spinner.timed().isPresent());
+            waitUntilFalse(spinner.timed().isVisible());
+        }
     }
 }

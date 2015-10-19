@@ -7,15 +7,11 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPa
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.test.categories.OnDemandAcceptanceTest;
 
 import org.hamcrest.Matchers;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,41 +28,30 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
     }
 
     @Test
-    public void testJiraChartMacroLink() throws Exception
-    {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        checkNotNull(jiraMacroSearchPanelDialog.getJiraChartMacroAnchor());
-        assertEquals(jiraMacroSearchPanelDialog.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
-        pieChartDialog = jiraMacroSearchPanelDialog.clickJiraChartMacroAnchor();
-        assertEquals(pieChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
-    }
-
-    @Test
     public void testDialogValidation() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.pasteJqlSearch("status = open");
-        jiraMacroSearchPanelDialog.fillMaxIssues("20a");
-        jiraMacroSearchPanelDialog.uncheckKey("TSTT-5");
-        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInsertButton());
-        assertFalse("Insert button is disabled", jiraMacroSearchPanelDialog.isInsertable());
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel.pasteJqlSearch("status = open");
+        dialogSearchPanel.fillMaxIssues("20a");
+        dialogSearchPanel.uncheckKey("TSTT-5");
+        Poller.waitUntilFalse("Insert button is disabled", dialogSearchPanel.isInsertButtonEnabledTimed());
     }
 
     @Test
     public void testColumnsAreDisableInCountMode() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.pasteJqlSearch("status = open");
-        jiraMacroSearchPanelDialog.clickSearchButton();
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel.pasteJqlSearch("status = open");
+        dialogSearchPanel.clickSearchButton();
 
-        jiraMacroSearchPanelDialog.openDisplayOption();
-        jiraMacroSearchPanelDialog.getDisplayOptionPanel().clickDisplayTotalCount();
-        jiraMacroSearchPanelDialog.clickInsertDialog();
+        dialogSearchPanel.openDisplayOption();
+        dialogSearchPanel.getDisplayOptionPanel().clickDisplayTotalCount();
+        dialogSearchPanel.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
-        jiraMacroSearchPanelDialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
+        dialogSearchPanel = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
 
-        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getDisplayOptionPanel().isColumnsDisabled());
+        Poller.waitUntilTrue(dialogSearchPanel.getDisplayOptionPanel().isColumnsDisabled());
     }
 
     /**
@@ -75,16 +60,16 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
     @Test
     public void checkPasteFilterUrlInJQLSearchField() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         String filterQuery = "filter=10001";
         String filterURL = "http://127.0.0.1:11990/jira/issues/?" + filterQuery;
-        jiraMacroSearchPanelDialog.pasteJqlSearch(filterURL);
+        dialogSearchPanel.pasteJqlSearch(filterURL);
 
-        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().isEnabled());
-        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getSearchButton().timed().isEnabled());
-        jiraMacroSearchPanelDialog.clickJqlSearch();
+        Poller.waitUntilTrue(dialogSearchPanel.getJqlSearchElement().timed().isEnabled());
+        Poller.waitUntilTrue(dialogSearchPanel.getSearchButton().timed().isEnabled());
+        dialogSearchPanel.clickJqlSearch();
 
-        Poller.waitUntil(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
+        Poller.waitUntil(dialogSearchPanel.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
     }
 
     /**
@@ -93,15 +78,15 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
     @Test
     public void checkPasteFilterJqlInJQLSearchField() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         String filterQuery = "filter=10001";
-        jiraMacroSearchPanelDialog.pasteJqlSearch(filterQuery);
+        dialogSearchPanel.pasteJqlSearch(filterQuery);
 
-        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().isEnabled());
-        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getSearchButton().timed().isEnabled());
-        jiraMacroSearchPanelDialog.clickJqlSearch();
+        Poller.waitUntilTrue(dialogSearchPanel.getJqlSearchElement().timed().isEnabled());
+        Poller.waitUntilTrue(dialogSearchPanel.getSearchButton().timed().isEnabled());
+        dialogSearchPanel.clickJqlSearch();
 
-        Poller.waitUntil(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
+        Poller.waitUntil(dialogSearchPanel.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
     }
 
     @Test
@@ -114,19 +99,19 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
     @Test
     public void checkColumnKeepingAfterSearch() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.inputJqlSearch("status = open");
-        jiraMacroSearchPanelDialog.clickSearchButton();
-        jiraMacroSearchPanelDialog.openDisplayOption();
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel.inputJqlSearch("status = open");
+        dialogSearchPanel.clickSearchButton();
+        dialogSearchPanel.openDisplayOption();
 
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
+        DisplayOptionPanel displayOptionPanel = dialogSearchPanel.getDisplayOptionPanel();
         List<String>  firstSelectedColumns = displayOptionPanel.getSelectedColumns();
         displayOptionPanel.removeSelectedColumn("Resolution");
         displayOptionPanel.removeSelectedColumn("Status");
 
         //Search again and check list columns after removed "Resolution" and "Status" columns
-        jiraMacroSearchPanelDialog.clickSearchButton();
-        jiraMacroSearchPanelDialog.openDisplayOption();
+        dialogSearchPanel.clickSearchButton();
+        dialogSearchPanel.openDisplayOption();
         List<String>  removedSelectedColumns = displayOptionPanel.getSelectedColumns();
         assertEquals(firstSelectedColumns.size() - 2, removedSelectedColumns.size());
         assertFalse(removedSelectedColumns.contains("Resolution"));
@@ -135,8 +120,8 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
         //Search again and check list columns after add "Status" column
 
         displayOptionPanel.addColumn("Status");
-        jiraMacroSearchPanelDialog.clickSearchButton();
-        jiraMacroSearchPanelDialog.openDisplayOption();
+        dialogSearchPanel.clickSearchButton();
+        dialogSearchPanel.openDisplayOption();
         List<String>  addedSelectedColumns = displayOptionPanel.getSelectedColumns();
         assertTrue(addedSelectedColumns.contains("Status"));
     }
@@ -145,17 +130,17 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
     @Test
     public void testCanInsertMacroWhenChangeTab() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.inputJqlSearch("status = open");
-        jiraMacroSearchPanelDialog.clickSearchButton();
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel.inputJqlSearch("status = open");
+        dialogSearchPanel.clickSearchButton();
 
         //change to create issue panel to make disable insert button
-        jiraMacroSearchPanelDialog.selectMenuItem(2);
+        dialogSearchPanel.selectTabItem(2);
 
         //back again search panel
-        jiraMacroSearchPanelDialog.selectMenuItem(1);
-        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getInsertButton().timed().isEnabled());
-        jiraMacroSearchPanelDialog.clickInsertDialog();
+        dialogSearchPanel.selectTabItem(1);
+        Poller.waitUntilTrue(dialogSearchPanel.isInsertButtonEnabledTimed());
+        dialogSearchPanel.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         assertEquals(editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
     }
@@ -163,20 +148,20 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
     @Test
     public void checkTableOptionEnableWhenChooseOneIssue() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.inputJqlSearch("status=open");
-        jiraMacroSearchPanelDialog.clickSearchButton();
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel.inputJqlSearch("status=open");
+        dialogSearchPanel.clickSearchButton();
 
-        jiraMacroSearchPanelDialog.clickSelectAllIssueOption();
-        jiraMacroSearchPanelDialog.clickSelectIssueOption("TP-1");
+        dialogSearchPanel.clickSelectAllIssueOption();
+        dialogSearchPanel.clickSelectIssueOption("TP-1");
 
-        jiraMacroSearchPanelDialog.openDisplayOption();
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
+        dialogSearchPanel.openDisplayOption();
+        DisplayOptionPanel displayOptionPanel = dialogSearchPanel.getDisplayOptionPanel();
         assertTrue(displayOptionPanel.isInsertSingleIssueEnable());
         assertTrue(displayOptionPanel.isInsertTableIssueEnable());
         assertFalse(displayOptionPanel.isInsertCountIssueEnable());
 
-        jiraMacroSearchPanelDialog.clickSelectIssueOption("TP-2");
+        dialogSearchPanel.clickSelectIssueOption("TP-2");
         assertTrue(displayOptionPanel.isInsertCountIssueEnable());
         assertTrue(displayOptionPanel.isInsertTableIssueEnable());
         assertFalse(displayOptionPanel.isInsertSingleIssueEnable());

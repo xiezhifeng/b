@@ -8,19 +8,20 @@ import com.atlassian.pageobjects.elements.query.Poller;
 
 public class WarningAppLinkDialog extends Dialog
 {
+    public static final String DIALOG_ID = "warning-applink-dialog";
 
-    @ElementBy (cssSelector = "#warning-applink-dialog .dialog-title")
+    @ElementBy (cssSelector = "#" + DIALOG_ID + " .aui-dialog2-header-main")
     private PageElement dialogTitle;
 
-    @ElementBy (cssSelector = "#warning-applink-dialog a.button-panel-link")
+    @ElementBy (cssSelector = "#" + DIALOG_ID + " .dialog-close-button")
     private PageElement cancelButton;
 
-    @ElementBy (cssSelector = "#warning-applink-dialog .dialog-button-panel button")
+    @ElementBy (cssSelector = "#" + DIALOG_ID + " .dialog-submit-button")
     private PageElement dialogButton;
 
     public WarningAppLinkDialog()
     {
-        super("warning-applink-dialog");
+        super(DIALOG_ID);
     }
 
     @Init

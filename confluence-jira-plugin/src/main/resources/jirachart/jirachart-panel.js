@@ -1,4 +1,6 @@
-AJS.Editor.JiraChart.Panel = function() {};
+AJS.Editor.JiraChart.Panel = function() {
+    this.COLLAPSED_OPTION_TOP_POSITION = 300;
+};
 
 AJS.Editor.JiraChart.Panel.prototype = {
 
@@ -13,10 +15,41 @@ AJS.Editor.JiraChart.Panel.prototype = {
         });
         panel.html(contentJiraChart);
         this.container = AJS.$(this.containerId);
-        AJS.Editor.JiraChart.clearChartContent(this.container);
-        AJS.Editor.JiraChart.loadServers(this.container);
+        this.clearChartContent(this.container);
+        this.loadServers();
         this.bindingChartElements();
         this.bindingActions();
+
+        if (this.preBinding) {
+            this.preBinding();
+        }
+    },
+
+    doSearch: function() {
+        if (!AJS.Editor.JiraChart.Helper.convertSearchTextToJQL(this.container)) {
+            return;
+        }
+
+        this.renderChart();
+    },
+
+    loadServers: function() {
+        var _this = this;
+
+        if (AJS.Editor.JiraConnector.servers.length > 0) {
+            AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect(this.container.find('#jira-chart-servers'),
+                function(server) {
+                    _this.clearChartContent();
+                    _this.validateSelectedServer(server);
+                }
+            );
+        }
+    },
+
+    clearChartContent: function() {
+        this.container.find('.jira-oauth-message-marker').remove();
+        this.container.find('.jira-chart-img').empty();
+        this.container.find('#jira-chart-search-input').empty();
     },
 
     /**
@@ -27,7 +60,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
 
         var eventHandler = function() {
             if (thiz.isFormValid()) {
-                AJS.Editor.JiraChart.search(thiz.container);
+                thiz.doSearch();
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
@@ -50,7 +83,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
             setTimeout(function () {
                 if (thiz.isFormValid()) {
                     thiz.jqlWhenEnterKeyPress = thiz.chartElements.jql.val();
-                    AJS.Editor.JiraChart.search(thiz.container);
+                    thiz.doSearch();
                 }
             }, 100);
         });
@@ -68,7 +101,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
                 var keyup = function(e) {
                     input.unbind('keyup', keyup);
                     if (thiz.isFormValid()) {
-                        AJS.Editor.JiraChart.search(thiz.container);
+                        thiz.doSearch();
                     }
                     setJQLWhenEnterPress(input);
                     return AJS.stopEvent(e);
@@ -87,7 +120,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var thiz = this;
         thiz.chartElements.server.change(function() {
             if (thiz.isFormValid() && AJS.Editor.JiraChart.validateServerSupportedChart(thiz.container)) {
-                AJS.Editor.JiraChart.search(thiz.container);
+                thiz.doSearch();
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
@@ -168,8 +201,9 @@ AJS.Editor.JiraChart.Panel.prototype = {
             jiraChartOption.scrollTop(0);
             jiraChartOption.css({
                 overflow: 'hidden',
-                top: '430px'
+                top: thiz.COLLAPSED_OPTION_TOP_POSITION + 'px'
             });
+            displayOption.attr('aria-disabled', true);
         }, 0);
     },
 
@@ -180,7 +214,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
             var topMargin = 40;
             var top = jiraChartOption.position().top + "px";
             var bottom =  "";
-            var animateConfig = {top: 430};
+            var animateConfig = {top: thiz.COLLAPSED_OPTION_TOP_POSITION};
 
             if (open) {
                 top = "";
@@ -190,12 +224,15 @@ AJS.Editor.JiraChart.Panel.prototype = {
             } else {
                 jiraChartOption.css("overflow", "hidden");
             }
+
             jiraChartOption.css("top", top);
             jiraChartOption.css("bottom", bottom);
-            jiraChartOption.animate(animateConfig, 500);
+            jiraChartOption.animate(animateConfig, 500, function() {
+                jiraChartOption.attr('aria-disabled', !open);
+            });
         };
 
-        jiraChartOption.css("top", "430px");
+        jiraChartOption.css('top', this.COLLAPSED_OPTION_TOP_POSITION + 'px');
         var displayOptsBtn = this.chartElements.displayOption;
         displayOptsBtn.click(function(e) {
             var thiz = AJS.$(this);
@@ -233,7 +270,40 @@ AJS.Editor.JiraChart.Panel.prototype = {
         } else {
             AJS.Editor.JiraChart.disableInsert();
         }
-    }
+    },
 
+    insertLink: function() {
+        var currentChart = this;
+
+        var isChartExists = this.container.find('#chart-preview-iframe').length > 0;
+
+        if (isChartExists) {
+            var macroInputParams = currentChart.getMacroParamsFromDialog();
+
+            if (macroInputParams && AJS.Editor.inRichTextMode()) {
+                tinymce.confluence.macrobrowser.macroBrowserComplete({
+                    name: 'jirachart',
+                    params: macroInputParams
+                });
+            }
+
+            AJS.trigger('jira.links.macro.dialog.close');
+        } else {
+            this.doSearch();
+        }
+    },
+
+    validateSelectedServer: function(server) {
+        var selectedServer;
+
+        if (server) {
+            selectedServer = server;
+        } else {
+            selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer(this.container);
+        }
+
+        AJS.Editor.JiraChart.checkOau(this.container, selectedServer);
+        AJS.Editor.JiraChart.validateServerSupportedChart(this.container);
+    }
 };
 
