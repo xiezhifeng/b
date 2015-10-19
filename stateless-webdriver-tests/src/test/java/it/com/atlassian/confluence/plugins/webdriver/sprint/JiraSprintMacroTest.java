@@ -70,7 +70,7 @@ public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
         assertEquals("Sprint status is not displayed correctly", ACTIVE.name(), sprintPage.getSprintStatus());
 
         // return edit mode for other tests
-        sprintPage.edit();
+        editPage = gotoEditTestPage(user.get());
     }
 
     @Test
@@ -83,6 +83,6 @@ public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
         assertTrue("Sprint is not linked to sprint report", sprintPage.getSprintLink().contains("GHGoToBoard.jspa?sprintId=1"));
 
         // return to edit mode for other tests
-        sprintPage.edit();
+        editPage = gotoEditTestPage(user.get());
     }
 }
