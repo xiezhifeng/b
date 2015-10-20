@@ -237,7 +237,7 @@
                             <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
                             <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
-                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <jvmArgs>${jvmArgs} -Datlassian.plugins.enable.wait=300</jvmArgs>
                             <server>${server}</server>
                             <pluginArtifacts>
                                 <pluginArtifact>

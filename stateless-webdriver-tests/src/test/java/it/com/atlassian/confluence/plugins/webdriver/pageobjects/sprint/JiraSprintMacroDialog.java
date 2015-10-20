@@ -7,9 +7,13 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.AbstractJiraIssueMacroDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.Select2Element;
+import org.openqa.selenium.By;
+
+import static org.hamcrest.Matchers.is;
 
 public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 {
@@ -50,7 +54,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public void selectBoard(String boardName)
     {
-
+        waitUntilSprintBoardLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
         select.openDropdown();
         select.chooseOption(boardName);
@@ -58,6 +62,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public void selectSprint(String sprintName)
     {
+        waitUntilSprintLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
         select.openDropdown();
         select.chooseOption(sprintName);
@@ -65,6 +70,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public List<String> getAllBoardOptions()
     {
+        waitUntilSprintBoardLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
         select.openDropdown();
         List<String> options = select.getAllOptions();
@@ -76,6 +82,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public List<String> getAllSprintOptions()
     {
+        waitUntilSprintLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
         select.openDropdown();
         List<String> options = select.getAllOptions();
@@ -97,4 +104,15 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
         return select.getSelectedOption().getText();
     }
 
+    private void waitUntilSprintBoardLoaded()
+    {
+        PageElement boardOption = getPanelBodyDialog().find(By.cssSelector("select.jira-boards option[value]"));
+        Poller.waitUntil("Sprint Board selection field is not visible", boardOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible(), is(true));
+    }
+
+    private void waitUntilSprintLoaded()
+    {
+        PageElement sprintOption = getPanelBodyDialog().find(By.cssSelector("select.jira-sprints option[value]"));
+        Poller.waitUntil("Sprint selection field is not visible", sprintOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible(), is(true));
+    }
 }

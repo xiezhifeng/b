@@ -23,7 +23,6 @@ public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
         assertEquals("Boards are not correctly loaded", 2, boards.size());
 
         sprintDialog.selectBoard(SCRUM_BOARD_1.getName());
-        waitForAjaxRequest();
         List<String> sprints = sprintDialog.getAllSprintOptions();
 
         assertEquals("Sprints are not correctly loaded", SCRUM_BOARD_1.getSprints().size(), sprints.size());
@@ -33,7 +32,6 @@ public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
     public void testInsertSprintMacroSuccessEditMode()
     {
         sprintDialog.selectBoard(SCRUM_BOARD_1.getName());
-        waitForAjaxRequest();
         sprintDialog.selectSprint(SPRINT2.getName());
 
         sprintDialog.insert();
