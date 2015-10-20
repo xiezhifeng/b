@@ -7,6 +7,7 @@ import it.com.atlassian.confluence.plugins.webdriver.model.ScrumBoardModel;
 import it.com.atlassian.confluence.plugins.webdriver.model.SprintModel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -55,6 +56,12 @@ public class AbstractJiraSprintMacroTest extends AbstractJiraTest
     public void tearDown() throws Exception
     {
         closeDialog(sprintDialog);
+    }
+
+    @AfterClass
+    public static void cleanUp() throws Exception
+    {
+        cancelEditPage(editPage);
     }
 
     protected JiraSprintMacroPage createSprintPage(BoardModel board, SprintModel sprint)
