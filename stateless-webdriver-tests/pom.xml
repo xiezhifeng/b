@@ -150,6 +150,12 @@
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-func-tests</artifactId>
             <version>${jira.data.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient-cache</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>test</scope>
         </dependency>
         <dependency>
