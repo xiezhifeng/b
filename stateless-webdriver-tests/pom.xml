@@ -164,6 +164,12 @@
             <version>${confluence.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-cache</artifactId>
+            <version>4.3.6</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
