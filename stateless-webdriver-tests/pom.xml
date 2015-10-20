@@ -7,7 +7,7 @@
         <version>5.7.6-SNAPSHOT</version>
     </parent>
 
-    <artifactId>stateless-webdriver-tests</artifactId>
+    <artifactId>confluence-jira-plugin-webdriver-tests</artifactId>
 
     <name>Confluence Jira Plugin Stateless WebDriver Tests</name>
     <description>Stateless WebDriver tests for Confluence Jira plugin.</description>
