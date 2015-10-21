@@ -78,7 +78,7 @@ public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
 
         assertEquals("Sprint name is not stored correctly", SPRINT1.getName(), sprintPage.getSprintName());
         assertEquals("Sprint status is not displayed correctly", CLOSED.name(), sprintPage.getSprintStatus());
-        assertTrue("Sprint is not linked to sprint report", sprintPage.getSprintLink().contains("GHGoToBoard.jspa?sprintId=1"));
+        assertTrue("Sprint is not linked to sprint report", sprintPage.getSprintLink().contains("GHLocateSprintOnBoard.jspa?rapidViewId=1&sprintId=1"));
 
         // return to edit mode for other tests
         editPage = gotoEditTestPage(user.get());
