@@ -1,7 +1,9 @@
 package com.atlassian.confluence.extra.jira.util;
 
+import com.atlassian.confluence.plugins.sprint.JiraSprintMacro;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.google.common.base.Predicate;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.regex.Pattern;
 
@@ -20,4 +22,13 @@ public class JiraIssuePredicates
                            (parameters != null && parameters.get("key") != null);
             }
         };
+
+    public static Predicate<MacroDefinition> isSprintMacro = new Predicate<MacroDefinition>()
+    {
+        @Override
+        public boolean apply(MacroDefinition macroDefinition)
+        {
+            return StringUtils.isNotBlank(macroDefinition.getParameter(JiraSprintMacro.MACRO_ID_PARAMETER));
+        }
+    };
 }
