@@ -94,12 +94,14 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public String getSelectedBoard()
     {
+        waitUntilSprintBoardLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
         return select.getSelectedOption().getText();
     }
 
     public String getSelectedSprint()
     {
+        waitUntilSprintLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
         return select.getSelectedOption().getText();
     }
