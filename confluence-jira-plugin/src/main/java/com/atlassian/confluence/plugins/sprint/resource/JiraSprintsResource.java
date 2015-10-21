@@ -18,8 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * The rest resource retrieves jira sprints rest url: /jirasprints/1.0/jira
- * /rest/jiraanywhere/1.0/jira/agile/
+ * The rest resource retrieves jira sprints rest url: /rest/jiraanywhere/1.0/jira/agile/
  */
 @Path("/jira/agile")
 @Produces({MediaType.APPLICATION_JSON})

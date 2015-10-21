@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 public interface JiraAgileService
 {
     /**
-     * get all scrum boards on one JIRA server
+     * Get all scrum boards on one JIRA server
      * @param applicationLink
      * @return a JsonString from JIRA
      * @throws CredentialsRequiredException
@@ -20,7 +20,7 @@ public interface JiraAgileService
     String getBoards(@Nonnull ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException;
 
     /**
-     * get all sprints on one board
+     * Get all sprints on one board
      * @param applicationLink
      * @param boardId
      * @return a JsonString from JIRA
@@ -33,9 +33,9 @@ public interface JiraAgileService
     /**
      * Get sprint information
      *
-     * @param applicationId          ID of the JIRA server
+     * @param applicationLink          ID of the JIRA server
      * @param sprintId               ID of sprint
      * @return a JiraSprintModel
      */
-    JiraSprintModel getJiraSprint(@Nonnull ApplicationLink applicationId, @Nonnull String sprintId) throws CredentialsRequiredException, ResponseException;
+    JiraSprintModel getJiraSprint(@Nonnull ApplicationLink applicationLink, @Nonnull String sprintId) throws CredentialsRequiredException, ResponseException;
 }

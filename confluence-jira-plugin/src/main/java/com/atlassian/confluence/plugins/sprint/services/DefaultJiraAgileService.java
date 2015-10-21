@@ -57,11 +57,11 @@ public class DefaultJiraAgileService implements JiraAgileService
         return jiraSprintModel;
     }
 
-    private String retrieveJsonString(@Nonnull ApplicationLink applicationId, String restUrl) throws CredentialsRequiredException, ResponseException
+    private String retrieveJsonString(@Nonnull ApplicationLink applicationLink, String restUrl) throws CredentialsRequiredException, ResponseException
     {
         try
         {
-            return jiraIssuesManager.retrieveXMLAsString(restUrl, null, applicationId, false, false);
+            return jiraIssuesManager.retrieveXMLAsString(restUrl, null, applicationLink, false, false);
         }
         catch (IOException e)
         {
