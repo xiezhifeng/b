@@ -1,0 +1,107 @@
+{namespace Confluence.Templates.JiraSprints.Dialog}
+
+/**
+ * JIRA Sprint home wizard template
+ */
+{template .serverBoardSprintTemplate}
+    <form id="jira-sprint-form" class="aui change-log-form" method="post" action="#">
+        <div class="error-messages hidden"></div>
+
+        <fieldset>
+            /* server */
+            <div class="field-group">
+                <label for="jira-sprint-servers">
+                    {getText('jira.sprint.label.server')}
+                    <span class="aui-icon icon-required"> required</span>
+                </label>
+                <select id="jira-sprint-servers" class="jira-servers select long-field" name="jira-server" />
+                <div class="error hidden"></div>
+            </div>
+
+            /* board */
+            <div class="field-group">
+                <label for="jira-sprint-board">
+                    {getText('jira.sprint.label.board')}
+                    <span class="aui-icon icon-required"> required</span>
+                </label>
+                <select id="jira-sprint-board" class="jira-boards" name="jira-board"></select>
+                <div class="error hidden"></div>
+            </div>
+
+            /* sprint */
+            <div class="field-group">
+                <label for="jira-sprint-sprint">
+                    {getText('jira.sprint.label.sprint')}
+                    <span class="aui-icon icon-required"> required</span>
+                </label>
+                <select id="jira-sprint-sprint" class="jira-sprints" name="jira-sprint"></select>
+                <div class="error hidden"></div>
+            </div>
+
+        </fieldset>
+
+    </form>
+{/template}
+
+
+/**
+ * Error message for missing Oauth url
+ */
+{template .errorMessageOauth}
+    <div class="aui-message-container oauth-form">
+        <div class="aui-message info">
+            <span class="aui-icon icon-info"></span>{getText('jira.sprint.oauth.message.text')}&nbsp;
+            <a href="#">{getText('jira.sprint.oauth.link.text')}</a>
+        </div>
+    </div>
+{/template}
+
+/**
+ * Servers select box
+ * @param servers
+ */
+{template .serverOptions}
+    {foreach $server in $servers}
+        <option value="{$server.id}">{$server.name}</option>
+    {/foreach}
+{/template}
+
+/**
+ * Option template for Board
+ * @param boards
+ */
+{template .boardOptions}
+    {foreach $board in $boards}
+        <option value="{$board.id}">{$board.name}</option>
+    {/foreach}
+{/template}
+
+/**
+ * Option template for Sprint
+ * @param sprints
+ */
+{template .sprintOptions}
+    {foreach $sprint in $sprints}
+        <option value="{$sprint.id}">{$sprint.name}</option>
+    {/foreach}
+{/template}
+
+/**
+ * Servers select box
+ */
+{template .loadingOption}
+    <option value="loading" selected="selected">
+        {getText('jira.sprint.select.loading.value')}
+    </option>
+{/template}
+
+
+/**
+ * Servers select box
+ * @param defaultValue
+ */
+{template .defaultOption}
+    <option value="{$defaultValue}" selected="selected">
+        {getText('jira.sprint.select.default.value')}
+    </option>
+{/template}

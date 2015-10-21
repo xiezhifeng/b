@@ -8,6 +8,7 @@ import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.lang.math.RandomUtils;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -62,13 +63,8 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
     @Test
     public void testSearchWithFilterEmptyJQL() throws Exception
     {
-        String filterId = "10001";
-
-        if (TestProperties.isOnDemandMode())
-        {
-            filterId = createJiraFilter("All Open Bugs", "", "", client);
-            checkNotNull(filterId);
-        }
+        String filterId = createJiraFilter("All Open Bugs-" + RandomUtils.nextLong(), "", "", client);
+        checkNotNull(filterId);
 
         openJiraIssueSearchPanelAndStartSearch(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));

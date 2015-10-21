@@ -484,7 +484,9 @@
                             com.atlassian.renderer.v2,
                             com.atlassian.renderer.v2.macro,
                             com.atlassian.sal.api.executor,
+                            com.atlassian.sal.api.message,
                             com.atlassian.sal.api.net; version="2.10",
+                            com.atlassian.soy.renderer,
                             com.atlassian.user,
                             com.atlassian.util.concurrent; version="2.4",
                             com.google.common.base,
@@ -533,8 +535,8 @@
                             org.jdom.input,
                             org.jdom.filter,
                             org.slf4j;version="1.6",
-                            org.springframework.beans;version="2.5",
-                            org.springframework.beans.factory;version="2.5",
+                            org.springframework.beans,
+                            org.springframework.beans.factory,
                             org.springframework.beans.factory.config,
                             org.xml.sax
                         </Import-Package>

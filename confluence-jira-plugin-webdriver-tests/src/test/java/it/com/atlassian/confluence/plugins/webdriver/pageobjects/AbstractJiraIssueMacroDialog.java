@@ -15,7 +15,6 @@ import com.google.common.base.Supplier;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebElement;
 
 import java.util.List;
 

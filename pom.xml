@@ -85,7 +85,7 @@
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.6</atlassian.product.test-lib.version>
 
-        <jira.version>6.3.9</jira.version>
+        <jira.version>6.4.4</jira.version>
         <jira.data.version>6.5-OD-03-002</jira.data.version>
 
         <jdkLevel>1.6</jdkLevel>
@@ -107,7 +107,7 @@
         <jaxen.version>1.1.1</jaxen.version>
         <mockito.version>1.9.5</mockito.version>
         <atlassian-selenium-browsers-auto.version>2.3-m6</atlassian-selenium-browsers-auto.version>
-        <atlassian.sal-api.version>2.10.4</atlassian.sal-api.version>
+        <atlassian.sal-api.version>3.0.5</atlassian.sal-api.version>
         <atlassian-cache-api.version>2.4.2</atlassian-cache-api.version>
         <atlassian-cache-memory.version>0.1</atlassian-cache-memory.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>

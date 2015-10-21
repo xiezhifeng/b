@@ -383,6 +383,31 @@
 {/template}
 
 /**
+ * Add multiples cross macro links to the left panel of the dialog
+ * @param links
+ */
+{template .addCrossMacroLinks}
+<li class="page-menu-item">
+    <hr>
+    <strong class="aui-nav-heading jira-padding-left-10px">
+        {getText('confluence.extra.jira.nav.other.jira.content')}
+    </strong>
+
+    <nav class="aui-navgroup aui-navgroup-vertical">
+        <div class="aui-navgroup-inner">
+            <ul class="aui-nav">
+                {foreach $link in $links}
+                    <li>
+                        <button class="item-button jira-left-panel-link" id="{$link.id}">{$link.label}</button>
+                    </li>
+                {/foreach}
+            </ul>
+        </div>
+    </nav>
+</li>
+{/template}
+
+/**
 * show error message about invalid jql
 */
 {template .jqlInvalid}

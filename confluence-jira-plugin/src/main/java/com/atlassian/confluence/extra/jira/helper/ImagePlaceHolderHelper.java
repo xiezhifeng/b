@@ -85,6 +85,19 @@ public class ImagePlaceHolderHelper
     }
 
     /**
+     * @param macroTemplate
+     * @param resourcePath
+     * @return Jira Macro Image Placeholder
+     */
+    public ImagePlaceholder getMacroImagePlaceholder(String macroTemplate, String resourcePath)
+    {
+        byte[] encoded = Base64.encodeBase64(macroTemplate.getBytes());
+        String locale = localeManager.getSiteDefaultLocale().toString();
+        String placeHolderUrl = String.format(JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE, new String(encoded), locale);
+        return new DefaultImagePlaceholder(placeHolderUrl, false, null);
+    }
+
+    /**
      * Get Image Placeholder of single issue
      * @param key
      * @param resourcePath

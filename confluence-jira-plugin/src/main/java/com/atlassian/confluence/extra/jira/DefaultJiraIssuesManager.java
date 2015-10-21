@@ -142,6 +142,10 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     protected String getFieldRestrictedUrl(List<String> columns, String url)
     {
+        if (columns == null)
+        {
+            return url;
+        }
         StringBuffer urlBuffer = new StringBuffer(url);
         boolean hasCustomField = false;
         for (String columnName : columns)

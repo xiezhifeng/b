@@ -232,6 +232,11 @@ public class JiraExceptionHelper
         {
             exceptionBean.setClickableUrl(clickableURL.toString());
         }
+        Object linkText = jiraIssueMap.get(JIRA_LINK_TEXT);
+        if (linkText != null)
+        {
+            exceptionBean.setJiraLinkText(linkText.toString());
+        }
 
         Object issueTypeObject = jiraIssueMap.get(JiraIssuesMacro.ISSUE_TYPE);
         if (issueTypeObject != null)
