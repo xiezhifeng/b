@@ -33,8 +33,8 @@ public interface JiraAgileService
     /**
      * Get sprint information
      *
-     * @param applicationLink          ID of the JIRA server
-     * @param sprintId               ID of sprint
+     * @param applicationLink ID of the JIRA server
+     * @param sprintId ID of sprint
      * @return a JiraSprintModel
      */
     JiraSprintModel getJiraSprint(@Nonnull ApplicationLink applicationLink, @Nonnull String sprintId) throws CredentialsRequiredException, ResponseException;

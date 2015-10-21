@@ -52,7 +52,7 @@ public class JiraSprintsResource
         }
         catch (ResponseException re)
         {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(re.getMessage()).build();
+            return Response.serverError().entity(re.getMessage()).build();
         }
     }
 
