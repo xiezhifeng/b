@@ -69,7 +69,7 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
             {
                 throw new MacroExecutionException(i18nResolver.getText("jira.sprint.error.noapplinks"));
             }
-            contextMap.put("clickableUrl", generateJiraSprintLink(applicationLink, sprintId));
+            contextMap.put("clickableUrl", generateJiraSprintLink(applicationLink, sprintId, parameters.get("boardId")));
             try
             {
                 JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(applicationLink, parameters.get(MACRO_ID_PARAMETER));
@@ -116,8 +116,8 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
         return StringUtils.defaultString(parameters.get("sprintName"), i18nResolver.getText("confluence.extra.jira.jirasprint.label"));
     }
 
-    private String generateJiraSprintLink(ApplicationLink applicationLink, String sprintId)
+    private String generateJiraSprintLink(ApplicationLink applicationLink, String sprintId, String boardId)
     {
-        return applicationLink.getDisplayUrl() + "/secure/GHGoToBoard.jspa?sprintId=" + sprintId;
+        return applicationLink.getDisplayUrl() + String.format("/secure/GHLocateSprintOnBoard.jspa?rapidViewId=%s&sprintId=%s", boardId, sprintId);
     }
 }
