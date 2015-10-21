@@ -9,6 +9,7 @@ import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.json.json.JsonObject;
 import com.atlassian.confluence.pages.AbstractPage;
+import com.atlassian.confluence.plugins.sprint.JiraSprintMacro;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -72,7 +73,9 @@ public class JiraRemoteLinkCreator
     {
         try
         {
-            return macroFinderService.findJiraIssueMacros(page, JiraIssuePredicates.isSingleIssue);
+            Set<MacroDefinition> jiraIssueMacros = macroFinderService.findJiraIssueMacros(page, JiraIssuePredicates.isSingleIssue);
+            Set<MacroDefinition> jiraSprintMacros = macroFinderService.findJiraSprintMacros(page, null);
+            return Sets.union(jiraIssueMacros, jiraSprintMacros);
         }
         catch(XhtmlException ex)
         {
@@ -142,30 +145,50 @@ public class JiraRemoteLinkCreator
 
         for (MacroDefinition macroDefinition : macroDefinitions)
         {
-            String defaultParam = macroDefinition.getDefaultParameterValue();
-            String keyVal = macroDefinition.getParameters().get("key");
-            String issueKey = defaultParam != null ? defaultParam : keyVal;
-            ApplicationLink applicationLink = findApplicationLink(macroDefinition);
-
-            if (applicationLink != null)
+            if (StringUtils.isNotBlank(macroDefinition.getParameter(JiraSprintMacro.MACRO_ID_PARAMETER)))
             {
-                createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+                createLinkToSprint(page, macroDefinition.getParameter("serverId"), macroDefinition.getParameter(JiraSprintMacro.MACRO_ID_PARAMETER), "", "");
             }
             else
             {
-                LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Application link not found.",
-                    issueKey,
-                    macroDefinition.getParameters().get("server"));
+                String keyVal = macroDefinition.getParameters().get("key");
+                String defaultParam = macroDefinition.getDefaultParameterValue();
+                String issueKey = defaultParam != null ? defaultParam : keyVal;
+                ApplicationLink applicationLink = findApplicationLink(macroDefinition);
+
+                if (applicationLink != null)
+                {
+                    createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+                }
+                else
+                {
+                    LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Application link not found.",
+                            issueKey,
+                            macroDefinition.getParameters().get("server"));
+                }
             }
         }
     }
 
     private boolean createRemoteSprintLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId, final String creationToken)
     {
-        final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
-        final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelinkchecked";
-        Request request = requestFactory.createRequest(PUT, requestUrl);
-        return createRemoteLink(applicationLink, requestJson, request, sprintId);
+//        final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
+        final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/sprint/"+ sprintId + "/pages" ;//"/rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelinkchecked";
+        try{
+            Request request = applicationLink.createAuthenticatedRequestFactory().createRequest(POST, requestUrl);
+            //        http://localhost:11990/jira
+            JsonObject requestJson =  new JsonObject();
+            requestJson.setProperty("pageId", pageId);
+            requestJson.setProperty("pageTitle", "title-"+pageId);
+            return createRemoteLink(applicationLink, requestJson, request, sprintId);
+        }
+        catch (CredentialsRequiredException e)
+        {
+            LOGGER.info("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
+        }
+
+        return false;
+
     }
 
     private boolean createRemoteEpicLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey, final String creationToken)

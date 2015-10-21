@@ -7,6 +7,7 @@ import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.pages.AbstractPage;
+import com.atlassian.confluence.plugins.sprint.JiraSprintMacro;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.confluence.xhtml.api.MacroDefinitionHandler;
 import com.atlassian.confluence.xhtml.api.XhtmlContent;
@@ -55,6 +56,47 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
         };
 
         jiraPredicate = Predicates.or(jiraPredicate, jiraIssuesPredicate);
+
+        if (filter != null)
+        {
+            jiraPredicate = Predicates.and(filter, jiraPredicate);
+        }
+
+        final Predicate<MacroDefinition> jiraMacroPredicate = jiraPredicate;
+        final Set<MacroDefinition> definitions = Sets.newHashSet();
+        MacroDefinitionHandler handler = new MacroDefinitionHandler()
+        {
+            @Override
+            public void handle(MacroDefinition macroDefinition)
+            {
+                if (jiraMacroPredicate.apply(macroDefinition))
+                {
+                    definitions.add(macroDefinition);
+                }
+            }
+        };
+        xhtmlContent.handleMacroDefinitions(page.getBodyAsString(), new DefaultConversionContext(page.toPageContext()), handler);
+        return definitions;
+    }
+
+    /**
+     * Find all JIRA Issue Macros in the page satisfying the search filter
+     *
+     * @param page   the page where we want to find the JIRA Issues Macros
+     * @param filter the custom search filter for refining the results
+     * @return the set of MacroDefinition instances
+     * @throws XhtmlException
+     */
+    @Override
+    public Set<MacroDefinition> findJiraSprintMacros(AbstractPage page, Predicate<MacroDefinition> filter) throws XhtmlException
+    {
+        Predicate<MacroDefinition> jiraPredicate = new Predicate<MacroDefinition>()
+        {
+            public boolean apply(MacroDefinition definition)
+            {
+                return definition.getName().equals(JiraSprintMacro.JIRA_SPRINT);
+            }
+        };
 
         if (filter != null)
         {

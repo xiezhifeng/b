@@ -24,6 +24,8 @@ public interface JiraMacroFinderService
      */
     Set<MacroDefinition> findJiraIssueMacros(AbstractPage page, Predicate<MacroDefinition> filter) throws XhtmlException;
 
+    Set<MacroDefinition> findJiraSprintMacros(AbstractPage page, Predicate<MacroDefinition> filter) throws XhtmlException;
+
     /**
      * Find all single JIRA issue macros in the body string
      *
