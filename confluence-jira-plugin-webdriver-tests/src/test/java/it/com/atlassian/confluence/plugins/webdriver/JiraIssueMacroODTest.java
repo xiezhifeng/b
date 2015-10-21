@@ -13,6 +13,7 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraC
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.openqa.selenium.By;
@@ -21,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @Category({OnDemandAcceptanceTest.class, OnDemandSuiteTest.class})
+@Ignore("CONFDEV-37479")
 public class JiraIssueMacroODTest extends AbstractJiraODTest{
 
     protected static final String NO_ISSUES_COUNT_TEXT = "No issues found";
