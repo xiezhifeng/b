@@ -593,7 +593,7 @@
         <od.testing.configuration>
             use-maven,3
             use-java,8
-            include-artifact,com.atlassian.confluence.plugins:stateless-webdriver-tests
+            include-artifact,com.atlassian.confluence.plugins:confluence-jira-plugin-webdriver-tests
         </od.testing.configuration>
     </properties>
 </project>

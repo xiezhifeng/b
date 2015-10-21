@@ -7,7 +7,7 @@
         <version>5.7.6-SNAPSHOT</version>
     </parent>
 
-    <artifactId>stateless-webdriver-tests</artifactId>
+    <artifactId>confluence-jira-plugin-webdriver-tests</artifactId>
 
     <name>Confluence Jira Plugin Stateless WebDriver Tests</name>
     <description>Stateless WebDriver tests for Confluence Jira plugin.</description>
@@ -150,12 +150,24 @@
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-func-tests</artifactId>
             <version>${jira.data.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient-cache</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence-rest-client</artifactId>
             <version>${confluence.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-cache</artifactId>
+            <version>4.3.6</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
