@@ -23,18 +23,6 @@ public class JiraIssuePredicates
         }
     };
 
-    public static Predicate<MacroDefinition> isSingleIssue = Predicates.and(isJiraIssueMacro, new Predicate<MacroDefinition>()
-        {
-            @Override
-            public boolean apply(MacroDefinition macroDefinition)
-            {
-                    String defaultParam = macroDefinition.getDefaultParameterValue();
-                    java.util.Map<String, String> parameters = macroDefinition.getParameters();
-                    return (defaultParam != null && ISSUE_KEY_PATTERN.matcher(defaultParam).matches()) ||
-                           (parameters != null && parameters.get("key") != null);
-            }
-        });
-
     public static Predicate<MacroDefinition> isSprintMacro = new Predicate<MacroDefinition>()
     {
         @Override
@@ -43,4 +31,18 @@ public class JiraIssuePredicates
             return StringUtils.equals(macroDefinition.getName(), JiraSprintMacro.JIRASPRINT);
         }
     };
+
+    public static Predicate<MacroDefinition> isSingleIssue = Predicates.and(isJiraIssueMacro, new Predicate<MacroDefinition>()
+    {
+        @Override
+        public boolean apply(MacroDefinition macroDefinition)
+        {
+            String defaultParam = macroDefinition.getDefaultParameterValue();
+            java.util.Map<String, String> parameters = macroDefinition.getParameters();
+            return (defaultParam != null && ISSUE_KEY_PATTERN.matcher(defaultParam).matches()) ||
+                    (parameters != null && parameters.get("key") != null);
+        }
+    });
+
+
 }

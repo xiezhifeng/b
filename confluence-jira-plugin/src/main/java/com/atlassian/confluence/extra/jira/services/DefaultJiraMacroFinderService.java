@@ -6,6 +6,7 @@ import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.sprint.JiraSprintMacro;
@@ -92,15 +93,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
     @Override
     public Set<MacroDefinition> findJiraMacros(ContentEntityObject contentEntityObject, Predicate<MacroDefinition> filter) throws XhtmlException
     {
-        Predicate<MacroDefinition> jiraPredicate = new Predicate<MacroDefinition>()
-        {
-            public boolean apply(MacroDefinition definition)
-            {
-                return StringUtils.equals(definition.getName(), JiraIssuesMacro.JIRA)
-                        || StringUtils.equals(definition.getName(), JiraIssuesMacro.JIRAISSUES)
-                        || StringUtils.equals(definition.getName(), JiraSprintMacro.JIRASPRINT);
-            }
-        };
+        Predicate<MacroDefinition> jiraPredicate = Predicates.or(JiraIssuePredicates.isJiraIssueMacro, JiraIssuePredicates.isSprintMacro);
 
         if (filter != null)
         {
