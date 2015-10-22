@@ -203,25 +203,6 @@ public class JiraRemoteLinkCreator
 
     }
 
-    private boolean deleteEmbeddedSprintLink(ApplicationLink applicationLink, AbstractPage page, String sprintId)
-    {
-        final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/sprint/"+ GeneralUtil.urlEncode(sprintId) + "/pages" ;
-        try
-        {
-            Request request = applicationLink.createAuthenticatedRequestFactory().createRequest(POST, requestUrl);
-            JsonObject requestJson =  new JsonObject()
-                    .setProperty("pageId", page.getIdAsString())
-                    .setProperty("pageTitle", page.getTitle());
-            return createRemoteLink(applicationLink, requestJson, request, sprintId);
-        }
-        catch (CredentialsRequiredException e)
-        {
-            LOGGER.info("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
-        }
-        return false;
-
-    }
-
     private boolean createRemoteEpicLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey, final String creationToken)
     {
         final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
