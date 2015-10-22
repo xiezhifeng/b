@@ -37,7 +37,12 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
     @Override
     public Set<MacroDefinition> findJiraIssueMacros(AbstractPage page, Predicate<MacroDefinition> filter) throws XhtmlException
     {
-        return Sets.newHashSet(findJiraMacros(page, JiraIssuePredicates.isJiraIssueMacro));
+        Predicate jiraPredicate = JiraIssuePredicates.isJiraIssueMacro;
+        if (filter != null)
+        {
+            jiraPredicate = Predicates.and(jiraPredicate, filter);
+        }
+        return Sets.newHashSet(findJiraMacros(page, jiraPredicate));
     }
 
     /**
