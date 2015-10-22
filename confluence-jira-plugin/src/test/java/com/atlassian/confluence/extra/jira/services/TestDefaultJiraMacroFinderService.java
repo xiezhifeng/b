@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,7 +38,7 @@ public class TestDefaultJiraMacroFinderService
                 createMacroDefinition("info", new HashMap<String,String>()));
         DefaultJiraMacroFinderService service = new DefaultJiraMacroFinderService(xhtmlContent);
 
-        Set<MacroDefinition> result = service.findJiraIssueMacros(page, null);
+        List<MacroDefinition> result = service.findJiraMacros(page, null);
         assertEquals(1, result.size());
         assertEquals("jira", result.iterator().next().getName());
     }
@@ -52,7 +53,7 @@ public class TestDefaultJiraMacroFinderService
 
         DefaultJiraMacroFinderService service = new DefaultJiraMacroFinderService(xhtmlContent);
 
-        Set<MacroDefinition> result = service.findJiraIssueMacros(page, null);
+        List<MacroDefinition> result = service.findJiraMacros(page, null);
         assertEquals(2, result.size());
         for (MacroDefinition definition : result)
             assertEquals("jira", definition.getName());
@@ -77,7 +78,7 @@ public class TestDefaultJiraMacroFinderService
             }
         };
 
-        Set<MacroDefinition> result = service.findJiraIssueMacros(page, predicate);
+        List<MacroDefinition> result = service.findJiraMacros(page, predicate);
         assertEquals(1, result.size());
         assertEquals("CONFDEV-19009", result.iterator().next().getParameters().get("key"));
     }

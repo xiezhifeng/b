@@ -83,7 +83,7 @@ public class JiraRemoteLinkCreator
     {
         try
         {
-            return macroFinderService.findJiraMacros(page, Predicates.or(JiraIssuePredicates.isSingleIssue, JiraIssuePredicates.isSprintMacro));
+            return Sets.newHashSet(macroFinderService.findJiraMacros(page, Predicates.or(JiraIssuePredicates.isSingleIssue, JiraIssuePredicates.isSprintMacro)));
         }
         catch(XhtmlException ex)
         {
@@ -162,7 +162,7 @@ public class JiraRemoteLinkCreator
                 continue;
             }
 
-            if (StringUtils.isNotBlank(macroDefinition.getParameter(JiraSprintMacro.MACRO_ID_PARAMETER)))
+            if (StringUtils.equals(macroDefinition.getName(), JiraSprintMacro.JIRASPRINT))
             {
                 createEmbeddedSprintLink(applicationLink, page, macroDefinition.getParameter(JiraSprintMacro.MACRO_ID_PARAMETER));
             }
