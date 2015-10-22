@@ -27,8 +27,8 @@ import java.util.Map;
 public class JiraSprintMacro implements Macro, EditorImagePlaceholder
 {
     public static final String JIRASPRINT = "jirasprint";
-    private static final String MACRO_RESOURCE_PATH = "/download/resources/confluence.extra.jira:jirasprint-xhtml";
     public static final String MACRO_ID_PARAMETER = "sprintId";
+    private static final String MACRO_RESOURCE_PATH = "/download/resources/confluence.extra.jira:jirasprint-xhtml";
 
     private final ApplicationLinkResolver applicationLinkResolver;
     private final JiraExceptionHelper jiraExceptionHelper;

@@ -33,5 +33,4 @@ public interface JiraMacroFinderService
      * @throws XhtmlException
      */
     List<MacroDefinition> findJiraMacros(ContentEntityObject contentEntityObject, Predicate<MacroDefinition> filter) throws XhtmlException;
-
 }
