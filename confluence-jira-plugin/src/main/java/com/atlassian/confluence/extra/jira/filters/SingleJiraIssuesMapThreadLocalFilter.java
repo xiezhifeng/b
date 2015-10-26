@@ -41,7 +41,6 @@ public class SingleJiraIssuesMapThreadLocalFilter implements Filter
         }
         finally
         {
-            SingleJiraIssuesThreadLocalAccessor.dispose();
             if (LOGGER.isDebugEnabled())
             {
                 LOGGER.debug("******* Total execution time: {} milliseconds", System.currentTimeMillis() - start);
