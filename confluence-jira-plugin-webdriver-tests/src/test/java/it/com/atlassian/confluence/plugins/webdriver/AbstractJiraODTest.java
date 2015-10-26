@@ -1,6 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver;
 
 
+import com.atlassian.confluence.test.api.model.person.UserWithDetails;
 import com.atlassian.jira.testkit.client.Backdoor;
 import com.atlassian.jira.testkit.client.util.TestKitLocalEnvironmentData;
 import it.com.atlassian.confluence.plugins.webdriver.model.JiraProjectModel;
@@ -15,7 +16,6 @@ public class AbstractJiraODTest extends AbstractJiraTest
     protected static final JiraProjectModel PROJECT_TOD = new JiraProjectModel("Test OD Project","TOD");
     protected static final JiraProjectModel PROJECT_TZA = new JiraProjectModel("Test OD Project 1","TZA");
     protected static final JiraProjectModel PROJECT_THQ = new JiraProjectModel("Test OD Project 2","THQ");
-    protected static String projectLead = "admin";
 
     @BeforeClass
     public static void init() throws Exception
@@ -65,17 +65,17 @@ public class AbstractJiraODTest extends AbstractJiraTest
 
     public static void creatODTestData() {
         long projectId;
-        projectId = jiraBackdoor.project().addProject(PROJECT_TOD.getProjectName(),PROJECT_TOD.getProjectKey(), projectLead);
+        projectId = jiraBackdoor.project().addProject(PROJECT_TOD.getProjectName(),PROJECT_TOD.getProjectKey(), UserWithDetails.ADMIN.getUsername());
         PROJECT_TOD.setProjectId(String.valueOf(projectId));
         jiraBackdoor.issues().createIssue(PROJECT_TOD.getProjectKey(), "New Fearture");
         jiraBackdoor.issues().createIssue(PROJECT_TOD.getProjectKey(), "New Fearture");
 
-        projectId = jiraBackdoor.project().addProject(PROJECT_TZA.getProjectName(),PROJECT_TZA.getProjectKey(), projectLead);
+        projectId = jiraBackdoor.project().addProject(PROJECT_TZA.getProjectName(),PROJECT_TZA.getProjectKey(), UserWithDetails.ADMIN.getUsername());
         PROJECT_TZA.setProjectId(String.valueOf(projectId));
         jiraBackdoor.issues().createIssue(PROJECT_TZA.getProjectKey(), "New Fearture");
         jiraBackdoor.issues().createIssue(PROJECT_TZA.getProjectKey(), "New Fearture");
 
-        projectId = jiraBackdoor.project().addProject(PROJECT_THQ.getProjectName(),PROJECT_THQ.getProjectKey(), projectLead);
+        projectId = jiraBackdoor.project().addProject(PROJECT_THQ.getProjectName(),PROJECT_THQ.getProjectKey(), UserWithDetails.ADMIN.getUsername());
         PROJECT_THQ.setProjectId(String.valueOf(projectId));
         jiraBackdoor.issues().createIssue(PROJECT_THQ.getProjectKey(), "New Bug");
 
