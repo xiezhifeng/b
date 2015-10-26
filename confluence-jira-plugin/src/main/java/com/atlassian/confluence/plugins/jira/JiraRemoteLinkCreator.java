@@ -197,7 +197,7 @@ public class JiraRemoteLinkCreator
         }
         catch (CredentialsRequiredException e)
         {
-            LOGGER.info("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
+            LOGGER.debug("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
         }
         return false;
 
