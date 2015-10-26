@@ -1,6 +1,11 @@
 package com.atlassian.confluence.plugins.jira;
 
-import com.atlassian.applinks.api.*;
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
@@ -13,7 +18,11 @@ import com.atlassian.confluence.plugins.sprint.JiraSprintMacro;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.atlassian.sal.api.net.*;
+import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.RequestFactory;
+import com.atlassian.sal.api.net.Response;
+import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.sal.api.net.ResponseHandler;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
