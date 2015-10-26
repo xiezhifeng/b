@@ -41,19 +41,8 @@ public class SingleJiraIssuesThreadLocalAccessor
      */
     public static void init()
     {
-        if (jiraBatchRequestDataMapThreadLocal.get() == null)
-        {
-            jiraBatchRequestDataMapThreadLocal.set(Maps.<EntityServerCompositeKey, JiraBatchRequestData>newHashMap());
-        }
-    }
-
-    /**
-     * Clean up the jiraBatchRequestDataMapThreadLocal for the current thread.
-     */
-    public static void dispose()
-    {
-        jiraBatchRequestDataMapThreadLocal.remove();
-        batchProcessedMapThreadLocal.remove();
+        jiraBatchRequestDataMapThreadLocal.set(Maps.<EntityServerCompositeKey, JiraBatchRequestData>newHashMap());
+        batchProcessedMapThreadLocal.set(Maps.<Long, Boolean>newHashMap());
     }
 
     public static JiraBatchRequestData getJiraBatchRequestData(EntityServerCompositeKey entityServerCompositeKey)
