@@ -197,7 +197,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                         }
                         catch (RejectedExecutionException e)
                         {
-                            logger.warn("JIM Marshaller rejected task because there are more than 1000 tasks queued. {}", jiraIssueExecutor.toString(), e);
+                            logger.error("JIM Marshaller rejected task because there are more than 1000 tasks queued. {}", jiraIssueExecutor.toString(), e);
                             throw e;
                         }
                     }
