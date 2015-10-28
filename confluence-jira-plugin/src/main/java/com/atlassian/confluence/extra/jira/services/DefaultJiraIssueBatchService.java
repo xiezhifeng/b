@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira.services;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.*;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
@@ -61,7 +61,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
     public Map<String, Object> getPlaceHolderBatchResults(String clientId, String serverId, Set<String> keys, ConversionContext conversionContext)
             throws MacroExecutionException, UnsupportedJiraServerException
     {
-        ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
+        ReadOnlyApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
         if (appLink != null)
         {
             // make request to JIRA and build results
@@ -94,7 +94,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      */
     public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException
     {
-        ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
+        ReadOnlyApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
         if (appLink != null)
         {
             // check if JIRA server version is greater than 6.0.2 (build number 6097)
@@ -185,7 +185,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @throws MacroExecutionException
      * TODO: change to private method once we apply private method mocking in Unit Test
      */
-    protected JiraIssuesManager.Channel retrieveChannel(JiraRequestData jiraRequestData, ConversionContext conversionContext, ApplicationLink applicationLink) throws MacroExecutionException
+    protected JiraIssuesManager.Channel retrieveChannel(JiraRequestData jiraRequestData, ConversionContext conversionContext, ReadOnlyApplicationLink applicationLink) throws MacroExecutionException
     {
         String requestData = jiraRequestData.getRequestData();
         JiraIssuesManager.Channel channel = null;
@@ -221,7 +221,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         return null;
     }
 
-    private String getXmlUrl(String requestData, ApplicationLink appLink) throws MacroExecutionException
+    private String getXmlUrl(String requestData, ReadOnlyApplicationLink appLink) throws MacroExecutionException
     {
         StringBuilder stringBuilder = new StringBuilder(JiraUtil.normalizeUrl(appLink.getRpcUrl()));
 

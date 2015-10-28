@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira.helper;
 
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBean;
@@ -106,7 +106,7 @@ public class JiraJqlHelper
      * @return jql
      * @throws MacroExecutionException
      */
-    public static String getJQLFromFilter(ApplicationLink appLink, String url, JiraIssuesManager jiraIssuesManager, I18NBean i18NBean) throws MacroExecutionException
+    public static String getJQLFromFilter(ReadOnlyApplicationLink appLink, String url, JiraIssuesManager jiraIssuesManager, I18NBean i18NBean) throws MacroExecutionException
     {
         String filterId = JiraJqlHelper.getFilterIdFromURL(url);
         try

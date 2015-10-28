@@ -25,7 +25,7 @@ public class JiraConnectorUtils
      * @return ApplicationLinkRequest
      * @throws CredentialsRequiredException
      */
-    public static ApplicationLinkRequest getApplicationLinkRequest(ApplicationLink applicationLink, Request.MethodType methodType, String url) throws CredentialsRequiredException
+    public static ApplicationLinkRequest getApplicationLinkRequest(ReadOnlyApplicationLink applicationLink, Request.MethodType methodType, String url) throws CredentialsRequiredException
     {
         ApplicationLinkRequest applicationLinkRequest;
         try
@@ -49,7 +49,7 @@ public class JiraConnectorUtils
      * @return object array with index 0 is ApplicationLinkRequest and index 1 is oaulink
      * @throws CredentialsRequiredException
      */
-    public static Object[] getApplicationLinkRequestWithOauUrl(ApplicationLink applicationLink, Request.MethodType methodType, String url) throws CredentialsRequiredException
+    public static Object[] getApplicationLinkRequestWithOauUrl(ReadOnlyApplicationLink applicationLink, Request.MethodType methodType, String url) throws CredentialsRequiredException
     {
         ApplicationLinkRequest applicationLinkRequest;
         String oauUrl = null;
@@ -73,7 +73,7 @@ public class JiraConnectorUtils
      * @param authenticationConfigurationManager
      * @return oau link
      */
-    public static String getAuthUrl(AuthenticationConfigurationManager authenticationConfigurationManager, ApplicationLink applicationLink)
+    public static String getAuthUrl(AuthenticationConfigurationManager authenticationConfigurationManager, ReadOnlyApplicationLink applicationLink)
     {
         if(authenticationConfigurationManager.isConfigured(applicationLink.getId(), OAuthAuthenticationProvider.class))
         {
@@ -97,9 +97,9 @@ public class JiraConnectorUtils
      * @return ApplicationLink
      * @throws TypeNotInstalledException if can't get application link
      */
-    public static ApplicationLink getApplicationLink(ApplicationLinkService applicationLinkService, String appId) throws TypeNotInstalledException
+    public static ReadOnlyApplicationLink getApplicationLink(ReadOnlyApplicationLinkService applicationLinkService, String appId) throws TypeNotInstalledException
     {
-        final ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(appId));
+        final ReadOnlyApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(appId));
         if (applicationLink == null)
         {
             throw new TypeNotInstalledException("Can not get Application Link");

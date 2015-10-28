@@ -9,6 +9,8 @@ import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
@@ -31,9 +33,6 @@ import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.web.UrlBuilder;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.TypeNotInstalledException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
     private static final String TEMPLATE_PATH = "templates/jirachart/";
-    private ApplicationLinkService applicationLinkService;
+    private ReadOnlyApplicationLinkService readOnlyApplicationLinkService;
 
     private JQLValidator jqlValidator;
 
@@ -61,15 +60,15 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * JiraChartMacro constructor
      *
      * @param executorService executorService
-     * @param applicationLinkService applink service to get applink
+     * @param readOnlyApplicationLinkService applink service to get applink
      * @param i18NBeanFactory I18n bean factory
      */
-    public JiraChartMacro(MacroExecutorService executorService, ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory,
+    public JiraChartMacro(MacroExecutorService executorService, ReadOnlyApplicationLinkService readOnlyApplicationLinkService, I18NBeanFactory i18NBeanFactory,
             JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory, JiraExceptionHelper jiraExceptionHelper)
     {
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
-        this.applicationLinkService = applicationLinkService;
+        this.readOnlyApplicationLinkService = readOnlyApplicationLinkService;
         this.jiraConnectorManager = jiraConnectorManager;
         this.jiraChartFactory = jiraChartFactory;
         this.jiraExceptionHelper = jiraExceptionHelper;
@@ -129,7 +128,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 
             if (jql != null && serverId != null)
             {
-                ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
+                ReadOnlyApplicationLink appLink = readOnlyApplicationLinkService.getApplicationLink(new ApplicationId(serverId));
                 if (appLink != null && jiraChart != null)
                 {
                     UrlBuilder urlBuilder = new UrlBuilder(IMAGE_GENERATOR_SERVLET);
@@ -143,10 +142,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                 }
 
             }
-        }
-        catch (TypeNotInstalledException e)
-        {
-            log.error("error don't exist applink", e);
         }
         catch (Exception e)
         {
@@ -174,7 +169,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         if (jqlValidator == null)
         {
-            this.setJqlValidator(new DefaultJQLValidator(applicationLinkService, i18NBeanFactory, jiraConnectorManager));
+            this.setJqlValidator(new DefaultJQLValidator(readOnlyApplicationLinkService, i18NBeanFactory, jiraConnectorManager));
         }
         return jqlValidator;
     }

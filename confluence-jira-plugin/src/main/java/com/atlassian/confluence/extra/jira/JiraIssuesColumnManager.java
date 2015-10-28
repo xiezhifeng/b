@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -109,7 +109,7 @@ public interface JiraIssuesColumnManager
      * @param appLink applicationLink to Jira
      * @return a Map of column info key is id of column and value is JiraColumnInfo.
      */
-    Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink);
+    Map<String, JiraColumnInfo> getColumnsInfoFromJira(ReadOnlyApplicationLink appLink);
 
     /**
      *  Gets column info from JIRA and provides sorting ability.
@@ -118,7 +118,7 @@ public interface JiraIssuesColumnManager
      * @param applink use to detect which version of JIRA
      * @return JIRA column info
      */
-    List<JiraColumnInfo> getColumnInfo(Map<String, String> params, Map<String, JiraColumnInfo> columns, ApplicationLink applink);
+    List<JiraColumnInfo> getColumnInfo(Map<String, String> params, Map<String, JiraColumnInfo> columns, ReadOnlyApplicationLink applink);
 
     /**
      * Get columnKey is mapped between JIRA and JIM to support sortable ability.

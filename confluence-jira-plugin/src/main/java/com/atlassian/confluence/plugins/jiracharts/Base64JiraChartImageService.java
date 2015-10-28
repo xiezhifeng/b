@@ -21,10 +21,10 @@ public class Base64JiraChartImageService
 {
 
     private static final Logger LOG = LoggerFactory.getLogger(Base64JiraChartImageService.class);
-    private ApplicationLinkService applicationLinkService;
+    private ReadOnlyApplicationLinkService applicationLinkService;
     private static final String PNG_IMAGE_FORMAT_NAME = "PNG";
 
-    public Base64JiraChartImageService(ApplicationLinkService applicationLinkService)
+    public Base64JiraChartImageService(ReadOnlyApplicationLinkService applicationLinkService)
     {
         this.applicationLinkService = applicationLinkService;
     }
@@ -33,7 +33,7 @@ public class Base64JiraChartImageService
     {
         try
         {
-            final ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, serverId);
+            final ReadOnlyApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, serverId);
             ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(applicationLink, Request.MethodType.GET, gadgetURL);
 
             return (JiraImageChartModel) request.execute(new Base64ImageResponseHandler(applicationLink.getRpcUrl().toString()));

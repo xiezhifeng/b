@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.google.common.base.Function;
@@ -15,7 +15,12 @@ public class ApplicationLinkResolver
 
     private static final String XML_JQL_REGEX = ".+searchrequest-xml/temp/SearchRequest.+";
 
-    private ApplicationLinkService appLinkService;
+    private ReadOnlyApplicationLinkService readOnlyApplicationLinkService;
+
+    public ApplicationLinkResolver(ReadOnlyApplicationLinkService readOnlyApplicationLinkService)
+    {
+        this.readOnlyApplicationLinkService = readOnlyApplicationLinkService;
+    }
 
     /**
      * Gets applicationLink base on request data and type
@@ -28,11 +33,11 @@ public class ApplicationLinkResolver
      * @throws TypeNotInstalledException if it can not find an application link base on url or server name in
      * parameters
      */
-    public ApplicationLink resolve(JiraIssuesMacro.Type requestType, String requestData, Map<String, String> typeSafeParams)
+    public ReadOnlyApplicationLink resolve(JiraIssuesMacro.Type requestType, String requestData, Map<String, String> typeSafeParams)
             throws TypeNotInstalledException
     {
         // Make sure we actually have at least one applink configured, otherwise it's pointless to continue
-        ApplicationLink primaryAppLink = appLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
+        ReadOnlyApplicationLink primaryAppLink = readOnlyApplicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
         if (primaryAppLink == null)
         {
             return null;
@@ -45,8 +50,8 @@ public class ApplicationLinkResolver
 
         if (requestType == JiraIssuesMacro.Type.URL)
         {
-            Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
-            for (ApplicationLink applicationLink : applicationLinks)
+            Iterable<ReadOnlyApplicationLink> applicationLinks = readOnlyApplicationLinkService.getApplicationLinks(JiraApplicationType.class);
+            for (ReadOnlyApplicationLink applicationLink : applicationLinks)
             {
                 if (requestData.startsWith(applicationLink.getRpcUrl().toString()) || requestData.startsWith(applicationLink.getDisplayUrl().toString()))
                 {
@@ -65,7 +70,7 @@ public class ApplicationLinkResolver
         String serverName = typeSafeParams.get("server");
 
         // Firstly, try to find an applink matching one of the macro's server params
-        ApplicationLink appLink = getAppLinkForServer(serverName, typeSafeParams.get("serverId"));
+        ReadOnlyApplicationLink appLink = getAppLinkForServer(serverName, typeSafeParams.get("serverId"));
         if (appLink != null)
         {
             return appLink;
@@ -83,16 +88,16 @@ public class ApplicationLinkResolver
         }
     }
 
-    public ApplicationLink getAppLinkForServer(String serverName, String serverId)
+    public ReadOnlyApplicationLink getAppLinkForServer(String serverName, String serverId)
     {
-        ApplicationLink appLink = null;
+        ReadOnlyApplicationLink appLink = null;
 
         if (StringUtils.isNotBlank(serverId))
         {
-            appLink = getAppLink(serverId, new Function<ApplicationLink, String>()
+            appLink = getAppLink(serverId, new Function<ReadOnlyApplicationLink, String>()
             {
                 @Override
-                public String apply(@Nullable ApplicationLink input)
+                public String apply(@Nullable ReadOnlyApplicationLink input)
                 {
                     if (input != null)
                     {
@@ -104,10 +109,10 @@ public class ApplicationLinkResolver
         }
         if (appLink == null && StringUtils.isNotBlank(serverName))
         {
-            appLink = getAppLink(serverName, new Function<ApplicationLink, String>()
+            appLink = getAppLink(serverName, new Function<ReadOnlyApplicationLink, String>()
             {
                 @Override
-                public String apply(@Nullable ApplicationLink input)
+                public String apply(@Nullable ReadOnlyApplicationLink input)
                 {
                     if (input != null)
                     {
@@ -121,9 +126,9 @@ public class ApplicationLinkResolver
         return appLink;
     }
 
-    private ApplicationLink getAppLink(String matcher, Function<ApplicationLink, String> getProperty)
+    private ReadOnlyApplicationLink getAppLink(String matcher, Function<ReadOnlyApplicationLink, String> getProperty)
     {
-        for (ApplicationLink applicationLink : appLinkService.getApplicationLinks(JiraApplicationType.class))
+        for (ReadOnlyApplicationLink applicationLink : readOnlyApplicationLinkService.getApplicationLinks(JiraApplicationType.class))
         {
             if (matcher.equals(getProperty.apply(applicationLink)))
             {
@@ -133,8 +138,4 @@ public class ApplicationLinkResolver
         return null;
     }
 
-    public void setApplicationLinkService(ApplicationLinkService appLinkService)
-    {
-        this.appLinkService = appLinkService;
-    }
 }
