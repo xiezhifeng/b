@@ -93,6 +93,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
         jiraIssueExecutor = new ThreadPoolExecutor(poolSize, poolSize, 60L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(1000), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
+
+        jiraIssueExecutor.allowCoreThreadTimeOut(true);
     }
 
     @Override
