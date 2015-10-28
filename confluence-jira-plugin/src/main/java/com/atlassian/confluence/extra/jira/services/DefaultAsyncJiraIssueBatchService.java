@@ -34,16 +34,18 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean, DisposableBean
 {
     private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncJiraIssueBatchService.class);
     private static final int BATCH_SIZE = 25;
+    private static final int DEFAULT_POOL_SIZE = 5;
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
     private final ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory;
@@ -51,9 +53,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private Cache jiraIssuesCache;
     private CacheEntryListener cacheEntryListener;
 
-    private final ExecutorService jiraIssueExecutorService = Executors.newCachedThreadPool(ThreadFactories.named("JIM Marshaller-")
-            .type(ThreadFactories.Type.USER).build());
-
+    private ThreadPoolExecutor jiraIssueExecutor;
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory,
@@ -72,6 +72,24 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                         .expireAfterWrite(2, TimeUnit.MINUTES)
                         .build()
         );
+
+        int poolSize = DEFAULT_POOL_SIZE;
+        final String poolSizeProp = System.getProperty("confluence.jira.issues.executor.poolsize");
+
+        if (poolSizeProp != null)
+        {
+            try
+            {
+                poolSize = Integer.parseInt(poolSizeProp);
+            }
+            catch (NumberFormatException e)
+            {
+                // ignore
+            }
+        }
+
+        jiraIssueExecutor = new ThreadPoolExecutor(poolSize, poolSize, 60L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(1000), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
     }
 
     @Override
@@ -91,7 +109,16 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                                                 batchRequest, macroDefinitions,
                                                 conversionContext);
 
-            jiraIssueExecutorService.submit(jiraIssueBatchTask);
+            try
+            {
+                jiraIssueExecutor.submit(jiraIssueBatchTask);
+                logger.debug("Submitted task to thread pool. {}", jiraIssueExecutor.toString());
+            }
+            catch (RejectedExecutionException e)
+            {
+                logger.error("JIM Marshaller rejected task because there are more than 1000 tasks queued. {}", jiraIssueExecutor.toString(), e);
+                throw e;
+            }
         }
     }
 
@@ -140,8 +167,18 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     if (batchRequest.contains(issueKey))
                     {
                         Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
-                        Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
-                        jiraResultMap.put(issueKey, futureHtmlMacro.get());
+
+                        try
+                        {
+                            Future<String> futureHtmlMacro = jiraIssueExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
+                            logger.debug("Submitted task to thread pool. {}", jiraIssueExecutor.toString());
+                            jiraResultMap.put(issueKey, futureHtmlMacro.get());
+                        }
+                        catch (RejectedExecutionException e)
+                        {
+                            logger.warn("JIM Marshaller rejected task because there are more than 1000 tasks queued. {}", jiraIssueExecutor.toString(), e);
+                            throw e;
+                        }
                     }
                 }
 
