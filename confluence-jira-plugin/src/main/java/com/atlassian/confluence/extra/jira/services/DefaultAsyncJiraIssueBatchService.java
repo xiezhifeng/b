@@ -10,6 +10,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
+import com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
@@ -54,15 +55,17 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private CacheEntryListener cacheEntryListener;
 
     private ThreadPoolExecutor jiraIssueExecutor;
+    private final StreamableMacroExecutor streamableMacroExecutor;
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory,
-                                             JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager)
+                                             JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager, StreamableMacroExecutor streamableMacroExecutor)
     {
         this.jiraIssueBatchService = jiraIssueBatchService;
         this.macroManager = macroManager;
         this.threadLocalDelegateExecutorFactory = threadLocalDelegateExecutorFactory;
         this.jiraExceptionHelper = jiraExceptionHelper;
+        this.streamableMacroExecutor = streamableMacroExecutor;
         jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,
                 new CacheSettingsBuilder()
                         .local()
@@ -170,7 +173,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
                         try
                         {
-                            Future<String> futureHtmlMacro = jiraIssueExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
+                            Future<String> futureHtmlMacro = streamableMacroExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
                             logger.debug("Submitted task to thread pool. {}", jiraIssueExecutor.toString());
                             jiraResultMap.put(issueKey, futureHtmlMacro.get());
                         }
