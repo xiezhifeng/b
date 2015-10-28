@@ -47,6 +47,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncJiraIssueBatchService.class);
     private static final int BATCH_SIZE = 25;
     private static final int DEFAULT_POOL_SIZE = 5;
+    private static final int DEFAULT_QUEUE_SIZE = 1000;
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
     private final ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory;
@@ -77,7 +78,9 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         );
 
         int poolSize = DEFAULT_POOL_SIZE;
+        int queueSize = DEFAULT_QUEUE_SIZE;
         final String poolSizeProp = System.getProperty("confluence.jira.issues.executor.poolsize");
+        final String queueSizeProp = System.getProperty("confluence.jira.issues.executor.queuesize");
 
         if (poolSizeProp != null)
         {
@@ -91,8 +94,21 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             }
         }
 
+        if (queueSizeProp != null)
+        {
+            try
+            {
+                queueSize = Integer.parseInt(queueSizeProp);
+            }
+            catch (NumberFormatException e)
+            {
+                // ignore
+            }
+        }
+
+
         jiraIssueExecutor = new ThreadPoolExecutor(poolSize, poolSize, 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(1000), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
+                new LinkedBlockingQueue<Runnable>(queueSize), ThreadFactories.namedThreadFactory("JIM Marshaller-"));
 
         jiraIssueExecutor.allowCoreThreadTimeOut(true);
     }
