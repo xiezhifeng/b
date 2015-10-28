@@ -27,6 +27,11 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:value>com.atlassian.applinks.api.ApplicationLinkService</beans:value>
     </osgi:interfaces>
   </osgi:reference>
+  <osgi:reference id="readOnlyApplicationLinkService">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.applinks.api.ReadOnlyApplicationLinkService</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
   <osgi:reference id="hostApplication">
     <osgi:interfaces>
       <beans:value>com.atlassian.applinks.host.spi.HostApplication</beans:value>
