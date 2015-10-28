@@ -10,11 +10,11 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
@@ -159,7 +159,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
     @Test
     public void testCreateIssuesInSingle() throws CredentialsRequiredException, ResponseException
     {
-        ApplicationLink applicationLink = createMockApplicationLink(createJsonResultSingle("1", "TP-1", "http://jira.com/TP-1"));
+        ReadOnlyApplicationLink applicationLink = createMockApplicationLink(createJsonResultSingle("1", "TP-1", "http://jira.com/TP-1"));
 
         List<JiraIssueBean> jiraIssueBeansIn = createJiraIssueBean(1);
         Assert.assertNull(jiraIssueBeansIn.get(0).getId());
@@ -174,7 +174,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
     @Test
     public void testCreateIssuesInBatch() throws CredentialsRequiredException, ResponseException
     {
-        ApplicationLink applicationLink = createMockApplicationLink(
+        ReadOnlyApplicationLink applicationLink = createMockApplicationLink(
                 createJsonResultBatch(createJsonResultSingle("1", "2", "3"),
                                       createJsonResultSingle("11", "22", "33")));
 
@@ -194,7 +194,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
     @Test
     public void testCreateIssuesWithJiraVersionBefore6() throws CredentialsRequiredException, ResponseException
     {
-        ApplicationLink applicationLink = createMockApplicationLink(
+        ReadOnlyApplicationLink applicationLink = createMockApplicationLink(
                 createJsonResultSingle("1", "TP-1", "http://jira.com/TP-1"),
                 createJsonResultSingle("11", "TP-1", "http://jira.com/TP-1"));
 
@@ -247,9 +247,9 @@ public class TestDefaultJiraIssuesManager extends TestCase
     }
 
 
-    private ApplicationLink createMockApplicationLink(String willReturnWhenExecute, String...nextExecutedValues) throws CredentialsRequiredException, ResponseException
+    private ReadOnlyApplicationLink createMockApplicationLink(String willReturnWhenExecute, String...nextExecutedValues) throws CredentialsRequiredException, ResponseException
     {
-        ApplicationLink applicationLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink applicationLink = mock(ReadOnlyApplicationLink.class);
         ApplicationLinkRequestFactory applicationLinkRequestFactory = mock(ApplicationLinkRequestFactory.class);
         ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
 
@@ -269,7 +269,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
         {
             super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService);
         }
-        protected Boolean isSupportBatchIssue(ApplicationLink appLink)
+        protected Boolean isSupportBatchIssue(ReadOnlyApplicationLink appLink)
         {
             return true;
         }
@@ -280,7 +280,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
         {
             super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService);
         }
-        protected Boolean isSupportBatchIssue(ApplicationLink appLink)
+        protected Boolean isSupportBatchIssue(ReadOnlyApplicationLink appLink)
         {
             return false;
         }

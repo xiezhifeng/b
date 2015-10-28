@@ -20,11 +20,11 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.config.util.BootstrapUtils;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
@@ -127,7 +127,7 @@ public class TestJiraIssuesMacro extends TestCase
 
     @Mock private JiraIssuesSettingsManager jiraIssuesSettingsManager;
 
-    @Mock private ApplicationLinkService appLinkService;
+    @Mock private ReadOnlyApplicationLinkService appLinkService;
 
     @Mock private HttpRetrievalService httpRetrievalService;
 
@@ -163,7 +163,7 @@ public class TestJiraIssuesMacro extends TestCase
 
     @Mock private JiraCacheManager jiraCacheManager;
 
-    @Mock private ApplicationLink appLink;
+    @Mock private ReadOnlyApplicationLink appLink;
 
     @Mock private FormatSettingsManager formatSettingsManager;
 
@@ -296,7 +296,7 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
         params.put("columns", "type,summary");
 
-        ApplicationLink appLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink appLink = mock(ReadOnlyApplicationLink.class);
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
 
@@ -314,13 +314,13 @@ public class TestJiraIssuesMacro extends TestCase
 
         mockRestApi(appLink);
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createDefaultConversionContext(false));
-        verify(jiraCacheManager, times(0)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
+        verify(jiraCacheManager, times(0)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ReadOnlyApplicationLink.class), anyBoolean(), anyBoolean());
 
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createDefaultConversionContext(true));
-        verify(jiraCacheManager, times(1)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
+        verify(jiraCacheManager, times(1)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ReadOnlyApplicationLink.class), anyBoolean(), anyBoolean());
     }
 
-    private void mockRestApi(ApplicationLink appLink)
+    private void mockRestApi(ReadOnlyApplicationLink appLink)
             throws CredentialsRequiredException, ResponseException {
         PowerMockito.mockStatic(JiraConnectorUtils.class);
         ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
@@ -338,7 +338,7 @@ public class TestJiraIssuesMacro extends TestCase
 
         Map<String, Object> expectedContextMap = Maps.newHashMap();
 
-        ApplicationLink appLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink appLink = mock(ReadOnlyApplicationLink.class);
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
 
@@ -485,7 +485,7 @@ public class TestJiraIssuesMacro extends TestCase
 
     public void testContextMapForDynamicSingleIssues() throws Exception
     {
-        ApplicationLink appLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink appLink = mock(ReadOnlyApplicationLink.class);
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
 
@@ -522,7 +522,7 @@ public class TestJiraIssuesMacro extends TestCase
 
     public void testContextMapForStaticSingleIssues() throws Exception
     {
-        ApplicationLink appLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink appLink = mock(ReadOnlyApplicationLink.class);
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
 
@@ -634,7 +634,7 @@ public class TestJiraIssuesMacro extends TestCase
         Map<String, JiraColumnInfo> columns = new HashMap<String, JiraColumnInfo>();
         Map<String, String> columnParams = new HashMap<String, String>();
         columnParams.put("columns", "type,key,summary,assignee,reporter,priority, status,resolution,created,updated,due");
-        ApplicationLink appLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink appLink = mock(ReadOnlyApplicationLink.class);
         assertEquals(defaultColumns.size(), jiraIssuesColumnManager.getColumnInfo(columnParams, columns, appLink).size());
 
         // make sure get columns properly
@@ -694,7 +694,7 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("anonymous", "true");
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000&os_username=admin&os_password=admin");
 
-        ApplicationLink appLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink appLink = mock(ReadOnlyApplicationLink.class);
         ApplicationLinkRequest request =  mock(ApplicationLinkRequest.class);
 
         List<String> columnList = Lists.newArrayList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
@@ -750,7 +750,7 @@ public class TestJiraIssuesMacro extends TestCase
 
 //        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
 
-        ApplicationLink appLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink appLink = mock(ReadOnlyApplicationLink.class);
         ApplicationLinkRequest request =  mock(ApplicationLinkRequest.class);
 
         List<String> columnList = Lists.newArrayList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
@@ -933,7 +933,7 @@ public class TestJiraIssuesMacro extends TestCase
         mockChannel.setChannelElement(mockElement);
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, appLink, false, true)).thenReturn(mockChannel);
 
-        when(jiraIssuesManager.retrieveJQLFromFilter(any(String.class), any(ApplicationLink.class))).thenReturn("status = open");
+        when(jiraIssuesManager.retrieveJQLFromFilter(any(String.class), any(ReadOnlyApplicationLink.class))).thenReturn("status = open");
 
         when(applicationLinkResolver.resolve(any(JiraIssuesMacro.Type.class), any(String.class), any(Map.class))).thenReturn(appLink);
 
@@ -1013,7 +1013,7 @@ public class TestJiraIssuesMacro extends TestCase
             super(jiraIssuesManager, applicationLinkResolver, jiraConnectorManager, jiraExceptionHelper);
         }
 
-        protected JiraIssuesManager.Channel retrieveChannel(JiraRequestData jiraRequestData, ConversionContext conversionContext, ApplicationLink applicationLink) throws MacroExecutionException
+        protected JiraIssuesManager.Channel retrieveChannel(JiraRequestData jiraRequestData, ConversionContext conversionContext, ReadOnlyApplicationLink applicationLink) throws MacroExecutionException
         {
             Element mockElement = getMockChannelElement("jiraBatchResponse.xml");
             MockChannel mockChannel = new MockChannel("");
