@@ -1,9 +1,9 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
@@ -49,7 +49,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     private HttpRetrievalService httpRetrievalService;
 
-    private com.google.common.cache.Cache<ApplicationLink, Boolean> batchIssueCapableCache;
+    private com.google.common.cache.Cache<ReadOnlyApplicationLink, Boolean> batchIssueCapableCache;
     // private final static String saxParserClass =
     // "org.apache.xerces.parsers.SAXParser";
 
@@ -75,7 +75,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     }
 
     @SuppressWarnings("unchecked")
-    protected JiraResponseHandler retrieveXML(final String url, List<String> columns, final ApplicationLink appLink,
+    protected JiraResponseHandler retrieveXML(final String url, List<String> columns, final ReadOnlyApplicationLink appLink,
             boolean forceAnonymous, boolean isAnonymous, final HandlerType handlerType, boolean useCache)
             throws IOException, CredentialsRequiredException, ResponseException
     {
@@ -130,7 +130,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
     }
 
-    protected ApplicationLinkRequestFactory createRequestFactory(ApplicationLink applicationLink, boolean isAnonymous)
+    protected ApplicationLinkRequestFactory createRequestFactory(ReadOnlyApplicationLink applicationLink, boolean isAnonymous)
     {
         if (isAnonymous)
         {
@@ -167,7 +167,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return urlBuffer.toString();
     }
 
-    public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink applink,
+    public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ReadOnlyApplicationLink applink,
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException
     {
@@ -178,7 +178,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
 
     public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns,
-            final ApplicationLink applink, boolean forceAnonymous, boolean useCache) throws IOException,
+            final ReadOnlyApplicationLink applink, boolean forceAnonymous, boolean useCache) throws IOException,
             CredentialsRequiredException, ResponseException
     {
             JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
@@ -187,7 +187,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             return handler.getResponseChannel();
         }
 
-    public String retrieveXMLAsString(String url, List<String> columns, ApplicationLink applink,
+    public String retrieveXMLAsString(String url, List<String> columns, ReadOnlyApplicationLink applink,
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException
     {
@@ -197,7 +197,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     }
 
     @Override
-    public String retrieveJQLFromFilter(String filterId, ApplicationLink appLink) throws ResponseException
+    public String retrieveJQLFromFilter(String filterId, ReadOnlyApplicationLink appLink) throws ResponseException
     {
         JsonObject jsonObject;
         String url = appLink.getRpcUrl() + "/rest/api/2/filter/" + filterId;
@@ -218,7 +218,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     }
 
-    public String executeJqlQuery(String jqlQuery, ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException
+    public String executeJqlQuery(String jqlQuery, ReadOnlyApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException
     {
         String restUrl = "/rest/api/2/search?" + jqlQuery;
         ApplicationLinkRequestFactory applicationLinkRequestFactory = applicationLink.createAuthenticatedRequestFactory();
@@ -233,7 +233,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         });
     }
     
-    private JsonObject retrieveFilerByAnonymous(ApplicationLink appLink, String url) throws ResponseException {
+    private JsonObject retrieveFilerByAnonymous(ReadOnlyApplicationLink appLink, String url) throws ResponseException {
         try
         {
             final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
@@ -247,7 +247,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     }
 
     @Override
-    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException, ResponseException
+    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ReadOnlyApplicationLink appLink) throws CredentialsRequiredException, ResponseException
     {
         if(jiraIssueBeans == null || jiraIssueBeans.size() == 0)
         {
@@ -263,7 +263,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
     }
 
-    protected List<JiraIssueBean> createIssuesInSingle(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException, ResponseException
+    protected List<JiraIssueBean> createIssuesInSingle(List<JiraIssueBean> jiraIssueBeans, ReadOnlyApplicationLink appLink) throws CredentialsRequiredException, ResponseException
     {
         ApplicationLinkRequest request = createRequest(appLink, MethodType.POST, CREATE_JIRA_ISSUE_URL);
 
@@ -283,7 +283,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @throws CredentialsRequiredException
      * @throws ResponseException
      */
-    protected List<JiraIssueBean> createIssuesInBatch(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) 
+    protected List<JiraIssueBean> createIssuesInBatch(List<JiraIssueBean> jiraIssueBeans, ReadOnlyApplicationLink appLink)
             throws CredentialsRequiredException, ResponseException
     {
         ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.POST, CREATE_JIRA_ISSUE_BATCH_URL);
@@ -318,7 +318,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @return applink's request
      * @throws CredentialsRequiredException
      */
-    private ApplicationLinkRequest createRequest(ApplicationLink appLink, MethodType methodType, String baseRestUrl) throws CredentialsRequiredException 
+    private ApplicationLinkRequest createRequest(ReadOnlyApplicationLink appLink, MethodType methodType, String baseRestUrl) throws CredentialsRequiredException
     {
         ApplicationLinkRequestFactory requestFactory = null;
         ApplicationLinkRequest request = null;
@@ -362,7 +362,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @return boolean
      * @throws CredentialsRequiredException
      */
-    protected Boolean isCreateIssueBatchUrlAvailable(ApplicationLink appLink) throws CredentialsRequiredException
+    protected Boolean isCreateIssueBatchUrlAvailable(ReadOnlyApplicationLink appLink) throws CredentialsRequiredException
     {
         ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.GET, CREATE_JIRA_ISSUE_BATCH_URL);
         try
@@ -426,7 +426,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * Call create JIRA issue and update it with issue was created using given
      * JIRA applink request
      * 
-     * @param request
+     * @param applinkRequest
      * @param jiraIssueBean jira issue inputted
      */
     private void createAndUpdateResultForJiraIssue(ApplicationLinkRequest applinkRequest, JiraIssueBean jiraIssueBean) throws ResponseException
@@ -466,21 +466,21 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return errors;
     }
 
-    protected Boolean isSupportBatchIssue(ApplicationLink appLink)
+    protected Boolean isSupportBatchIssue(ReadOnlyApplicationLink appLink)
     {
         return getBatchIssueCapableCache().getUnchecked(appLink);
     }
 
-    private com.google.common.cache.Cache<ApplicationLink, Boolean> getBatchIssueCapableCache()
+    private com.google.common.cache.Cache<ReadOnlyApplicationLink, Boolean> getBatchIssueCapableCache()
     {
         if (batchIssueCapableCache == null)
         {
             batchIssueCapableCache = CacheBuilder.newBuilder()
                     .expireAfterWrite(1, TimeUnit.DAYS)
-                    .build(new CacheLoader<ApplicationLink, Boolean>()
+                    .build(new CacheLoader<ReadOnlyApplicationLink, Boolean>()
                     {
                         @Override
-                        public Boolean load(ApplicationLink appLink)
+                        public Boolean load(ReadOnlyApplicationLink appLink)
                         {
                             try
                             {

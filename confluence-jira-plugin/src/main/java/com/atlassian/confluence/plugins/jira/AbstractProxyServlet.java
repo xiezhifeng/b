@@ -1,6 +1,13 @@
 package com.atlassian.confluence.plugins.jira;
 
-import com.atlassian.applinks.api.*;
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationType;
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.confluence.extra.jira.handlers.AbstractProxyResponseHandler;
 import com.atlassian.sal.api.net.Request.MethodType;
@@ -17,7 +24,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class AbstractProxyServlet extends HttpServlet
 {
@@ -33,11 +45,11 @@ public abstract class AbstractProxyServlet extends HttpServlet
     protected static Set<String> headerWhitelist = new HashSet<String>(Arrays.asList("Content-Type", "Cache-Control",
             "Pragma"));
 
-    protected ApplicationLinkService appLinkService;
+    protected ReadOnlyApplicationLinkService readOnlyApplicationLinkService;
 
-    public AbstractProxyServlet(ApplicationLinkService appLinkService)
+    public AbstractProxyServlet(ReadOnlyApplicationLinkService readOnlyApplicationLinkService)
     {
-        this.appLinkService = appLinkService;
+        this.readOnlyApplicationLinkService = readOnlyApplicationLinkService;
     }
 
     @Override
@@ -86,7 +98,7 @@ public abstract class AbstractProxyServlet extends HttpServlet
             }
 
         }
-        ApplicationLink appLink = null;
+        ReadOnlyApplicationLink appLink = null;
         if (appId != null)
         {
             try
@@ -140,14 +152,14 @@ public abstract class AbstractProxyServlet extends HttpServlet
     }
 
     protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req,
-            HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException
+            HttpServletResponse resp, ApplicationLinkRequest request, ReadOnlyApplicationLink appLink) throws ResponseException
     {
         ProxyApplicationLinkResponseHandler responseHandler = new ProxyApplicationLinkResponseHandler(req,
                 requestFactory, resp);
         request.execute(responseHandler);
     }
 
-    protected void handleCredentialsRequiredException(ApplicationLink appLink, final HttpServletRequest req,
+    protected void handleCredentialsRequiredException(ReadOnlyApplicationLink appLink, final HttpServletRequest req,
                     final HttpServletResponse resp, final MethodType methodType, String url, String authorisationURI)
     {
         resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -155,7 +167,7 @@ public abstract class AbstractProxyServlet extends HttpServlet
         requestByAnonymousUser(appLink, req, resp, methodType, url);
     }
 
-    private void requestByAnonymousUser(ApplicationLink appLink, final HttpServletRequest req,
+    private void requestByAnonymousUser(ReadOnlyApplicationLink appLink, final HttpServletRequest req,
                                        HttpServletResponse resp, final MethodType methodType, String url)
     {
         try
@@ -219,16 +231,16 @@ public abstract class AbstractProxyServlet extends HttpServlet
     }
 
     @SuppressWarnings("unchecked")
-    protected ApplicationLink getPrimaryAppLinkByType(String type) throws ClassNotFoundException
+    protected ReadOnlyApplicationLink getPrimaryAppLinkByType(String type) throws ClassNotFoundException
     {
         Class<? extends ApplicationType> clazz = (Class<? extends ApplicationType>) Class.forName(type);
-        ApplicationLink primaryLink = appLinkService.getPrimaryApplicationLink(clazz);
+        ReadOnlyApplicationLink primaryLink = readOnlyApplicationLinkService.getPrimaryApplicationLink(clazz);
         return primaryLink;
     }
 
-    protected ApplicationLink getApplicationLinkById(String id) throws TypeNotInstalledException
+    protected ReadOnlyApplicationLink getApplicationLinkById(String id) throws TypeNotInstalledException
     {
-        ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(id));
+        ReadOnlyApplicationLink appLink = readOnlyApplicationLinkService.getApplicationLink(new ApplicationId(id));
         return appLink;
     }
 

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import junit.framework.TestCase;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
@@ -54,7 +55,7 @@ public class TestJiraChartMacro extends TestCase
 
     @Mock private I18NBeanFactory i18NBeanFactory;
 
-    @Mock private ApplicationLinkService applicationLinkService;
+    @Mock private ReadOnlyApplicationLinkService applicationLinkService;
 
     @Mock MacroExecutorService executorService;
 
@@ -185,7 +186,7 @@ public class TestJiraChartMacro extends TestCase
     {
 
         public MockJiraChartMacro(MacroExecutorService executorService,
-                ApplicationLinkService applicationLinkService,
+                ReadOnlyApplicationLinkService applicationLinkService,
                 I18NBeanFactory i18nBeanFactory, JQLValidator jqlValidator,
                 JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory,
                 JiraExceptionHelper jiraExceptionHelper)

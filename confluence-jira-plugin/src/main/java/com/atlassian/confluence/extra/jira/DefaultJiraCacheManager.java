@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
@@ -25,7 +25,7 @@ public class DefaultJiraCacheManager implements JiraCacheManager
         this.cacheManager = cacheManager;
     }
 
-    public void clearJiraIssuesCache(final String url, List<String> columns, final ApplicationLink appLink,
+    public void clearJiraIssuesCache(final String url, List<String> columns, final ReadOnlyApplicationLink appLink,
             boolean forceAnonymous, boolean isAnonymous)
     {
         if (appLink == null) 

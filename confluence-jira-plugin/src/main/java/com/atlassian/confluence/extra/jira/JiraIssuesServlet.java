@@ -1,9 +1,9 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
@@ -39,11 +39,11 @@ public class JiraIssuesServlet extends HttpServlet
 
     private JiraIssuesUrlManager jiraIssuesUrlManager;
     
-    private ApplicationLinkService appLinkService;
+    private ReadOnlyApplicationLinkService readOnlyApplicationLinkService;
 
-    public void setApplicationLinkService(ApplicationLinkService appLinkService)
+    public void setApplicationLinkService(ReadOnlyApplicationLinkService readOnlyApplicationLinkService)
     {
-        this.appLinkService = appLinkService;
+        this.readOnlyApplicationLinkService = readOnlyApplicationLinkService;
     }
     
     public void setCacheManager(CacheManager cacheManager)
@@ -102,10 +102,10 @@ public class JiraIssuesServlet extends HttpServlet
             String sortOrder = request.getParameter("sortorder");
             String appIdStr = request.getParameter("appId");
             
-            ApplicationLink applink = null;
+            ReadOnlyApplicationLink applink = null;
             if (appIdStr != null)
             {
-                applink = appLinkService.getApplicationLink(new ApplicationId(appIdStr));
+                applink = readOnlyApplicationLinkService.getApplicationLink(new ApplicationId(appIdStr));
             }
             
             // TODO: CONFJIRA-11: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
@@ -190,7 +190,7 @@ public class JiraIssuesServlet extends HttpServlet
         return GeneralUtil.htmlEncode(errorMessageBuilder.toString());
     }
 
-    protected String getResult(CacheKey key, ApplicationLink applink, boolean forceAnonymous, boolean useCache, int requestedPage, boolean showCount, boolean forFlexigrid, String url) throws Exception
+    protected String getResult(CacheKey key, ReadOnlyApplicationLink applink, boolean forceAnonymous, boolean useCache, int requestedPage, boolean showCount, boolean forFlexigrid, String url) throws Exception
     {
         SimpleStringCache subCacheForKey = getSubCacheForKey(key, !useCache);
         String jiraResponse = subCacheForKey.get(requestedPage);
@@ -224,7 +224,7 @@ public class JiraIssuesServlet extends HttpServlet
         return jiraResponse;
     }
 
-    private String rebaseLinks(String jiraResponse, ApplicationLink appLink)
+    private String rebaseLinks(String jiraResponse, ReadOnlyApplicationLink appLink)
     {
         // CONF-22283: Display URL is not used when inserting jira issue
         return jiraResponse.replace(appLink.getRpcUrl().toString(), appLink.getDisplayUrl().toString());

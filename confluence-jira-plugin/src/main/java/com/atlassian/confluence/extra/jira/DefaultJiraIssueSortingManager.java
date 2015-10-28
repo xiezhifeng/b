@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
@@ -43,7 +43,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
     }
 
     @Override
-    public String getRequestDataForSorting(Map<String, String> parameters, String requestData, Type requestType, Map<String, JiraColumnInfo> jiraColumns, ConversionContext conversionContext, ApplicationLink applink) throws MacroExecutionException
+    public String getRequestDataForSorting(Map<String, String> parameters, String requestData, Type requestType, Map<String, JiraColumnInfo> jiraColumns, ConversionContext conversionContext, ReadOnlyApplicationLink applink) throws MacroExecutionException
     {
         String orderColumnName = (String) conversionContext.getProperty("orderColumnName");
         String order = (String) conversionContext.getProperty("order");
@@ -66,7 +66,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         }
     }
 
-    private String getClauseName(final Map<String, String> parameters, final Map<String, JiraColumnInfo> jiraColumns, final String orderColumnName, final ApplicationLink applink)
+    private String getClauseName(final Map<String, String> parameters, final Map<String, JiraColumnInfo> jiraColumns, final String orderColumnName, final ReadOnlyApplicationLink applink)
     {
         List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(parameters, jiraColumns, applink);
         for (JiraColumnInfo columnInfo : columns)
@@ -79,7 +79,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         return StringUtils.EMPTY;
     }
 
-    private String getUrlSortRequest(String requestData, String clauseName, String order, Map<String, JiraColumnInfo> jiraColumns, int maximumIssues, ApplicationLink applink) throws MacroExecutionException
+    private String getUrlSortRequest(String requestData, String clauseName, String order, Map<String, JiraColumnInfo> jiraColumns, int maximumIssues, ReadOnlyApplicationLink applink) throws MacroExecutionException
     {
         StringBuilder urlSort = new StringBuilder();
         String jql = StringUtils.EMPTY;

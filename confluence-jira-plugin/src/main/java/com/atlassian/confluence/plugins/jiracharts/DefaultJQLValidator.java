@@ -33,11 +33,11 @@ class DefaultJQLValidator implements JQLValidator
     private static final Long START_JIRA_UNSUPPORTED_BUILD_NUMBER = 6109L; //jira version 6.0.8
     private static final Long END_JIRA_UNSUPPORTED_BUILD_NUMBER = 6155L; //jira version 6.1.1
 
-    private ApplicationLinkService applicationLinkService;
+    private ReadOnlyApplicationLinkService applicationLinkService;
     private I18NBeanFactory i18NBeanFactory;
     private JiraConnectorManager jiraConnectorManager;
 
-    public DefaultJQLValidator(ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, JiraConnectorManager jiraConnectorManager)
+    public DefaultJQLValidator(ReadOnlyApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, JiraConnectorManager jiraConnectorManager)
     {
         this.applicationLinkService = applicationLinkService;
         this.jiraConnectorManager = jiraConnectorManager;
@@ -50,7 +50,7 @@ class DefaultJQLValidator implements JQLValidator
         {
             String jql = GeneralUtil.urlDecode(parameters.get("jql"));
             String appLinkId = parameters.get("serverId");
-            ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, appLinkId);
+            ReadOnlyApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, appLinkId);
             if (isVerifyChartSupported)
             {
                 validateJiraSupportedVersion(applicationLink);
@@ -66,7 +66,7 @@ class DefaultJQLValidator implements JQLValidator
 
     }
 
-    private JQLValidationResult validateJQL(ApplicationLink applicationLink, String jql) throws MacroExecutionException
+    private JQLValidationResult validateJQL(ReadOnlyApplicationLink applicationLink, String jql) throws MacroExecutionException
     {
         JQLValidationResult result = new JQLValidationResult();
         try
@@ -87,7 +87,7 @@ class DefaultJQLValidator implements JQLValidator
         return result;
     }
 
-    private void validateJiraSupportedVersion(ApplicationLink appLinkId) throws MacroExecutionException
+    private void validateJiraSupportedVersion(ReadOnlyApplicationLink appLinkId) throws MacroExecutionException
     {
         JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLinkId);
         if(jiraServerBean != null)
@@ -109,7 +109,7 @@ class DefaultJQLValidator implements JQLValidator
      * @throws CredentialsRequiredException
      * @throws ResponseException
      */
-    private void validateInternal(ApplicationLink applicationLink, String jql, JQLValidationResult result)
+    private void validateInternal(ReadOnlyApplicationLink applicationLink, String jql, JQLValidationResult result)
             throws CredentialsRequiredException, ResponseException
     {
         UrlBuilder urlBuilder = new UrlBuilder(JIRA_SEARCH_URL);
