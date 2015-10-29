@@ -19,8 +19,6 @@ import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.macro.xhtml.MacroManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory;
-import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -36,9 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -64,7 +61,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     {
         this.jiraIssueBatchService = jiraIssueBatchService;
         this.macroManager = macroManager;
-        this.jiraIssueExecutor = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, "JIM Marshaller-");
+        this.jiraIssueExecutor = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, EXECUTOR_QUEUE_SIZE, "JIM Marshaller-");
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.streamableMacroExecutor = streamableMacroExecutor;
         jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,

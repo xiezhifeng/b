@@ -32,17 +32,40 @@ public class JiraExecutorFactory
      * get more work before tearing them down again.
      * </p>
      * @param maxThreadPoolSize how many threads the pool can grow to.
+     * @param maxQueueSize how many work items can be in the queue before the executor will start rejecting new work.
+     * @param name the name of the thread pool. Will be prefixed to each thread in the pool.
+     * @return the executor service.
+     */
+    public ExecutorService newLimitedThreadPool(int maxThreadPoolSize, int maxQueueSize, String name)
+    {
+        ExecutorService baseService = new ThreadPoolExecutor(0, maxThreadPoolSize,
+                THREAD_POOL_IDE_TIME_SECONDS, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(maxQueueSize),
+                ThreadFactories.named(name)
+                        .type(ThreadFactories.Type.DAEMON)
+                        .build());
+        return threadLocalDelegateExecutorFactory.createExecutorService(baseService);
+    }
+
+    /**
+     * Creates a ThreadPool backed ExecutorService that has only daemon threads, and an empty initial pool size.
+     * <p>
+     * The ExecutorService will use the {@link com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory} to
+     * ensure all relevant thread context is available in the worker thread.
+     * </p>
+     * <p>
+     * Will wait up to 60 seconds (configurable via jira.executor.idletime.seconds system property) for idle threads to
+     * get more work before tearing them down again.
+     * </p>
+     * <p>
+     * The work queue for this service will be unbounded.
+     * </p>
+     * @param maxThreadPoolSize how many threads the pool can grow to.
      * @param name the name of the thread pool. Will be prefixed to each thread in the pool.
      * @return the executor service.
      */
     public ExecutorService newLimitedThreadPool(int maxThreadPoolSize, String name)
     {
-        ExecutorService baseService = new ThreadPoolExecutor(0, maxThreadPoolSize,
-                THREAD_POOL_IDE_TIME_SECONDS, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(),
-                ThreadFactories.named(name)
-                        .type(ThreadFactories.Type.DAEMON)
-                        .build());
-        return threadLocalDelegateExecutorFactory.createExecutorService(baseService);
+        return newLimitedThreadPool(maxThreadPoolSize, Integer.MAX_VALUE, name);
     }
 }
