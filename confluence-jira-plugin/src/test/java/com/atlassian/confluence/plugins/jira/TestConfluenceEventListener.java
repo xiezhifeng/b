@@ -3,6 +3,9 @@ package com.atlassian.confluence.plugins.jira;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
+import com.atlassian.confluence.plugins.jira.links.JiraRemoteEpicLinkManager;
+import com.atlassian.confluence.plugins.jira.links.JiraRemoteIssueLinkManager;
+import com.atlassian.confluence.plugins.jira.links.JiraRemoteSprintLinkManager;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.ModuleCompleteKey;
 import com.atlassian.test.concurrent.MockThreadLocalDelegateExecutorFactory;
@@ -31,7 +34,9 @@ public class TestConfluenceEventListener
     private static final String AGILE_MODE_VALUE_PLAN = "plan";
 
     @Mock private EventPublisher eventPublisher;
-    @Mock private JiraRemoteLinkCreator jiraRemoteLinkCreator;
+    @Mock private JiraRemoteIssueLinkManager jiraRemoteIssueLinkManager;
+    @Mock private JiraRemoteSprintLinkManager jiraRemoteSprintLinkManager;
+    @Mock private JiraRemoteEpicLinkManager jiraRemoteEpicLinkManager;
     @Mock private JiraConnectorManager jiraConnectorManager;
     @Mock private BlueprintPageCreateEvent blueprintPageCreateEvent;
     private ModuleCompleteKey moduleCompleteKey;
@@ -48,9 +53,11 @@ public class TestConfluenceEventListener
         when(blueprintPageCreateEvent.getBlueprintKey()).thenReturn(moduleCompleteKey);
         when(blueprintPageCreateEvent.getPage()).thenReturn(null);
 
-        when(jiraRemoteLinkCreator.createLinkToEpic(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
-        when(jiraRemoteLinkCreator.createLinkToSprint(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
-        event = new ConfluenceEventListener(eventPublisher, jiraRemoteLinkCreator, jiraConnectorManager, new MockThreadLocalDelegateExecutorFactory());
+        when(jiraRemoteEpicLinkManager.createLinkToEpic(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+        when(jiraRemoteSprintLinkManager.createLinkToSprint(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+        event = new ConfluenceEventListener(eventPublisher,
+                jiraRemoteSprintLinkManager, jiraRemoteIssueLinkManager, jiraRemoteEpicLinkManager,
+                jiraConnectorManager, new MockThreadLocalDelegateExecutorFactory());
     }
 
     @Test
@@ -63,7 +70,7 @@ public class TestConfluenceEventListener
 
         try
         {
-            event.createJiraRemoteLinks(blueprintPageCreateEvent);
+            event.handleBlueprintPageCreate(blueprintPageCreateEvent);
         }
         catch (NullPointerException npe)
         {
@@ -84,7 +91,7 @@ public class TestConfluenceEventListener
 
         try
         {
-            event.createJiraRemoteLinks(blueprintPageCreateEvent);
+            event.handleBlueprintPageCreate(blueprintPageCreateEvent);
         }
         catch (NullPointerException npe)
         {
@@ -105,7 +112,7 @@ public class TestConfluenceEventListener
 
         try
         {
-            event.createJiraRemoteLinks(blueprintPageCreateEvent);
+            event.handleBlueprintPageCreate(blueprintPageCreateEvent);
         }
         catch (NullPointerException npe)
         {
@@ -126,7 +133,7 @@ public class TestConfluenceEventListener
 
         try
         {
-            event.createJiraRemoteLinks(blueprintPageCreateEvent);
+            event.handleBlueprintPageCreate(blueprintPageCreateEvent);
         }
         catch (NullPointerException npe)
         {
