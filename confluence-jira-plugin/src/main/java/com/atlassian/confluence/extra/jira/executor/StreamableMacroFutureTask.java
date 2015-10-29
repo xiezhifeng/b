@@ -21,7 +21,6 @@ public class StreamableMacroFutureTask implements Callable<String>
     private final Map<String, String> parameters;
     private final ConversionContext context;
     private final StreamableMacro macro;
-    private final ConfluenceUser user;
     private final Element element;
     private final String jiraServerUrl;
     private final Exception exception;
@@ -39,7 +38,6 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.parameters = parameters;
         this.context = context;
         this.macro = macro;
-        this.user = user;
         this.element = element;
         this.jiraServerUrl = jiraServerUrl;
         this.exception = exception;
@@ -57,7 +55,6 @@ public class StreamableMacroFutureTask implements Callable<String>
         }
         try
         {
-            AuthenticatedUserThreadLocal.set(user);
             if (element != null) // is single issue jira markup and in batch
             {
                 final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
@@ -79,10 +76,6 @@ public class StreamableMacroFutureTask implements Callable<String>
         catch (final Exception e)
         {
             return jiraExceptionHelper.renderNormalJIMExceptionMessage(e);
-        }
-        finally
-        {
-            AuthenticatedUserThreadLocal.reset();
         }
     }
 }
