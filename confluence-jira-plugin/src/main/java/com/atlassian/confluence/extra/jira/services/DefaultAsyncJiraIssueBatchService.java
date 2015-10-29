@@ -10,6 +10,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
+import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
@@ -43,25 +44,24 @@ import java.util.concurrent.TimeUnit;
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean, DisposableBean
 {
     private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncJiraIssueBatchService.class);
+    private static final int THREAD_POOL_SIZE = Integer.getInteger("jira.issuebatch.threadpool.size", 10);
     private static final int BATCH_SIZE = 25;
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
-    private final ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory;
     private final JiraExceptionHelper jiraExceptionHelper;
     private Cache jiraIssuesCache;
     private CacheEntryListener cacheEntryListener;
 
-    private final ExecutorService jiraIssueExecutorService = Executors.newCachedThreadPool(ThreadFactories.named("JIM Marshaller-")
-            .type(ThreadFactories.Type.USER).build());
+    private final ExecutorService jiraIssueExecutorService;
 
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
-                                             ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory,
+                                             JiraExecutorFactory executorFactory,
                                              JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager)
     {
         this.jiraIssueBatchService = jiraIssueBatchService;
         this.macroManager = macroManager;
-        this.threadLocalDelegateExecutorFactory = threadLocalDelegateExecutorFactory;
+        this.jiraIssueExecutorService = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, "JIM Marshaller-");
         this.jiraExceptionHelper = jiraExceptionHelper;
         jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,
                 new CacheSettingsBuilder()
@@ -114,7 +114,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     {
         final StreamableMacro jiraIssuesMacro = (StreamableMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
 
-        return threadLocalDelegateExecutorFactory.createCallable(new Callable<Map<String, List<String>>>() {
+        return new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
             {
                 Map<String, Object> issueResultsMap;
@@ -156,7 +156,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
                 return jiraResultMap;
             }
-        });
+        };
     }
 
     @Override

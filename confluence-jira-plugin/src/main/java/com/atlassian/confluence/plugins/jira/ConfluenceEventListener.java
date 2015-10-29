@@ -7,12 +7,13 @@ import com.atlassian.confluence.event.events.content.blogpost.BlogPostUpdateEven
 import com.atlassian.confluence.event.events.content.page.PageCreateEvent;
 import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
+import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.confluence.plugins.jira.event.PageCreatedFromJiraAnalyticsEvent;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
-import com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
@@ -24,18 +25,17 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ConfluenceEventListener implements DisposableBean
 {
     private final static Logger LOGGER = LoggerFactory.getLogger(ConfluenceEventListener.class);
+    private static final int THREAD_POOL_SIZE = Integer.getInteger("jira.remotelink.threadpool.size", 10);
 
     private final EventPublisher eventPublisher;
     private final JiraRemoteLinkCreator jiraRemoteLinkCreator;
     private final JiraConnectorManager jiraConnectorManager;
 
-    private final ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory;
-    private final ExecutorService jiraLinkExecutorService = Executors.newCachedThreadPool();
+    private final ExecutorService jiraLinkExecutorService;
     private static final Function<Object, String> PARAM_VALUE_TO_STRING_FUNCTION = new Function<Object, String>()
     {
         @Override
@@ -56,12 +56,12 @@ public class ConfluenceEventListener implements DisposableBean
     private static final String AGILE_MODE_VALUE_REPORT = "report";
 
     public ConfluenceEventListener(EventPublisher eventPublisher, JiraRemoteLinkCreator jiraRemoteLinkCreator, JiraConnectorManager jiraConnectorManager,
-                                   ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory)
+                                   JiraExecutorFactory executorFactory)
     {
         this.eventPublisher = eventPublisher;
         this.jiraRemoteLinkCreator = jiraRemoteLinkCreator;
         this.jiraConnectorManager = jiraConnectorManager;
-        this.threadLocalDelegateExecutorFactory = threadLocalDelegateExecutorFactory;
+        jiraLinkExecutorService = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, "Jira remote link executor");
         eventPublisher.register(this);
     }
 
@@ -97,7 +97,7 @@ public class ConfluenceEventListener implements DisposableBean
 
     private void updateJiraRemoteLinks(final AbstractPage currentPage, final AbstractPage originalPage, final String bluePrintKey, final Map<String, ?> context)
     {
-        Callable jiraRemoteLinkCallable = threadLocalDelegateExecutorFactory.createCallable(new Callable<Void>() {
+        Callable jiraRemoteLinkCallable = new Callable<Void>() {
             @Override
             public Void call() throws Exception
             {
@@ -117,7 +117,7 @@ public class ConfluenceEventListener implements DisposableBean
                 }
                 return null;
             }
-        });
+        };
         jiraLinkExecutorService.submit(jiraRemoteLinkCallable);
     }
 
@@ -191,6 +191,7 @@ public class ConfluenceEventListener implements DisposableBean
 
     public void destroy() throws Exception
     {
+        jiraLinkExecutorService.shutdown();
         eventPublisher.unregister(this);
     }
 }
