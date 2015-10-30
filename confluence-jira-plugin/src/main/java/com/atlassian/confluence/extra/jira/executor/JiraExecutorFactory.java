@@ -14,6 +14,7 @@ import com.atlassian.util.concurrent.ThreadFactories;
 public class JiraExecutorFactory
 {
     private static final int THREAD_POOL_IDE_TIME_SECONDS = Integer.getInteger("jira.executor.idletime.seconds", 60);
+    private static final int QUEUE_SIZE = Integer.getInteger("jira.executor.queuesize", 1000);
     private final ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory;
 
     public JiraExecutorFactory(ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory)
@@ -61,7 +62,7 @@ public class JiraExecutorFactory
      * get more work before tearing them down again.
      * </p>
      * <p>
-     * The work queue for this service will be unbounded.
+     * The work queue for this service will be 1000 entries (configurable via jira.executor.queuesize).
      * </p>
      * @param maxThreadPoolSize how many threads the pool can grow to.
      * @param name the name of the thread pool. Will be prefixed to each thread in the pool.
@@ -69,6 +70,6 @@ public class JiraExecutorFactory
      */
     public ExecutorService newLimitedThreadPool(int maxThreadPoolSize, String name)
     {
-        return newLimitedThreadPool(maxThreadPoolSize, Integer.MAX_VALUE, name);
+        return newLimitedThreadPool(maxThreadPoolSize, QUEUE_SIZE, name);
     }
 }
