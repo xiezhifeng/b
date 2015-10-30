@@ -38,12 +38,15 @@ public class JiraExecutorFactory
      */
     public ExecutorService newLimitedThreadPool(int maxThreadPoolSize, int maxQueueSize, String name)
     {
-        ExecutorService baseService = new ThreadPoolExecutor(0, maxThreadPoolSize,
+        // use a core pool that can expire, as otherwise the ThreadPoolExecutor will only start threads in the range
+        // (0, maximumPoolSize) if the queue is full - and we're defaulting to an unbounded queue!
+        ThreadPoolExecutor baseService = new ThreadPoolExecutor(maxThreadPoolSize, maxThreadPoolSize,
                 THREAD_POOL_IDE_TIME_SECONDS, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(maxQueueSize),
                 ThreadFactories.named(name)
                         .type(ThreadFactories.Type.DAEMON)
                         .build());
+        baseService.allowCoreThreadTimeOut(true);
         return threadLocalDelegateExecutorFactory.createExecutorService(baseService);
     }
 
