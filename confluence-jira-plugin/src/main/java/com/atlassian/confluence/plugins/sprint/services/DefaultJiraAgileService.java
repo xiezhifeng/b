@@ -2,6 +2,7 @@ package com.atlassian.confluence.plugins.sprint.services;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.plugins.sprint.model.JiraSprintModel;
@@ -33,31 +34,31 @@ public class DefaultJiraAgileService implements JiraAgileService
 
     @Nonnull
     @Override
-    public String getBoards(@Nonnull ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException
+    public String getBoards(@Nonnull ReadOnlyApplicationLink readOnlyApplicationLink) throws CredentialsRequiredException, ResponseException
     {
-        String jsonStringResult = retrieveJsonString(applicationLink, AGILE_BOARD_REST_PATH);
+        String jsonStringResult = retrieveJsonString(readOnlyApplicationLink, AGILE_BOARD_REST_PATH);
         return readValues(jsonStringResult);
     }
 
     @Nonnull
     @Override
-    public String getSprints(@Nonnull ApplicationLink applicationLink, @Nonnull final String boardId) throws CredentialsRequiredException, ResponseException
+    public String getSprints(@Nonnull ReadOnlyApplicationLink readOnlyApplicationLink, @Nonnull final String boardId) throws CredentialsRequiredException, ResponseException
     {
-        String jsonStringResult = retrieveJsonString(applicationLink, String.format(AGILE_SPRINT_REST_PATH_TEMPLATE, boardId));
+        String jsonStringResult = retrieveJsonString(readOnlyApplicationLink, String.format(AGILE_SPRINT_REST_PATH_TEMPLATE, boardId));
         return readValues(jsonStringResult);
     }
 
     @Nonnull
     @Override
-    public JiraSprintModel getJiraSprint(@Nonnull ApplicationLink applicationLink, @Nonnull String sprintId) throws CredentialsRequiredException, ResponseException
+    public JiraSprintModel getJiraSprint(@Nonnull ReadOnlyApplicationLink readOnlyApplicationLink, @Nonnull String sprintId) throws CredentialsRequiredException, ResponseException
     {
         String restUrl = String.format(AGILE_SPRINT_INFO_REST_PATH_TEMPLATE, sprintId);
-        String jsonData = retrieveJsonString(applicationLink, restUrl);
+        String jsonData = retrieveJsonString(readOnlyApplicationLink, restUrl);
         JiraSprintModel jiraSprintModel = new Gson().fromJson(jsonData, JiraSprintModel.class);
         return jiraSprintModel;
     }
 
-    private String retrieveJsonString(@Nonnull ApplicationLink applicationLink, String restUrl) throws CredentialsRequiredException, ResponseException
+    private String retrieveJsonString(@Nonnull ReadOnlyApplicationLink applicationLink, String restUrl) throws CredentialsRequiredException, ResponseException
     {
         try
         {

@@ -1,7 +1,7 @@
 package com.atlassian.confluence.plugins.sprint;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
@@ -58,7 +58,7 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
     @Override
     public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
     {
-        ApplicationLink applicationLink = applicationLinkResolver.getAppLinkForServer("", parameters.get("serverId"));
+        ReadOnlyApplicationLink applicationLink = applicationLinkResolver.getAppLinkForServer("", parameters.get("serverId"));
         Map<String, Object> contextMap =  MacroUtils.defaultVelocityContext();
         String sprintId = parameters.get("sprintId");
         contextMap.put("sprintId", sprintId);
@@ -115,7 +115,7 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
         return StringUtils.defaultString(parameters.get("sprintName"), i18nResolver.getText("confluence.extra.jira.jirasprint.label"));
     }
 
-    private String generateJiraSprintLink(ApplicationLink applicationLink, String sprintId, String boardId)
+    private String generateJiraSprintLink(ReadOnlyApplicationLink applicationLink, String sprintId, String boardId)
     {
         return applicationLink.getDisplayUrl() + String.format("/secure/GHLocateSprintOnBoard.jspa?rapidViewId=%s&sprintId=%s", boardId, sprintId);
     }
