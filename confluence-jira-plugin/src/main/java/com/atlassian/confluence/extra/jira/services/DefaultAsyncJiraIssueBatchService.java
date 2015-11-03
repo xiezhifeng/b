@@ -40,6 +40,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean, DisposableBean
 {
     private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncJiraIssueBatchService.class);
@@ -49,8 +52,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
     private final JiraExceptionHelper jiraExceptionHelper;
-    private Cache jiraIssuesCache;
-    private CacheEntryListener cacheEntryListener;
+    private Cache<String, JiraResponseData> jiraIssuesCache;
+    private CacheEntryListener<String, JiraResponseData> cacheEntryListener;
 
     private final ExecutorService jiraIssueExecutor;
     private final StreamableMacroExecutor streamableMacroExecutor;
@@ -61,7 +64,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     {
         this.jiraIssueBatchService = jiraIssueBatchService;
         this.macroManager = macroManager;
-        this.jiraIssueExecutor = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, EXECUTOR_QUEUE_SIZE, "JIM Marshaller-");
+        this.jiraIssueExecutor = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, EXECUTOR_QUEUE_SIZE, "JIM Marshaller");
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.streamableMacroExecutor = streamableMacroExecutor;
         jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,
@@ -108,7 +111,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     @Override
     public JiraResponseData getAsyncJiraResults(String clientId)
     {
-        JiraResponseData jiraResponseData = (JiraResponseData) jiraIssuesCache.get(clientId);
+        JiraResponseData jiraResponseData = jiraIssuesCache.get(clientId);
         if (jiraResponseData != null && jiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
         {
             jiraIssuesCache.remove(clientId);
@@ -165,7 +168,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     }
                 }
 
-                JiraResponseData cachedJiraResponseData = (JiraResponseData) jiraIssuesCache.get(clientId);
+                JiraResponseData cachedJiraResponseData = jiraIssuesCache.get(clientId);
                 cachedJiraResponseData.add(jiraResultMap);
 
                 //notify all distributed cache when complete
@@ -183,7 +186,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     public void afterPropertiesSet() throws Exception
     {
         jiraIssuesCache.removeAll();
-        cacheEntryListener = new CacheEntryAdapter()
+        cacheEntryListener = new CacheEntryAdapter<String, JiraResponseData>()
         {
             @Override
             public void onAdd(CacheEntryEvent cacheEntryEvent)
