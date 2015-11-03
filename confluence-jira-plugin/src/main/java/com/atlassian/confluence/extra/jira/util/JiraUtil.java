@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira.util;
 
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.JiraChannelResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler;
@@ -192,7 +192,7 @@ public class JiraUtil
      * @param children
      * @param appLink
      */
-    public static void checkAndCorrectDisplayUrl(List<Element> children, ApplicationLink appLink)
+    public static void checkAndCorrectDisplayUrl(List<Element> children, ReadOnlyApplicationLink appLink)
     {
         if (appLink == null || appLink.getDisplayUrl() == null || appLink.getDisplayUrl().equals(appLink.getRpcUrl()))
         {
@@ -211,7 +211,7 @@ public class JiraUtil
      * @param appLink @Nullable application link
      */
     @SuppressWarnings("unchecked")
-    public static void checkAndCorrectIconURL(Element element, ApplicationLink appLink)
+    public static void checkAndCorrectIconURL(Element element, ReadOnlyApplicationLink appLink)
     {
         if (appLink == null || element == null) 
         {
@@ -236,7 +236,7 @@ public class JiraUtil
      * @param element @Nullable issue element
      * @param appLink @Nullable application link
      */
-    private static void checkAndCorrectLink(Element element, ApplicationLink appLink)
+    private static void checkAndCorrectLink(Element element, ReadOnlyApplicationLink appLink)
     {
         if (appLink == null || element == null || element.getChild("link") == null) 
         {

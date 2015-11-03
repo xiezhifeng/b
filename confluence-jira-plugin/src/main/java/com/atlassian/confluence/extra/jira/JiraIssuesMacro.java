@@ -1,8 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputDeviceType;
@@ -278,7 +278,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
-                    String requestData, Type requestType, ApplicationLink applink,
+                    String requestData, Type requestType, ReadOnlyApplicationLink applink,
                     boolean staticMode, boolean isMobile, JiraIssuesType issuesType, ConversionContext conversionContext) throws MacroExecutionException
     {
         // Prepare the maxIssuesToDisplay for velocity template
@@ -546,7 +546,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void populateContextMapForStaticSingleIssue(
             Map<String, Object> contextMap, String url,
-            ApplicationLink applicationLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
+            ReadOnlyApplicationLink applicationLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
             throws MacroExecutionException
     {
         JiraIssuesManager.Channel channel;
@@ -575,7 +575,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void populateContextMapForStaticSingleIssueAnonymous(
             Map<String, Object> contextMap, String url,
-            ApplicationLink applink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
+            ReadOnlyApplicationLink applink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
             throws MacroExecutionException
     {
         JiraIssuesManager.Channel channel;
@@ -591,7 +591,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, Element issue, ApplicationLink applicationLink) throws MalformedRequestException
+    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, Element issue, ReadOnlyApplicationLink applicationLink) throws MalformedRequestException
     {
         //In Jira 6.3, when anonymous make a request to jira without permission, the result will return a empty channel
         if (issue == null) {
@@ -638,7 +638,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     private String getXmlUrl(int maximumIssues, String requestData, Type requestType,
-            ApplicationLink applicationLink) throws MacroExecutionException {
+                             ReadOnlyApplicationLink applicationLink) throws MacroExecutionException {
         StringBuilder stringBuilder = new StringBuilder(JiraUtil.normalizeUrl(applicationLink.getRpcUrl()));
         stringBuilder.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
                 .append(maximumIssues).append("&returnMax=true&jqlQuery=");
@@ -682,7 +682,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         throw new MacroExecutionException("Invalid url");
     }
 
-    private String buildKeyJiraUrl(String key, ApplicationLink applicationLink)
+    private String buildKeyJiraUrl(String key, ReadOnlyApplicationLink applicationLink)
     {
         String encodedQuery = JiraUtil.utf8Encode("key in (" + key + ")");
         return JiraUtil.normalizeUrl(applicationLink.getRpcUrl())
@@ -704,7 +704,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      *             thrown if Confluence failed to retrieve JIRA Issues
      */
     private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames, String url,
-            ApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
+              ReadOnlyApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
     {
         boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
         try
@@ -766,10 +766,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     /**
      * This method is called inside the asynchronous call inside method
-     * {@link #populateContextMapForStaticTable(Map, List, String, ApplicationLink, boolean, boolean, ConversionContext)}
+     * {@link #populateContextMapForStaticTable(Map, List, String, ReadOnlyApplicationLink, boolean, boolean, ConversionContext)}
      */
     private void populateContextMapForStaticTableByAnonymous(Map<String, Object> contextMap, List<String> columnNames,
-            String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache)
+            String url, ReadOnlyApplicationLink appLink, boolean forceAnonymous, boolean useCache)
             throws MacroExecutionException
     {
         try
@@ -788,7 +788,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ApplicationLink appLink)
+    private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ReadOnlyApplicationLink appLink)
     {
         Element element = channel.getChannelElement();
         contextMap.put("trustedConnection", channel.isTrustedConnection());
@@ -837,7 +837,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     private void populateContextMapForStaticCountIssues(Map<String, Object> contextMap, List<String> columnNames,
-                                                        String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
+                                                        String url, ReadOnlyApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
     {
         try
         {
@@ -863,7 +863,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private String getCountIssuesWithAnonymous(String url, List<String> columnNames, ApplicationLink appLink, boolean forceAnonymous, boolean useCache) throws MacroExecutionException {
+    private String getCountIssuesWithAnonymous(String url, List<String> columnNames, ReadOnlyApplicationLink appLink, boolean forceAnonymous, boolean useCache) throws MacroExecutionException {
         try {
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames, appLink, forceAnonymous, useCache);
             Element element = channel.getChannelElement();
@@ -889,7 +889,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     */
    private void populateContextMapForDynamicTable(
                    Map<String, String> params, Map<String, Object> contextMap, List<JiraColumnInfo> columns,
-                   boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
+                   boolean useCache, String url, ReadOnlyApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
    {
        StringBuffer urlBuffer = new StringBuffer(url);
        contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
@@ -970,7 +970,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     private String buildRetrieverUrl(Collection<JiraColumnInfo> columns,
-            String url, ApplicationLink applicationLink, boolean forceAnonymous)
+            String url, ReadOnlyApplicationLink applicationLink, boolean forceAnonymous)
     {
         String baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
         StringBuilder retrieverUrl = new StringBuilder(baseUrl);
@@ -1005,7 +1005,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             // it will be overided by below code. At here, we need default column first for exception case.
             contextMap.put(COLUMNS, columnNames);
 
-            ApplicationLink applink = null;
+            ReadOnlyApplicationLink applink = null;
             try
             {
                 applink = applicationLinkResolver.resolve(requestType, requestData, parameters);

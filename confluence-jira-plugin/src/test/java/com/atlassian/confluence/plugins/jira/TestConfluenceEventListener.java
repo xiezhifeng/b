@@ -1,6 +1,7 @@
 package com.atlassian.confluence.plugins.jira;
 
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
+import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.confluence.plugins.jira.links.JiraRemoteEpicLinkManager;
@@ -55,9 +56,10 @@ public class TestConfluenceEventListener
 
         when(jiraRemoteEpicLinkManager.createLinkToEpic(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
         when(jiraRemoteSprintLinkManager.createLinkToSprint(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+        JiraExecutorFactory factory = new JiraExecutorFactory(new MockThreadLocalDelegateExecutorFactory());
         event = new ConfluenceEventListener(eventPublisher,
                 jiraRemoteSprintLinkManager, jiraRemoteIssueLinkManager, jiraRemoteEpicLinkManager,
-                jiraConnectorManager, new MockThreadLocalDelegateExecutorFactory());
+                jiraConnectorManager, factory);
     }
 
     @Test

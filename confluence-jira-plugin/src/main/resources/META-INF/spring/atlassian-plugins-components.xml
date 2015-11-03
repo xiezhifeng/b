@@ -25,6 +25,7 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="jsonFlexigridResponseGenerator" autowire="default" class="com.atlassian.confluence.extra.jira.JsonFlexigridResponseGenerator"/>
   <beans:bean id="jiraIssuesAppLinkResolver" autowire="default" class="com.atlassian.confluence.extra.jira.ApplicationLinkResolver"/>
   <beans:bean id="jiraMacroExecutor" autowire="default" class="com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor"/>
+  <beans:bean id="jiraExecutorFactory" autowire="default" class="com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory"/>
   <beans:bean id="jiraIssuesDateFormatter" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter"/>
   <beans:bean id="jiraCacheManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraCacheManager"/>
   <osgi:service id="jiraCacheManager_osgiService" ref="jiraCacheManager">

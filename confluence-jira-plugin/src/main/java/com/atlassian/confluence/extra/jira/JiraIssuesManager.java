@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.sal.api.net.ResponseException;
@@ -41,19 +41,19 @@ public interface JiraIssuesManager
      */
     void setColumnMap(String jiraIssuesUrl, Map<String, String> columnMap);
 
-    public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink appLink,
+    public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ReadOnlyApplicationLink appLink,
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException;
 
-    public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns, ApplicationLink applink,
+    public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns, ReadOnlyApplicationLink applink,
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException;
 
-    public String retrieveXMLAsString(final String url, List<String> columns, ApplicationLink applink,
+    public String retrieveXMLAsString(final String url, List<String> columns, ReadOnlyApplicationLink applink,
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException;
 
-    public String retrieveJQLFromFilter(final String filterId, ApplicationLink appLink) throws ResponseException;
+    public String retrieveJQLFromFilter(final String filterId, ReadOnlyApplicationLink appLink) throws ResponseException;
 
     /**
      * Execute JQL query base on application link, the form of JQL should contain "jql" prefix
@@ -63,7 +63,7 @@ public interface JiraIssuesManager
      * @throws CredentialsRequiredException
      * @throws ResponseException
      */
-    public String executeJqlQuery(String jqlQuery, ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException;
+    public String executeJqlQuery(String jqlQuery, ReadOnlyApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException;
     /**
      * Create jira issues from the list of jira issue bean
      * 
@@ -72,7 +72,7 @@ public interface JiraIssuesManager
      * @return List<JiraIssueBean> list of jira issue beans
      * @throws CredentialsRequiredException
      */
-    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink)
+    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ReadOnlyApplicationLink appLink)
             throws CredentialsRequiredException, ResponseException;
 
     /*

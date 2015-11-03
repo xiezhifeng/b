@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager;
 import junit.framework.TestCase;
 
@@ -12,7 +12,7 @@ public class TestDefaultJiraConnectorManager extends TestCase {
     private DefaultJiraConnectorManager defaultJiraConnectorManager;
 
     @Mock
-    private ApplicationLinkService appLinkService;
+    private ReadOnlyApplicationLinkService appLinkService;
 
     @Mock
     private AuthenticationConfigurationManager authenticationConfigurationManager;

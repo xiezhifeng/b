@@ -1,8 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
@@ -32,7 +32,7 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
     }
 
     @Override
-    protected JiraResponseHandler retrieveXML(String url, List<String> columns, final ApplicationLink appLink,
+    protected JiraResponseHandler retrieveXML(String url, List<String> columns, final ReadOnlyApplicationLink appLink,
             boolean forceAnonymous, boolean isAnonymous, HandlerType handlerType, boolean useCache) throws IOException,
             CredentialsRequiredException, ResponseException
     {

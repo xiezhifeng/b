@@ -1,9 +1,9 @@
 package com.atlassian.confluence.plugins.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
@@ -41,7 +41,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
     private I18NBeanFactory i18NBeanFactory;
     private PluginAccessor pluginAccessor;
 
-    public ImageGeneratorServlet(ApplicationLinkService appLinkService, PluginAccessor pluginAccessor
+    public ImageGeneratorServlet(ReadOnlyApplicationLinkService appLinkService, PluginAccessor pluginAccessor
             , I18NBeanFactory i18NBeanFactory, JiraChartFactory jiraChartFactory)
     {
         super(appLinkService, jiraChartFactory);
@@ -86,7 +86,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
     //Fix CONF-34264:JIRA Chart Not Rendered when Inserting to Confluence page and throwing 504 Error
     //Using rpc url to make request to jira server by confluence server
     @Override
-    protected URI getApplinkURL(ApplicationLink applicationLink)
+    protected URI getApplinkURL(ReadOnlyApplicationLink applicationLink)
     {
         return applicationLink.getRpcUrl();
     }
@@ -175,7 +175,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
     }
 
     @Override
-    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException
+    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ReadOnlyApplicationLink appLink) throws ResponseException
     {
         String imgLink = getRedirectImgLink(request, req, requestFactory, resp, appLink);
         BufferedImage bufferedImage = null;
