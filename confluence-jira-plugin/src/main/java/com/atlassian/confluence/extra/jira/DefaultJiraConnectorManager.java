@@ -1,8 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
@@ -26,11 +26,11 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     private static final String REST_URL_SERVER_INFO = "/rest/api/2/serverInfo";
     public static final long NOT_SUPPORTED_BUILD_NUMBER = -1L;
 
-    private ApplicationLinkService appLinkService;
+    private ReadOnlyApplicationLinkService appLinkService;
     private AuthenticationConfigurationManager authenticationConfigurationManager;
-    private Cache<ApplicationLink, JiraServerBean> jiraServersCache;
+    private Cache<ReadOnlyApplicationLink, JiraServerBean> jiraServersCache;
 
-    public DefaultJiraConnectorManager(ApplicationLinkService appLinkService, AuthenticationConfigurationManager authenticationConfigurationManager)
+    public DefaultJiraConnectorManager(ReadOnlyApplicationLinkService appLinkService, AuthenticationConfigurationManager authenticationConfigurationManager)
     {
         this.appLinkService = appLinkService;
         this.authenticationConfigurationManager = authenticationConfigurationManager;
@@ -39,14 +39,14 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     @Override
     public List<JiraServerBean> getJiraServers()
     {
-        Iterable<ApplicationLink> appLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
+        Iterable<ReadOnlyApplicationLink> appLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
         if (appLinks == null)
         {
             return Collections.emptyList();
         }
 
         List<JiraServerBean> servers = new ArrayList<JiraServerBean>();
-        for (ApplicationLink applicationLink : appLinks)
+        for (ReadOnlyApplicationLink applicationLink : appLinks)
         {
             servers.add(getInternalJiraServer(applicationLink));
         }
@@ -54,13 +54,13 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     }
 
     @Override
-    public JiraServerBean getJiraServer(ApplicationLink applicationLink)
+    public JiraServerBean getJiraServer(ReadOnlyApplicationLink applicationLink)
     {
         return getInternalJiraServer(applicationLink);
     }
 
     @Override
-    public void updateDetailJiraServerInfor(ApplicationLink applicationLink)
+    public void updateDetailJiraServerInfor(ReadOnlyApplicationLink applicationLink)
     {
         JiraServerBean jiraServerBean = getInternalJiraServer(applicationLink);
         // jiraServerBean might be null, we must check its existence first
@@ -72,7 +72,7 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     }
 
     @Override
-    public void updatePrimaryServer(ApplicationLink applicationLink)
+    public void updatePrimaryServer(ReadOnlyApplicationLink applicationLink)
     {
         List<JiraServerBean> jiraServerBeans = getJiraServers();
         for(JiraServerBean jiraServerBean : jiraServerBeans)
@@ -81,13 +81,13 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
         }
     }
 
-    private JiraServerBean createJiraServerBean(ApplicationLink applicationLink)
+    private JiraServerBean createJiraServerBean(ReadOnlyApplicationLink applicationLink)
     {
         return new JiraServerBean(applicationLink.getId().toString(), applicationLink.getDisplayUrl().toString(),
                 applicationLink.getName(), applicationLink.isPrimary(), null, getServerBuildNumber(applicationLink));
     }
 
-    private long getServerBuildNumber(ApplicationLink appLink)
+    private long getServerBuildNumber(ReadOnlyApplicationLink appLink)
     {
         try
         {
@@ -108,7 +108,7 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
         }
     }
 
-    private JiraServerBean getInternalJiraServer(ApplicationLink applicationLink)
+    private JiraServerBean getInternalJiraServer(ReadOnlyApplicationLink applicationLink)
     {
         // applicationLink can be null, it should be checked first before getting the JiraServerBean instance from the Cache instance
         if (null != applicationLink)
@@ -120,16 +120,16 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
         return null; // return null if applicationLink is null
     }
 
-    private Cache<ApplicationLink, JiraServerBean> getJiraServersCache()
+    private Cache<ReadOnlyApplicationLink, JiraServerBean> getJiraServersCache()
     {
         if (jiraServersCache == null)
         {
             jiraServersCache = CacheBuilder.newBuilder()
                     .expireAfterWrite(4, TimeUnit.HOURS)
-                    .build(new CacheLoader<ApplicationLink, JiraServerBean>()
+                    .build(new CacheLoader<ReadOnlyApplicationLink, JiraServerBean>()
                     {
                         @Override
-                        public JiraServerBean load(ApplicationLink applicationLink) throws Exception
+                        public JiraServerBean load(ReadOnlyApplicationLink applicationLink) throws Exception
                         {
                             return createJiraServerBean(applicationLink);
                         }

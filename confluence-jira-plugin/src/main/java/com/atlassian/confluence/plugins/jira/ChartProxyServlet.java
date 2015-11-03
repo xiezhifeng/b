@@ -1,9 +1,9 @@
 package com.atlassian.confluence.plugins.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
@@ -34,7 +34,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
 
     private final JiraChartFactory jiraChartFactory;
     
-    public ChartProxyServlet(ApplicationLinkService appLinkService, JiraChartFactory jiraChartFactory)
+    public ChartProxyServlet(ReadOnlyApplicationLinkService appLinkService, JiraChartFactory jiraChartFactory)
     {
         super(appLinkService);
         this.jiraChartFactory = jiraChartFactory;
@@ -57,7 +57,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
     }
     
     @Override
-    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException
+    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ReadOnlyApplicationLink appLink) throws ResponseException
     {
         String redirectLink = getRedirectImgLink(request, req, requestFactory, resp, appLink);
         if(redirectLink != null)
@@ -73,7 +73,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
         }
     }
     
-    protected String getRedirectImgLink(ApplicationLinkRequest request, HttpServletRequest req, ApplicationLinkRequestFactory requestFactory, HttpServletResponse resp, ApplicationLink appLink) throws ResponseException
+    protected String getRedirectImgLink(ApplicationLinkRequest request, HttpServletRequest req, ApplicationLinkRequestFactory requestFactory, HttpServletResponse resp, ReadOnlyApplicationLink appLink) throws ResponseException
     {
         ChartProxyResponseHandler responseHandler = new ChartProxyResponseHandler(req, requestFactory, resp);
         Object ret = request.execute(responseHandler);
@@ -98,7 +98,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
         return null;
     }
 
-    protected URI getApplinkURL(ApplicationLink applicationLink)
+    protected URI getApplinkURL(ReadOnlyApplicationLink applicationLink)
     {
         return applicationLink.getDisplayUrl();
     }

@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira.helper;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.*;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -123,7 +123,7 @@ public class ImagePlaceHolderHelper
     private ImagePlaceholder getCountImagePlaceHolder(Map<String, String> params, JiraIssuesMacro.Type requestType, String requestData)
     {
         String url = requestData;
-        ApplicationLink appLink = null;
+        ReadOnlyApplicationLink appLink = null;
         String totalIssues;
         try
         {
@@ -170,7 +170,7 @@ public class ImagePlaceHolderHelper
         return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
     }
 
-    private String getTotalIssuesByAnonymous(String url, ApplicationLink appLink)
+    private String getTotalIssuesByAnonymous(String url, ReadOnlyApplicationLink appLink)
     {
         try
         {

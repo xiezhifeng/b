@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.memory.MemoryCache;
@@ -52,7 +52,7 @@ public class TestJiraIssuesServlet extends TestCase
 
     @Mock private HttpServletResponse httpServletResponse;
 
-    @Mock private ApplicationLinkService applicationLinkService;
+    @Mock private ReadOnlyApplicationLinkService readOnlyApplicationLinkService;
 
     private JiraIssuesServlet jiraIssuesServlet;
 
@@ -233,7 +233,7 @@ public class TestJiraIssuesServlet extends TestCase
         ApplicationLink applicationLink = mock(ApplicationLink.class);
         when(applicationLink.getRpcUrl()).thenReturn(URI.create(rpcUrl));
         when(applicationLink.getDisplayUrl()).thenReturn(URI.create(displayUrl));
-        when(applicationLinkService.getApplicationLink(any(ApplicationId.class))).thenReturn(applicationLink);
+        when(readOnlyApplicationLinkService.getApplicationLink(any(ApplicationId.class))).thenReturn(applicationLink);
         when(httpServletRequest.getParameter("useCache")).thenReturn("false");
 
         when(jiraIssuesResponseGenerator.generate(
@@ -257,7 +257,7 @@ public class TestJiraIssuesServlet extends TestCase
             setJiraIssuesManager(jiraIssuesManager);
             setJiraIssuesResponseGenerator(jiraIssuesResponseGenerator);
             setJiraIssuesUrlManager(jiraIssuesUrlManager);
-            setApplicationLinkService(applicationLinkService);
+            setApplicationLinkService(readOnlyApplicationLinkService);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.atlassian.confluence.plugins.jira;
 
 import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.sal.api.net.Request.MethodType;
 
 import javax.servlet.ServletException;
@@ -24,7 +25,7 @@ public class AppLinksProxyRequestServlet extends AbstractProxyServlet
     private static Set<String> reservedParameters = new HashSet<String>(Arrays.asList(PATH, JSON_STRING, APP_ID,
             APP_TYPE, FORMAT_ERRORS));
 
-    public AppLinksProxyRequestServlet(ApplicationLinkService appLinkService)
+    public AppLinksProxyRequestServlet(ReadOnlyApplicationLinkService appLinkService)
     {
         super(appLinkService);
     }

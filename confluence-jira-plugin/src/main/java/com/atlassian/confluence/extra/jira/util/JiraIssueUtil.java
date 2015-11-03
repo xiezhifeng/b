@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira.util;
 
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraRequestData;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
@@ -33,7 +33,7 @@ public class JiraIssueUtil
      * @param baseUrl base url
      * @return jira url
      */
-    public static String getClickableUrl(String requestData, JiraIssuesMacro.Type requestType, ApplicationLink applicationLink, String baseUrl)
+    public static String getClickableUrl(String requestData, JiraIssuesMacro.Type requestType, ReadOnlyApplicationLink applicationLink, String baseUrl)
     {
         if (requestType != JiraIssuesMacro.Type.URL && applicationLink == null)
         {

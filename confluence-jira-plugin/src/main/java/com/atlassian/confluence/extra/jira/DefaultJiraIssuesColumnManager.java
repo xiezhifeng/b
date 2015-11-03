@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
@@ -29,7 +29,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     private static final String REST_URL_FIELD_INFO = "/rest/api/2/field";
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
 
-    private Cache<ApplicationLink, Map<String, JiraColumnInfo>> jiraColumnsCache;
+    private Cache<ReadOnlyApplicationLink, Map<String, JiraColumnInfo>> jiraColumnsCache;
 
     private final JiraIssuesSettingsManager jiraIssuesSettingsManager;
     private final LocaleManager localeManager;
@@ -103,22 +103,22 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     }
 
     @Override
-    public Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink)
+    public Map<String, JiraColumnInfo> getColumnsInfoFromJira(ReadOnlyApplicationLink appLink)
     {
         // appLink can be null, it should be checked before calling getUnchecked() on the Cache instance
         return (appLink != null) ? getInternalColumnInfo().getUnchecked(appLink) : Collections.<String, JiraColumnInfo>emptyMap();
     }
 
-    private Cache<ApplicationLink, Map<String, JiraColumnInfo>> getInternalColumnInfo()
+    private Cache<ReadOnlyApplicationLink, Map<String, JiraColumnInfo>> getInternalColumnInfo()
     {
         if (jiraColumnsCache == null)
         {
             jiraColumnsCache = CacheBuilder.newBuilder()
                     .expireAfterAccess(4, TimeUnit.HOURS)
-                    .build(new CacheLoader<ApplicationLink, Map<String, JiraColumnInfo>>()
+                    .build(new CacheLoader<ReadOnlyApplicationLink, Map<String, JiraColumnInfo>>()
                     {
                         @Override
-                        public Map<String, JiraColumnInfo>load(ApplicationLink appLink) throws Exception
+                        public Map<String, JiraColumnInfo>load(ReadOnlyApplicationLink appLink) throws Exception
                         {
                             ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, REST_URL_FIELD_INFO);
                             request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
@@ -141,7 +141,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     }
 
     @Override
-    public List<JiraColumnInfo> getColumnInfo(final Map<String, String> params, final Map<String, JiraColumnInfo> columns, final ApplicationLink applink)
+    public List<JiraColumnInfo> getColumnInfo(final Map<String, String> params, final Map<String, JiraColumnInfo> columns, final ReadOnlyApplicationLink applink)
     {
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> info = new ArrayList<JiraColumnInfo>();
