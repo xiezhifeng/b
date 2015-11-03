@@ -11,7 +11,6 @@
 
     <name>Confluence JIRA Plugin</name>
     <description>Macros to retrieve information from JIRA.</description>
-    <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
 
     <profiles>
         <profile>
@@ -30,43 +29,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <dependencies>
-                <dependency>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                    <version>10.0.1</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
-            <id>skip-webdriver</id>
-            <properties>
-                <skipTests>true</skipTests>
-                <env>WEBDRIVER</env>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${maven.surefire.plugin.version}</version>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>library-test</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                    <version>11.0.2</version>
-                </dependency>
-            </dependencies>
         </profile>
         <profile>
             <!-- Activated by the OD acceptance-tests-runner-->
@@ -136,6 +98,12 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>11.0.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

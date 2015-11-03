@@ -69,7 +69,8 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         Iterable<PageElement> serverErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
     }
-    
+
+    @Test
     public void testDisplayUnsupportedFieldsMessage() throws Exception
     {
         jiraMacroCreatePanelDialog.selectProject("Special Project 1");
