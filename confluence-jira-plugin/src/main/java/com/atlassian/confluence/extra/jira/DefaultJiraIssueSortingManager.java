@@ -97,11 +97,25 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         }
 
         Matcher matcher = JiraJqlHelper.XML_SORTING_PATTERN.matcher(requestData);
-        if (matcher.find())
+        Matcher matcher2 = JiraJqlHelper.XML_SORTING_PATTERN_TEMPMAX.matcher(requestData);
+        if (matcher.find() || matcher2.find())
         {
-            jql = JiraUtil.utf8Decode(JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 2));
-            String tempMax = JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 3);
-            String url = requestData.substring(0, matcher.end(1) + 1);
+            String tempMax;
+            String url;
+
+            if(matcher.find())
+            {
+                jql = JiraUtil.utf8Decode(JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 2));
+                tempMax = JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 3);
+                url = requestData.substring(0, matcher.end(1) + 1);
+            }
+            else
+            {
+                jql = JiraUtil.utf8Decode(JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN_TEMPMAX, 3));
+                tempMax = JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN_TEMPMAX, 2);
+                url = requestData.substring(0, matcher2.end(1) + 1).replaceAll(JiraJqlHelper.TEMPMAX, "");
+            }
+
             Matcher orderMatch = JiraJqlHelper.SORTING_PATTERN.matcher(jql);
             String orderData;
             if (orderMatch.find())
@@ -119,33 +133,6 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             }
             urlSort.append(url + JiraUtil.utf8Encode(jql + orderData) + "&tempMax=" + tempMax);
         }
-        else
-        {
-            Matcher matcher2 = JiraJqlHelper.XML_SORTING_PATTERN_TEMPMAX.matcher(requestData);
-            if (matcher2.find())
-            {
-                jql = JiraUtil.utf8Decode(JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN_TEMPMAX, 3));
-                String tempMax = JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN_TEMPMAX, 2);
-                String url = requestData.substring(0, matcher2.end(1) + 1).replaceAll(JiraJqlHelper.TEMPMAX, "");
-                Matcher orderMatch = JiraJqlHelper.SORTING_PATTERN.matcher(jql);
-                String orderData;
-                if (orderMatch.find())
-                {
-                    String orderColumns = jql.substring(orderMatch.end() - 1, jql.length());
-                    jql = jql.substring(0, orderMatch.end() - 1);
-                    // check orderColumn is exist on jql or not.
-
-                    // first check column key
-                    orderData = JiraIssueSortableHelper.reoderColumns(order, clauseName, orderColumns, jiraColumns);
-                }
-                else // JQL does not have order by clause.
-                {
-                    orderData = " ORDER BY " + JiraIssueSortableHelper.DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + JiraIssueSortableHelper.DOUBLE_QUOTE + JiraIssueSortableHelper.SPACE + order;
-                }
-                urlSort.append(url + JiraUtil.utf8Encode(jql + orderData) + "&tempMax=" + tempMax);
-            }
-        }
-
         return urlSort.toString();
     }
 
