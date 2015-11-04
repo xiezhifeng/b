@@ -462,41 +462,36 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         if (issuesType == JiraIssuesType.TABLE)
         {
-            int refreshId = getNextRefreshId();
-
-            contextMap.put("refreshId", refreshId);
-            MacroDefinition macroDefinition = new MacroDefinition("jira", new RichTextMacroBody(""), null, params);
-            try
-            {
-                Streamable out = macroMarshallingFactory.getStorageMarshaller().marshal(macroDefinition, conversionContext);
-                StringWriter writer = new StringWriter();
-                out.writeTo(writer);
-                contextMap.put("wikiMarkup", writer.toString());
-            }
-            catch (XhtmlException e)
-            {
-                throw new MacroExecutionException("Unable to constract macro definition.", e);
-            }
-            catch (IOException e)
-            {
-                throw new MacroExecutionException("Unable to constract macro definition.", e);
-            }
-            // Fix issue/CONF-31836: Jira Issues macro displays java.lang.NullPointerException when included on Welcome Message
-            // The reason is that the renderContext used in the Welcome Page is not an instance of PageContext
-            // Therefore, conversionContext.getEntity() always returns a null value. to fix this, we need to check if this entity is null or not
-            String contentId = conversionContext.getEntity() != null ? conversionContext.getEntity().getIdAsString() : "-1";
-            contextMap.put("contentId", contentId);
-
+            registerTableRefreshContext(params, contextMap, conversionContext);
         }
     }
 
-    public String getWikiMarkupJiraMacro(Map<String, String> params, ConversionContext conversionContext) throws XhtmlException, IOException
+    public void registerTableRefreshContext(Map<String, String> macroParams, Map<String, Object> contextMap, ConversionContext conversionContext) throws MacroExecutionException
     {
-        MacroDefinition macroDefinition = new MacroDefinition("jira", new RichTextMacroBody(""), null, params);
-        Streamable out = macroMarshallingFactory.getStorageMarshaller().marshal(macroDefinition, conversionContext);
-        StringWriter writer = new StringWriter();
-        out.writeTo(writer);
-        return writer.toString();
+        int refreshId = getNextRefreshId();
+
+        contextMap.put("refreshId", refreshId);
+        MacroDefinition macroDefinition = new MacroDefinition("jira", new RichTextMacroBody(""), null, macroParams);
+        try
+        {
+            Streamable out = macroMarshallingFactory.getStorageMarshaller().marshal(macroDefinition, conversionContext);
+            StringWriter writer = new StringWriter();
+            out.writeTo(writer);
+            contextMap.put("wikiMarkup", writer.toString());
+        }
+        catch (XhtmlException e)
+        {
+            throw new MacroExecutionException("Unable to constract macro definition.", e);
+        }
+        catch (IOException e)
+        {
+            throw new MacroExecutionException("Unable to constract macro definition.", e);
+        }
+        // Fix issue/CONF-31836: Jira Issues macro displays java.lang.NullPointerException when included on Welcome Message
+        // The reason is that the renderContext used in the Welcome Page is not an instance of PageContext
+        // Therefore, conversionContext.getEntity() always returns a null value. to fix this, we need to check if this entity is null or not
+        String contentId = conversionContext.getEntity() != null ? conversionContext.getEntity().getIdAsString() : "-1";
+        contextMap.put("contentId", contentId);
     }
 
     private String getKeyFromRequest(String requestData, Type requestType)

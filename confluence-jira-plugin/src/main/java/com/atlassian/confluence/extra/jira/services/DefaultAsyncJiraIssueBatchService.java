@@ -134,26 +134,22 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                                     final ReadOnlyApplicationLink appLink) throws CredentialsRequiredException, IOException, ResponseException, MacroExecutionException
     {
         final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
-        final Map<String, Object> renderingMap = MapUtil.copyOf(contextMap);
-        renderingMap.put("refreshId", clientId);
-        renderingMap.put(JiraIssuesMacro.PARAM_PLACEHOLDER, false);
+        final Map<String, Object> renderingMapContext = MapUtil.copyOf(contextMap);
+        renderingMapContext.put(JiraIssuesMacro.PARAM_PLACEHOLDER, false);
 
         final JiraResponseData jiraResponseData = new JiraResponseData(appLink.getId().get(), 1);
         jiraIssuesCache.put(clientId, jiraResponseData);
         Callable jiraTableCallable = new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
             {
-                renderingMap.put("wikiMarkup", jiraIssuesMacro.getWikiMarkupJiraMacro(macroParams, conversionContext));
-                String contentId = conversionContext.getEntity() != null ? conversionContext.getEntity().getIdAsString() : "-1";
-                renderingMap.put("contentId", contentId);
+                jiraIssuesMacro.registerTableRefreshContext(macroParams, renderingMapContext, conversionContext);
                 JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, false, true);
-                jiraIssuesMacro.setupContextMapForStaticTable(renderingMap, channel, appLink);
-                String html = jiraIssuesMacro.getRenderedTemplate(renderingMap, true, JiraIssuesMacro.JiraIssuesType.TABLE);
+                jiraIssuesMacro.setupContextMapForStaticTable(renderingMapContext, channel, appLink);
+                String html = jiraIssuesMacro.getRenderedTemplate(renderingMapContext, true, JiraIssuesMacro.JiraIssuesType.TABLE);
 
                 MultiMap jiraResultMap = new MultiValueMap();
                 jiraResultMap.put("ISSUE-TABLE-" + clientId, html);
-                JiraResponseData jiraResponseData = (JiraResponseData)jiraIssuesCache.get(clientId);
-                jiraResponseData.add(jiraResultMap);
+                jiraIssuesCache.get(clientId).add(jiraResultMap);
                 return jiraResultMap;
             }
         };
