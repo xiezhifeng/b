@@ -16,8 +16,7 @@ var RefreshMacro = {
             widget.getRefreshButton().bind("click", refresh, RefreshMacro.handleRefreshClick);
             widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
 
-            // submit the loading table asynchronously - always use cache here
-            //RefreshMacro.processRefreshWithData(refresh, false);
+            RefreshMacro.processRefreshWaiting(refresh);
         });
         HeaderWidget.getAll().each(function() {
             RefreshMacro.registerSort(this.getSortable());
@@ -45,6 +44,17 @@ var RefreshMacro = {
         var useCache = false;
         refreshWiget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
         RefreshMacro.processRefresh(refresh, useCache, columnName, order);
+    },
+
+    updateRefreshedElement: function($tableElement, replacedTableHtml) {
+        var refreshOldId = $tableElement.attr("id").replace("refresh-module-", "");
+        var refreshNewId = $(replacedTableHtml).attr("id").replace("refresh-module-", "");
+        $.each(this.refreshs, function(i, refresh) {
+            if (refresh.id === refreshOldId) {
+                RefreshWidget.get(refresh.id).getContentModule().replaceWith(replacedTableHtml);
+                new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
+            }
+        });
     },
     replaceRefresh: function(oldId, newId) {
         var widget = RefreshWidget.get(oldId);
@@ -79,10 +89,13 @@ var RefreshMacro = {
         RefreshMacro.sortables.push(sort);
     },
     processRefreshWithData: function(refresh, clearCache) {
+        this.processRefreshWaiting(refresh, clearCache);
+        RefreshMacro.processRefresh(refresh, clearCache);
+    },
+    processRefreshWaiting: function(refresh) {
         var widget = RefreshWidget.get(refresh.id);
         widget.getMacroPanel().html(refresh.loadingMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
-        RefreshMacro.processRefresh(refresh, clearCache);
     },
     handleRefreshClick: function(e) {
         // always clear cache here

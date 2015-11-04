@@ -19,16 +19,15 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             _.each(
                 htmlMacros,
                 function(htmlPlaceHolders, issueKey) {
-                    if(issueKey=='ISSUE-TABLE') {
-                        $elsGroupByServerKey.replaceWith(htmlPlaceHolders[0]);
-                        Confluence.RefreshMacro.init();
-                    } else {
-                        var $elsGroupByIssueKey = $elsGroupByServerKey.filter('[data-issue-key=' + issueKey + ']');
-
-                        $elsGroupByIssueKey.each(function(index, jiraIssueEl) {
-                            $(jiraIssueEl).replaceWith(htmlPlaceHolders[index]);
-                        });
-                    }
+                    var $elsGroupByIssueKey = $elsGroupByServerKey.filter('[data-jira-key=' + issueKey + ']');
+                    $elsGroupByIssueKey.each(function(index, jiraIssueEl) {
+                        var $jiraElement = $(jiraIssueEl);
+                        if ($jiraElement.hasClass('jira-table')) {
+                            Confluence.RefreshMacro.updateRefreshedElement($jiraElement, htmlPlaceHolders[index]);
+                        } else {
+                            $jiraElement.replaceWith(htmlPlaceHolders[index]);
+                        }
+                    });
             });
         },
 

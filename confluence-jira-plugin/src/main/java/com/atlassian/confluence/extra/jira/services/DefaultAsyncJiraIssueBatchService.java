@@ -135,7 +135,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     {
         final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
         final Map<String, Object> renderingMap = MapUtil.copyOf(contextMap);
-        renderingMap.put("refreshId", clientId.hashCode());
+        renderingMap.put("refreshId", clientId);
         renderingMap.put(JiraIssuesMacro.PARAM_PLACEHOLDER, false);
 
         final JiraResponseData jiraResponseData = new JiraResponseData(appLink.getId().get(), 1);
@@ -149,11 +149,9 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                 JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, false, true);
                 jiraIssuesMacro.setupContextMapForStaticTable(renderingMap, channel, appLink);
                 String html = jiraIssuesMacro.getRenderedTemplate(renderingMap, true, JiraIssuesMacro.JiraIssuesType.TABLE);
-                Thread.sleep(5000);
-
 
                 MultiMap jiraResultMap = new MultiValueMap();
-                jiraResultMap.put("ISSUE-TABLE", html);
+                jiraResultMap.put("ISSUE-TABLE-" + clientId, html);
                 JiraResponseData jiraResponseData = (JiraResponseData)jiraIssuesCache.get(clientId);
                 jiraResponseData.add(jiraResultMap);
                 return jiraResultMap;
