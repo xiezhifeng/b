@@ -61,7 +61,7 @@
         }
     </style>
 #end
-<div id="refresh-module-$refreshId" class="refresh-module-id">
+<div id="refresh-module-$refreshId" class="refresh-module-id jira-table" #if($clientId) data-client-id="$clientId" #end>
     <p>
         #if ($placeholder || ($enableRefresh && !$singleIssueTable))
             <div id="refresh-$refreshId" class="refresh-macro">

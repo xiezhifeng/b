@@ -7,6 +7,7 @@ import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
+import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -100,13 +101,16 @@ public class TestMacroPlaceHolder extends TestCase
     @Mock
     private JiraExceptionHelper jiraExceptionHelper;
 
+    @Mock
+    private AsyncJiraIssueBatchService asyncJiraIssueBatchService;
+
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         imagePlaceHolderHelper = new ImagePlaceHolderHelper(jiraIssuesManager, localeManager, null, applicationLinkResolver, flexigridResponseGenerator);
-        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, asyncJiraIssueBatchService);
         //jiraIssuesMacro.setImagePlaceHolderHelper(imagePlaceHolderHelper);
         parameters = new HashMap<String, String>();
 

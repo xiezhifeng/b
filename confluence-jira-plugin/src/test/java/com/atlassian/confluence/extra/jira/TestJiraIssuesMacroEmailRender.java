@@ -8,6 +8,7 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
+import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -52,7 +53,7 @@ public class TestJiraIssuesMacroEmailRender
                 FormatSettingsManager formatSettingsManager,
                 JiraIssueSortingManager jiraIssueSortingManager,
                 JiraExceptionHelper jiraExceptionHelper,
-                LocaleManager localeManager)
+                LocaleManager localeManager, AsyncJiraIssueBatchService asyncJiraIssueBatchService)
         {
             super(i18NBeanFactory,
                   jiraIssuesManager,
@@ -68,7 +69,7 @@ public class TestJiraIssuesMacroEmailRender
                   formatSettingsManager,
                   jiraIssueSortingManager,
                   jiraExceptionHelper,
-                  localeManager);
+                  localeManager, asyncJiraIssueBatchService);
         }
     }
 
@@ -117,6 +118,8 @@ public class TestJiraIssuesMacroEmailRender
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private LocaleManager localeManager;
 
+    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    private AsyncJiraIssueBatchService asyncJiraIssueBatchService;
 
     private JiraIssuesMacroTestHarness jiraIssuesMacroTestHarness;
 
@@ -139,7 +142,8 @@ public class TestJiraIssuesMacroEmailRender
                                                  formatSettingsManager,
                                                  jiraIssueSortingManager,
                                                  jiraExceptionHelper,
-                                                 localeManager);
+                                                 localeManager,
+                                                 asyncJiraIssueBatchService);
     }
 
     @Test

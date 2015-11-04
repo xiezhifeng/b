@@ -17,7 +17,7 @@ var RefreshMacro = {
             widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
 
             // submit the loading table asynchronously - always use cache here
-            RefreshMacro.processRefreshWithData(refresh, false);
+            //RefreshMacro.processRefreshWithData(refresh, false);
         });
         HeaderWidget.getAll().each(function() {
             RefreshMacro.registerSort(this.getSortable());
@@ -97,8 +97,9 @@ var RefreshMacro = {
         }
         AJS.$.ajax({
             type: "POST",
-            dataType: "html",
-            url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
+            //dataType: "html",
+            //url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
+            url: Confluence.getContextPath() + "/rest/jiraanywhere/1.0/jira/renderTable",
             data: data,
             success: function(reply, textStatus) {
                 var refreshNewId;
@@ -288,5 +289,5 @@ RefreshWidget.prototype.updateRefreshVisibility = function(state) {
 };
 
 $(function() { RefreshMacro.init() });
-
+    Confluence.RefreshMacro = RefreshMacro;
 })(AJS.$);

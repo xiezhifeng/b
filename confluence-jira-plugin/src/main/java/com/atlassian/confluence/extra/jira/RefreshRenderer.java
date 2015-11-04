@@ -33,31 +33,16 @@ public final class RefreshRenderer extends HttpServlet
     private static final long serialVersionUID = -7180537531857451119L;
 
     private ContentEntityManager contentEntityManager;
-
     private PermissionManager permissionManager;
-
     private Renderer viewRenderer;
-
     private I18NBeanFactory i18NBeanFactory;
 
-    public void setViewRenderer(Renderer viewRenderer)
+    public RefreshRenderer(Renderer viewRenderer, ContentEntityManager contentEntityManager, PermissionManager permissionManager, I18NBeanFactory i18nBeanFactory)
     {
         this.viewRenderer = viewRenderer;
-    }
-
-    public void setContentEntityManager(ContentEntityManager contentEntityManager)
-    {
         this.contentEntityManager = contentEntityManager;
-    }
-
-    public void setPermissionManager(PermissionManager permissionManager)
-    {
         this.permissionManager = permissionManager;
-    }
-
-    public void setI18NBeanFactory(I18NBeanFactory i18nBeanFactory)
-    {
-        i18NBeanFactory = i18nBeanFactory;
+        this.i18NBeanFactory = i18nBeanFactory;
     }
 
     private String convertPageWikiToHtml(long id, String wiki, String columnName, String order, boolean clearCache) throws ServletException
@@ -76,7 +61,8 @@ public final class RefreshRenderer extends HttpServlet
                 assertCanView(ceo);
                 conversionContext = new DefaultConversionContext(ceo.toPageContext());
             }
-            else { // this case is unlikely but possible
+            else
+            { // this case is unlikely but possible
                 conversionContext = new DefaultConversionContext(new PageContext());
             }
         }

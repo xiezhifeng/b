@@ -12,6 +12,7 @@ import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
+import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
@@ -23,6 +24,7 @@ import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
+import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
@@ -63,6 +65,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -89,7 +92,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      * @param jiraExceptionHelper      see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
      * @param localeManager            see {@link com.atlassian.confluence.languages.LocaleManager}
      */
-    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager)
+    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager,
+                           AsyncJiraIssueBatchService asyncJiraIssueBatchService)
     {
         this.i18NBeanFactory = i18NBeanFactory;
         this.jiraIssuesManager = jiraIssuesManager;
@@ -106,6 +110,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.jiraIssueSortingManager = jiraIssueSortingManager;
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.localeManager = localeManager;
+        this.asyncJiraIssueBatchService = asyncJiraIssueBatchService;
     }
 
     // This parameter to distinguish the placeholder & real data mode for jira table
@@ -194,6 +199,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private FormatSettingsManager formatSettingsManager;
 
     private JiraIssueSortingManager jiraIssueSortingManager;
+
+    private final AsyncJiraIssueBatchService asyncJiraIssueBatchService;
 
     protected final JiraExceptionHelper jiraExceptionHelper;
 
@@ -437,7 +444,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
                 case TABLE:
                     contextMap.put("singleIssueTable", JiraJqlHelper.isJqlKeyType(requestData));
-                    populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext);
+                    populateContextMapForStaticTable(params, contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext);
                     break;
             }
         }
@@ -483,6 +490,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
+    public String getWikiMarkupJiraMacro(Map<String, String> params, ConversionContext conversionContext) throws XhtmlException, IOException
+    {
+        MacroDefinition macroDefinition = new MacroDefinition("jira", new RichTextMacroBody(""), null, params);
+        Streamable out = macroMarshallingFactory.getStorageMarshaller().marshal(macroDefinition, conversionContext);
+        StringWriter writer = new StringWriter();
+        out.writeTo(writer);
+        return writer.toString();
+    }
+
     private String getKeyFromRequest(String requestData, Type requestType)
     {
         String key = requestData;
@@ -507,7 +523,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private String getRenderedTemplate(final Map<String, Object> contextMap, final boolean staticMode, final JiraIssuesType issuesType)
+    public String getRenderedTemplate(final Map<String, Object> contextMap, final boolean staticMode, final JiraIssuesType issuesType)
             throws MacroExecutionException
     {
         if(staticMode)
@@ -703,7 +719,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      * @throws MacroExecutionException
      *             thrown if Confluence failed to retrieve JIRA Issues
      */
-    private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames, String url,
+    private void populateContextMapForStaticTable(Map<String, String> macroParams, Map<String, Object> contextMap, List<String> columnNames, String url,
               ReadOnlyApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
     {
         boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
@@ -738,6 +754,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
+                //TODO: handle async processing here
+                String clientId = UUID.randomUUID().toString();
+                contextMap.put("clientId", clientId);
+                asyncJiraIssueBatchService.processRequestTable(clientId, macroParams, contextMap, conversionContext, columnNames, url, appLink);
+
                 // Placeholder mode for table
                 contextMap.put("trustedConnection", false);
             }
@@ -750,7 +771,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             // this exception only happens if the real jira data is fetched while users is not authenticated,
             // which means that asynchronous loading has been kicked-in
-            populateContextMapForStaticTableByAnonymous(contextMap, columnNames, url, appLink, forceAnonymous, useCache);
+            populateContextMapForStaticTableByAnonymous(macroParams, contextMap, columnNames, url, appLink, forceAnonymous, useCache);
             contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
         }
         catch (MalformedRequestException e)
@@ -766,9 +787,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     /**
      * This method is called inside the asynchronous call inside method
-     * {@link #populateContextMapForStaticTable(Map, List, String, ReadOnlyApplicationLink, boolean, boolean, ConversionContext)}
+     * {@link #populateContextMapForStaticTable(Map, Map, List, String, ReadOnlyApplicationLink, boolean, boolean, ConversionContext)}
      */
-    private void populateContextMapForStaticTableByAnonymous(Map<String, Object> contextMap, List<String> columnNames,
+    private void populateContextMapForStaticTableByAnonymous(Map<String, String> macroParams, Map<String, Object> contextMap, List<String> columnNames,
             String url, ReadOnlyApplicationLink appLink, boolean forceAnonymous, boolean useCache)
             throws MacroExecutionException
     {
@@ -788,7 +809,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ReadOnlyApplicationLink appLink)
+    public void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ReadOnlyApplicationLink appLink)
     {
         Element element = channel.getChannelElement();
         contextMap.put("trustedConnection", channel.isTrustedConnection());

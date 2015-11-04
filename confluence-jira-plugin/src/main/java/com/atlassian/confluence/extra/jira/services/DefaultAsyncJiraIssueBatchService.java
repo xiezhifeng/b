@@ -1,5 +1,7 @@
 package com.atlassian.confluence.extra.jira.services;
 
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheEntryAdapter;
 import com.atlassian.cache.CacheEntryEvent;
@@ -7,7 +9,13 @@ import com.atlassian.cache.CacheEntryListener;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
+import com.atlassian.confluence.content.render.xhtml.Renderer;
+import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.content.render.xhtml.XhtmlException;
+import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
+import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
@@ -15,10 +23,14 @@ import com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
+import com.atlassian.confluence.extra.jira.util.MapUtil;
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.macro.xhtml.MacroManager;
+import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
+import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -31,9 +43,13 @@ import org.springframework.beans.factory.InitializingBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -54,16 +70,21 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
     private final ExecutorService jiraIssueExecutor;
     private final StreamableMacroExecutor streamableMacroExecutor;
+    private final Renderer viewRenderer;
+    private final JiraIssuesManager jiraIssuesManager;
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              JiraExecutorFactory executorFactory,
-                                             JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager, StreamableMacroExecutor streamableMacroExecutor)
+                                             JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager,
+                                             StreamableMacroExecutor streamableMacroExecutor, Renderer viewRenderer, JiraIssuesManager jiraIssuesManager)
     {
         this.jiraIssueBatchService = jiraIssueBatchService;
         this.macroManager = macroManager;
         this.jiraIssueExecutor = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, EXECUTOR_QUEUE_SIZE, "JIM Marshaller-");
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.streamableMacroExecutor = streamableMacroExecutor;
+        this.viewRenderer = viewRenderer;
+        this.jiraIssuesManager = jiraIssuesManager;
         jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,
                 new CacheSettingsBuilder()
                         .local()
@@ -103,6 +124,40 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                 throw e;
             }
         }
+    }
+
+    public void processRequestTable(final String clientId, final Map<String, String> macroParams, Map<String, Object> contextMap, final ConversionContext conversionContext,
+                                    final List<String> columnNames, final String url,
+                                    final ReadOnlyApplicationLink appLink) throws CredentialsRequiredException, IOException, ResponseException, MacroExecutionException
+    {
+        final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
+        final Map<String, Object> renderingMap = MapUtil.copyOf(contextMap);
+        renderingMap.put("refreshId", clientId.hashCode());
+        renderingMap.put(JiraIssuesMacro.PARAM_PLACEHOLDER, false);
+
+        final JiraResponseData jiraResponseData = new JiraResponseData(appLink.getId().get(), 1);
+        jiraIssuesCache.put(clientId, jiraResponseData);
+        Callable jiraTableCallable = new Callable<Map<String, List<String>>>() {
+            public Map<String, List<String>> call() throws Exception
+            {
+                renderingMap.put("wikiMarkup", jiraIssuesMacro.getWikiMarkupJiraMacro(macroParams, conversionContext));
+                String contentId = conversionContext.getEntity() != null ? conversionContext.getEntity().getIdAsString() : "-1";
+                renderingMap.put("contentId", contentId);
+                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, false, true);
+                jiraIssuesMacro.setupContextMapForStaticTable(renderingMap, channel, appLink);
+                String html = jiraIssuesMacro.getRenderedTemplate(renderingMap, true, JiraIssuesMacro.JiraIssuesType.TABLE);
+                Thread.sleep(5000);
+
+
+                MultiMap jiraResultMap = new MultiValueMap();
+                jiraResultMap.put("ISSUE-TABLE", html);
+                JiraResponseData jiraResponseData = (JiraResponseData)jiraIssuesCache.get(clientId);
+                jiraResponseData.add(jiraResultMap);
+                return jiraResultMap;
+            }
+        };
+        jiraIssueExecutor.submit(jiraTableCallable);
+
     }
 
     @Override
