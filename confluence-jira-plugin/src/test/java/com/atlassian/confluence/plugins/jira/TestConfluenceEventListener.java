@@ -1,12 +1,10 @@
 package com.atlassian.confluence.plugins.jira;
 
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
-import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.ModuleCompleteKey;
-import com.atlassian.test.concurrent.MockThreadLocalDelegateExecutorFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -51,8 +49,7 @@ public class TestConfluenceEventListener
 
         when(jiraRemoteLinkCreator.createLinkToEpic(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
         when(jiraRemoteLinkCreator.createLinkToSprint(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
-        JiraExecutorFactory factory = new JiraExecutorFactory(new MockThreadLocalDelegateExecutorFactory());
-        event = new ConfluenceEventListener(eventPublisher, jiraRemoteLinkCreator, jiraConnectorManager, factory);
+        event = new ConfluenceEventListener(eventPublisher, jiraRemoteLinkCreator, jiraConnectorManager);
     }
 
     @Test

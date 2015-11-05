@@ -5,6 +5,7 @@ import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.json.json.JsonObject;
@@ -20,36 +21,54 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 
 import java.util.Set;
-
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import static com.atlassian.sal.api.net.Request.MethodType.POST;
 import static com.atlassian.sal.api.net.Request.MethodType.PUT;
 
-public class JiraRemoteLinkCreator
+public class JiraRemoteLinkCreator implements DisposableBean
 {
     private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteLinkCreator.class);
 
-    
+    private static final int THREAD_POOL_SIZE = Integer.getInteger("jira.remotelink.threadpool.size", 10);
     private final ApplicationLinkService applicationLinkService;
     private final HostApplication hostApplication;
     private final SettingsManager settingsManager;
     private final JiraMacroFinderService macroFinderService;
     private RequestFactory requestFactory;
-
-    public JiraRemoteLinkCreator(final ApplicationLinkService applicationLinkService, final HostApplication hostApplication, final SettingsManager settingsManager, final JiraMacroFinderService macroFinderService, final RequestFactory requestFactory)
+    private final ExecutorService jiraLinkExecutorService;
+    public JiraRemoteLinkCreator(final ApplicationLinkService applicationLinkService,
+                                 final HostApplication hostApplication, final SettingsManager settingsManager,
+                                 final JiraMacroFinderService macroFinderService, final RequestFactory requestFactory,
+                                 JiraExecutorFactory executorFactory)
     {
         this.applicationLinkService = applicationLinkService;
         this.hostApplication = hostApplication;
         this.settingsManager = settingsManager;
         this.macroFinderService = macroFinderService;
         this.requestFactory = requestFactory;
+        this.jiraLinkExecutorService = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, "Jira remote link executor");
     }
 
     public void createLinksForEmbeddedMacros(AbstractPage page)
     {
         Set<MacroDefinition> macros = getRemoteLinkMacros(page);
-        createRemoteLinks(page, macros);
+        AbstractPage proxyPage = new AbstractPage() {
+            @Override
+            public String getType() {
+                return null;
+            }
+
+            @Override
+            public String getLinkWikiMarkup() {
+                return null;
+            }
+        };
+        proxyPage.setId(page.getId());
+        createRemoteLinks(proxyPage, macros);
     }
 
     public void createLinksForEmbeddedMacros(final AbstractPage prevPage, final AbstractPage page)
@@ -136,28 +155,31 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    private void createRemoteLinks(AbstractPage page, Iterable<MacroDefinition> macroDefinitions)
+    private void createRemoteLinks(final AbstractPage page, final Iterable<MacroDefinition> macroDefinitions)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
 
-        for (MacroDefinition macroDefinition : macroDefinitions)
-        {
-            String defaultParam = macroDefinition.getDefaultParameterValue();
-            String keyVal = macroDefinition.getParameters().get("key");
-            String issueKey = defaultParam != null ? defaultParam : keyVal;
-            ApplicationLink applicationLink = findApplicationLink(macroDefinition);
+        Callable jiraRemoteLinkCallable = new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                for (MacroDefinition macroDefinition : macroDefinitions) {
+                    String defaultParam = macroDefinition.getDefaultParameterValue();
+                    String keyVal = macroDefinition.getParameters().get("key");
+                    String issueKey = defaultParam != null ? defaultParam : keyVal;
+                    ApplicationLink applicationLink = findApplicationLink(macroDefinition);
 
-            if (applicationLink != null)
-            {
-                createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+                    if (applicationLink != null) {
+                        createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+                    } else {
+                        LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Application link not found.",
+                                issueKey,
+                                macroDefinition.getParameters().get("server"));
+                    }
+                }
+                return null;
             }
-            else
-            {
-                LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Application link not found.",
-                    issueKey,
-                    macroDefinition.getParameters().get("server"));
-            }
-        }
+        };
+        jiraLinkExecutorService.submit(jiraRemoteLinkCallable);
     }
 
     private boolean createRemoteSprintLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId, final String creationToken)
@@ -307,5 +329,11 @@ public class JiraRemoteLinkCreator
     private class LoggingResponseException extends ResponseException
     {
 
+    }
+
+    @Override
+    public void destroy() throws Exception
+    {
+        jiraLinkExecutorService.shutdown();
     }
 }

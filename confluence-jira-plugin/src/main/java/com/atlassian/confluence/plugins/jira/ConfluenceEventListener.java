@@ -7,7 +7,6 @@ import com.atlassian.confluence.event.events.content.blogpost.BlogPostUpdateEven
 import com.atlassian.confluence.event.events.content.page.PageCreateEvent;
 import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
-import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.confluence.plugins.jira.event.PageCreatedFromJiraAnalyticsEvent;
@@ -23,19 +22,15 @@ import org.springframework.beans.factory.DisposableBean;
 
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 
 public class ConfluenceEventListener implements DisposableBean
 {
     private final static Logger LOGGER = LoggerFactory.getLogger(ConfluenceEventListener.class);
-    private static final int THREAD_POOL_SIZE = Integer.getInteger("jira.remotelink.threadpool.size", 10);
 
     private final EventPublisher eventPublisher;
     private final JiraRemoteLinkCreator jiraRemoteLinkCreator;
     private final JiraConnectorManager jiraConnectorManager;
 
-    private final ExecutorService jiraLinkExecutorService;
     private static final Function<Object, String> PARAM_VALUE_TO_STRING_FUNCTION = new Function<Object, String>()
     {
         @Override
@@ -55,13 +50,11 @@ public class ConfluenceEventListener implements DisposableBean
     private static final String AGILE_MODE_VALUE_PLAN = "plan";
     private static final String AGILE_MODE_VALUE_REPORT = "report";
 
-    public ConfluenceEventListener(EventPublisher eventPublisher, JiraRemoteLinkCreator jiraRemoteLinkCreator, JiraConnectorManager jiraConnectorManager,
-                                   JiraExecutorFactory executorFactory)
+    public ConfluenceEventListener(EventPublisher eventPublisher, JiraRemoteLinkCreator jiraRemoteLinkCreator, JiraConnectorManager jiraConnectorManager)
     {
         this.eventPublisher = eventPublisher;
         this.jiraRemoteLinkCreator = jiraRemoteLinkCreator;
         this.jiraConnectorManager = jiraConnectorManager;
-        jiraLinkExecutorService = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, "Jira remote link executor");
         eventPublisher.register(this);
     }
 
@@ -97,28 +90,20 @@ public class ConfluenceEventListener implements DisposableBean
 
     private void updateJiraRemoteLinks(final AbstractPage currentPage, final AbstractPage originalPage, final String bluePrintKey, final Map<String, ?> context)
     {
-        Callable jiraRemoteLinkCallable = new Callable<Void>() {
-            @Override
-            public Void call() throws Exception
+        if (originalPage == null) //create page/blogpost/blueprint page
+        {
+            // A PageCreateEvent was also triggered (and handled) but only the BlueprintPageCreateEvent's context
+            // contains the parameters we're checking for (when the page being created is a blueprint)
+            if (StringUtils.isBlank(bluePrintKey)) //for page/blogpost
             {
-                if (originalPage == null) //create page/blogpost/blueprint page
-                {
-                    // A PageCreateEvent was also triggered (and handled) but only the BlueprintPageCreateEvent's context
-                    // contains the parameters we're checking for (when the page being created is a blueprint)
-                    if (StringUtils.isBlank(bluePrintKey)) //for page/blogpost
-                    {
-                        jiraRemoteLinkCreator.createLinksForEmbeddedMacros(currentPage);
-                    }
-                    handlePageCreateInitiatedFromJIRAEntity(currentPage, bluePrintKey, Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
-                }
-                else //update page/blogpost
-                {
-                    jiraRemoteLinkCreator.createLinksForEmbeddedMacros(originalPage, currentPage);
-                }
-                return null;
+                jiraRemoteLinkCreator.createLinksForEmbeddedMacros(currentPage);
             }
-        };
-        jiraLinkExecutorService.submit(jiraRemoteLinkCallable);
+            handlePageCreateInitiatedFromJIRAEntity(currentPage, bluePrintKey, Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
+        }
+        else //update page/blogpost
+        {
+            jiraRemoteLinkCreator.createLinksForEmbeddedMacros(originalPage, currentPage);
+        }
     }
 
     @EventListener
@@ -191,7 +176,6 @@ public class ConfluenceEventListener implements DisposableBean
 
     public void destroy() throws Exception
     {
-        jiraLinkExecutorService.shutdown();
         eventPublisher.unregister(this);
     }
 }
