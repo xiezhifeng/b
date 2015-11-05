@@ -60,7 +60,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
                 if (clientData.status === 200) {
                     ui.renderUISingleJIMFromMacroHTML(JSON.parse(clientData.data).htmlMacro, $elsGroupByServerKey);
                 } else if (clientData.status !== 202) {
-                    ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
+                    ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, clientData.data);
                 }
             });
         },
