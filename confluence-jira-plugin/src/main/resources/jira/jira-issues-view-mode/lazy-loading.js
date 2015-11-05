@@ -54,13 +54,15 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     };
 
     var ajaxHandlers = {
-        /**
-         * Callback for success ajax
-         * @param data
-         */
-        handleSuccessAjax: function(data, status, promise) {
-            var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + promise.clientId + ']');
-            ui.renderUISingleJIMFromMacroHTML(data.htmlMacro, $elsGroupByServerKey);
+        handleAjaxSuccess: function(data, status, promise) {
+            _.each(data, function(clientData) {
+                var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + clientData.clientId + ']');
+                if (clientData.status === 200) {
+                    ui.renderUISingleJIMFromMacroHTML(JSON.parse(clientData.data).htmlMacro, $elsGroupByServerKey);
+                } else if (clientData.status !== 202) {
+                    ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
+                }
+            });
         },
 
         /**
@@ -68,9 +70,12 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @param promise
          * @param ajaxErrorMessage
          */
-        handleErrorAjaxCB: function(promise, ajaxErrorMessage) {
-            var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + promise.clientId + ']');
-            ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
+        handleAjaxError: function(promise, ajaxErrorMessage) {
+            var clientIdErrors = promise.clientIds.split(',');
+            _.each(clientIdErrors, function(clientId) {
+                var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + clientId + ']');
+                ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
+            });
         }
     };
 
@@ -98,14 +103,10 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             var clientIds = util.findAllClientIdInPageContent();
             var jobs = [];
 
-            _.each(clientIds, function(clientId) {
-
-                var job = new FetchingJob({
-                    clientId: clientId
-                });
-
-                jobs.push(job);
+            var job = new FetchingJob({
+                clientIds: clientIds.join(',')
             });
+            jobs.push(job);
 
             return jobs;
         }
@@ -128,14 +129,23 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
 
             jobs.forEach(function(job) {
                 job.startJobWithRetry()
-                    .done(ajaxHandlers.handleSuccessAjax)
                     .fail(function(promise, error, ajaxErrorMessage) {
-                        ajaxHandlers.handleErrorAjaxCB(promise, ajaxErrorMessage);
+                        ajaxHandlers.handleAjaxError(promise, ajaxErrorMessage);
                     })
-                    .always(function() {
+                    .always(function(data, status) {
                         if (++counter === totalNumberOfRequests) {
                             mainDefer.resolve();
                         }
+                    })
+                    .progress(function(data, status, promise) {
+                        ajaxHandlers.handleAjaxSuccess.apply(this, arguments);
+                        var remainingClientIds = _.reduce(data, function(clientIds, item) {
+                            if(item.status == 202) {
+                                clientIds.push(item.clientId)
+                            }
+                            return clientIds;
+                        }, []);
+                        job.clientIds = remainingClientIds.join(',');
                     });
             });
 

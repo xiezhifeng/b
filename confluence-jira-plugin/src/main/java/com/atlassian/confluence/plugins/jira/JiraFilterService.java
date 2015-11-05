@@ -17,8 +17,11 @@ import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -29,6 +32,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * This service request jira server to get JQL by save filter id
@@ -58,29 +62,49 @@ public class JiraFilterService {
 
     /**
      * get rendered macro in HTML format
-     * @param clientId Id for one or group of jira-issue
+     * @param clientIds Ids for one or group of jira-issue
      * @return JiraResponseData in JSON format
      * @throws Exception
      */
     @GET
-    @Path("clientId/{clientId}")
+    @Path("clientIds/{clientIds}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @AnonymousAllowed
-    public Response getRenderIssueMacro(@PathParam("clientId") String clientId) throws Exception
+    public Response getRenderMultipleIssueMacro(@Nonnull @PathParam("clientIds") String clientIds) throws Exception
     {
-        JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(clientId);
-
-        if (jiraResponseData == null)
+        String[] clientIdArr = StringUtils.split(clientIds, ",");
+        JsonArray clientIdJsons = new JsonArray();
+        Status globalStatus = Status.OK;
+        for (String clientId : clientIdArr)
         {
-            return Response.ok(String.format("Jira issues for this client %s is not available", clientId)).status(Response.Status.PRECONDITION_FAILED).build();
+            JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(clientId);
+            JsonObject resultJsonObject;
+            if (jiraResponseData == null)
+            {
+                resultJsonObject = createResultJsonObject(clientId, Status.PRECONDITION_FAILED.getStatusCode(), String.format("Jira issues for client %s is not available", clientId));
+            }
+            else if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
+            {
+                resultJsonObject = createResultJsonObject(clientId, Status.ACCEPTED.getStatusCode(), "");
+                globalStatus = Status.ACCEPTED;
+            }
+            else
+            {
+                resultJsonObject = createResultJsonObject(clientId, Status.OK.getStatusCode(), new Gson().toJson(jiraResponseData));
+            }
+            clientIdJsons.add(resultJsonObject);
         }
+        return Response.status(globalStatus).entity(clientIdJsons.toString()).build();
+    }
 
-        if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
-        {
-            return Response.ok().status(Response.Status.ACCEPTED).build();
-        }
-        return Response.ok(new Gson().toJson(jiraResponseData)).build();
+    private JsonObject createResultJsonObject(String clientId, int statusCode, String data)
+    {
+        JsonObject responseDataJson = new JsonObject();
+        responseDataJson.addProperty("clientId", clientId);
+        responseDataJson.addProperty("data", data);
+        responseDataJson.addProperty("status", statusCode);
+        return responseDataJson;
     }
 
     /**

@@ -65,6 +65,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private static final int THREAD_POOL_SIZE = Integer.getInteger("confluence.jira.issues.executor.poolsize", 5);
     private static final int EXECUTOR_QUEUE_SIZE = Integer.getInteger("confluence.jira.issues.executor.queuesize", 1000);
     private static final int BATCH_SIZE = 25;
+    private static final String ISSUE_KEY_TABLE_PREFIX = "ISSUE-TABLE-";
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
     private final JiraExceptionHelper jiraExceptionHelper;
@@ -73,20 +74,18 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
     private final ExecutorService jiraIssueExecutor;
     private final StreamableMacroExecutor streamableMacroExecutor;
-    private final Renderer viewRenderer;
     private final JiraIssuesManager jiraIssuesManager;
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              JiraExecutorFactory executorFactory,
                                              JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager,
-                                             StreamableMacroExecutor streamableMacroExecutor, Renderer viewRenderer, JiraIssuesManager jiraIssuesManager)
+                                             StreamableMacroExecutor streamableMacroExecutor, JiraIssuesManager jiraIssuesManager)
     {
         this.jiraIssueBatchService = jiraIssueBatchService;
         this.macroManager = macroManager;
         this.jiraIssueExecutor = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, EXECUTOR_QUEUE_SIZE, "JIM Marshaller");
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.streamableMacroExecutor = streamableMacroExecutor;
-        this.viewRenderer = viewRenderer;
         this.jiraIssuesManager = jiraIssuesManager;
         jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,
                 new CacheSettingsBuilder()
@@ -139,16 +138,16 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
         final JiraResponseData jiraResponseData = new JiraResponseData(appLink.getId().get(), 1);
         jiraIssuesCache.put(clientId, jiraResponseData);
-        Callable jiraTableCallable = new Callable<Map<String, List<String>>>() {
+        Callable<Map<String, List<String>>> jiraTableCallable = new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
             {
                 jiraIssuesMacro.registerTableRefreshContext(macroParams, renderingMapContext, conversionContext);
                 JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, false, true);
                 jiraIssuesMacro.setupContextMapForStaticTable(renderingMapContext, channel, appLink);
-                String html = jiraIssuesMacro.getRenderedTemplate(renderingMapContext, true, JiraIssuesMacro.JiraIssuesType.TABLE);
+                String renderedTableHtml = jiraIssuesMacro.getRenderedTemplate(renderingMapContext, true, JiraIssuesMacro.JiraIssuesType.TABLE);
 
                 MultiMap jiraResultMap = new MultiValueMap();
-                jiraResultMap.put("ISSUE-TABLE-" + clientId, html);
+                jiraResultMap.put(ISSUE_KEY_TABLE_PREFIX + clientId, renderedTableHtml);
                 jiraIssuesCache.get(clientId).add(jiraResultMap);
                 return jiraResultMap;
             }
