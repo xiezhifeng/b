@@ -9,11 +9,6 @@ import com.atlassian.cache.CacheEntryListener;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
-import com.atlassian.confluence.content.render.xhtml.Renderer;
-import com.atlassian.confluence.content.render.xhtml.Streamable;
-import com.atlassian.confluence.content.render.xhtml.XhtmlException;
-import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
@@ -27,7 +22,6 @@ import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.macro.xhtml.MacroManager;
-import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.net.ResponseException;
@@ -38,25 +32,21 @@ import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean, DisposableBean

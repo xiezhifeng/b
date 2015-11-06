@@ -2,12 +2,14 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     'jquery',
     'ajs',
     'underscore',
-    'confluence/jim/jira/jira-issues-view-mode/fetching-job'
+    'confluence/jim/jira/jira-issues-view-mode/fetching-job',
+    'confluence/jim/jira/jira-issues-view-mode/refresh-table'
 ], function(
     $,
     AJS,
     _,
-    FetchingJob
+    FetchingJob,
+    jiraRefreshTableMacro
 ) {
     'use strict';
 
@@ -23,7 +25,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
                     $elsGroupByIssueKey.each(function(index, jiraIssueEl) {
                         var $jiraElement = $(jiraIssueEl);
                         if ($jiraElement.hasClass('jira-table')) {
-                            Confluence.RefreshMacro.updateRefreshedElement($jiraElement, htmlPlaceHolders[index]);
+                            jiraRefreshTableMacro.updateRefreshedElement($jiraElement, htmlPlaceHolders[index]);
                         } else {
                             $jiraElement.replaceWith(htmlPlaceHolders[index]);
                         }
@@ -159,7 +161,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @return {Object} a Promise object
          */
         init: function() {
-            $jiraIssuesEls = $('.wiki-content .jira-issue[data-client-id], .wiki-content .jira-table[data-client-id]');
+            $jiraIssuesEls = $('.wiki-content [data-client-id]');
             return core.loadOneByOneJiraServerStrategy();
         }
     };

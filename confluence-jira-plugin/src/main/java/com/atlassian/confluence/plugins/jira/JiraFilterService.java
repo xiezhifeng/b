@@ -177,5 +177,4 @@ public class JiraFilterService {
                 .header("WWW-Authenticate", "OAuth realm=\"" + oAuthenticationUri + "\"")
                 .build();
     }
-
 }

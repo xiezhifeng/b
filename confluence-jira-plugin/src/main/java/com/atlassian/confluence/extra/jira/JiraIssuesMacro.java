@@ -13,8 +13,8 @@ import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBod
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
-import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
@@ -24,7 +24,6 @@ import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
-import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
@@ -749,7 +748,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                //TODO: handle async processing here
                 String clientId = UUID.randomUUID().toString();
                 contextMap.put("clientId", clientId);
                 asyncJiraIssueBatchService.processRequestTable(clientId, macroParams, contextMap, conversionContext, columnNames, url, appLink);

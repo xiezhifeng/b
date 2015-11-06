@@ -1,4 +1,11 @@
-(function($) {
+define('confluence/jim/jira/jira-issues-view-mode/refresh-table', [
+    'jquery',
+    'ajs'
+], function(
+    $,
+    AJS
+) {
+    'use strict';
 
 var RefreshMacro = {
     REFRESH_STATE_STARTED: 1,
@@ -27,7 +34,7 @@ var RefreshMacro = {
         });
     },
     onHeaderClick: function(e) {
-        refeshId = e.data.id;
+        var refeshId = e.data.id;
 
         var order = "ASC";
         if ($(this).hasClass("tablesorter-headerAsc")) {
@@ -304,6 +311,8 @@ RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     }
 };
 
-$(function() { RefreshMacro.init() });
-    Confluence.RefreshMacro = RefreshMacro;
-})(AJS.$);
+return RefreshMacro;
+
+});
+
+
