@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputDeviceType;
@@ -302,7 +302,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         // in the macro markup
         try
         {
-            ApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, issueKey, parameters);
+            ReadOnlyApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, issueKey, parameters);
             if (applicationLink != null)
             {
                 return applicationLink.getId().toString();

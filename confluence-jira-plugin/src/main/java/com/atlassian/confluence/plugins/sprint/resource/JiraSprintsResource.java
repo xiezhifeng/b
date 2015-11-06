@@ -1,8 +1,8 @@
 package com.atlassian.confluence.plugins.sprint.resource;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
 import com.atlassian.confluence.extra.jira.util.ResponseUtil;
 import com.atlassian.confluence.plugins.sprint.services.JiraAgileService;
@@ -40,7 +40,7 @@ public class JiraSprintsResource
     @Path("/{jiraServerId}/boards")
     public Response getBoards(@PathParam("jiraServerId") String jiraServerId)
     {
-        ApplicationLink applicationLink = applicationLinkResolver.getAppLinkForServer("", jiraServerId);
+        ReadOnlyApplicationLink applicationLink = applicationLinkResolver.getAppLinkForServer("", jiraServerId);
         try
         {
             return Response.ok(jiraAgileService.getBoards(applicationLink)).build();
@@ -60,7 +60,7 @@ public class JiraSprintsResource
     @Path("/{jiraServerId}/boards/{boardId}/sprints")
     public Response getSprints(@PathParam("jiraServerId") ApplicationId jiraServerId, @PathParam("boardId") String boardId)
     {
-        ApplicationLink applicationLink = applicationLinkResolver.getAppLinkForServer("", jiraServerId.get());
+        ReadOnlyApplicationLink applicationLink = applicationLinkResolver.getAppLinkForServer("", jiraServerId.get());
         try
         {
             return Response.ok(jiraAgileService.getSprints(applicationLink, boardId)).build();

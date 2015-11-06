@@ -1,7 +1,7 @@
 package com.atlassian.confluence.plugins.sprint.services;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.plugins.sprint.model.JiraSprintModel;
 import com.atlassian.sal.api.net.ResponseException;
 
@@ -11,31 +11,31 @@ public interface JiraAgileService
 {
     /**
      * Get all scrum boards on one JIRA server
-     * @param applicationLink
+     * @param readOnlyApplicationLink
      * @return a JsonString from JIRA
      * @throws CredentialsRequiredException
      * @throws ResponseException
      */
     @Nonnull
-    String getBoards(@Nonnull ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException;
+    String getBoards(@Nonnull ReadOnlyApplicationLink readOnlyApplicationLink) throws CredentialsRequiredException, ResponseException;
 
     /**
      * Get all sprints on one board
-     * @param applicationLink
+     * @param readOnlyApplicationLink
      * @param boardId
      * @return a JsonString from JIRA
      * @throws CredentialsRequiredException
      * @throws ResponseException
      */
     @Nonnull
-    String getSprints(@Nonnull ApplicationLink applicationLink, @Nonnull String boardId) throws CredentialsRequiredException, ResponseException;
+    String getSprints(@Nonnull ReadOnlyApplicationLink readOnlyApplicationLink, @Nonnull String boardId) throws CredentialsRequiredException, ResponseException;
 
     /**
      * Get sprint information
      *
-     * @param applicationLink ID of the JIRA server
+     * @param readOnlyApplicationLink ID of the JIRA server
      * @param sprintId ID of sprint
      * @return a JiraSprintModel
      */
-    JiraSprintModel getJiraSprint(@Nonnull ApplicationLink applicationLink, @Nonnull String sprintId) throws CredentialsRequiredException, ResponseException;
+    JiraSprintModel getJiraSprint(@Nonnull ReadOnlyApplicationLink readOnlyApplicationLink, @Nonnull String sprintId) throws CredentialsRequiredException, ResponseException;
 }
