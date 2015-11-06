@@ -39,8 +39,8 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
         final Set<MacroDefinition> macros = getRemoteLinkMacros(page);
         final Set<MacroDefinition> prevMacros = getRemoteLinkMacros(prevPage);
 
-        updateRemoteLinks(page, Sets.difference(macros, prevMacros), OperationType.CREATE);
         updateRemoteLinks(page, Sets.difference(prevMacros, macros), OperationType.DELETE);
+        updateRemoteLinks(page, Sets.difference(macros, prevMacros), OperationType.CREATE);
     }
 
     public void createIssueLinksForEmbeddedMacros(final AbstractPage page)

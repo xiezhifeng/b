@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mortbay.util.MultiMap;
 import org.mortbay.util.UrlEncoded;
@@ -56,7 +57,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
 
     @Test
     public void testRemoteLinksAreDeletedWhenMacroIsRemoved() throws Exception {
-        ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
+        final ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
 
         // Check link was created
@@ -66,6 +67,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
         editorPage.getContent().setContent("");
         editorPage.clickSaveAndWaitForPageChange();
 
+        // Check link was deleted
         final JSONArray updatedRemoteLinks = getJiraRemoteLinks("TP-1");
         assertFalse("Page with id '" + viewPage.getPageId() + "' should not be not found in " + updatedRemoteLinks, containsLinkWithPageId(updatedRemoteLinks, String.valueOf(viewPage.getPageId())));
     }
