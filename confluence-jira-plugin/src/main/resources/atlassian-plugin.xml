@@ -114,11 +114,6 @@
         <url-pattern>/image-generator</url-pattern>
     </servlet>
 
-    <servlet name="Refresh render servlet" key="jira-issues-refresh-renderer" class="com.atlassian.confluence.extra.jira.RefreshRenderer">
-        <description>Handles refresh macro requests</description>
-        <url-pattern>/jiraRefreshRenderer</url-pattern>
-    </servlet>
-
     <servlet name="Show more renderer servlet" key="two-dimensional-chart-show-more-renderer" class="com.atlassian.confluence.plugins.jiracharts.render.TwoDimensionalShowMoreRenderer">
         <description>Handles refresh macro requests</description>
         <url-pattern>/twoDimensionalShowMoreRenderer</url-pattern>

@@ -71,7 +71,7 @@ public class JiraFilterService {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @AnonymousAllowed
-    public Response getRenderMultipleIssueMacro(@Nonnull @PathParam("clientIds") String clientIds) throws Exception
+    public Response getRenderedJiraMacros(@Nonnull @PathParam("clientIds") String clientIds) throws Exception
     {
         String[] clientIdArr = StringUtils.split(clientIds, ",");
         JsonArray clientIdJsons = new JsonArray();
@@ -118,7 +118,7 @@ public class JiraFilterService {
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({ MediaType.TEXT_HTML})
     @AnonymousAllowed
-    public Response getRenderIssueMacroTable(@FormParam("pageId") Long pageId,
+    public Response getRenderedJiraMacroTable(@FormParam("pageId") Long pageId,
                                              @FormParam("wikiMarkup") String wikiMarkup,
                                              @FormParam("columnName") String columnName,
                                              @FormParam("order") String order,
