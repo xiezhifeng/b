@@ -100,7 +100,7 @@ public class ConfluenceEventListener implements DisposableBean
     @EventListener
     public void updateJiraRemoteLinks(PageUpdateEvent event)
     {
-        updateJiraRemoteLinks(event.getPage(), event.getOriginalPage());
+        updateJiraRemoteLinks(event.getOriginalPage(), event.getPage());
     }
 
     @EventListener
