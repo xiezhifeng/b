@@ -118,8 +118,10 @@ public class JiraFilterService {
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({ MediaType.TEXT_HTML})
     @AnonymousAllowed
-    public Response getRenderIssueMacroTable(@FormParam("pageId") Long pageId, @FormParam("wikiMarkup") String wikiMarkup,
-                                             @FormParam("columnName") String columnName, @FormParam("order") String order,
+    public Response getRenderIssueMacroTable(@FormParam("pageId") Long pageId,
+                                             @FormParam("wikiMarkup") String wikiMarkup,
+                                             @FormParam("columnName") String columnName,
+                                             @FormParam("order") String order,
                                              @FormParam("clearCache") Boolean clearCache) throws Exception
     {
         ConversionContext conversionContext = new DefaultConversionContext(new PageContext());

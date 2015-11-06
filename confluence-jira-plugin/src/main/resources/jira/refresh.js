@@ -102,18 +102,21 @@ var RefreshMacro = {
         RefreshMacro.processRefreshWithData(e.data, true);
     },
     processRefresh: function(refresh, clearCache, columnName, order) {
-        var data = {};
-        if (arguments.length == 2) {
-            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki, clearCache: clearCache};
-        } else if (arguments.length == 4) {
-            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki, clearCache: clearCache, columnName:columnName, order:order};
-        }
         AJS.$.ajax({
             type: "POST",
-            //dataType: "html",
-            //url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
+            dataType: "html",
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
             url: Confluence.getContextPath() + "/rest/jiraanywhere/1.0/jira/renderTable",
-            data: data,
+            data: {
+                pageId: refresh.pageId,
+                wikiMarkup: refresh.wiki,
+                clearCache: clearCache,
+                columnName: columnName,
+                order: order
+            },
+            headers: {
+                "X-Atlassian-Token" : "no-check"
+            },
             success: function(reply, textStatus) {
                 var refreshNewId;
                 // if the reply is from the servlet's error handler, simply render it
