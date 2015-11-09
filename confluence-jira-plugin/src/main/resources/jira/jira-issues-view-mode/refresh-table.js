@@ -23,7 +23,7 @@ var RefreshMacro = {
             widget.getRefreshButton().bind("click", refresh, RefreshMacro.handleRefreshClick);
             widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
 
-            RefreshMacro.processRefreshWaiting(refresh);
+            //RefreshMacro.processRefreshWaiting(refresh);
         });
         HeaderWidget.getAll().each(function() {
             RefreshMacro.registerSort(this.getSortable());
@@ -56,6 +56,9 @@ var RefreshMacro = {
     updateRefreshedElement: function($tableElement, replacedTableHtml) {
         var refreshOldId = $tableElement.attr("id").replace("refresh-module-", "");
         var refreshNewId = $(replacedTableHtml).attr("id").replace("refresh-module-", "");
+        if (!this.refreshs.length) {
+            this.init();
+        }
         $.each(this.refreshs, function(i, refresh) {
             if (refresh.id === refreshOldId) {
                 RefreshWidget.get(refresh.id).getContentModule().replaceWith(replacedTableHtml);

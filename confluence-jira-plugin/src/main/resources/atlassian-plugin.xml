@@ -195,6 +195,8 @@
         </transformation>
         <resource type="download" name="refresh.css" location="/jira/refresh.css" />
         <resource type="download" name="refresh-table.js" location="/jira/jira-issues-view-mode/refresh-table.js" />
+        <resource type="download" name="history.jquery.js" location="/jira/jira-issues-view-mode/jquery.history.js" />
+        <resource type="download" name="history-handling.js" location="/jira/jira-issues-view-mode/history-handling.js" />
         <dependency>confluence.web.resources:ajs</dependency>
     </web-resource>
 

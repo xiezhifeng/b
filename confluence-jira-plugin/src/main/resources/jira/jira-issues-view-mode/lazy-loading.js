@@ -3,13 +3,15 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     'ajs',
     'underscore',
     'confluence/jim/jira/jira-issues-view-mode/fetching-job',
-    'confluence/jim/jira/jira-issues-view-mode/refresh-table'
+    'confluence/jim/jira/jira-issues-view-mode/refresh-table',
+    'confluence/jim/jira/jira-issues-view-mode/history-handling'
 ], function(
     $,
     AJS,
     _,
     FetchingJob,
-    jiraRefreshTableMacro
+    jiraRefreshTableMacro,
+    historyHandling
 ) {
     'use strict';
 
@@ -130,6 +132,12 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             var counter = 0;
 
             jobs.forEach(function(job) {
+                var HistoryState = historyHandling.getJiraHistoryData(job.clientIds);
+                if (HistoryState) {
+                    ajaxHandlers.handleAjaxSuccess(HistoryState.data.macroHtml);
+                    return false;
+                }
+
                 job.startJobWithRetry()
                     .fail(function(promise, error, ajaxErrorMessage) {
                         ajaxHandlers.handleAjaxError(promise, ajaxErrorMessage);
@@ -140,6 +148,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
                         }
                     })
                     .progress(function(data, status, promise) {
+                        historyHandling.setState(promise.clientIds, data, promise.status);
                         ajaxHandlers.handleAjaxSuccess.apply(this, arguments);
                         var remainingClientIds = _.reduce(data, function(clientIds, item) {
                             if(item.status == 202) {
@@ -161,7 +170,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @return {Object} a Promise object
          */
         init: function() {
-            $jiraIssuesEls = $('.wiki-content [data-client-id]');
+            $jiraIssuesEls = $('.wiki-content [data-jira-key][data-client-id]');
             return core.loadOneByOneJiraServerStrategy();
         }
     };
