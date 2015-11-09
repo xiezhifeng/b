@@ -56,7 +56,12 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testRemoteLinksAreDeletedWhenMacroIsRemoved() throws Exception {
+    public void testRemoteLinksAreDeletedWhenMacroIsRemoved() throws Exception
+    {
+        // Reset the page from any previous tests
+        editPage.getEditor().clickSaveAndWaitForPageChange();
+        gotoEditTestPage(user.get());
+
         final ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
 
