@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
@@ -230,7 +230,7 @@ public class TestJiraIssuesServlet extends TestCase
         when(httpServletResponse.getWriter()).thenReturn(new PrintWriter(firstWriter));
 
         when(httpServletRequest.getParameter("appId")).thenReturn(UUID.randomUUID().toString());
-        ApplicationLink applicationLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink applicationLink = mock(ReadOnlyApplicationLink.class);
         when(applicationLink.getRpcUrl()).thenReturn(URI.create(rpcUrl));
         when(applicationLink.getDisplayUrl()).thenReturn(URI.create(displayUrl));
         when(readOnlyApplicationLinkService.getApplicationLink(any(ApplicationId.class))).thenReturn(applicationLink);

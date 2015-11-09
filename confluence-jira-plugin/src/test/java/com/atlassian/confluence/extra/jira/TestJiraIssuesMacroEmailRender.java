@@ -4,7 +4,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
@@ -46,7 +46,6 @@ public class TestJiraIssuesMacroEmailRender
                 TrustedApplicationConfig trustedApplicationConfig,
                 PermissionManager permissionManager,
                 ApplicationLinkResolver applicationLinkResolver,
-                JiraIssuesDateFormatter jiraIssuesDateFormatter,
                 MacroMarshallingFactory macroMarshallingFactory,
                 JiraCacheManager jiraCacheManager,
                 ImagePlaceHolderHelper imagePlaceHolderHelper,
@@ -63,7 +62,6 @@ public class TestJiraIssuesMacroEmailRender
                   trustedApplicationConfig,
                   permissionManager,
                   applicationLinkResolver,
-                  jiraIssuesDateFormatter,
                   macroMarshallingFactory,
                   jiraCacheManager,
                   imagePlaceHolderHelper,
@@ -95,9 +93,6 @@ public class TestJiraIssuesMacroEmailRender
 
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private ApplicationLinkResolver applicationLinkResolver;
-
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
-    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private MacroMarshallingFactory macroMarshallingFactory;
@@ -137,7 +132,6 @@ public class TestJiraIssuesMacroEmailRender
                                                  trustedApplicationConfig,
                                                  permissionManager,
                                                  applicationLinkResolver,
-                                                 jiraIssuesDateFormatter,
                                                  macroMarshallingFactory,
                                                  jiraCacheManager,
                                                  imagePlaceHolderHelper,
@@ -153,7 +147,7 @@ public class TestJiraIssuesMacroEmailRender
     {
         //given:
         final ConversionContext conversionContext = mock(ConversionContext.class);
-        final ApplicationLink applicationLink = mock(ApplicationLink.class);
+        final ReadOnlyApplicationLink applicationLink = mock(ReadOnlyApplicationLink.class);
         final HashMap<String, Object> contextMap = new HashMap<String, Object>();
         when(conversionContext.getOutputDeviceType()).thenReturn(RenderContextOutputType.EMAIL);
         when(applicationLink.getRpcUrl()).thenReturn(URI.create("http://test/"));
@@ -174,7 +168,7 @@ public class TestJiraIssuesMacroEmailRender
 
         //test:
         verify(jiraIssuesManager, never())
-                .retrieveXMLAsChannel(anyString(),any(List.class),any(ApplicationLink.class),anyBoolean(),anyBoolean());
+                .retrieveXMLAsChannel(anyString(),any(List.class),any(ReadOnlyApplicationLink.class),anyBoolean(),anyBoolean());
         Assert.assertTrue((Boolean) (contextMap.get(JiraIssuesMacro.IS_NO_PERMISSION_TO_VIEW)));
     }
 

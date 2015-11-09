@@ -82,7 +82,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      * @param trustedApplicationConfig see {@link com.atlassian.confluence.extra.jira.TrustedApplicationConfig}
      * @param permissionManager        see {@link com.atlassian.confluence.security.PermissionManager}
      * @param applicationLinkResolver  see {@link com.atlassian.confluence.extra.jira.ApplicationLinkResolver}
-     * @param jiraIssuesDateFormatter  see {@link com.atlassian.confluence.extra.jira.JiraIssuesDateFormatter}
      * @param macroMarshallingFactory  see {@link com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory}
      * @param jiraCacheManager         see {@link com.atlassian.confluence.extra.jira.JiraCacheManager}
      * @param imagePlaceHolderHelper   see {@link com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper}
@@ -91,7 +90,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      * @param jiraExceptionHelper      see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
      * @param localeManager            see {@link com.atlassian.confluence.languages.LocaleManager}
      */
-    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager,
+    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager,
                            AsyncJiraIssueBatchService asyncJiraIssueBatchService)
     {
         this.i18NBeanFactory = i18NBeanFactory;
@@ -101,7 +100,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.trustedApplicationConfig = trustedApplicationConfig;
         this.permissionManager = permissionManager;
         this.applicationLinkResolver = applicationLinkResolver;
-        this.jiraIssuesDateFormatter = jiraIssuesDateFormatter;
         this.macroMarshallingFactory = macroMarshallingFactory;
         this.jiraCacheManager = jiraCacheManager;
         this.imagePlaceHolderHelper = imagePlaceHolderHelper;
@@ -184,8 +182,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private PermissionManager permissionManager;
 
     protected ApplicationLinkResolver applicationLinkResolver;
-
-    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
     private LocaleManager localeManager;
 

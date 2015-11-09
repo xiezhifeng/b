@@ -1,7 +1,7 @@
 package com.atlassian.confluence.plugins.jiracharts.render;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
@@ -36,7 +36,7 @@ public class TestTwoDimensionalChart
     private ReadOnlyApplicationLinkService applicationLinkService;
 
     @Mock
-    private ApplicationLink applicationLink;
+    private ReadOnlyApplicationLink applicationLink;
 
     @Mock
     private ApplicationLinkRequestFactory requestFactory;

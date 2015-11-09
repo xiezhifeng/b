@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
@@ -84,9 +84,6 @@ public class TestMacroPlaceHolder extends TestCase
     private PermissionManager permissionManager;
 
     @Mock
-    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
-
-    @Mock
     private MacroMarshallingFactory macroMarshallingFactory;
 
     @Mock
@@ -110,8 +107,7 @@ public class TestMacroPlaceHolder extends TestCase
         super.setUp();
         MockitoAnnotations.initMocks(this);
         imagePlaceHolderHelper = new ImagePlaceHolderHelper(jiraIssuesManager, localeManager, null, applicationLinkResolver, flexigridResponseGenerator);
-        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, asyncJiraIssueBatchService);
-        //jiraIssuesMacro.setImagePlaceHolderHelper(imagePlaceHolderHelper);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, asyncJiraIssueBatchService);
         parameters = new HashMap<String, String>();
 
     }
@@ -126,7 +122,7 @@ public class TestMacroPlaceHolder extends TestCase
         String url = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=";
 
         ApplicationId applicationId = new ApplicationId("8835b6b9-5676-3de4-ad59-bbe987416662");
-        ApplicationLink applicationLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink applicationLink = mock(ReadOnlyApplicationLink.class);
         when(applicationLink.getDisplayUrl()).thenReturn(uri);
         when(applicationLink.getId()).thenReturn(applicationId);
         url = applicationLink.getDisplayUrl() + url + URLEncoder.encode(parameters.get("jqlQuery"), "UTF-8") + "&tempMax=0";

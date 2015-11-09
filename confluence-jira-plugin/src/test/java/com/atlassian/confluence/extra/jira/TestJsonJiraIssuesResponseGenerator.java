@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
@@ -63,10 +63,9 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
     private Element customFieldsElement;
 
     @Mock
-    private ApplicationLink applicationLink;
+    private ReadOnlyApplicationLink applicationLink;
 
-    @Mock
-    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
+    private JiraIssuesDateFormatter jiraIssuesDateFormatter = new DefaultJiraIssuesDateFormatter();
 
     private List<String> columnNames;
 
@@ -110,7 +109,6 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         when(applicationLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
         when(applicationLink.getRpcUrl()).thenReturn(URI.create("http://rpcurl.com"));
 
-        jiraIssuesDateFormatter = new DefaultJiraIssuesDateFormatter();
     }
 
     public void testHandlesAnyChannel()
