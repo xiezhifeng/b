@@ -13,6 +13,7 @@ import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
+import com.atlassian.confluence.plugins.jira.beans.MacroTableParam;
 import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
@@ -33,6 +34,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 
 /**
  * This service request jira server to get JQL by save filter id
@@ -66,12 +69,12 @@ public class JiraFilterService {
      * @return JiraResponseData in JSON format
      * @throws Exception
      */
-    @GET
-    @Path("clientIds/{clientIds}")
+    @POST
+    @Path("clientIds")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @AnonymousAllowed
-    public Response getRenderedJiraMacros(@Nonnull @PathParam("clientIds") String clientIds) throws Exception
+    public Response getRenderedJiraMacros(@Nonnull String clientIds) throws Exception
     {
         String[] clientIdArr = StringUtils.split(clientIds, ",");
         JsonArray clientIdJsons = new JsonArray();
@@ -108,29 +111,25 @@ public class JiraFilterService {
     }
 
     /**
-     * get rendered macro in HTML format
-     * @param pageId Id for one or group of jira-issue
-     * @return JiraResponseData in JSON format
+     * get rendered macro HTML format
+     * @param macroTableParam request parameter
+     * @return html data as String
      * @throws Exception
      */
     @POST
     @Path("renderTable")
-    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
-    @Produces({ MediaType.TEXT_HTML})
+    @Consumes({ MediaType.APPLICATION_JSON})
+    @Produces({ MediaType.APPLICATION_JSON})
     @AnonymousAllowed
-    public Response getRenderedJiraMacroTable(@FormParam("pageId") Long pageId,
-                                             @FormParam("wikiMarkup") String wikiMarkup,
-                                             @FormParam("columnName") String columnName,
-                                             @FormParam("order") String order,
-                                             @FormParam("clearCache") Boolean clearCache) throws Exception
+    public Response getRenderedJiraMacroTable(MacroTableParam macroTableParam) throws Exception
     {
         ConversionContext conversionContext = new DefaultConversionContext(new PageContext());
-        conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, clearCache);
-        conversionContext.setProperty("orderColumnName", columnName);
-        conversionContext.setProperty("order", order);
+        conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, macroTableParam.getClearCache());
+        conversionContext.setProperty("orderColumnName", macroTableParam.getColumnName());
+        conversionContext.setProperty("order", macroTableParam.getOrder());
         conversionContext.setProperty(JiraIssuesMacro.PARAM_PLACEHOLDER, Boolean.FALSE);
-        String result =  viewRenderer.render(wikiMarkup, conversionContext);
-        return Response.ok(result).build();
+        String htmlTableContent =  viewRenderer.render(URLDecoder.decode(macroTableParam.getWikiMarkup(), Charset.defaultCharset().name()), conversionContext);
+        return Response.ok(createResultJsonObject(null, Response.Status.OK.getStatusCode(), htmlTableContent).toString()).build();
     }
 
     /**

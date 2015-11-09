@@ -55,7 +55,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private static final int THREAD_POOL_SIZE = Integer.getInteger("confluence.jira.issues.executor.poolsize", 5);
     private static final int EXECUTOR_QUEUE_SIZE = Integer.getInteger("confluence.jira.issues.executor.queuesize", 1000);
     private static final int BATCH_SIZE = 25;
-    private static final String ISSUE_KEY_TABLE_PREFIX = "ISSUE-TABLE-";
+    private static final String ISSUE_KEY_TABLE_PREFIX = "issue-table-";
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
     private final JiraExceptionHelper jiraExceptionHelper;

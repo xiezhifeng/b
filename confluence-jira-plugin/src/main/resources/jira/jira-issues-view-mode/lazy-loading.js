@@ -142,7 +142,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
                     .fail(function(promise, error, ajaxErrorMessage) {
                         ajaxHandlers.handleAjaxError(promise, ajaxErrorMessage);
                     })
-                    .always(function(data, status) {
+                    .always(function() {
                         if (++counter === totalNumberOfRequests) {
                             mainDefer.resolve();
                         }

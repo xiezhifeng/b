@@ -49,10 +49,12 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
      * @returns {Object} a jQuery Deferred object
      */
     FetchingJob.prototype.fetchSingeJiraServer = function() {
-        var jimUrl = AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/clientIds/{0}';
+        var jimUrl = AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/clientIds/';
         var promise = $.ajax({
-            type: 'GET',
-            url: AJS.format(jimUrl, this.clientIds),
+            type: 'POST',
+            url: jimUrl,
+            data: this.clientIds,
+            contentType: 'application/json',
             cache: true
         });
 
