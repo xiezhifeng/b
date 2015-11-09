@@ -10,11 +10,14 @@ import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.RequestFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.atlassian.sal.api.net.Request.MethodType.PUT;
 
 public class JiraRemoteSprintLinkManager extends JiraRemoteLinkManager
 {
+    private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteSprintLinkManager.class);
 
     public JiraRemoteSprintLinkManager(
             ApplicationLinkService applicationLinkService,

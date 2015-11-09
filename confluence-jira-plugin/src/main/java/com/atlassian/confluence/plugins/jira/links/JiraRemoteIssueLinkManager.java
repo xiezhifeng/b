@@ -15,6 +15,8 @@ import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.net.RequestFactory;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -23,6 +25,7 @@ import static com.atlassian.sal.api.net.Request.MethodType.POST;
 
 public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
 {
+    private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteIssueLinkManager.class);
 
     public JiraRemoteIssueLinkManager(
             ApplicationLinkService applicationLinkService,
@@ -108,7 +111,7 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
         }
         catch (CredentialsRequiredException e)
         {
-            LOGGER.info("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
+            LOGGER.warn("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
         }
     }
 

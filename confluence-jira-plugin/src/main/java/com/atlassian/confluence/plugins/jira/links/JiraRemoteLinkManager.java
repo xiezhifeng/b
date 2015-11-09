@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class JiraRemoteLinkManager
 {
-    protected final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteLinkManager.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteLinkManager.class);
     
     private final ApplicationLinkService applicationLinkService;
     private final HostApplication hostApplication;
@@ -83,7 +83,6 @@ public abstract class JiraRemoteLinkManager
 
         try
         {
-
             request.addHeader("Content-Type", "application/json");
 
             if (requestBody != null)
