@@ -161,7 +161,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @return {Object} a Promise object
          */
         init: function() {
-            $jiraIssuesEls = $('.wiki-content .jira-issue[data-client-id], .wiki-content .jira-table[data-client-id]');
+            $jiraIssuesEls = $('.wiki-content [data-jira-key][data-client-id]');
             return core.loadOneByOneJiraServerStrategy();
         }
     };
