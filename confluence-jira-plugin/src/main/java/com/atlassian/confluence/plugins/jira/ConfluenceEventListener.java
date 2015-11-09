@@ -3,9 +3,13 @@ package com.atlassian.confluence.plugins.jira;
 import com.atlassian.applinks.api.event.ApplicationLinkDetailsChangedEvent;
 import com.atlassian.applinks.api.event.ApplicationLinkMadePrimaryEvent;
 import com.atlassian.confluence.event.events.content.blogpost.BlogPostCreateEvent;
+import com.atlassian.confluence.event.events.content.blogpost.BlogPostRestoreEvent;
+import com.atlassian.confluence.event.events.content.blogpost.BlogPostTrashedEvent;
 import com.atlassian.confluence.event.events.content.blogpost.BlogPostUpdateEvent;
 import com.atlassian.confluence.event.events.content.page.PageCreateEvent;
 import com.atlassian.confluence.event.events.content.page.PageRemoveEvent;
+import com.atlassian.confluence.event.events.content.page.PageRestoreEvent;
+import com.atlassian.confluence.event.events.content.page.PageTrashedEvent;
 import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
@@ -94,13 +98,19 @@ public class ConfluenceEventListener implements DisposableBean
     @EventListener
     public void updateJiraRemoteLinks(BlogPostUpdateEvent event)
     {
-        updateJiraRemoteLinks(event.getBlogPost(), event.getOriginalBlogPost());
+        if (event.getBlogPost().isCurrent())
+        {
+            updateJiraRemoteLinks(event.getBlogPost(), event.getOriginalBlogPost());
+        }
     }
 
     @EventListener
     public void updateJiraRemoteLinks(PageUpdateEvent event)
     {
-        updateJiraRemoteLinks(event.getOriginalPage(), event.getPage());
+        if (event.getPage().isCurrent())
+        {
+            updateJiraRemoteLinks(event.getOriginalPage(), event.getPage());
+        }
     }
 
     @EventListener
@@ -113,6 +123,43 @@ public class ConfluenceEventListener implements DisposableBean
     public void deleteJiraRemoteLinks(PageRemoveEvent event)
     {
         deleteJiraRemoteLinks(event.getPage());
+    }
+
+    @EventListener
+    public void deleteJiraRemoteLinks(PageTrashedEvent event)
+    {
+        deleteJiraRemoteLinks(event.getPage());
+    }
+
+    @EventListener
+    public void deleteJiraRemoteLinks(BlogPostTrashedEvent event)
+    {
+        deleteJiraRemoteLinks(event.getBlogPost());
+    }
+
+    @EventListener
+    public void restoreJiraRemoteLinks(PageRestoreEvent event)
+    {
+        createJiraRemoteLinksForRestoredPage(event.getPage());
+    }
+
+    @EventListener
+    public void restoreJiraRemoteLinks(BlogPostRestoreEvent event)
+    {
+        createJiraRemoteLinksForRestoredPage(event.getBlogPost());
+    }
+
+    private void createJiraRemoteLinksForRestoredPage(final AbstractPage newPage)
+    {
+        executeJiraLinkCallable(new Callable<Void>()
+        {
+            @Override
+            public Void call() throws Exception
+            {
+                jiraRemoteIssueLinkManager.createIssueLinksForEmbeddedMacros(newPage);
+                return null;
+            }
+        });
     }
 
     private void createJiraRemoteLinksForNewPage(final AbstractPage newPage, final Map<String, ?> context)
