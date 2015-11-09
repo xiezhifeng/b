@@ -14,11 +14,11 @@ require([
     'use strict';
 
     $(document).ready(function() {
+        // prepare data element for table placeholder
+        JiraRefreshTableMacro.init();
+
         JiraIssuesLazyLoading.init().done(function() {
             JiraIssuesFixUI.fixBreakIconInOldConf();
         });
-
-        // start a module
-        JiraRefreshTableMacro.init();
     });
 });

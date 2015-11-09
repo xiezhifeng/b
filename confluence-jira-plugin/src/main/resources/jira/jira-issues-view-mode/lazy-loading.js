@@ -134,7 +134,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
                     .fail(function(promise, error, ajaxErrorMessage) {
                         ajaxHandlers.handleAjaxError(promise, ajaxErrorMessage);
                     })
-                    .always(function(data, status) {
+                    .always(function() {
                         if (++counter === totalNumberOfRequests) {
                             mainDefer.resolve();
                         }
@@ -161,7 +161,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @return {Object} a Promise object
          */
         init: function() {
-            $jiraIssuesEls = $('.wiki-content [data-client-id]');
+            $jiraIssuesEls = $('.wiki-content .jira-issue[data-client-id], .wiki-content .jira-table[data-client-id]');
             return core.loadOneByOneJiraServerStrategy();
         }
     };

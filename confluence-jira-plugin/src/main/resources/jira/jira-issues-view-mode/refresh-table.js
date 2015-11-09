@@ -111,21 +111,18 @@ var RefreshMacro = {
     processRefresh: function(refresh, clearCache, columnName, order) {
         AJS.$.ajax({
             type: "POST",
-            dataType: "html",
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            dataType: "json",
+            contentType: "application/json",
             url: Confluence.getContextPath() + "/rest/jiraanywhere/1.0/jira/renderTable",
-            data: {
-                pageId: refresh.pageId,
-                wikiMarkup: refresh.wiki,
+            data: AJS.$.toJSON({
+                wikiMarkup: encodeURIComponent(refresh.wiki),
                 clearCache: clearCache,
                 columnName: columnName,
                 order: order
-            },
-            headers: {
-                "X-Atlassian-Token" : "no-check"
-            },
-            success: function(reply, textStatus) {
+            }),
+            success: function(response, textStatus) {
                 var refreshNewId;
+                var reply = response.data;
                 // if the reply is from the servlet's error handler, simply render it
                 if ($(reply).hasClass('jim-error-message-table')) {
                     RefreshWidget.get(refresh.id).removeDarkLayer();
