@@ -53,7 +53,8 @@ public class TestJiraIssuesMacroEmailRender
                 FormatSettingsManager formatSettingsManager,
                 JiraIssueSortingManager jiraIssueSortingManager,
                 JiraExceptionHelper jiraExceptionHelper,
-                LocaleManager localeManager, AsyncJiraIssueBatchService asyncJiraIssueBatchService)
+                LocaleManager localeManager,
+                AsyncJiraIssueBatchService asyncJiraIssueBatchService)
         {
             super(i18NBeanFactory,
                   jiraIssuesManager,
@@ -69,7 +70,8 @@ public class TestJiraIssuesMacroEmailRender
                   formatSettingsManager,
                   jiraIssueSortingManager,
                   jiraExceptionHelper,
-                  localeManager, asyncJiraIssueBatchService);
+                  localeManager,
+                  asyncJiraIssueBatchService);
         }
     }
 

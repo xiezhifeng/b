@@ -4,7 +4,7 @@ import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChartModel;
@@ -33,7 +33,7 @@ public class TestTwoDimensionalChart
 {
 
     @Mock
-    private ApplicationLinkService applicationLinkService;
+    private ReadOnlyApplicationLinkService applicationLinkService;
 
     @Mock
     private ApplicationLink applicationLink;

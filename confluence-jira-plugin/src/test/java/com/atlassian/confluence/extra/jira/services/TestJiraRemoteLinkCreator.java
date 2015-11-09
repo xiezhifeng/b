@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira.services;
 
 import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
@@ -25,7 +25,7 @@ public class TestJiraRemoteLinkCreator  extends TestCase
         HostApplication hostApplication = mock(HostApplication.class);
         SettingsManager settingsManager = mock(SettingsManager.class);
         JiraMacroFinderService finderService = mock(JiraMacroFinderService.class);
-        ApplicationLinkService applicationLinkService = mock(ApplicationLinkService.class);
+        ReadOnlyApplicationLinkService applicationLinkService = mock(ReadOnlyApplicationLinkService.class);
         ApplicationLink fakeAppLink = mock(ApplicationLink.class);
         when(applicationLinkService.getApplicationLinks(JiraApplicationType.class)).thenReturn(Collections.EMPTY_LIST);
         when(applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class)).thenReturn(fakeAppLink);
@@ -39,7 +39,7 @@ public class TestJiraRemoteLinkCreator  extends TestCase
     private class JiraRemoteLinkCreatorMock extends JiraRemoteLinkCreator
     {
 
-        public JiraRemoteLinkCreatorMock(ApplicationLinkService applicationLinkService,
+        public JiraRemoteLinkCreatorMock(ReadOnlyApplicationLinkService applicationLinkService,
                                          HostApplication hostApplication,
                                          SettingsManager settingsManager,
                                          JiraMacroFinderService finderService,

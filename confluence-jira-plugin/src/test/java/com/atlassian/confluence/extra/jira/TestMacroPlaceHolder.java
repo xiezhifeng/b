@@ -2,7 +2,7 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
@@ -42,7 +42,7 @@ public class TestMacroPlaceHolder extends TestCase
     private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
 
     @Mock
-    private ApplicationLinkService appLinkService;
+    private ReadOnlyApplicationLinkService appLinkService;
 
     @Mock
     private JiraIssuesUrlManager jiraIssuesUrlManager;
