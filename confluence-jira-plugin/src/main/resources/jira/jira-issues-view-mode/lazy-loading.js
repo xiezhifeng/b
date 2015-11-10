@@ -39,19 +39,22 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @param ajaxErrorMessage
          */
         renderUISingleJIMInErrorCase: function($elsGroupByServerKey, ajaxErrorMessage) {
-            var errorMessage = AJS.I18n.getText('jiraissues.unexpected.error');
+            var errorJimClass = ['aui-message', 'aui-message-warning', 'jim-error-message'];
+            var errorMessage = AJS.I18n.getText('jiraissues.unexpected.error') + ' ' + ajaxErrorMessage;
 
-            $elsGroupByServerKey.find('.summary').text(errorMessage + ' ' + ajaxErrorMessage);
-            $elsGroupByServerKey.find('.jira-status').remove();
-            $elsGroupByServerKey.find('.issue-placeholder').remove();
-            $elsGroupByServerKey.find('.aui-icon-wait').remove();
-
-            var errorJimClass = 'aui-message aui-message-warning ' +
-                    'jim-error-message jim-error-message-single ';
-
+            if ($elsGroupByServerKey.hasClass('jira-table')) {
+                errorJimClass.push('jim-error-message-table');
+                jiraRefreshTableMacro.updateRefreshedElement($elsGroupByServerKey, errorMessage);
+            } else {
+                errorJimClass.push('jim-error-message-single');
+                $elsGroupByServerKey.find('.summary').text(errorMessage);
+                $elsGroupByServerKey.find('.jira-status').remove();
+                $elsGroupByServerKey.find('.issue-placeholder').remove();
+                $elsGroupByServerKey.find('.aui-icon-wait').remove();
+            }
             $elsGroupByServerKey
-                    .removeClass('jira-issue')
-                    .addClass(errorJimClass);
+                .removeClass('jira-issue jira-table')
+                .addClass(errorJimClass.join(' '));
         }
     };
 
