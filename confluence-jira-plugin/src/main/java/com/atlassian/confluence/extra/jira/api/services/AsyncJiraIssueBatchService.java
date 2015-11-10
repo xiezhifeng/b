@@ -3,6 +3,7 @@ package com.atlassian.confluence.extra.jira.api.services;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -30,6 +31,7 @@ public interface AsyncJiraIssueBatchService
      */
     void processRequest(String clientId, String serverId, Set<String> keys, List<MacroDefinition> macroDefinitions, ConversionContext conversionContext);
 
+    void processRequest(String clientId) throws XhtmlException, MacroExecutionException;
     /**
      * <p>This method aims to process requests by server id, transform retrieved data to html.</p>
      *

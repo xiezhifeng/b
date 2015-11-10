@@ -9,15 +9,23 @@ import com.atlassian.cache.CacheEntryListener;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
+import com.atlassian.confluence.content.render.xhtml.XhtmlException;
+import com.atlassian.confluence.core.ContentEntityManager;
+import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
+import com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
+import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
 import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
+import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
@@ -25,7 +33,10 @@ import com.atlassian.confluence.macro.xhtml.MacroManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MultiMap;
@@ -65,11 +76,15 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private final ExecutorService jiraIssueExecutor;
     private final StreamableMacroExecutor streamableMacroExecutor;
     private final JiraIssuesManager jiraIssuesManager;
+    private final ContentEntityManager contentEntityManager;
+    private final JiraMacroFinderService jiraMacroFinderService;
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              JiraExecutorFactory executorFactory,
                                              JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager,
-                                             StreamableMacroExecutor streamableMacroExecutor, JiraIssuesManager jiraIssuesManager)
+                                             StreamableMacroExecutor streamableMacroExecutor, JiraIssuesManager jiraIssuesManager,
+                                             ContentEntityManager contentEntityManager,
+                                             JiraMacroFinderService jiraMacroFinderService)
     {
         this.jiraIssueBatchService = jiraIssueBatchService;
         this.macroManager = macroManager;
@@ -77,6 +92,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.streamableMacroExecutor = streamableMacroExecutor;
         this.jiraIssuesManager = jiraIssuesManager;
+        this.contentEntityManager = contentEntityManager;
+        this.jiraMacroFinderService = jiraMacroFinderService;
         jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,
                 new CacheSettingsBuilder()
                         .local()
@@ -86,6 +103,42 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                         .expireAfterWrite(2, TimeUnit.MINUTES)
                         .build()
         );
+    }
+
+    @Override
+    public void processRequest(final String clientId) throws XhtmlException, MacroExecutionException
+    {
+        final ClientIdGenerator clientIdGenerator = ClientIdGenerator.fromClientId(clientId);
+        final StreamableJiraIssuesMacro jiraIssuesMacro = (StreamableJiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
+
+        ContentEntityObject entity = contentEntityManager.getById(Long.valueOf(clientIdGenerator.getPageId()));
+        if (StringUtils.isEmpty(clientIdGenerator.getJqlQuery()))
+        {
+            ListMultimap<String, MacroDefinition> macroDefinitionByServer = jiraIssuesMacro.getSingleIssueMacroDefinitionByServer(entity);
+            processRequest(clientId,
+                    clientIdGenerator.getServerId(),
+                    JiraIssueUtil.getIssueKeys(macroDefinitionByServer.get(clientIdGenerator.getServerId())),
+                    macroDefinitionByServer.get(clientIdGenerator.getServerId()), new DefaultConversionContext(entity.toPageContext()));
+        }
+        else
+        {
+            Predicate<MacroDefinition> jqlTablePredicate = Predicates.and(JiraIssuePredicates.isTableIssue, new Predicate<MacroDefinition>()
+            {
+                @Override
+                public boolean apply(MacroDefinition macroDefinition)
+                {
+                    Map<String, String> parameters = macroDefinition.getParameters();
+                    return StringUtils.equals(String.valueOf(parameters.get("jqlQuery")), clientIdGenerator.getJqlQuery());
+                }
+            });
+
+            List<MacroDefinition> macros = jiraMacroFinderService.findJiraMacros(entity, jqlTablePredicate);
+            for (MacroDefinition macroDefinition : macros)
+            {
+                jiraIssuesMacro.execute(macroDefinition.getParameters(), "", new DefaultConversionContext(entity.toPageContext()));
+            }
+        }
+
     }
 
     @Override

@@ -21,6 +21,7 @@ import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
+import com.atlassian.confluence.extra.jira.services.ClientIdGenerator;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
@@ -744,7 +745,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                String clientId = UUID.randomUUID().toString();
+                String clientId = ClientIdGenerator.fromElement(macroParams.get("serverId"), conversionContext.getEntity().getIdAsString(),
+                        AuthenticatedUserThreadLocal.get().getKey().getStringValue(), String.valueOf(macroParams.get("jqlQuery"))).toString();
                 contextMap.put("clientId", clientId);
                 asyncJiraIssueBatchService.processRequestTable(clientId, macroParams, contextMap, conversionContext, columnNames, url, appLink);
 

@@ -58,7 +58,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     var ajaxHandlers = {
         handleAjaxSuccess: function(data, status, promise) {
             _.each(data, function(clientData) {
-                var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + clientData.clientId + ']');
+                var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id="' + clientData.clientId + '"]');
                 if (clientData.status === 200) {
                     ui.renderUISingleJIMFromMacroHTML(JSON.parse(clientData.data).htmlMacro, $elsGroupByServerKey);
                 } else if (clientData.status !== 202) {
@@ -75,7 +75,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
         handleAjaxError: function(promise, ajaxErrorMessage) {
             var clientIdErrors = promise.clientIds.split(',');
             _.each(clientIdErrors, function(clientId) {
-                var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + clientId + ']');
+                var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id="' + clientId + '"]');
                 ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
             });
         }

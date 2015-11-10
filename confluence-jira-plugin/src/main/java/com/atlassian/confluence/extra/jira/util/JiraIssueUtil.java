@@ -6,6 +6,8 @@ import com.atlassian.confluence.extra.jira.JiraRequestData;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBean;
+import com.atlassian.confluence.xhtml.api.MacroDefinition;
+import com.google.common.collect.Sets;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.StringUtils;
@@ -13,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -255,5 +258,15 @@ public class JiraIssueUtil
     {
         String operator = clickableUrl.contains("?") ? "&" : "?";
         return clickableUrl + operator + "src=confmacro";
+    }
+
+    public static Set<String> getIssueKeys(List<MacroDefinition> macroDefinitions)
+    {
+        Set<String> issueKeys = Sets.newHashSet();
+        for(MacroDefinition macroDefinition: macroDefinitions)
+        {
+            issueKeys.add(macroDefinition.getParameter(JiraIssuesMacro.KEY));
+        }
+        return issueKeys;
     }
 }

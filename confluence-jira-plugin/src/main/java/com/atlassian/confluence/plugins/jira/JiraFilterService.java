@@ -85,7 +85,9 @@ public class JiraFilterService {
             JsonObject resultJsonObject;
             if (jiraResponseData == null)
             {
-                resultJsonObject = createResultJsonObject(clientId, Status.PRECONDITION_FAILED.getStatusCode(), String.format("Jira issues for client %s is not available", clientId));
+                asyncJiraIssueBatchService.processRequest(clientId);
+                resultJsonObject = createResultJsonObject(clientId, Status.ACCEPTED.getStatusCode(), "");
+                globalStatus = Status.ACCEPTED;
             }
             else if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
             {
