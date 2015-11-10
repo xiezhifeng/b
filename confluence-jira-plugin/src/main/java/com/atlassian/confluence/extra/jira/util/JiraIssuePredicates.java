@@ -45,7 +45,7 @@ public class JiraIssuePredicates
         public boolean apply(MacroDefinition macroDefinition)
         {
             Map<String, String> parameters = macroDefinition.getParameters();
-            return StringUtils.isNotEmpty(parameters.get("jqlQuery"));
+            return StringUtils.isNotEmpty(parameters.get("jqlQuery")) && StringUtils.isEmpty(parameters.get("count"));
         }
     });
 

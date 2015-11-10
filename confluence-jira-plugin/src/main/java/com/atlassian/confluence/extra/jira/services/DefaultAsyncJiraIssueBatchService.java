@@ -59,7 +59,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @ParametersAreNonnullByDefault
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean, DisposableBean
@@ -80,7 +79,6 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private final JiraIssuesManager jiraIssuesManager;
     private final ContentEntityManager contentEntityManager;
     private final JiraMacroFinderService jiraMacroFinderService;
-    private final Map<String, AtomicInteger> jiraIssuesCacheStackAware;
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              JiraExecutorFactory executorFactory,
@@ -106,7 +104,6 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                         .expireAfterWrite(2, TimeUnit.MINUTES)
                         .build()
         );
-        jiraIssuesCacheStackAware = Maps.newHashMap();
     }
 
     @Override
@@ -161,11 +158,10 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         // allocate an empty space for response data in the cache
         if(jiraIssuesCache.containsKey(clientId))
         {
-            jiraIssuesCacheStackAware.get(clientId).incrementAndGet();
+            jiraIssuesCache.get(clientId).getStackCount().incrementAndGet();
             return;
         }
         jiraIssuesCache.put(clientId, new JiraResponseData(serverId, keys.size()));
-        jiraIssuesCacheStackAware.put(clientId, new AtomicInteger(1));
 
         List<List<String>> batchRequests = Lists.partition(Lists.newArrayList(keys), BATCH_SIZE);
 
@@ -195,7 +191,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     {
         if(jiraIssuesCache.containsKey(clientId))
         {
-            jiraIssuesCacheStackAware.get(clientId).incrementAndGet();
+            jiraIssuesCache.get(clientId).getStackCount().incrementAndGet();
             return;
         }
         final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
@@ -204,7 +200,6 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
         final JiraResponseData jiraResponseData = new JiraResponseData(appLink.getId().get(), 1);
         jiraIssuesCache.put(clientId, jiraResponseData);
-        jiraIssuesCacheStackAware.put(clientId, new AtomicInteger(1));
         Callable<Map<String, List<String>>> jiraTableCallable = new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
             {
@@ -229,10 +224,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         JiraResponseData jiraResponseData = jiraIssuesCache.get(clientId);
         if (jiraResponseData != null && jiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
         {
-            AtomicInteger numberOfStackCall = jiraIssuesCacheStackAware.get(clientId);
-            if (numberOfStackCall != null && numberOfStackCall.decrementAndGet() == 0)
+            if (jiraResponseData.getStackCount().decrementAndGet() == 0)
             {
-                jiraIssuesCacheStackAware.remove(clientId);
                 jiraIssuesCache.remove(clientId);
             }
         }
@@ -306,7 +299,6 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     public void afterPropertiesSet() throws Exception
     {
         jiraIssuesCache.removeAll();
-        jiraIssuesCacheStackAware.clear();
         cacheEntryListener = new CacheEntryAdapter<String, JiraResponseData>()
         {
             @Override
@@ -318,7 +310,6 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             @Override
             public void onEvict(CacheEntryEvent cacheEntryEvent)
             {
-                jiraIssuesCacheStackAware.remove(cacheEntryEvent.getKey());
                 logCacheEntry("Evict", cacheEntryEvent);
             }
 
@@ -342,7 +333,6 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     {
         jiraIssueExecutor.shutdown();
         jiraIssuesCache.removeAll();
-        jiraIssuesCacheStackAware.clear();
         jiraIssuesCache.removeListener(cacheEntryListener);
     }
 }
