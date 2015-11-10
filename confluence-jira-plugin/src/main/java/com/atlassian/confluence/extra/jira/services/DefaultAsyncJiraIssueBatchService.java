@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.StringUtils;
@@ -106,7 +107,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     }
 
     @Override
-    public void processRequest(final String clientId) throws XhtmlException, MacroExecutionException
+    public boolean reprocessRequest(final String clientId) throws XhtmlException, MacroExecutionException
     {
         final ClientIdGenerator clientIdGenerator = ClientIdGenerator.fromClientId(clientId);
         final StreamableJiraIssuesMacro jiraIssuesMacro = (StreamableJiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
@@ -115,7 +116,11 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         if (StringUtils.isEmpty(clientIdGenerator.getJqlQuery()))
         {
             ListMultimap<String, MacroDefinition> macroDefinitionByServer = jiraIssuesMacro.getSingleIssueMacroDefinitionByServer(entity);
-            processRequest(clientId,
+            if (macroDefinitionByServer == null || macroDefinitionByServer.isEmpty())
+            {
+                return false;
+            }
+            reprocessRequest(clientId,
                     clientIdGenerator.getServerId(),
                     JiraIssueUtil.getIssueKeys(macroDefinitionByServer.get(clientIdGenerator.getServerId())),
                     macroDefinitionByServer.get(clientIdGenerator.getServerId()), new DefaultConversionContext(entity.toPageContext()));
@@ -133,18 +138,22 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             });
 
             List<MacroDefinition> macros = jiraMacroFinderService.findJiraMacros(entity, jqlTablePredicate);
+            if(CollectionUtils.isEmpty(macros))
+            {
+                return false;
+            }
             for (MacroDefinition macroDefinition : macros)
             {
                 jiraIssuesMacro.execute(macroDefinition.getParameters(), "", new DefaultConversionContext(entity.toPageContext()));
             }
         }
-
+        return true;
     }
 
     @Override
-    public void processRequest(final String clientId, String serverId,
-                               final Set<String> keys, final List<MacroDefinition> macroDefinitions,
-                               final ConversionContext conversionContext)
+    public void reprocessRequest(final String clientId, String serverId,
+                                 final Set<String> keys, final List<MacroDefinition> macroDefinitions,
+                                 final ConversionContext conversionContext)
     {
         // allocate an empty space for response data in the cache
         jiraIssuesCache.put(clientId, new JiraResponseData(serverId, keys.size()));

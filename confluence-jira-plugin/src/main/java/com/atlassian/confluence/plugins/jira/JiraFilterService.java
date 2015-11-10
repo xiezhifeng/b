@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -85,9 +84,15 @@ public class JiraFilterService {
             JsonObject resultJsonObject;
             if (jiraResponseData == null)
             {
-                asyncJiraIssueBatchService.processRequest(clientId);
-                resultJsonObject = createResultJsonObject(clientId, Status.ACCEPTED.getStatusCode(), "");
-                globalStatus = Status.ACCEPTED;
+                if (asyncJiraIssueBatchService.reprocessRequest(clientId))
+                {
+                    resultJsonObject = createResultJsonObject(clientId, Status.ACCEPTED.getStatusCode(), "");
+                    globalStatus = Status.ACCEPTED;
+                }
+                else
+                {
+                    resultJsonObject = createResultJsonObject(clientId, Status.PRECONDITION_FAILED.getStatusCode(), String.format("Jira issues for client %s is not available", clientId));
+                }
             }
             else if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
             {
