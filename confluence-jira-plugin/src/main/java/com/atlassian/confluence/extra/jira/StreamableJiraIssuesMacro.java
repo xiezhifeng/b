@@ -155,7 +155,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         {
                             String clientId = ClientIdGenerator.fromElement(serverId, entity.getIdAsString(), AuthenticatedUserThreadLocal.get().getKey().getStringValue()).toString();
                             // retrieve data from jira
-                            asyncJiraIssueBatchService.reprocessRequest(clientId, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext);
+                            asyncJiraIssueBatchService.processRequest(clientId, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext);
                             resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(clientId, serverId, keys, conversionContext);
                         }
                         else
