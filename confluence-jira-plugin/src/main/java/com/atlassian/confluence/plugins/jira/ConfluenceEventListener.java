@@ -90,6 +90,8 @@ public class ConfluenceEventListener implements DisposableBean
 
     private void updateJiraRemoteLinks(final AbstractPage currentPage, final AbstractPage originalPage, final String bluePrintKey, final Map<String, ?> context)
     {
+        // As @Richard Atkins mention, updating event  with a null originalPage parameter could be fired when we do link refactoring.
+        // Then it could generate duplicated links in JIRA side, Jira itself may also solved this problem by ignoring them.
         if (originalPage == null) //create page/blogpost/blueprint page
         {
             // A PageCreateEvent was also triggered (and handled) but only the BlueprintPageCreateEvent's context

@@ -6,6 +6,7 @@ import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
 import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
+import com.atlassian.confluence.extra.jira.model.IdOnlyPage;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.json.json.JsonObject;
@@ -56,19 +57,9 @@ public class JiraRemoteLinkCreator implements DisposableBean
     public void createLinksForEmbeddedMacros(AbstractPage page)
     {
         Set<MacroDefinition> macros = getRemoteLinkMacros(page);
-        AbstractPage proxyPage = new AbstractPage() {
-            @Override
-            public String getType() {
-                return null;
-            }
-
-            @Override
-            public String getLinkWikiMarkup() {
-                return null;
-            }
-        };
-        proxyPage.setId(page.getId());
-        createRemoteLinks(proxyPage, macros);
+        AbstractPage idOnlyPage = new IdOnlyPage();
+        idOnlyPage.setId(page.getId());
+        createRemoteLinks(idOnlyPage, macros);
     }
 
     public void createLinksForEmbeddedMacros(final AbstractPage prevPage, final AbstractPage page)
