@@ -55,11 +55,16 @@ var RefreshMacro = {
 
     updateRefreshedElement: function($tableElement, replacedTableHtml) {
         var refreshOldId = $tableElement.attr("id").replace("refresh-module-", "");
-        var refreshNewId = $(replacedTableHtml).attr("id").replace("refresh-module-", "");
+        var $replacedTableElement = $(replacedTableHtml);
+        var refreshNewId = $replacedTableElement.attr("id") && $replacedTableElement.attr("id").replace("refresh-module-", "") || undefined;
         $.each(this.refreshs, function(i, refresh) {
             if (refresh.id === refreshOldId) {
-                RefreshWidget.get(refresh.id).getContentModule().replaceWith(replacedTableHtml);
-                new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
+                if(refreshNewId) {
+                    RefreshWidget.get(refresh.id).getContentModule().replaceWith(replacedTableHtml);
+                    new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
+                } else {
+                    new RefreshMacro.CallbackSupport(refresh).errorHandler(replacedTableHtml);
+                }
             }
         });
     },
