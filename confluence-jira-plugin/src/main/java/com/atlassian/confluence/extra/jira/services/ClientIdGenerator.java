@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira.services;
 
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +28,7 @@ public class ClientIdGenerator
 
     public static ClientIdGenerator fromElement(String serverId, String pageId, String userId, String jqlQuery)
     {
-        if (StringUtils.isAnyEmpty(serverId, pageId, userId))
+        if (StringUtils.isEmpty(serverId) || StringUtils.isEmpty(pageId) || StringUtils.isEmpty(userId))
         {
             throw new IllegalArgumentException("Wrong ClientId data");
         }
