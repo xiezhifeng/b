@@ -745,8 +745,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
+                String userId = AuthenticatedUserThreadLocal.get() != null ? AuthenticatedUserThreadLocal.get().getKey().getStringValue() : ANONYMOUS;
                 String clientId = ClientIdGenerator.fromElement(macroParams.get("serverId"), conversionContext.getEntity().getIdAsString(),
-                        AuthenticatedUserThreadLocal.get().getKey().getStringValue(), String.valueOf(macroParams.get("jqlQuery"))).toString();
+                        userId, String.valueOf(macroParams.get("jqlQuery"))).toString();
                 contextMap.put("clientId", clientId);
                 asyncJiraIssueBatchService.processRequestTable(clientId, macroParams, contextMap, conversionContext, columnNames, url, appLink);
 

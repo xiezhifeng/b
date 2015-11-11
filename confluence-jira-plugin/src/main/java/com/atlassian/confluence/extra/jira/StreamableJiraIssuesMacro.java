@@ -153,7 +153,8 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                                     || entity.getTypeEnum() == ContentTypeEnum.PAGE
                                     || entity.getTypeEnum() == ContentTypeEnum.COMMENT))
                         {
-                            String clientId = ClientIdGenerator.fromElement(serverId, entity.getIdAsString(), AuthenticatedUserThreadLocal.get().getKey().getStringValue()).toString();
+                            String userId = AuthenticatedUserThreadLocal.get() != null ? AuthenticatedUserThreadLocal.get().getKey().getStringValue() : "anonymous";
+                            String clientId = ClientIdGenerator.fromElement(serverId, entity.getIdAsString(), userId).toString();
                             // retrieve data from jira
                             asyncJiraIssueBatchService.processRequest(clientId, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext);
                             resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(clientId, serverId, keys, conversionContext);
