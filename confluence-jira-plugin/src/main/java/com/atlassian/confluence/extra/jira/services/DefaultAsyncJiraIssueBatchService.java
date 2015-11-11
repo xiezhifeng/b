@@ -1,5 +1,7 @@
 package com.atlassian.confluence.extra.jira.services;
 
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheEntryAdapter;
 import com.atlassian.cache.CacheEntryEvent;
@@ -8,6 +10,7 @@ import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
+import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
@@ -15,10 +18,13 @@ import com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
+import com.atlassian.confluence.extra.jira.util.MapUtil;
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.macro.xhtml.MacroManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
+import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -26,21 +32,21 @@ import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean, DisposableBean
@@ -49,6 +55,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private static final int THREAD_POOL_SIZE = Integer.getInteger("confluence.jira.issues.executor.poolsize", 5);
     private static final int EXECUTOR_QUEUE_SIZE = Integer.getInteger("confluence.jira.issues.executor.queuesize", 1000);
     private static final int BATCH_SIZE = 25;
+    private static final String ISSUE_KEY_TABLE_PREFIX = "issue-table-";
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
     private final JiraExceptionHelper jiraExceptionHelper;
@@ -57,16 +64,19 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
     private final ExecutorService jiraIssueExecutor;
     private final StreamableMacroExecutor streamableMacroExecutor;
+    private final JiraIssuesManager jiraIssuesManager;
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              JiraExecutorFactory executorFactory,
-                                             JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager, StreamableMacroExecutor streamableMacroExecutor)
+                                             JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager,
+                                             StreamableMacroExecutor streamableMacroExecutor, JiraIssuesManager jiraIssuesManager)
     {
         this.jiraIssueBatchService = jiraIssueBatchService;
         this.macroManager = macroManager;
         this.jiraIssueExecutor = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, EXECUTOR_QUEUE_SIZE, "JIM Marshaller");
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.streamableMacroExecutor = streamableMacroExecutor;
+        this.jiraIssuesManager = jiraIssuesManager;
         jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,
                 new CacheSettingsBuilder()
                         .local()
@@ -106,6 +116,34 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                 throw e;
             }
         }
+    }
+
+    public void processRequestTable(final String clientId, final Map<String, String> macroParams, Map<String, Object> contextMap, final ConversionContext conversionContext,
+                                    final List<String> columnNames, final String url,
+                                    final ReadOnlyApplicationLink appLink) throws CredentialsRequiredException, IOException, ResponseException, MacroExecutionException
+    {
+        final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
+        final Map<String, Object> renderingMapContext = MapUtil.copyOf(contextMap);
+        renderingMapContext.put(JiraIssuesMacro.PARAM_PLACEHOLDER, false);
+
+        final JiraResponseData jiraResponseData = new JiraResponseData(appLink.getId().get(), 1);
+        jiraIssuesCache.put(clientId, jiraResponseData);
+        Callable<Map<String, List<String>>> jiraTableCallable = new Callable<Map<String, List<String>>>() {
+            public Map<String, List<String>> call() throws Exception
+            {
+                jiraIssuesMacro.registerTableRefreshContext(macroParams, renderingMapContext, conversionContext);
+                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, false, true);
+                jiraIssuesMacro.setupContextMapForStaticTable(renderingMapContext, channel, appLink);
+                String renderedTableHtml = jiraIssuesMacro.getRenderedTemplate(renderingMapContext, true, JiraIssuesMacro.JiraIssuesType.TABLE);
+
+                MultiMap jiraResultMap = new MultiValueMap();
+                jiraResultMap.put(ISSUE_KEY_TABLE_PREFIX + clientId, renderedTableHtml);
+                jiraIssuesCache.get(clientId).add(jiraResultMap);
+                return jiraResultMap;
+            }
+        };
+        jiraIssueExecutor.submit(jiraTableCallable);
+
     }
 
     @Override

@@ -22,11 +22,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:value>com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager</beans:value>
     </osgi:interfaces>
   </osgi:reference>
-  <osgi:reference id="applicationLinkService">
-    <osgi:interfaces>
-      <beans:value>com.atlassian.applinks.api.ApplicationLinkService</beans:value>
-    </osgi:interfaces>
-  </osgi:reference>
   <osgi:reference id="readOnlyApplicationLinkService">
     <osgi:interfaces>
       <beans:value>com.atlassian.applinks.api.ReadOnlyApplicationLinkService</beans:value>

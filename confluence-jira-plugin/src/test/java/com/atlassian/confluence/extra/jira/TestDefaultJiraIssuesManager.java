@@ -12,9 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
@@ -60,7 +60,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
 
     @Mock private HttpRetrievalService httpRetrievalService;
 
-    @Mock private ApplicationLinkService appLinkService;
+    @Mock private ReadOnlyApplicationLinkService appLinkService;
 
     @Mock private HttpResponse httpResponse;
 

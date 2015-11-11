@@ -1,12 +1,13 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
+import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -41,7 +42,7 @@ public class TestMacroPlaceHolder extends TestCase
     private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
 
     @Mock
-    private ApplicationLinkService appLinkService;
+    private ReadOnlyApplicationLinkService appLinkService;
 
     @Mock
     private JiraIssuesUrlManager jiraIssuesUrlManager;
@@ -83,9 +84,6 @@ public class TestMacroPlaceHolder extends TestCase
     private PermissionManager permissionManager;
 
     @Mock
-    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
-
-    @Mock
     private MacroMarshallingFactory macroMarshallingFactory;
 
     @Mock
@@ -100,14 +98,16 @@ public class TestMacroPlaceHolder extends TestCase
     @Mock
     private JiraExceptionHelper jiraExceptionHelper;
 
+    @Mock
+    private AsyncJiraIssueBatchService asyncJiraIssueBatchService;
+
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         imagePlaceHolderHelper = new ImagePlaceHolderHelper(jiraIssuesManager, localeManager, null, applicationLinkResolver, flexigridResponseGenerator);
-        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
-        //jiraIssuesMacro.setImagePlaceHolderHelper(imagePlaceHolderHelper);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, asyncJiraIssueBatchService);
         parameters = new HashMap<String, String>();
 
     }
@@ -122,7 +122,7 @@ public class TestMacroPlaceHolder extends TestCase
         String url = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=";
 
         ApplicationId applicationId = new ApplicationId("8835b6b9-5676-3de4-ad59-bbe987416662");
-        ApplicationLink applicationLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLink applicationLink = mock(ReadOnlyApplicationLink.class);
         when(applicationLink.getDisplayUrl()).thenReturn(uri);
         when(applicationLink.getId()).thenReturn(applicationId);
         url = applicationLink.getDisplayUrl() + url + URLEncoder.encode(parameters.get("jqlQuery"), "UTF-8") + "&tempMax=0";

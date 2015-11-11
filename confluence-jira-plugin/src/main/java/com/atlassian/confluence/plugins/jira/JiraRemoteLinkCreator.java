@@ -31,13 +31,13 @@ public class JiraRemoteLinkCreator
     private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteLinkCreator.class);
 
     
-    private final ApplicationLinkService applicationLinkService;
+    private final ReadOnlyApplicationLinkService applicationLinkService;
     private final HostApplication hostApplication;
     private final SettingsManager settingsManager;
     private final JiraMacroFinderService macroFinderService;
     private RequestFactory requestFactory;
 
-    public JiraRemoteLinkCreator(final ApplicationLinkService applicationLinkService, final HostApplication hostApplication, final SettingsManager settingsManager, final JiraMacroFinderService macroFinderService, final RequestFactory requestFactory)
+    public JiraRemoteLinkCreator(final ReadOnlyApplicationLinkService applicationLinkService, final HostApplication hostApplication, final SettingsManager settingsManager, final JiraMacroFinderService macroFinderService, final RequestFactory requestFactory)
     {
         this.applicationLinkService = applicationLinkService;
         this.hostApplication = hostApplication;
@@ -93,7 +93,7 @@ public class JiraRemoteLinkCreator
     public boolean createLinkToEpic(AbstractPage page, String applinkId, String issueKey, String fallbackUrl, String creationToken)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
-        ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
+        ReadOnlyApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
                 "Failed to create a remote link to '" + issueKey + "' for the application '" + applinkId + "'.");
         if (applicationLink != null)
         {
@@ -121,7 +121,7 @@ public class JiraRemoteLinkCreator
     public boolean createLinkToSprint(AbstractPage page, String applinkId, String sprintId, String fallbackUrl, final String creationToken)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
-        ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
+        ReadOnlyApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
                 "Failed to create a remote link to sprint '" + sprintId + "' for the application '" + applinkId + "'.");
         if (applicationLink != null)
         {
@@ -145,7 +145,7 @@ public class JiraRemoteLinkCreator
             String defaultParam = macroDefinition.getDefaultParameterValue();
             String keyVal = macroDefinition.getParameters().get("key");
             String issueKey = defaultParam != null ? defaultParam : keyVal;
-            ApplicationLink applicationLink = findApplicationLink(macroDefinition);
+            ReadOnlyApplicationLink applicationLink = findApplicationLink(macroDefinition);
 
             if (applicationLink != null)
             {
@@ -160,7 +160,7 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    private boolean createRemoteSprintLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId, final String creationToken)
+    private boolean createRemoteSprintLink(final ReadOnlyApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId, final String creationToken)
     {
         final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
         final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelinkchecked";
@@ -168,7 +168,7 @@ public class JiraRemoteLinkCreator
         return createRemoteLink(applicationLink, requestJson, request, sprintId);
     }
 
-    private boolean createRemoteEpicLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey, final String creationToken)
+    private boolean createRemoteEpicLink(final ReadOnlyApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey, final String creationToken)
     {
         final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
         final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/api/epics/" + GeneralUtil.urlEncode(issueKey) + "/remotelinkchecked";
@@ -176,7 +176,7 @@ public class JiraRemoteLinkCreator
         return createRemoteLink(applicationLink, requestJson, request, issueKey);
     }
 
-    private void createRemoteIssueLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
+    private void createRemoteIssueLink(final ReadOnlyApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
     {
         try
         {
@@ -211,7 +211,7 @@ public class JiraRemoteLinkCreator
                 );
     }
 
-    private boolean createRemoteLink(final ApplicationLink applicationLink, final Json requestBody, final Request request, final String entityId)
+    private boolean createRemoteLink(final ReadOnlyApplicationLink applicationLink, final Json requestBody, final Request request, final String entityId)
     {
         try
         {
@@ -263,10 +263,10 @@ public class JiraRemoteLinkCreator
         return true;
     }
 
-    protected ApplicationLink findApplicationLink(final MacroDefinition macroDefinition) {
-        return Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ApplicationLink>()
+    protected ReadOnlyApplicationLink findApplicationLink(final MacroDefinition macroDefinition) {
+        return Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ReadOnlyApplicationLink>()
         {
-            public boolean apply(ApplicationLink input)
+            public boolean apply(ReadOnlyApplicationLink input)
             {
                 final String serverName = macroDefinition.getParameters().get("server");
                 return input.getName().equals(serverName);
@@ -274,28 +274,21 @@ public class JiraRemoteLinkCreator
         }, applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class));
     }
 
-    private ApplicationLink findApplicationLink(final String applinkId, final String fallbackUrl, String failureMessage)
+    private ReadOnlyApplicationLink findApplicationLink(final String applinkId, final String fallbackUrl, String failureMessage)
     {
-        ApplicationLink applicationLink = null;
+        ReadOnlyApplicationLink applicationLink = null;
 
-        try
+        applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
+        if (applicationLink == null && StringUtils.isNotBlank(fallbackUrl))
         {
-            applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
-            if (applicationLink == null && StringUtils.isNotBlank(fallbackUrl))
+            // Application links in OnDemand aren't set up using the host application ID, so we have to fall back to checking the referring URL:
+            applicationLink = Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ReadOnlyApplicationLink>()
             {
-                // Application links in OnDemand aren't set up using the host application ID, so we have to fall back to checking the referring URL:
-                applicationLink = Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ApplicationLink>()
+                public boolean apply(ReadOnlyApplicationLink input)
                 {
-                    public boolean apply(ApplicationLink input)
-                    {
-                        return StringUtils.containsIgnoreCase(fallbackUrl, input.getDisplayUrl().toString());
-                    }
-                });
-            }
-        }
-        catch (TypeNotInstalledException e)
-        {
-            LOGGER.warn(failureMessage + " Reason: Application link type is currently not installed");
+                    return StringUtils.containsIgnoreCase(fallbackUrl, input.getDisplayUrl().toString());
+                }
+            });
         }
 
         return applicationLink;

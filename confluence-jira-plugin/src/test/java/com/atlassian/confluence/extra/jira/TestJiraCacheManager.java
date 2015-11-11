@@ -7,12 +7,12 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import junit.framework.TestCase;
 
 import org.mockito.Mock;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
@@ -23,7 +23,7 @@ public class TestJiraCacheManager extends TestCase
 
     @Mock private Cache cache;
 
-    @Mock private ApplicationLink appLink;
+    @Mock private ReadOnlyApplicationLink appLink;
 
     private JiraCacheManager jiraCacheManager;
 
@@ -32,7 +32,7 @@ public class TestJiraCacheManager extends TestCase
         super.setUp();
         cacheManager = mock(CacheManager.class);
         cache = mock(Cache.class);
-        appLink = mock(ApplicationLink.class);
+        appLink = mock(ReadOnlyApplicationLink.class);
         jiraCacheManager = new DefaultJiraCacheManager(cacheManager);
     }
 
