@@ -21,7 +21,7 @@ import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
-import com.atlassian.confluence.extra.jira.services.ClientIdGenerator;
+import com.atlassian.confluence.extra.jira.model.ClientId;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
@@ -65,7 +65,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -745,9 +744,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                String userId = AuthenticatedUserThreadLocal.get() != null ? AuthenticatedUserThreadLocal.get().getKey().getStringValue() : ANONYMOUS;
-                String clientId = ClientIdGenerator.fromElement(macroParams.get("serverId"), conversionContext.getEntity().getIdAsString(),
-                        userId, String.valueOf(macroParams.get("jqlQuery"))).toString();
+                ClientId clientId = ClientId.fromElement(macroParams.get("serverId"), conversionContext.getEntity().getIdAsString(),
+                        JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get()), String.valueOf(macroParams.get("jqlQuery")));
                 contextMap.put("clientId", clientId);
                 asyncJiraIssueBatchService.processRequestTable(clientId, macroParams, contextMap, conversionContext, columnNames, url, appLink);
 

@@ -5,6 +5,7 @@ import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
+import com.atlassian.confluence.extra.jira.model.ClientId;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.net.ResponseException;
@@ -29,7 +30,7 @@ public interface AsyncJiraIssueBatchService
      * @param macroDefinitions         list of macro definitions used while transforming retrieved data to html
      * @param conversionContext        conversion context used while transforming retrieved data to html
      */
-    void processRequest(String clientId, String serverId, Set<String> keys, List<MacroDefinition> macroDefinitions, ConversionContext conversionContext);
+    void processRequest(ClientId clientId, String serverId, Set<String> keys, List<MacroDefinition> macroDefinitions, ConversionContext conversionContext);
 
     /**
      * Reprocess ClientId to retrieve the evicted data
@@ -38,14 +39,14 @@ public interface AsyncJiraIssueBatchService
      * @throws XhtmlException
      * @throws MacroExecutionException
      */
-    boolean reprocessRequest(String clientId) throws XhtmlException, MacroExecutionException;
+    boolean reprocessRequest(ClientId clientId) throws XhtmlException, MacroExecutionException;
     /**
      * <p>This method aims to process requests by server id, transform retrieved data to html.</p>
      *
      * @param clientId                  the key used to store data
      * @param conversionContext        conversion context used while transforming retrieved data to html
      */
-    void processRequestTable(final String clientId, final Map<String, String> macroParams, final Map<String, Object> contextMap, final ConversionContext conversionContext,
+    void processRequestTable(final ClientId clientId, final Map<String, String> macroParams, final Map<String, Object> contextMap, final ConversionContext conversionContext,
                              final List<String> columnNames, String url,
                              final ReadOnlyApplicationLink appLink) throws CredentialsRequiredException, IOException, ResponseException, MacroExecutionException;
 
@@ -56,5 +57,5 @@ public interface AsyncJiraIssueBatchService
      * @return response data (which has been transform to html) from Jira
      * @throws Exception
      */
-    JiraResponseData getAsyncJiraResults(String clientId);
+    JiraResponseData getAsyncJiraResults(ClientId clientId);
 }

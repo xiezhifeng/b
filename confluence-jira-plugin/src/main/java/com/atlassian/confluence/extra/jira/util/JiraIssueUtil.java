@@ -5,6 +5,7 @@ import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraRequestData;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.google.common.collect.Sets;
@@ -268,5 +269,10 @@ public class JiraIssueUtil
             issueKeys.add(macroDefinition.getParameter(JiraIssuesMacro.KEY));
         }
         return issueKeys;
+    }
+
+    public static String getUserKey(ConfluenceUser user)
+    {
+        return user != null ? user.getKey().getStringValue() : "anonymous";
     }
 }

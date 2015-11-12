@@ -13,6 +13,7 @@ import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
+import com.atlassian.confluence.extra.jira.model.ClientId;
 import com.atlassian.confluence.plugins.jira.beans.MacroTableParam;
 import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
@@ -78,8 +79,9 @@ public class JiraFilterService {
         String[] clientIdArr = StringUtils.split(clientIds, ",");
         JsonArray clientIdJsons = new JsonArray();
         Status globalStatus = Status.OK;
-        for (String clientId : clientIdArr)
+        for (String clientIdString : clientIdArr)
         {
+            ClientId clientId = ClientId.fromClientId(clientIdString);
             JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(clientId);
             JsonObject resultJsonObject;
             if (jiraResponseData == null)
@@ -108,10 +110,10 @@ public class JiraFilterService {
         return Response.status(globalStatus).entity(clientIdJsons.toString()).build();
     }
 
-    private JsonObject createResultJsonObject(String clientId, int statusCode, String data)
+    private JsonObject createResultJsonObject(ClientId clientId, int statusCode, String data)
     {
         JsonObject responseDataJson = new JsonObject();
-        responseDataJson.addProperty("clientId", clientId);
+        responseDataJson.addProperty("clientId", clientId.toString());
         responseDataJson.addProperty("data", data);
         responseDataJson.addProperty("status", statusCode);
         return responseDataJson;
