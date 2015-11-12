@@ -34,6 +34,7 @@ import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFacto
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
+import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
@@ -189,8 +190,6 @@ public class TestJiraIssuesMacro extends TestCase
 
     private VelocityEngine ve;
 
-    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
-
     private GeneralUtil generalUtil;
 
     private Locale defaultLocale = new Locale("EN");
@@ -206,6 +205,9 @@ public class TestJiraIssuesMacro extends TestCase
     @Mock
     private JiraExceptionHelper jiraExceptionHelper;
 
+    @Mock
+    AsyncJiraIssueBatchService asyncJiraIssueBatchService;
+
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -218,7 +220,6 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesColumnManager = new DefaultJiraIssuesColumnManager(jiraIssuesSettingsManager, localeManager, i18NBeanFactory, jiraConnectorManager);
         jiraIssuesUrlManager = new DefaultJiraIssuesUrlManager(jiraIssuesColumnManager);
         saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-        jiraIssuesDateFormatter = new DefaultJiraIssuesDateFormatter();
         jiraIssueSortingManager = new DefaultJiraIssueSortingManager(jiraIssuesColumnManager, jiraIssuesManager, localeManager, i18NBeanFactory);
         generalUtil= new GeneralUtil();
 
@@ -245,11 +246,10 @@ public class TestJiraIssuesMacro extends TestCase
                 }
         );
 
-        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, asyncJiraIssueBatchService);
 
         params = new HashMap<String, String>();
         macroVelocityContext = new HashMap<String, Object>();
-        macroVelocityContext.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         macroVelocityContext.put("generalUtil", generalUtil);
 
         when(appLink.getId()).thenReturn(new ApplicationId(APPLICATION_ID));
@@ -361,14 +361,12 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("trustedConnection",false);
         expectedContextMap.put("title", "EXPLICIT VALUE");
-        expectedContextMap.put("jiraIssuesManager",jiraIssuesManager);
         expectedContextMap.put("entries",new MockChannel(params.get("url")).getChannelElement().getChildren("item"));
         expectedContextMap.put("xmlXformer",jiraIssuesMacro.getXmlXformer());
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000&sorter/field=issuekey&sorter/order=ASC&src=confmacro");
         expectedContextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
-        expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         expectedContextMap.put("userLocale", Locale.getDefault());
         expectedContextMap.put("contentId", "1");
         expectedContextMap.put("wikiMarkup", "");
@@ -512,7 +510,6 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("maxIssuesToDisplay", 20);
         expectedContextMap.put("returnMax", "true");
         expectedContextMap.put("generalUtil", generalUtil);
-        expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
 
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false, SINGLE, createDefaultConversionContext(false));
@@ -553,7 +550,6 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("iconUrl", null);
         expectedContextMap.put("statusIcon", null);
         expectedContextMap.put("generalUtil", generalUtil);
-        expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         expectedContextMap.put("isPlaceholder", false);
 
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
@@ -996,15 +992,6 @@ public class TestJiraIssuesMacro extends TestCase
         URL url = getClass().getClassLoader().getResource(name);
         return url.openStream();
     }
-    /*
-    private class JiraIssuesMacro extends com.atlassian.confluence.extra.jira.JiraIssuesMacro
-    {
-        private JiraIssuesMacro()
-        {
-            super(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, jiraConnectorManager);
-        }
-    }
-    */
 
     private class MockDefaultJiraIssueBatchService extends DefaultJiraIssueBatchService
     {

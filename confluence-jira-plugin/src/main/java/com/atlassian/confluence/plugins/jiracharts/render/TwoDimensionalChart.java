@@ -1,6 +1,6 @@
 package com.atlassian.confluence.plugins.jiracharts.render;
 
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
@@ -41,7 +41,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
 
     private MacroMarshallingFactory macroMarshallingFactory;
 
-    public TwoDimensionalChart(ApplicationLinkService applicationLinkService, MacroMarshallingFactory macroMarshallingFactory, I18NBeanFactory i18NBeanFactory)
+    public TwoDimensionalChart(ReadOnlyApplicationLinkService applicationLinkService, MacroMarshallingFactory macroMarshallingFactory, I18NBeanFactory i18NBeanFactory)
     {
         this.applicationLinkService = applicationLinkService;
         this.macroMarshallingFactory = macroMarshallingFactory;

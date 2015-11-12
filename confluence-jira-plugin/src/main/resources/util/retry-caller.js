@@ -65,6 +65,7 @@ function(
                 $.when(func.apply(context, args))
                 .then(
                     function() {
+                        deferred.notify.apply(context, arguments);
                         if (tester.apply(context, arguments)) {
                             call();
                         } else {
