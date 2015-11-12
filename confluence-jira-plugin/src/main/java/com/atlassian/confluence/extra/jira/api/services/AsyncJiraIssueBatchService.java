@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public interface AsyncJiraIssueBatchService
 {
-    public static final String DARK_FEATURE_DISABLE_ASYNC_LOADING_KEY = "disable-confluence-jira-plugin-async-loading";
+    public static final String DARK_FEATURE_DISABLE_ASYNC_LOADING_KEY = "confluence.extra.jira.async.loading.disable";
 
     /**
      * <p>This method aims to process requests by server id, transform retrieved data to html.</p>
