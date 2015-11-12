@@ -17,6 +17,7 @@ import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.renderer.RenderContextOutputType;
 
+import com.atlassian.sal.api.features.DarkFeatureManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,20 +41,21 @@ public class TestJiraIssuesMacroEmailRender
     private class JiraIssuesMacroTestHarness extends JiraIssuesMacro
     {
         private JiraIssuesMacroTestHarness(I18NBeanFactory i18NBeanFactory,
-                JiraIssuesManager jiraIssuesManager,
-                SettingsManager settingsManager,
-                JiraIssuesColumnManager jiraIssuesColumnManager,
-                TrustedApplicationConfig trustedApplicationConfig,
-                PermissionManager permissionManager,
-                ApplicationLinkResolver applicationLinkResolver,
-                MacroMarshallingFactory macroMarshallingFactory,
-                JiraCacheManager jiraCacheManager,
-                ImagePlaceHolderHelper imagePlaceHolderHelper,
-                FormatSettingsManager formatSettingsManager,
-                JiraIssueSortingManager jiraIssueSortingManager,
-                JiraExceptionHelper jiraExceptionHelper,
-                LocaleManager localeManager,
-                AsyncJiraIssueBatchService asyncJiraIssueBatchService)
+                                           JiraIssuesManager jiraIssuesManager,
+                                           SettingsManager settingsManager,
+                                           JiraIssuesColumnManager jiraIssuesColumnManager,
+                                           TrustedApplicationConfig trustedApplicationConfig,
+                                           PermissionManager permissionManager,
+                                           ApplicationLinkResolver applicationLinkResolver,
+                                           MacroMarshallingFactory macroMarshallingFactory,
+                                           JiraCacheManager jiraCacheManager,
+                                           ImagePlaceHolderHelper imagePlaceHolderHelper,
+                                           FormatSettingsManager formatSettingsManager,
+                                           JiraIssueSortingManager jiraIssueSortingManager,
+                                           JiraExceptionHelper jiraExceptionHelper,
+                                           LocaleManager localeManager,
+                                           AsyncJiraIssueBatchService asyncJiraIssueBatchService,
+                                           DarkFeatureManager darkFeatureManager)
         {
             super(i18NBeanFactory,
                   jiraIssuesManager,
@@ -69,7 +71,8 @@ public class TestJiraIssuesMacroEmailRender
                   jiraIssueSortingManager,
                   jiraExceptionHelper,
                   localeManager,
-                  asyncJiraIssueBatchService);
+                  asyncJiraIssueBatchService,
+                  darkFeatureManager);
         }
     }
 
@@ -118,6 +121,9 @@ public class TestJiraIssuesMacroEmailRender
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private AsyncJiraIssueBatchService asyncJiraIssueBatchService;
 
+    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    private DarkFeatureManager darkFeatureManager;
+
     private JiraIssuesMacroTestHarness jiraIssuesMacroTestHarness;
 
 
@@ -139,7 +145,8 @@ public class TestJiraIssuesMacroEmailRender
                                                  jiraIssueSortingManager,
                                                  jiraExceptionHelper,
                                                  localeManager,
-                                                 asyncJiraIssueBatchService);
+                                                 asyncJiraIssueBatchService,
+                                                 darkFeatureManager);
     }
 
     @Test

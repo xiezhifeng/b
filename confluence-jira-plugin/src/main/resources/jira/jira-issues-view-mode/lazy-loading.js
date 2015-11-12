@@ -111,7 +111,9 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             var job = new FetchingJob({
                 clientIds: clientIds.join(',')
             });
-            jobs.push(job);
+            if (job.clientIds) {
+                jobs.push(job);
+            }
 
             return jobs;
         }

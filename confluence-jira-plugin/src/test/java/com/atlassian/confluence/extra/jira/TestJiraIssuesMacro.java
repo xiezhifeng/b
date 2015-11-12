@@ -67,6 +67,7 @@ import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.sal.api.features.DarkFeatureManager;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
@@ -174,6 +175,8 @@ public class TestJiraIssuesMacro extends TestCase
 
     @Mock private JiraIssueBatchService jiraIssueBatchService;
 
+    @Mock private DarkFeatureManager darkFeatureManager;
+
     private JiraIssuesMacro jiraIssuesMacro;
 
     private SAXBuilder saxBuilder;
@@ -246,7 +249,7 @@ public class TestJiraIssuesMacro extends TestCase
                 }
         );
 
-        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, asyncJiraIssueBatchService);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, asyncJiraIssueBatchService, darkFeatureManager);
 
         params = new HashMap<String, String>();
         macroVelocityContext = new HashMap<String, Object>();

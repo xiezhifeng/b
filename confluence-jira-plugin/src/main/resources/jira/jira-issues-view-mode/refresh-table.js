@@ -23,7 +23,10 @@ var RefreshMacro = {
             widget.getRefreshButton().bind("click", refresh, RefreshMacro.handleRefreshClick);
             widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
 
-            RefreshMacro.processRefreshWaiting(refresh);
+            //Display spinner if widget is a placeholder
+            if (widget.getContentModule().is('[data-client-id]')) {
+                RefreshMacro.processRefreshWaiting(refresh);
+            }
         });
         HeaderWidget.getAll().each(function() {
             RefreshMacro.registerSort(this.getSortable());

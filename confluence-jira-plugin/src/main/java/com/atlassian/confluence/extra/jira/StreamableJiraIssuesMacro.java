@@ -33,6 +33,7 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.renderer.RenderContextOutputType;
+import com.atlassian.sal.api.features.DarkFeatureManager;
 import com.atlassian.webresource.api.assembler.PageBuilderService;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
@@ -67,9 +68,13 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     private final AsyncJiraIssueBatchService asyncJiraIssueBatchService;
 
     public StreamableJiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, StreamableMacroExecutor executorService, JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService, PageBuilderService pageBuilderService,
-                                     AsyncJiraIssueBatchService asyncJiraIssueBatchService)
+                                     AsyncJiraIssueBatchService asyncJiraIssueBatchService,
+                                     DarkFeatureManager darkFeatureManager)
     {
-        super(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, asyncJiraIssueBatchService);
+        super(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager,
+                trustedApplicationConfig, permissionManager, applicationLinkResolver, macroMarshallingFactory,
+                jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager,
+                jiraExceptionHelper, localeManager, asyncJiraIssueBatchService, darkFeatureManager);
         this.executorService = executorService;
         this.jiraMacroFinderService = jiraMacroFinderService;
         this.jiraIssueBatchService = jiraIssueBatchService;
