@@ -327,10 +327,6 @@
     </rest>
 
     <!-- JIRA CHART MACRO -->
-    <macro name='jirachart' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='jirachart'>
-        <description>JIRA Chart Macro</description>
-    </macro>
-    
     <xhtml-macro name='jirachart' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='jirachart-xhtml'
                  icon="/download/resources/confluence.extra.jira/images/jira-chart-macro-icon.png" documentation-url="help.jirachart.macro">
         <description key="jirachart.macro.description"/>
