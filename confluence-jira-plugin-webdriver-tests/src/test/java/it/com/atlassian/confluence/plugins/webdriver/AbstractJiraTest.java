@@ -247,7 +247,8 @@ public class AbstractJiraTest
 
     protected JiraSprintMacroDialog openSprintDialogFromMacroBrowser(EditContentPage editPage) throws Exception
     {
-        openDialogFromMacroBrowser(editPage, "jira sprints");
+        JiraMacroSearchPanelDialog dialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialog.selectMenuItem("JIRA Sprints");
         return pageBinder.bind(JiraSprintMacroDialog.class);
     }
 
