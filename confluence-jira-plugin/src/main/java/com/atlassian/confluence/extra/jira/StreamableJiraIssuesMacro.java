@@ -20,6 +20,7 @@ import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.EntityServerCompositeKey;
 import com.atlassian.confluence.extra.jira.model.JiraBatchRequestData;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
@@ -137,7 +138,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
             try
             {
                 long finderStart = System.currentTimeMillis();
-                List<MacroDefinition> singleIssueMacroDefinitions = this.jiraMacroFinderService.findSingleJiraIssueMacros(content, conversionContext);
+                List<MacroDefinition> singleIssueMacroDefinitions = this.jiraMacroFinderService.findJiraMacros(entity, JiraIssuePredicates.isSingleIssue);
                 if (LOGGER.isDebugEnabled())
                 {
                     LOGGER.debug("******* findSingleJiraIssueMacros time = {}", System.currentTimeMillis() - finderStart);

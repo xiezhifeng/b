@@ -3,8 +3,10 @@ package com.atlassian.confluence.extra.jira.services;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
+import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -38,23 +40,26 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
     @Override
     public Set<MacroDefinition> findJiraIssueMacros(AbstractPage page, Predicate<MacroDefinition> filter) throws XhtmlException
     {
-        Predicate<MacroDefinition> jiraPredicate = new Predicate<MacroDefinition>()
+        Predicate jiraPredicate = JiraIssuePredicates.isJiraIssueMacro;
+        if (filter != null)
         {
-            public boolean apply(MacroDefinition definition)
-            {
-                return definition.getName().equals(JiraIssuesMacro.JIRA);
-            }
-        };
+            jiraPredicate = Predicates.and(jiraPredicate, filter);
+        }
+        return Sets.newHashSet(findJiraMacros(page, jiraPredicate));
+    }
 
-        final Predicate<MacroDefinition> jiraIssuesPredicate = new Predicate<MacroDefinition>()
-        {
-            public boolean apply(MacroDefinition definition)
-            {
-                return definition.getName().equals(JiraIssuesMacro.JIRAISSUES);
-            }
-        };
-
-        jiraPredicate = Predicates.or(jiraPredicate, jiraIssuesPredicate);
+    /**
+     * Find all JIRA Issue Macros in the page satisfying the search filter
+     *
+     * @param contentEntityObject   the page/blogpost/comment where we want to find the JIRA Issues Macros
+     * @param filter the custom search filter for refining the results
+     * @return the set of MacroDefinition instances
+     * @throws XhtmlException
+     */
+    @Override
+    public List<MacroDefinition> findJiraMacros(ContentEntityObject contentEntityObject, Predicate<MacroDefinition> filter) throws XhtmlException
+    {
+        Predicate<MacroDefinition> jiraPredicate = Predicates.or(JiraIssuePredicates.isJiraIssueMacro, JiraIssuePredicates.isSprintMacro);
 
         if (filter != null)
         {
@@ -62,7 +67,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
         }
 
         final Predicate<MacroDefinition> jiraMacroPredicate = jiraPredicate;
-        final Set<MacroDefinition> definitions = Sets.newHashSet();
+        final List<MacroDefinition> definitions = Lists.newArrayList();
         MacroDefinitionHandler handler = new MacroDefinitionHandler()
         {
             @Override
@@ -74,7 +79,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
                 }
             }
         };
-        xhtmlContent.handleMacroDefinitions(page.getBodyAsString(), new DefaultConversionContext(page.toPageContext()), handler);
+        xhtmlContent.handleMacroDefinitions(contentEntityObject.getBodyAsString(), new DefaultConversionContext(contentEntityObject.toPageContext()), handler);
         return definitions;
     }
 

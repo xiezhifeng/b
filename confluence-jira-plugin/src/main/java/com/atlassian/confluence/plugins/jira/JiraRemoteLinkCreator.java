@@ -1,6 +1,11 @@
 package com.atlassian.confluence.plugins.jira;
 
-import com.atlassian.applinks.api.*;
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
@@ -9,11 +14,17 @@ import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.json.json.JsonObject;
 import com.atlassian.confluence.pages.AbstractPage;
+import com.atlassian.confluence.plugins.sprint.JiraSprintMacro;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.atlassian.sal.api.net.*;
+import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.RequestFactory;
+import com.atlassian.sal.api.net.Response;
+import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.sal.api.net.ResponseHandler;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.commons.httpclient.HttpStatus;
@@ -72,7 +83,7 @@ public class JiraRemoteLinkCreator
     {
         try
         {
-            return macroFinderService.findJiraIssueMacros(page, JiraIssuePredicates.isSingleIssue);
+            return Sets.newHashSet(macroFinderService.findJiraMacros(page, Predicates.or(JiraIssuePredicates.isSingleIssue, JiraIssuePredicates.isSprintMacro)));
         }
         catch(XhtmlException ex)
         {
@@ -142,20 +153,25 @@ public class JiraRemoteLinkCreator
 
         for (MacroDefinition macroDefinition : macroDefinitions)
         {
-            String defaultParam = macroDefinition.getDefaultParameterValue();
-            String keyVal = macroDefinition.getParameters().get("key");
-            String issueKey = defaultParam != null ? defaultParam : keyVal;
             ApplicationLink applicationLink = findApplicationLink(macroDefinition);
-
-            if (applicationLink != null)
+            if (applicationLink == null)
             {
-                createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+                LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Application link not found.",
+                        StringUtils.defaultString(macroDefinition.getParameters().get("key"), macroDefinition.getParameters().get("sprintName")),
+                        macroDefinition.getParameters().get("server"));
+                continue;
+            }
+
+            if (StringUtils.equals(macroDefinition.getName(), JiraSprintMacro.JIRASPRINT))
+            {
+                createEmbeddedSprintLink(applicationLink, page, macroDefinition.getParameter(JiraSprintMacro.MACRO_ID_PARAMETER));
             }
             else
             {
-                LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Application link not found.",
-                    issueKey,
-                    macroDefinition.getParameters().get("server"));
+                String keyVal = macroDefinition.getParameters().get("key");
+                String defaultParam = macroDefinition.getDefaultParameterValue();
+                String issueKey = defaultParam != null ? defaultParam : keyVal;
+                createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
             }
         }
     }
@@ -166,6 +182,25 @@ public class JiraRemoteLinkCreator
         final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelinkchecked";
         Request request = requestFactory.createRequest(PUT, requestUrl);
         return createRemoteLink(applicationLink, requestJson, request, sprintId);
+    }
+
+    private boolean createEmbeddedSprintLink(ApplicationLink applicationLink, AbstractPage page, String sprintId)
+    {
+        final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/sprint/"+ GeneralUtil.urlEncode(sprintId) + "/pages" ;
+        try
+        {
+            Request request = applicationLink.createAuthenticatedRequestFactory().createRequest(POST, requestUrl);
+            JsonObject requestJson =  new JsonObject()
+                    .setProperty("pageId", page.getIdAsString())
+                    .setProperty("pageTitle", page.getTitle());
+            return createRemoteLink(applicationLink, requestJson, request, sprintId);
+        }
+        catch (CredentialsRequiredException e)
+        {
+            LOGGER.debug("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
+        }
+        return false;
+
     }
 
     private boolean createRemoteEpicLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey, final String creationToken)
@@ -268,8 +303,8 @@ public class JiraRemoteLinkCreator
         {
             public boolean apply(ApplicationLink input)
             {
-                final String serverName = macroDefinition.getParameters().get("server");
-                return input.getName().equals(serverName);
+                return StringUtils.equals(input.getName(), macroDefinition.getParameters().get("server"))
+                        || StringUtils.equals(input.getId().get(), macroDefinition.getParameters().get("serverId"));
             }
         }, applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class));
     }

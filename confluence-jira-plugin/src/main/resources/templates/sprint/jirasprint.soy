@@ -30,8 +30,12 @@
                 <span class="aui-button-label">{$sprintName}</span>
             </a>
             {let $statusColor}
-                {if $status == 'active'}
+                {if $status == 'closed'}
                     aui-lozenge-success
+                {elseif $status == 'active'}
+                    aui-lozenge-current
+                {elseif $status == 'future'}
+                    aui-lozenge-complete
                 {else}
                     aui-lozenge-default
                 {/if}
