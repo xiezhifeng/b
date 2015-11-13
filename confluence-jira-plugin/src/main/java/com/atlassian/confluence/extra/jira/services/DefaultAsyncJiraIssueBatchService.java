@@ -67,6 +67,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncJiraIssueBatchService.class);
     private static final int THREAD_POOL_SIZE = Integer.getInteger("confluence.jira.issues.executor.poolsize", 5);
     private static final int EXECUTOR_QUEUE_SIZE = Integer.getInteger("confluence.jira.issues.executor.queuesize", 1000);
+    private static final int CACHE_EXPIRE_AFTER_ACCESS = Integer.getInteger("confluence.extra.jira.cache.async.read.expire", 60);
+    private static final int CACHE_EXPIRE_AFTER_WRITE = Integer.getInteger("confluence.extra.jira.cache.async.write.expire", 120);
     private static final int BATCH_SIZE = 25;
     private static final String ISSUE_KEY_TABLE_PREFIX = "issue-table-";
     private final JiraIssueBatchService jiraIssueBatchService;
@@ -101,8 +103,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                         .local()
                         .maxEntries(500)
                         .unflushable()
-                        .expireAfterAccess(1, TimeUnit.MINUTES)
-                        .expireAfterWrite(2, TimeUnit.MINUTES)
+                        .expireAfterAccess(CACHE_EXPIRE_AFTER_ACCESS, TimeUnit.SECONDS)
+                        .expireAfterWrite(CACHE_EXPIRE_AFTER_WRITE, TimeUnit.SECONDS)
                         .build()
         );
     }
@@ -158,7 +160,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         // allocate an empty space for response data in the cache
         if(jiraIssuesCache.containsKey(clientId))
         {
-            jiraIssuesCache.get(clientId).getStackCount().incrementAndGet();
+            jiraIssuesCache.get(clientId).increaseStackCount();
             return;
         }
         jiraIssuesCache.put(clientId, new JiraResponseData(serverId, keys.size()));
@@ -191,7 +193,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     {
         if(jiraIssuesCache.containsKey(clientId))
         {
-            jiraIssuesCache.get(clientId).getStackCount().incrementAndGet();
+            jiraIssuesCache.get(clientId).increaseStackCount();
             return;
         }
         final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
@@ -224,7 +226,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         JiraResponseData jiraResponseData = jiraIssuesCache.get(clientId);
         if (jiraResponseData != null && jiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
         {
-            if (jiraResponseData.getStackCount().decrementAndGet() == 0)
+            if (jiraResponseData.decreaseStackCount() == 0)
             {
                 jiraIssuesCache.remove(clientId);
             }

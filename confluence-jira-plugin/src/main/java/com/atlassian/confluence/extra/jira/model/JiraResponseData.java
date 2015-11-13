@@ -62,8 +62,13 @@ public class JiraResponseData implements Serializable
         }
     }
 
-    public AtomicInteger getStackCount()
+    public int increaseStackCount()
     {
-        return stackCount;
+        return stackCount.incrementAndGet();
+    }
+
+    public int decreaseStackCount()
+    {
+        return stackCount.decrementAndGet();
     }
 }
