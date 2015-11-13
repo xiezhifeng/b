@@ -39,8 +39,8 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
 
     public void updateIssueLinksForEmbeddedMacros(final AbstractPage prevPage, final AbstractPage page)
     {
-        final Set<MacroDefinition> macros = getRemoteLinkMacros(page);
-        final Set<MacroDefinition> prevMacros = getRemoteLinkMacros(prevPage);
+        final Set<JiraIssueLinkMacro> macros = getRemoteLinkMacros(page);
+        final Set<JiraIssueLinkMacro> prevMacros = getRemoteLinkMacros(prevPage);
 
         updateRemoteLinks(page, Sets.difference(prevMacros, macros), OperationType.DELETE);
         updateRemoteLinks(page, Sets.difference(macros, prevMacros), OperationType.CREATE);
@@ -48,34 +48,46 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
 
     public void createIssueLinksForEmbeddedMacros(final AbstractPage page)
     {
-        final Set<MacroDefinition> macros = getRemoteLinkMacros(page);
+        final Set<JiraIssueLinkMacro> macros = getRemoteLinkMacros(page);
         updateRemoteLinks(page, macros, OperationType.CREATE);
     }
 
     public void deleteIssueLinksForEmbeddedMacros(final AbstractPage page)
     {
-        final Set<MacroDefinition> macros = getRemoteLinkMacros(page);
+        final Set<JiraIssueLinkMacro> macros = getRemoteLinkMacros(page);
         updateRemoteLinks(page, macros, OperationType.DELETE);
     }
 
-    private Set<MacroDefinition> getRemoteLinkMacros(AbstractPage page)
+    private Set<JiraIssueLinkMacro> getRemoteLinkMacros(AbstractPage page)
     {
+        Set<MacroDefinition> macroDefinitions;
+        Set<JiraIssueLinkMacro> remoteLinkMacros = Sets.newHashSet();
+
         try
         {
-            return macroFinderService.findJiraIssueMacros(page, JiraIssuePredicates.isSingleIssue);
+            macroDefinitions = macroFinderService.findJiraIssueMacros(page, JiraIssuePredicates.isSingleIssue);
         }
         catch(XhtmlException ex)
         {
             throw new IllegalStateException("Could not parse Create JIRA Issue macros", ex);
         }
+
+        for ( MacroDefinition macroDefinition : macroDefinitions )
+        {
+            remoteLinkMacros.add(new JiraIssueLinkMacro(macroDefinition));
+        }
+
+        return remoteLinkMacros;
     }
 
-    private void updateRemoteLinks(AbstractPage page, Iterable<MacroDefinition> macroDefinitions, OperationType operationType)
+    private void updateRemoteLinks(AbstractPage page, Iterable<JiraIssueLinkMacro> jiraIssueLinkMacros, OperationType operationType)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
 
-        for (MacroDefinition macroDefinition : macroDefinitions)
+        for (JiraIssueLinkMacro jiraIssueLinkMacro : jiraIssueLinkMacros)
         {
+            MacroDefinition macroDefinition = jiraIssueLinkMacro.getMacroDefinition();
+
             String defaultParam = macroDefinition.getDefaultParameterValue();
             String keyVal = macroDefinition.getParameters().get("key");
             String issueKey = defaultParam != null ? defaultParam : keyVal;
@@ -129,6 +141,51 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
         catch (CredentialsRequiredException e)
         {
             LOGGER.info("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
+        }
+    }
+
+    /**
+     * We use this class as a wrapper over MacroDefinition to ensure sensible behaviour when there are two links to the
+     * same issue on the page.
+     */
+    private class JiraIssueLinkMacro
+    {
+        private final MacroDefinition macroDefinition;
+        private final String issueKey;
+        private final String serverName;
+
+        JiraIssueLinkMacro(MacroDefinition macroDefinition) {
+            this.macroDefinition = macroDefinition;
+
+            String defaultParam = macroDefinition.getDefaultParameterValue();
+            String keyVal = macroDefinition.getParameters().get("key");
+            this.issueKey = defaultParam != null ? defaultParam : keyVal;
+
+            this.serverName = macroDefinition.getParameters().get("server");
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (!(obj instanceof JiraIssueLinkMacro))
+            {
+                return false;
+            }
+
+            JiraIssueLinkMacro macro = (JiraIssueLinkMacro) obj;
+
+            return this.issueKey.equals(macro.issueKey) && this.serverName.equals(macro.serverName);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return issueKey.hashCode() * serverName.hashCode();
+        }
+
+        public MacroDefinition getMacroDefinition()
+        {
+            return macroDefinition;
         }
     }
 }
