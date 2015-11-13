@@ -400,7 +400,7 @@
 
     <!-- JIRA SPRINT MACRO -->
     <xhtml-macro name='jirasprint' class='com.atlassian.confluence.plugins.sprint.JiraSprintMacro' key='jirasprint-xhtml'
-                 icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jirasprint.macro" hidden="true">
+                 icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jirasprint.macro">
         <description key="jira.sprint.macro.description"/>
         <category name="development"/>
         <parameters>
