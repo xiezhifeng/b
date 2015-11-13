@@ -113,7 +113,10 @@ public class JiraFilterService {
     private JsonObject createResultJsonObject(ClientId clientId, int statusCode, String data)
     {
         JsonObject responseDataJson = new JsonObject();
-        responseDataJson.addProperty("clientId", clientId.toString());
+        if (clientId != null)
+        {
+            responseDataJson.addProperty("clientId", clientId.toString());
+        }
         responseDataJson.addProperty("data", data);
         responseDataJson.addProperty("status", statusCode);
         return responseDataJson;
