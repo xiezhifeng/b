@@ -95,13 +95,13 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     private void waitUntilSprintBoardLoaded()
     {
-        PageElement boardOption = getPanelBodyDialog().find(By.cssSelector("select.jira-boards option[value]"));
-        Poller.waitUntil("Sprint Board selection field is not visible", boardOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible(), is(true));
+        PageElement boardOption = getContainerOfSelectedPanel().find(By.cssSelector("select.jira-boards"));
+        Poller.waitUntil("Sprint Board selection field is not visible", boardOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().hasClass("loading"), is(false));
     }
 
     private void waitUntilSprintLoaded()
     {
-        PageElement sprintOption = getPanelBodyDialog().find(By.cssSelector("select.jira-sprints option[value]"));
-        Poller.waitUntil("Sprint selection field is not visible", sprintOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible(), is(true));
+        PageElement sprintOption = getContainerOfSelectedPanel().find(By.cssSelector("select.jira-sprints"));
+        Poller.waitUntil("Sprint selection field is not visible", sprintOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().hasClass("loading"), is(false));
     }
 }

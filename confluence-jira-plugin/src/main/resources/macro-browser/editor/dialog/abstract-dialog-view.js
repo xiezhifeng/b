@@ -77,12 +77,7 @@ function(
         refresh: function() {
             // remove all tab content
             var $containerContent = this.$el.find('.dialog-main-content');
-            this.panels.each(function(panel) {
-                _.each(panel.get('tabs'), function(tab) {
-                    var $tabContainer = $containerContent.find('#' + tab.id);
-                    $tabContainer.empty();
-                }, this);
-            }, this);
+            $containerContent.find('.tabs-pane').empty();
 
             this._renderTabContainers();
 
@@ -101,6 +96,13 @@ function(
                 panels: this.panels.toJSON()
             });
             this.dialog = AJS.dialog2(dialogMarkup);
+
+            // fix flaky test - can not wait until blanket invisible
+            this.dialog.on('hide', function() {
+                _.delay(function() {
+                    $('.aui-blanket').remove();
+                }, 500);
+            });
 
             this.$el =  this.dialog.$el;
             this.el = this.$el[0];
@@ -139,28 +141,13 @@ function(
             this.panels.each(function(panel) {
                 _.each(panel.get('tabs'), function(tab) {
                     var $tabContainer = $containerContent.find('#' + tab.id);
-
-                    var PanelContentView = tab.PanelContentView;
-                    var tabContentView = new PanelContentView({
-                        macroId: panel.get('macroId')
-                    });
-
-                    // legacy code
-                    if (tabContentView.init) {
-                        tabContentView.init($tabContainer);
-                    } else {
-                        // new dialog/panel
-                        tabContentView.render({
-                            dialog: this
-                        });
-                        $tabContainer.append(tabContentView.$el);
-                    }
-
-                    tab.cachedView = tabContentView;
+                    this._createTabInstance(panel, tab, $tabContainer);
                 }, this);
             }, this);
 
             $containerContent.find('.menu-item a').on('tabSelect', this._handleTabSelect.bind(this));
+            // for write WD test
+            this.$el.removeClass('loading');
         },
 
         _fetchServersData: function() {
@@ -263,6 +250,15 @@ function(
             this.panels.setActiveForTabByTabId(newTabId, false);
 
             var currentNewTab = this.panels.getActiveTab();
+
+            if (currentNewTab.isAlwaysRefreshWhenActive) {
+                var currentPanel = this.panels.getSelectedPanel();
+                var $tabContainer = this.$el.find('#' + currentNewTab.id);
+                this._createTabInstance(currentPanel, currentNewTab, $tabContainer);
+                this.currentTabContentView = currentNewTab.cachedView;
+                return;
+            }
+
             this.currentTabContentView = currentNewTab.cachedView;
 
             // for dialog2
@@ -306,6 +302,31 @@ function(
             if (selectActive) {
                 AJS.tabs.change(this.$el.find('.menu-item[data-tab-id=' + selectActive.id + '] a'));
             }
+        },
+
+        _createTabInstance: function(panel, tab, $tabContainer) {
+            $tabContainer.empty();
+            var PanelContentView = tab.PanelContentView;
+            var tabContentView = new PanelContentView({
+                macroId: panel.get('macroId')
+            });
+
+            // new dialog/panel
+            if (tabContentView instanceof AbstractPanelView) {
+                tabContentView.render({
+                    dialog: this
+                });
+                $tabContainer.append(tabContentView.$el);
+            } else {
+                // legacy code
+                if (tabContentView.init) {
+                    tabContentView.init($tabContainer);
+                }
+            }
+
+            tab.cachedView = tabContentView;
+
+            return tabContentView;
         }
     }, {
         OPEN_DIALOG_SOURCE: {
