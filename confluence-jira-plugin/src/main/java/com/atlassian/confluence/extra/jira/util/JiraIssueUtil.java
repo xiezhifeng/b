@@ -205,7 +205,11 @@ public class JiraIssueUtil
         Set<String> keys = params.keySet();
         for(String key : keys)
         {
-            if(StringUtils.isNotBlank(key) && !JiraIssuesMacro.MACRO_PARAMS.contains(key))
+            if (StringUtils.isBlank(key) && params.get(key) != null && params.get(key).trim().startsWith("key"))
+            {
+                return params.get(key);
+            }
+            else if(StringUtils.isNotBlank(key) && !JiraIssuesMacro.MACRO_PARAMS.contains(key))
             {
                 return key.matches(POSITIVE_INTEGER_REGEX) ? params.get(key) : key + "=" + params.get(key);
             }

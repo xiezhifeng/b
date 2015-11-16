@@ -39,13 +39,13 @@ public class JiraIssuePredicates
         }
     });
 
-    public static Predicate<MacroDefinition> isTableIssue = Predicates.and(isJiraIssueMacro, new Predicate<MacroDefinition>()
+    public static Predicate<MacroDefinition> isTableIssue = Predicates.and(Predicates.not(isSingleIssue), new Predicate<MacroDefinition>()
     {
         @Override
         public boolean apply(MacroDefinition macroDefinition)
         {
             Map<String, String> parameters = macroDefinition.getParameters();
-            return StringUtils.isNotEmpty(parameters.get("jqlQuery")) && StringUtils.isEmpty(parameters.get("count"));
+            return StringUtils.isEmpty(parameters.get("count"));
         }
     });
 
