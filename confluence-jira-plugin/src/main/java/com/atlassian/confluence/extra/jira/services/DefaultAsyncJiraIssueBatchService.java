@@ -151,6 +151,10 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             }
             for (MacroDefinition macroDefinition : macros)
             {
+                if (macroDefinition.getDefaultParameterValue() != null)
+                {
+                    macroDefinition.getParameters().put("0", macroDefinition.getDefaultParameterValue());
+                }
                 jiraIssuesMacro.execute(macroDefinition.getParameters(), "", new DefaultConversionContext(entity.toPageContext()));
             }
         }
