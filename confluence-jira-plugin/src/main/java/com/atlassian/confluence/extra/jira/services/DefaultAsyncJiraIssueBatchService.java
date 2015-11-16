@@ -158,9 +158,10 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                                final ConversionContext conversionContext)
     {
         // allocate an empty space for response data in the cache
-        if(jiraIssuesCache.containsKey(clientId))
+        JiraResponseData existingJiraReponseData = jiraIssuesCache.get(clientId);
+        if (existingJiraReponseData != null)
         {
-            jiraIssuesCache.get(clientId).increaseStackCount();
+            existingJiraReponseData.increaseStackCount();
             return;
         }
         jiraIssuesCache.put(clientId, new JiraResponseData(serverId, keys.size()));
@@ -189,11 +190,13 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
     public void processRequestTable(final ClientId clientId, final Map<String, String> macroParams, Map<String, Object> contextMap, final ConversionContext conversionContext,
                                     final List<String> columnNames, final String url,
-                                    final ReadOnlyApplicationLink appLink) throws CredentialsRequiredException, IOException, ResponseException, MacroExecutionException
+                                    final ReadOnlyApplicationLink appLink,
+                                    final boolean forceAnonymous, final boolean useCache) throws CredentialsRequiredException, IOException, ResponseException, MacroExecutionException
     {
-        if(jiraIssuesCache.containsKey(clientId))
+        JiraResponseData existingJiraReponseData = jiraIssuesCache.get(clientId);
+        if (existingJiraReponseData != null)
         {
-            jiraIssuesCache.get(clientId).increaseStackCount();
+            existingJiraReponseData.increaseStackCount();
             return;
         }
         final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
@@ -206,7 +209,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             public Map<String, List<String>> call() throws Exception
             {
                 jiraIssuesMacro.registerTableRefreshContext(macroParams, renderingMapContext, conversionContext);
-                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, false, true);
+                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
                 jiraIssuesMacro.setupContextMapForStaticTable(renderingMapContext, channel, appLink);
                 String renderedTableHtml = jiraIssuesMacro.getRenderedTemplate(renderingMapContext, true, JiraIssuesMacro.JiraIssuesType.TABLE);
 

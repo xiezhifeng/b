@@ -21,11 +21,15 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             _.each(
                 htmlMacros,
                 function(htmlPlaceHolders, issueKey) {
-                    var $elsGroupByIssueKey = $elsGroupByServerKey.filter('[data-jira-key=' + issueKey + ']');
+                    var $elsGroupByIssueKey = $elsGroupByServerKey.filter('[data-jira-key="' + issueKey + '"]');
                     $elsGroupByIssueKey.each(function(index, jiraIssueEl) {
                         var $jiraElement = $(jiraIssueEl);
                         if ($jiraElement.hasClass('jira-table')) {
-                            jiraRefreshTableMacro.updateRefreshedElement($jiraElement, htmlPlaceHolders[index]);
+                            _.forEach(htmlPlaceHolders, function(htmlPlaceHolder) {
+                                if ($jiraElement.attr('data-client-id') == $(htmlPlaceHolder).attr('data-client-id')) {
+                                    jiraRefreshTableMacro.updateRefreshedElement($jiraElement, htmlPlaceHolder);
+                                }
+                            });
                         } else {
                             $jiraElement.replaceWith(htmlPlaceHolders[index]);
                         }
