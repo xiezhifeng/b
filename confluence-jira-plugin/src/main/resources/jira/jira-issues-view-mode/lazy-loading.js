@@ -26,8 +26,12 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
                         var $jiraElement = $(jiraIssueEl);
                         if ($jiraElement.hasClass('jira-table')) {
                             _.forEach(htmlPlaceHolders, function(htmlPlaceHolder) {
-                                if ($jiraElement.attr('data-client-id') == $(htmlPlaceHolder).attr('data-client-id')) {
-                                    jiraRefreshTableMacro.updateRefreshedElement($jiraElement, htmlPlaceHolder);
+                                var $htmlPlaceHolderElement = $(htmlPlaceHolder);
+                                if ($jiraElement.attr('data-client-id') == $htmlPlaceHolderElement.attr('data-client-id')) {
+                                    if (index > 0) {
+                                        $htmlPlaceHolderElement.attr("id", $htmlPlaceHolderElement.attr("id") + index);
+                                    }
+                                    jiraRefreshTableMacro.updateRefreshedElement($jiraElement, $htmlPlaceHolderElement[0].outerHTML);
                                 }
                             });
                         } else {

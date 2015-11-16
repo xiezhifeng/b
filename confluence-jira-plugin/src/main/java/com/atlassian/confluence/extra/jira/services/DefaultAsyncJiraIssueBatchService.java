@@ -112,6 +112,11 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     @Override
     public boolean reprocessRequest(final ClientId clientId) throws XhtmlException, MacroExecutionException
     {
+        //avoid any history back/forward with different user
+        if (!StringUtils.equals(clientId.getUserId(), JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get())))
+        {
+            return false;
+        }
         final StreamableJiraIssuesMacro jiraIssuesMacro = (StreamableJiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
 
         ContentEntityObject entity = contentEntityManager.getById(Long.valueOf(clientId.getPageId()));
@@ -140,7 +145,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             });
 
             List<MacroDefinition> macros = jiraMacroFinderService.findJiraMacros(entity, jqlTablePredicate);
-            if(CollectionUtils.isEmpty(macros))
+            if (CollectionUtils.isEmpty(macros))
             {
                 return false;
             }

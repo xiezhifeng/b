@@ -93,7 +93,7 @@ public class JiraFilterService {
                 }
                 else
                 {
-                    resultJsonObject = createResultJsonObject(clientId, Status.PRECONDITION_FAILED.getStatusCode(), String.format("Jira issues for client %s is not available", clientId));
+                    resultJsonObject = createResultJsonObject(clientId, Status.PRECONDITION_FAILED.getStatusCode(), String.format("Jira issues is not available"));
                 }
             }
             else if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
