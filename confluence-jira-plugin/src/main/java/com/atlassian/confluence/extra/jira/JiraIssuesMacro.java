@@ -21,6 +21,7 @@ import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
+import com.atlassian.confluence.extra.jira.model.ClientId;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
@@ -64,7 +65,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -744,9 +744,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                String clientId = UUID.randomUUID().toString();
+                ClientId clientId = ClientId.fromElement(appLink.getId().get(), conversionContext.getEntity().getIdAsString(),
+                        JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get()), String.valueOf(macroParams.get("jqlQuery")));
                 contextMap.put("clientId", clientId);
-                asyncJiraIssueBatchService.processRequestTable(clientId, macroParams, contextMap, conversionContext, columnNames, url, appLink);
+                asyncJiraIssueBatchService.processRequestTable(clientId, macroParams, contextMap, conversionContext, columnNames, url, appLink, forceAnonymous, useCache);
 
                 // Placeholder mode for table
                 contextMap.put("trustedConnection", false);

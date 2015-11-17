@@ -13,6 +13,7 @@ import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
+import com.atlassian.confluence.extra.jira.model.ClientId;
 import com.atlassian.confluence.plugins.jira.beans.MacroTableParam;
 import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
@@ -25,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -79,13 +79,22 @@ public class JiraFilterService {
         String[] clientIdArr = StringUtils.split(clientIds, ",");
         JsonArray clientIdJsons = new JsonArray();
         Status globalStatus = Status.OK;
-        for (String clientId : clientIdArr)
+        for (String clientIdString : clientIdArr)
         {
+            ClientId clientId = ClientId.fromClientId(clientIdString);
             JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(clientId);
             JsonObject resultJsonObject;
             if (jiraResponseData == null)
             {
-                resultJsonObject = createResultJsonObject(clientId, Status.PRECONDITION_FAILED.getStatusCode(), String.format("Jira issues for client %s is not available", clientId));
+                if (asyncJiraIssueBatchService.reprocessRequest(clientId))
+                {
+                    resultJsonObject = createResultJsonObject(clientId, Status.ACCEPTED.getStatusCode(), "");
+                    globalStatus = Status.ACCEPTED;
+                }
+                else
+                {
+                    resultJsonObject = createResultJsonObject(clientId, Status.PRECONDITION_FAILED.getStatusCode(), String.format("Jira issues is not available"));
+                }
             }
             else if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
             {
@@ -101,10 +110,13 @@ public class JiraFilterService {
         return Response.status(globalStatus).entity(clientIdJsons.toString()).build();
     }
 
-    private JsonObject createResultJsonObject(String clientId, int statusCode, String data)
+    private JsonObject createResultJsonObject(ClientId clientId, int statusCode, String data)
     {
         JsonObject responseDataJson = new JsonObject();
-        responseDataJson.addProperty("clientId", clientId);
+        if (clientId != null)
+        {
+            responseDataJson.addProperty("clientId", clientId.toString());
+        }
         responseDataJson.addProperty("data", data);
         responseDataJson.addProperty("status", statusCode);
         return responseDataJson;

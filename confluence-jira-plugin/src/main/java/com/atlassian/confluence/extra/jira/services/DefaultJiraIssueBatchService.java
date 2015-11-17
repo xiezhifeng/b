@@ -9,6 +9,7 @@ import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
+import com.atlassian.confluence.extra.jira.model.ClientId;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
@@ -58,7 +59,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @throws MacroExecutionException
      * @throws UnsupportedJiraServerException
      */
-    public Map<String, Object> getPlaceHolderBatchResults(String clientId, String serverId, Set<String> keys, ConversionContext conversionContext)
+    public Map<String, Object> getPlaceHolderBatchResults(ClientId clientId, String serverId, Set<String> keys, ConversionContext conversionContext)
             throws MacroExecutionException, UnsupportedJiraServerException
     {
         ReadOnlyApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
@@ -67,7 +68,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             // make request to JIRA and build results
             Map<String, Object> resultsMap = Maps.newHashMap();
             Map<String, Element> elementMap = Maps.newHashMap();
-            List<Element> entries = createPlaceHoldersList(clientId, keys);
+            List<Element> entries = createPlaceHoldersList(clientId.toString(), keys);
             for (Element item : entries)
             {
                 elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
