@@ -45,7 +45,7 @@ var RefreshMacro = {
         }
 
         var columnName = $(this).find(".jim-table-header-content").text();
-        var $refreshElement = $("#refresh-wiki-" + refeshId);
+        var $refreshElement = $(AJS.format("#refresh-module-{0} .refresh-wiki", refeshId));
         var wikiMakup =  $refreshElement.data('wikimarkup');
         var pageId = $refreshElement.data('pageid');
         var macroPanel = $("#refresh-" + refeshId);
@@ -231,7 +231,7 @@ RefreshWidget.getAll = function() {
 };
 
 RefreshWidget.prototype.getErrorMessagePanel = function() {
-    return $("#error-message-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .error-message", this.id));
 };
 
 RefreshWidget.prototype.removeDarkLayer = function() {
@@ -266,31 +266,31 @@ HeaderWidget.prototype.getPageId = function() {
     return $("#refresh-wiki-" + this.id).data('pageid');
 };
 RefreshWidget.prototype.getWikiMarkup = function() {
-    return $("#refresh-wiki-" + this.id).data('wikimarkup');
+    return $(AJS.format("#refresh-module-{0} .refresh-wiki", this.id)).data('wikimarkup');
 };
 
 RefreshWidget.prototype.getRefreshButton = function() {
-    return $("#refresh-issues-button-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .refresh-issues-button", this.id));
 };
 
 RefreshWidget.prototype.getLoadingButton = function() {
-    return $("#refresh-issues-loading-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .refresh-issues-loading", this.id));
 };
 
 HeaderWidget.prototype.getHeadersTable = function() {
-    return $("#jira-issues-" + this.id + " .jira-tablesorter-header");
+    return $(AJS.format("#refresh-module-{0} .jira-issues .jira-tablesorter-header", this.id));
 };
 
 RefreshWidget.prototype.getRefreshLink = function() {
-    return $("#refresh-issues-link-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .refresh-issues-link", this.id));
 };
 
 RefreshWidget.prototype.getJiraIssuesArea = function() {
-    return $("#jira-issues-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .jira-issues", this.id));
 };
 
 RefreshWidget.prototype.getIssuesCountArea = function() {
-    return $("#total-issues-count-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .total-issues-count", this.id));
 };
 
 RefreshWidget.prototype.updateRefreshVisibility = function(state) {

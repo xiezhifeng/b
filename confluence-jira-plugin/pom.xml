@@ -485,6 +485,7 @@
                             com.atlassian.renderer.v2.macro,
                             com.atlassian.sal.api.executor,
                             com.atlassian.sal.api.features,
+                            com.atlassian.sal.api.user,
                             com.atlassian.sal.api.net; version="2.10",
                             com.atlassian.user,
                             com.atlassian.util.concurrent; version="2.4",
