@@ -1,12 +1,14 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
 import it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper;
+
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.Iterables;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -69,7 +71,9 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         Iterable<PageElement> serverErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
     }
-    
+
+    @Ignore("CONFDEV-38148 fails intermittently in JiraMacroCreatePanelDialog.selectIssueType when the expected project and issue type are already selected")
+    @Test
     public void testDisplayUnsupportedFieldsMessage() throws Exception
     {
         jiraMacroCreatePanelDialog.selectProject("Special Project 1");
