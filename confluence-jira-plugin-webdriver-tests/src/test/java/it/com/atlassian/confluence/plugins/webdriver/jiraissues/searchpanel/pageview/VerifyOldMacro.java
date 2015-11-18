@@ -20,7 +20,7 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelTest
         createMacroPlaceholderFromQueryString(editPage, "{jiraissues:status=open|width=400|renderMode=dynamic}", OLD_JIRA_ISSUE_MACRO_NAME);
         editPage.getEditor().getContent().waitForInlineMacro(OLD_JIRA_ISSUE_MACRO_NAME);
         viewPage = editPage.save();
-        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
+        JiraIssuesPage jiraIssuesPage = pageBinder.bind(JiraIssuesPage.class);
         waitUntilTrue(jiraIssuesPage.getDynamicJiraIssueTable().timed().isVisible());
     }
 
