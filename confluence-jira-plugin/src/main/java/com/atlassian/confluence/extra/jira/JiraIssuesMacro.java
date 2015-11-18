@@ -46,6 +46,7 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.sal.api.features.DarkFeatureManager;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -89,9 +90,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      * @param jiraIssueSortingManager  see {@link com.atlassian.confluence.extra.jira.JiraIssueSortingManager}
      * @param jiraExceptionHelper      see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
      * @param localeManager            see {@link com.atlassian.confluence.languages.LocaleManager}
+     * @param darkFeatureManager       see {@link com.atlassian.sal.api.features.DarkFeatureManager}
      */
     public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager,
-                           AsyncJiraIssueBatchService asyncJiraIssueBatchService)
+                           AsyncJiraIssueBatchService asyncJiraIssueBatchService,
+                           DarkFeatureManager darkFeatureManager)
     {
         this.i18NBeanFactory = i18NBeanFactory;
         this.jiraIssuesManager = jiraIssuesManager;
@@ -108,6 +111,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.localeManager = localeManager;
         this.asyncJiraIssueBatchService = asyncJiraIssueBatchService;
+        this.darkFeatureManager = darkFeatureManager;
     }
 
     // This parameter to distinguish the placeholder & real data mode for jira table
@@ -196,6 +200,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private JiraIssueSortingManager jiraIssueSortingManager;
 
     private final AsyncJiraIssueBatchService asyncJiraIssueBatchService;
+
+    private final DarkFeatureManager darkFeatureManager;
 
     protected final JiraExceptionHelper jiraExceptionHelper;
 
@@ -734,7 +740,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             // only do lazy loading for table in this 2 output types & in desktop env
             boolean placeholder = isViewingOrPreviewing
                     && ConversionContextOutputDeviceType.DESKTOP.equals(conversionContext.getOutputDeviceType())
-                    && getBooleanProperty(conversionContext.getProperty(PARAM_PLACEHOLDER, true));
+                    && getBooleanProperty(conversionContext.getProperty(PARAM_PLACEHOLDER, true))
+                    && !darkFeatureManager.isFeatureEnabledForCurrentUser(AsyncJiraIssueBatchService.DARK_FEATURE_DISABLE_ASYNC_LOADING_KEY);
             contextMap.put(PARAM_PLACEHOLDER, placeholder);
             if (!placeholder)
             {
