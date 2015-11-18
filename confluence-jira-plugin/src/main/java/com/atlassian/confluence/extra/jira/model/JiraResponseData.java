@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class JiraResponseData implements Serializable
 {
     private static final long serialVersionUID = 68497944707542153L;
+    private transient final AtomicInteger stackCount;
     public enum Status {WORKING, COMPLETED}
 
     private Status status;
@@ -29,6 +30,7 @@ public class JiraResponseData implements Serializable
         htmlMacro = Maps.newConcurrentMap();
         status = Status.WORKING;
         numOfReceivedIssues = new AtomicInteger();
+        stackCount = new AtomicInteger(1);
     }
 
     public Status getStatus()
@@ -58,5 +60,15 @@ public class JiraResponseData implements Serializable
         {
             status = Status.COMPLETED;
         }
+    }
+
+    public int increaseStackCount()
+    {
+        return stackCount.incrementAndGet();
+    }
+
+    public int decreaseStackCount()
+    {
+        return stackCount.decrementAndGet();
     }
 }

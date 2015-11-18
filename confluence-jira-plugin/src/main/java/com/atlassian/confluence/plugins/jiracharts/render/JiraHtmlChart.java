@@ -13,7 +13,7 @@ import java.net.SocketTimeoutException;
 
 public abstract class JiraHtmlChart implements JiraChart
 {
-    protected ApplicationLinkService applicationLinkService;
+    protected ReadOnlyApplicationLinkService applicationLinkService;
 
     protected I18NBeanFactory i18NBeanFactory;
 
@@ -30,7 +30,7 @@ public abstract class JiraHtmlChart implements JiraChart
     {
         try
         {
-            ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(appId));
+            ReadOnlyApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(appId));
             ApplicationLinkRequest request = createRequest(applicationLink, Request.MethodType.GET, url);
             return new Gson().fromJson(request.execute(), getChartModelClass());
         }
@@ -59,7 +59,7 @@ public abstract class JiraHtmlChart implements JiraChart
      * @return applink's request
      * @throws com.atlassian.applinks.api.CredentialsRequiredException
      */
-    private ApplicationLinkRequest createRequest(ApplicationLink appLink, Request.MethodType methodType, String baseRestUrl) throws CredentialsRequiredException
+    private ApplicationLinkRequest createRequest(ReadOnlyApplicationLink appLink, Request.MethodType methodType, String baseRestUrl) throws CredentialsRequiredException
     {
         ApplicationLinkRequestFactory requestFactory;
         ApplicationLinkRequest request;

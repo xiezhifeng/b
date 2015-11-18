@@ -17,7 +17,7 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
      * @constructor
      */
     var FetchingJob = function(options) {
-        this.clientId = options.clientId;
+        this.clientIds = options.clientIds;
 
         var TICK = 1000;
 
@@ -49,16 +49,18 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
      * @returns {Object} a jQuery Deferred object
      */
     FetchingJob.prototype.fetchSingeJiraServer = function() {
-        var jimUrl = AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/clientId/{0}';
+        var jimUrl = AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/clientIds/';
         var promise = $.ajax({
-            type: 'GET',
-            url: AJS.format(jimUrl, this.clientId),
+            type: 'POST',
+            url: jimUrl,
+            data: this.clientIds,
+            contentType: 'application/json',
             cache: true
         });
 
         // we need to cache jira server id so that we know which Promise object is rejected later
         // and render error message
-        promise.clientId = this.clientId;
+        promise.clientIds = this.clientIds;
 
         return promise;
     };
@@ -70,7 +72,7 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
     FetchingJob.prototype.startJobWithRetry = function() {
         return retryCaller(
                 this.startJob, {
-                    name: this.clientId, // for logging
+                    name: this.clientIds, // for logging
                     delays: this.TICK_RETRIES,
                     context: this,
                     tester: function(dataOfAServer, successMessage, promise) {

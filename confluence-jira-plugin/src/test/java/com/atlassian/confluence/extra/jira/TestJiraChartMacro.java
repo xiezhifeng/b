@@ -31,9 +31,8 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.sal.api.net.ResponseException;
 
@@ -71,7 +70,7 @@ public class TestJiraChartMacro extends TestCase
 
     private Map<String, String> parameters;
 
-    @Mock private ApplicationLink applicationLink;
+    @Mock private ReadOnlyApplicationLink applicationLink;
 
     @Mock private ApplicationLinkRequestFactory requestFactory;
 
