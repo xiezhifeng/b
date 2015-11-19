@@ -27,7 +27,7 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
     {
         if (StringUtils.isNotEmpty(globalTestAppLinkId))
         {
-            ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
+            ApplinkHelper.deleteApplink(client, globalTestAppLinkId, ApplinkHelper.getAuthQueryString());
         }
         globalTestAppLinkId = "";
         super.tearDown();

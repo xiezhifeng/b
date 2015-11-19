@@ -17,7 +17,7 @@ public class JiraChartNoAppLinkTest extends AbstractJiraChartTest
     @BeforeClass
     public static void start() throws Exception
     {
-        String authArgs = getAuthQueryString();
+        String authArgs = ApplinkHelper.getAuthQueryString();
         doWebSudo(client);
 
         ApplinkHelper.removeAllAppLink(client, authArgs);
@@ -28,15 +28,15 @@ public class JiraChartNoAppLinkTest extends AbstractJiraChartTest
     @AfterClass
     public static void cleanup() throws Exception
     {
-        String authArgs = getAuthQueryString();
+        String authArgs = ApplinkHelper.getAuthQueryString();
         ApplinkHelper.removeAllAppLink(client, authArgs);
     }
 
     @Test
     public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
     {
-        String authArgs = getAuthQueryString();
-        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH, client, authArgs,  getBasicQueryString());
+        String authArgs = ApplinkHelper.getAuthQueryString();
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH, client, authArgs, ApplinkHelper.getBasicQueryString());
 
         // We need to refresh the editor so it can pick up the new applink configuration. We need to do
         // this now since the setUp() method already places us in the editor context

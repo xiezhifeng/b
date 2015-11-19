@@ -81,7 +81,7 @@ public class JiraChart extends AbstractJiraChartWithoutSavingTest
     {
         dialogPieChart = openPieChartAndSearch();
         dialogPieChart.openDisplayOption();
-        dialogPieChart.clickShowInforCheckbox();
+        dialogPieChart.clickShowInfoCheckbox();
         dialogPieChart.hasInfoBelowImage();
     }
 

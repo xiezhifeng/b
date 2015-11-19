@@ -7,14 +7,6 @@ import org.openqa.selenium.By;
 
 public class CreatedVsResolvedChartDialog extends AbstractJiraChartDialog
 {
-    public static final String CSS_JIRA_CHART_CONTENT_CREATEDVSRESOLVED = "#jira-chart-content-createdvsresolved";
-
-    @Override
-    public PageElement getPanelBodyDialog()
-    {
-        return find(CSS_JIRA_CHART_CONTENT_CREATEDVSRESOLVED);
-    }
-
     public PageElement getSelectedForPeriodElement()
     {
         return queryPageElement("#created-vs-resolved-chart-periodName");
@@ -34,7 +26,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartDialog
 
     public String getDaysPreviousError()
     {
-        return getPanelBodyDialog().find(By.cssSelector(".days-previous-error")).getText();
+        return getCurrentTabPanel().find(By.cssSelector(".days-previous-error")).getText();
     }
 
 

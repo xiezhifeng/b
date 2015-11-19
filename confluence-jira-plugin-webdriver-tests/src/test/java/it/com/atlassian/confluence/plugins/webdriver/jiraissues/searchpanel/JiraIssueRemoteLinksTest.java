@@ -15,6 +15,8 @@ import org.mortbay.util.UrlEncoded;
 import java.io.IOException;
 import java.util.List;
 
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+
 import static org.junit.Assert.assertTrue;
 
 public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
@@ -61,7 +63,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
             {
                 final JSONObject link = remoteLinks.getJSONObject(i);
                 final Long id = link.getLong("id");
-                final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink/" + id + getAuthQueryString();
+                final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink/" + id + ApplinkHelper.getAuthQueryString();
                 DeleteMethod m = new DeleteMethod(url);
 
                 int status = client.executeMethod(m);
@@ -77,7 +79,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
 
     private JSONArray getJiraRemoteLinks(String issueKey) throws IOException
     {
-        final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink" + getAuthQueryString();
+        final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink" + ApplinkHelper.getAuthQueryString();
         GetMethod m = new GetMethod(url);
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
         int status = client.executeMethod(m);

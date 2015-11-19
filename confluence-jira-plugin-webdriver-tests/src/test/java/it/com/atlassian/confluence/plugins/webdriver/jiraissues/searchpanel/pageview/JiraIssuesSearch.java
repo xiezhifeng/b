@@ -1,7 +1,5 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
-import java.io.IOException;
-
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
@@ -9,7 +7,6 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 
 import org.hamcrest.core.StringContains;
-import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +22,7 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
     {
         if (StringUtils.isNotEmpty(globalTestAppLinkId))
         {
-            ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
+            ApplinkHelper.deleteApplink(client, globalTestAppLinkId, ApplinkHelper.getAuthQueryString());
         }
         globalTestAppLinkId = "";
         super.tearDown();
@@ -61,7 +58,7 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
     {
         //create another primary applink
         String jiraURL = "http://jira.test.com";
-        String authArgs = getAuthQueryString();
+        String authArgs = ApplinkHelper.getAuthQueryString();
         globalTestAppLinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, true);
 
         JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/browse/TST-1", true);
@@ -73,7 +70,7 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
     {
         //create oath applink
         String jiraURL = "http://jira.test.com";
-        String authArgs = getAuthQueryString();
+        String authArgs = ApplinkHelper.getAuthQueryString();
         String appLinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, false);
         globalTestAppLinkId = appLinkId;
         ApplinkHelper.enableApplinkOauthMode(client, appLinkId, authArgs);

@@ -11,7 +11,6 @@ import com.atlassian.confluence.test.stateless.fixtures.SpaceFixture;
 import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -42,7 +41,7 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraTest
     @BeforeClass
     public static void init() throws Exception
     {
-        String authArgs = getAuthQueryString();
+        String authArgs = ApplinkHelper.getAuthQueryString();
         doWebSudo(client);
 
         if (!TestProperties.isOnDemandMode()) {
