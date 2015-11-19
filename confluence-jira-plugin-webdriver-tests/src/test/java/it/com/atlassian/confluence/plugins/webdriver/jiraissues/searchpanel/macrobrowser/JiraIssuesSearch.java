@@ -1,13 +1,13 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
