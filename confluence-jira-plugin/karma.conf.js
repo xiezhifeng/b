@@ -1,28 +1,29 @@
 // Karma configuration
 var dependencies = [
+    // essential libraries
     'bower_components/jquery/jquery.js',
     'bower_components/underscore/underscore.js',
     'bower_components/backbone/backbone.js',
 
+    {pattern: 'src/test/resources/js/mocks/*.js'},
+
+
+    // necessary aui vendors
     'bower_components/aui/src/js-vendor/jquery/plugins/jquery.select2.js',
     'bower_components/aui/src/js/polyfills/custom-event.js',
 
-    'bower_components/aui/src/js/aui/internal/deprecation.js',
     'bower_components/aui/src/js/aui/internal/animation.js',
     'bower_components/aui/src/js/aui.js',
     'bower_components/aui/src/js/format.js',
     'bower_components/aui/src/js/template.js',
 
     'bower_components/aui/src/js/keyCode.js',
-    'bower_components/aui/src/js/aui-dependencies.js',
-    'bower_components/aui/src/js/aui-experimental.js',
-    'bower_components/aui/src/js/aui-soy.js',
     'bower_components/aui/src/js/aui/internal/widget.js',
     'bower_components/aui/src/js/blanket.js',
+    'bower_components/aui/src/js/layer.js',
     'bower_components/aui/src/js/focus-manager.js',
     'bower_components/aui/src/js/layer-manager.js',
     'bower_components/aui/src/js/layer-manager-global.js',
-    'bower_components/aui/src/js/layer.js',
 
     'bower_components/aui/src/js/aui-select2.js',
     'bower_components/aui/src/js/dialog2.js',
@@ -36,7 +37,6 @@ var dependencies = [
     {pattern: 'src/main/resources/**/*.js', included: false},
     {pattern: 'src/test/resources/js/rest/*.js', included: false},
     {pattern: 'src/test/resources/js/pageobjects/*.js'},
-    {pattern: 'src/test/resources/js/mocks/*.js'},
     'src/test/resources/js/test-main.js'
 
     // Modules required by tests.

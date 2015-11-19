@@ -731,8 +731,8 @@
             use-java,8
             include-artifact,com.atlassian.confluence.plugins:confluence-jira-plugin-webdriver-tests
         </od.testing.configuration>
-        <aui.version>5.8.7</aui.version>
-        <soy.template.version>2.7.1</soy.template.version>
+        <aui.version>5.8.20</aui.version>
+        <soy.template.version>4.3.0</soy.template.version>
         <jquery.version>1.7.2</jquery.version>
     </properties>
 </project>

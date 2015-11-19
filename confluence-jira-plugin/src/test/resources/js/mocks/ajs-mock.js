@@ -28,6 +28,8 @@
 
     AJS.debug = function(msg) { return false; };
 
+    AJS.I18n = {};
+
     AJS.I18n.keys = {
         'inline.comments.resolved.menu.show.replies': '{0} replies',
         'inline.comments.resolved.menu.show.reply': '{0} reply',
@@ -54,21 +56,9 @@
     window.Confluence = window.Confluence || {};
     var Confluence = window.Confluence;
 
-   /* Confluence.Templates = Confluence.Templates || {};
-    Confluence.Templates.JiraIssueMacro = Confluence.Templates.JiraIssueMacro || {};
-    Confluence.Templates.JiraIssueMacro = Confluence.Templates.JiraIssueMacro || {};
-    Confluence.Templates.JiraIssueMacro.Dialog = Confluence.Templates.JiraIssueMacro.Dialog || {};
-    Confluence.Templates.JiraIssueMacro.Dialog.dialog = function() {
-        return '';
-    };
-
-    Confluence.Templates.JiraIssueMacro.Dialog.warningDialogNoAppLink = function() {
-        return '';
-    };
-
-    Confluence.Templates.JiraIssueMacro.Dialog.serverBoardSprintTemplate = function() {
-        return '';
-    };*/
+    AJS.deprecate = AJS.deprecate || {};
+    AJS.deprecate.getMessageLogger = function() {};
+    AJS.deprecate.prop = function() {};
 
     /*
      * Need to mock out MutationObserver because it is not supported in PhantomJS that's used by Karma test runner
