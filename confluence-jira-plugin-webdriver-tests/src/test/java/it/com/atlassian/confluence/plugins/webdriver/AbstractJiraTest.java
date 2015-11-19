@@ -292,6 +292,14 @@ public class AbstractJiraTest
 
     protected JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction) throws Exception
     {
+        EditContentPage editContentPage = addJiraIssueMacroToPage(jql, withPasteAction);
+
+        editContentPage.save();
+        return bindCurrentPageToJiraIssues();
+    }
+
+    protected EditContentPage addJiraIssueMacroToPage(String jql, boolean withPasteAction) throws Exception
+    {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         if (withPasteAction)
         {
@@ -306,8 +314,8 @@ public class AbstractJiraTest
 
         EditContentPage editContentPage = jiraMacroSearchPanelDialog.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        editContentPage.save();
-        return bindCurrentPageToJiraIssues();
+
+        return editContentPage;
     }
 
     protected JiraIssuesPage bindCurrentPageToJiraIssues()
