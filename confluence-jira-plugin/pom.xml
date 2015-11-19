@@ -444,7 +444,6 @@
                             com.atlassian.integration.jira,
                             com.atlassian.integration.jira.applinks,
 
-                            com.atlassian.gzipfilter.org.apache.commons.lang,
                             com.atlassian.plugin,
                             com.atlassian.plugin.osgi.bridge.external,
                             com.atlassian.plugin.predicate,
