@@ -32,6 +32,7 @@ public interface JiraMacroFinderService
      * @param conversionContext the associated Conversion Context
      * @return the list of MacroDefinition instances represent the macro markups for single JIRA issues
      * @throws XhtmlException
+     * @deprecated in 5.7.10. Use {@link #findJiraMacros(ContentEntityObject, Predicate)} instead.
      */
     @Deprecated
     List<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext conversionContext) throws XhtmlException;

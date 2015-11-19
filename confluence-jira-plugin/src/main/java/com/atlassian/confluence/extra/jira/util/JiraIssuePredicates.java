@@ -7,6 +7,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class JiraIssuePredicates
@@ -37,12 +38,25 @@ public class JiraIssuePredicates
         @Override
         public boolean apply(MacroDefinition macroDefinition)
         {
-            String defaultParam = macroDefinition.getDefaultParameterValue();
-            java.util.Map<String, String> parameters = macroDefinition.getParameters();
-            return (defaultParam != null && ISSUE_KEY_PATTERN.matcher(defaultParam).matches()) ||
-                    (parameters != null && parameters.get("key") != null);
+            Map<String, String> parameters = macroDefinition.getParameters();
+            String issueKey = JiraUtil.getSingleIssueKey(parameters);
+            if (StringUtils.isNotEmpty(issueKey))
+            {
+                macroDefinition.setParameter(JiraIssuesMacro.KEY, issueKey);
+                return true;
+            }
+            return false;
         }
     });
 
+    public static Predicate<MacroDefinition> isTableIssue = Predicates.and(Predicates.not(isSingleIssue), new Predicate<MacroDefinition>()
+    {
+        @Override
+        public boolean apply(MacroDefinition macroDefinition)
+        {
+            Map<String, String> parameters = macroDefinition.getParameters();
+            return StringUtils.isEmpty(parameters.get("count"));
+        }
+    });
 
 }

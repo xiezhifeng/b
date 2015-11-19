@@ -2,12 +2,14 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     'jquery',
     'ajs',
     'underscore',
-    'confluence/jim/jira/jira-issues-view-mode/fetching-job'
+    'confluence/jim/jira/jira-issues-view-mode/fetching-job',
+    'confluence/jim/jira/jira-issues-view-mode/refresh-table'
 ], function(
     $,
     AJS,
     _,
-    FetchingJob
+    FetchingJob,
+    jiraRefreshTableMacro
 ) {
     'use strict';
 
@@ -19,11 +21,22 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             _.each(
                 htmlMacros,
                 function(htmlPlaceHolders, issueKey) {
-
-                    var $elsGroupByIssueKey = $elsGroupByServerKey.filter('[data-issue-key=' + issueKey + ']');
-
+                    var $elsGroupByIssueKey = $elsGroupByServerKey.filter('[data-jira-key="' + issueKey + '"]');
                     $elsGroupByIssueKey.each(function(index, jiraIssueEl) {
-                        $(jiraIssueEl).replaceWith(htmlPlaceHolders[index]);
+                        var $jiraElement = $(jiraIssueEl);
+                        if ($jiraElement.hasClass('jira-table')) {
+                            _.forEach(htmlPlaceHolders, function(htmlPlaceHolder) {
+                                var $htmlPlaceHolderElement = $(htmlPlaceHolder);
+                                if ($jiraElement.attr('data-client-id') == $htmlPlaceHolderElement.attr('data-client-id')) {
+                                    if (index > 0 && $htmlPlaceHolderElement.attr("id")) {
+                                        $htmlPlaceHolderElement.attr("id", $htmlPlaceHolderElement.attr("id") + index);
+                                    }
+                                    jiraRefreshTableMacro.updateRefreshedElement($jiraElement, $htmlPlaceHolderElement[0].outerHTML);
+                                }
+                            });
+                        } else {
+                            $jiraElement.replaceWith(htmlPlaceHolders[index]);
+                        }
                     });
             });
         },
@@ -34,30 +47,35 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @param ajaxErrorMessage
          */
         renderUISingleJIMInErrorCase: function($elsGroupByServerKey, ajaxErrorMessage) {
-            var errorMessage = AJS.I18n.getText('jiraissues.unexpected.error');
+            var errorJimClass = ['aui-message', 'aui-message-warning', 'jim-error-message'];
+            var errorMessage = AJS.I18n.getText('jiraissues.unexpected.error') + ' ' + ajaxErrorMessage;
 
-            $elsGroupByServerKey.find('.summary').text(errorMessage + ' ' + ajaxErrorMessage);
-            $elsGroupByServerKey.find('.jira-status').remove();
-            $elsGroupByServerKey.find('.issue-placeholder').remove();
-            $elsGroupByServerKey.find('.aui-icon-wait').remove();
-
-            var errorJimClass = 'aui-message aui-message-warning ' +
-                    'jim-error-message jim-error-message-single ';
-
+            if ($elsGroupByServerKey.hasClass('jira-table')) {
+                errorJimClass.push('jim-error-message-table');
+                jiraRefreshTableMacro.updateRefreshedElement($elsGroupByServerKey, errorMessage);
+            } else {
+                errorJimClass.push('jim-error-message-single');
+                $elsGroupByServerKey.find('.summary').text(errorMessage);
+                $elsGroupByServerKey.find('.jira-status').remove();
+                $elsGroupByServerKey.find('.issue-placeholder').remove();
+                $elsGroupByServerKey.find('.aui-icon-wait').remove();
+            }
             $elsGroupByServerKey
-                    .removeClass('jira-issue')
-                    .addClass(errorJimClass);
+                .removeClass('jira-issue jira-table')
+                .addClass(errorJimClass.join(' '));
         }
     };
 
     var ajaxHandlers = {
-        /**
-         * Callback for success ajax
-         * @param data
-         */
-        handleSuccessAjax: function(data, status, promise) {
-            var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + promise.clientId + ']');
-            ui.renderUISingleJIMFromMacroHTML(data.htmlMacro, $elsGroupByServerKey);
+        handleAjaxSuccess: function(data, status, promise) {
+            _.each(data, function(clientData) {
+                var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id="' + clientData.clientId + '"]');
+                if (clientData.status === 200) {
+                    ui.renderUISingleJIMFromMacroHTML(JSON.parse(clientData.data).htmlMacro, $elsGroupByServerKey);
+                } else if (clientData.status !== 202) {
+                    ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, clientData.data);
+                }
+            });
         },
 
         /**
@@ -65,9 +83,12 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @param promise
          * @param ajaxErrorMessage
          */
-        handleErrorAjaxCB: function(promise, ajaxErrorMessage) {
-            var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + promise.clientId + ']');
-            ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
+        handleAjaxError: function(promise, ajaxErrorMessage) {
+            var clientIdErrors = promise.clientIds.split(',');
+            _.each(clientIdErrors, function(clientId) {
+                var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id="' + clientId + '"]');
+                ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
+            });
         }
     };
 
@@ -95,14 +116,12 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             var clientIds = util.findAllClientIdInPageContent();
             var jobs = [];
 
-            _.each(clientIds, function(clientId) {
-
-                var job = new FetchingJob({
-                    clientId: clientId
-                });
-
-                jobs.push(job);
+            var job = new FetchingJob({
+                clientIds: clientIds.join(',')
             });
+            if (job.clientIds) {
+                jobs.push(job);
+            }
 
             return jobs;
         }
@@ -125,14 +144,23 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
 
             jobs.forEach(function(job) {
                 job.startJobWithRetry()
-                    .done(ajaxHandlers.handleSuccessAjax)
                     .fail(function(promise, error, ajaxErrorMessage) {
-                        ajaxHandlers.handleErrorAjaxCB(promise, ajaxErrorMessage);
+                        ajaxHandlers.handleAjaxError(promise, ajaxErrorMessage);
                     })
                     .always(function() {
                         if (++counter === totalNumberOfRequests) {
                             mainDefer.resolve();
                         }
+                    })
+                    .progress(function(data, status, promise) {
+                        ajaxHandlers.handleAjaxSuccess.apply(this, arguments);
+                        var remainingClientIds = _.reduce(data, function(clientIds, item) {
+                            if(item.status == 202) {
+                                clientIds.push(item.clientId)
+                            }
+                            return clientIds;
+                        }, []);
+                        job.clientIds = remainingClientIds.join(',');
                     });
             });
 
@@ -146,7 +174,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @return {Object} a Promise object
          */
         init: function() {
-            $jiraIssuesEls = $('.wiki-content .jira-issue[data-client-id]');
+            $jiraIssuesEls = $('.wiki-content [data-jira-key][data-client-id]');
             return core.loadOneByOneJiraServerStrategy();
         }
     };

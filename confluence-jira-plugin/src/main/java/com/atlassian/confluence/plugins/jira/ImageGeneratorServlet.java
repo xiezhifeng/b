@@ -6,10 +6,10 @@ import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

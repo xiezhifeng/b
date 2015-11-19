@@ -1,7 +1,6 @@
 #* @vtlvariable name="xmlXformer" type="com.atlassian.confluence.extra.jira.JiraIssuesXmlTransformer" *#
 #* @vtlvariable name="generalUtil" type="com.atlassian.confluence.util.GeneralUtil" *#
 #* @vtlvariable name="jiraIssuesColumnManager" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager" *#
-#* @vtlvariable name="jiraIssuesDateFormatter" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter" *#
 #* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
 #if($pdfExport)
@@ -61,7 +60,7 @@
         }
     </style>
 #end
-<div id="refresh-module-$refreshId" class="refresh-module-id">
+<div id="refresh-module-$refreshId" class="refresh-module-id jira-table" #if($clientId) data-client-id="$clientId" data-jira-key="issue-table-$clientId" #end>
     <p>
         #if ($placeholder || ($enableRefresh && !$singleIssueTable))
             <div id="refresh-$refreshId" class="refresh-macro">
@@ -92,7 +91,7 @@
             #set($heightStyle = "height: " + $generalUtil.htmlEncode($height) + "px;")
         #end
 
-        <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
+        <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;" class="jira-issues">
             <table class="aui" #if($email) style="padding:5px !important;vertical-align: top;"#end>
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
@@ -229,7 +228,7 @@
         #if ($placeholder || !$singleIssueTable)
             <div class="refresh-issues-bottom">
                 #if ($totalIssues)
-                    <span id="total-issues-count-$refreshId">
+                    <span id="total-issues-count" class="total-issues-count">
                         #if ($totalIssues == 0)
                             <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">
                                 <span>$i18n.getText("jiraissues.noresult")</span>
@@ -250,11 +249,11 @@
                 #end
                 #if ($placeholder || $enableRefresh)
                     <span class="refresh-action-group">
-                        <div id="refresh-issues-loading-$refreshId" class="button-spinner hidden"></div>
-                        <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
-                        <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$i18n.getText("jiraissues.refresh")</a>
+                        <div id="refresh-issues-loading-$refreshId" class="button-spinner hidden refresh-issues-loading"></div>
+                        <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action refresh-issues-button" rel="nofollow"></a>
+                        <a id="refresh-issues-link-$refreshId" class="refresh-action refresh-issues-link" rel="nofollow">$i18n.getText("jiraissues.refresh")</a>
                         <span id="error-message-$refreshId" class="error-message hidden"></span>
-                        <input type="hidden" id="refresh-wiki-$refreshId" data-wikimarkup="$generalUtil.htmlEncode($wikiMarkup)" data-pageid="$contentId" />
+                        <input type="hidden" class="refresh-wiki" id="refresh-wiki-$refreshId" data-wikimarkup="$generalUtil.htmlEncode($wikiMarkup)" data-pageid="$contentId" />
                     </span>
                 #end
             </div>

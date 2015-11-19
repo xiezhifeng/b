@@ -52,6 +52,7 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelTest
         createMacroPlaceholderFromQueryString(editPage, "{jiraissues:key=TP-1|showSummary=false}", OLD_JIRA_ISSUE_MACRO_NAME);
 
         ViewPage viewPage = editPage.save();
+        Poller.waitUntil(viewPage.getRenderedContent().getTextTimed(), Matchers.containsString("OPEN"));
         Poller.waitUntil(viewPage.getRenderedContent().getTextTimed(), Matchers.not(Matchers.containsString("Bug 01")));
     }
 }

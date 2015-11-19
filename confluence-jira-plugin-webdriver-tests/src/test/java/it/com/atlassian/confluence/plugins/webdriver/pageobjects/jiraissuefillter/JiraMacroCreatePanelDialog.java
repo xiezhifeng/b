@@ -21,6 +21,8 @@ import static org.hamcrest.Matchers.is;
 
 public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
 {
+    protected static final By BY_JIRA_ERROR_MESSAGE_SELECTOR = By.cssSelector(".create-issue-container .warning");
+
     @ElementBy(className = "create-issue-container")
     protected PageElement createIssueContainer;
 
@@ -29,9 +31,6 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
 
     @ElementBy(cssSelector = "div[data-jira-type=components] > .select2-container", timeoutType = SLOW_PAGE_LOAD)
     protected PageElement components;
-
-    @ElementBy(cssSelector = ".create-issue-container .warning")
-    protected PageElement jiraErrorMessages;
 
     @ElementBy(cssSelector = "div[data-jira-type=\"com.pyxis.greenhopper.jira:gh-epic-label\"] > input[type=text]")
     protected PageElement epicField;
@@ -103,7 +102,7 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
 
     public TimedQuery<String> getJiraErrorMessages()
     {
-        return jiraErrorMessages.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText();
+        return getDialog().find(BY_JIRA_ERROR_MESSAGE_SELECTOR).withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText();
     }
 
     public Iterable<PageElement> getFieldErrorMessages()

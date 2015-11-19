@@ -1,26 +1,41 @@
 package com.atlassian.confluence.plugins.jira;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
+import com.atlassian.confluence.content.render.xhtml.Renderer;
+import com.atlassian.confluence.extra.jira.DefaultJiraCacheManager;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
+import com.atlassian.confluence.extra.jira.model.ClientId;
+import com.atlassian.confluence.plugins.jira.beans.MacroTableParam;
+import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 
 /**
  * This service request jira server to get JQL by save filter id
@@ -32,44 +47,101 @@ import javax.ws.rs.core.Response;
 @AnonymousAllowed
 public class JiraFilterService {
 
-    private ApplicationLinkService appLinkService;
-
+    private ReadOnlyApplicationLinkService appLinkService;
     private JiraIssuesManager jiraIssuesManager;
-
     private AsyncJiraIssueBatchService asyncJiraIssueBatchService;
 
-    public JiraFilterService(ApplicationLinkService appLinkService, JiraIssuesManager jiraIssuesManager, AsyncJiraIssueBatchService asyncJiraIssueBatchService)
+    private Renderer viewRenderer;
+
+    public JiraFilterService(ReadOnlyApplicationLinkService appLinkService, JiraIssuesManager jiraIssuesManager, AsyncJiraIssueBatchService asyncJiraIssueBatchService,
+                             Renderer viewRenderer)
     {
         this.appLinkService = appLinkService;
         this.jiraIssuesManager = jiraIssuesManager;
         this.asyncJiraIssueBatchService = asyncJiraIssueBatchService;
+
+        this.viewRenderer = viewRenderer;
     }
 
     /**
      * get rendered macro in HTML format
-     * @param clientId Id for one or group of jira-issue
+     * @param clientIds Ids for one or group of jira-issue
      * @return JiraResponseData in JSON format
      * @throws Exception
      */
-    @GET
-    @Path("clientId/{clientId}")
+    @POST
+    @Path("clientIds")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @AnonymousAllowed
-    public Response getRenderIssueMacro(@PathParam("clientId") String clientId) throws Exception
+    public Response getRenderedJiraMacros(@Nonnull String clientIds) throws Exception
     {
-        JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(clientId);
-
-        if (jiraResponseData == null)
+        String[] clientIdArr = StringUtils.split(clientIds, ",");
+        JsonArray clientIdJsons = new JsonArray();
+        Status globalStatus = Status.OK;
+        for (String clientIdString : clientIdArr)
         {
-            return Response.ok(String.format("Jira issues for this client %s is not available", clientId)).status(Response.Status.PRECONDITION_FAILED).build();
+            ClientId clientId = ClientId.fromClientId(clientIdString);
+            JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(clientId);
+            JsonObject resultJsonObject;
+            if (jiraResponseData == null)
+            {
+                if (asyncJiraIssueBatchService.reprocessRequest(clientId))
+                {
+                    resultJsonObject = createResultJsonObject(clientId, Status.ACCEPTED.getStatusCode(), "");
+                    globalStatus = Status.ACCEPTED;
+                }
+                else
+                {
+                    resultJsonObject = createResultJsonObject(clientId, Status.PRECONDITION_FAILED.getStatusCode(), String.format("Jira issues is not available"));
+                }
+            }
+            else if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
+            {
+                resultJsonObject = createResultJsonObject(clientId, Status.ACCEPTED.getStatusCode(), "");
+                globalStatus = Status.ACCEPTED;
+            }
+            else
+            {
+                resultJsonObject = createResultJsonObject(clientId, Status.OK.getStatusCode(), new Gson().toJson(jiraResponseData));
+            }
+            clientIdJsons.add(resultJsonObject);
         }
+        return Response.status(globalStatus).entity(clientIdJsons.toString()).build();
+    }
 
-        if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
+    private JsonObject createResultJsonObject(ClientId clientId, int statusCode, String data)
+    {
+        JsonObject responseDataJson = new JsonObject();
+        if (clientId != null)
         {
-            return Response.ok().status(Response.Status.ACCEPTED).build();
+            responseDataJson.addProperty("clientId", clientId.toString());
         }
-        return Response.ok(new Gson().toJson(jiraResponseData)).build();
+        responseDataJson.addProperty("data", data);
+        responseDataJson.addProperty("status", statusCode);
+        return responseDataJson;
+    }
+
+    /**
+     * get rendered macro HTML format
+     * @param macroTableParam request parameter
+     * @return html data as String
+     * @throws Exception
+     */
+    @POST
+    @Path("renderTable")
+    @Consumes({ MediaType.APPLICATION_JSON})
+    @Produces({ MediaType.APPLICATION_JSON})
+    @AnonymousAllowed
+    public Response getRenderedJiraMacroTable(MacroTableParam macroTableParam) throws Exception
+    {
+        ConversionContext conversionContext = new DefaultConversionContext(new PageContext());
+        conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, macroTableParam.getClearCache());
+        conversionContext.setProperty("orderColumnName", macroTableParam.getColumnName());
+        conversionContext.setProperty("order", macroTableParam.getOrder());
+        conversionContext.setProperty(JiraIssuesMacro.PARAM_PLACEHOLDER, Boolean.FALSE);
+        String htmlTableContent =  viewRenderer.render(URLDecoder.decode(macroTableParam.getWikiMarkup(), Charset.defaultCharset().name()), conversionContext);
+        return Response.ok(createResultJsonObject(null, Response.Status.OK.getStatusCode(), htmlTableContent).toString()).build();
     }
 
     /**
@@ -83,7 +155,7 @@ public class JiraFilterService {
     @Path("appLink/{appLinkId}/filter/{filterId}")
     public Response getJiraFilterObject(@PathParam("appLinkId") String appLinkId, @PathParam("filterId") String filterId) throws TypeNotInstalledException
     {
-        ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appLinkId));
+        ReadOnlyApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appLinkId));
         if (appLink != null) {
 
             try {

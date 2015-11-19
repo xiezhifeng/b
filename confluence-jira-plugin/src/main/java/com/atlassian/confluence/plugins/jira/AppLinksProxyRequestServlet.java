@@ -1,6 +1,5 @@
 package com.atlassian.confluence.plugins.jira;
 
-import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.sal.api.net.Request.MethodType;
 
