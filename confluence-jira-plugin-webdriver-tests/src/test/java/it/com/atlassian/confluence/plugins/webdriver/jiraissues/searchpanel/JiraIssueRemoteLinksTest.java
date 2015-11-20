@@ -1,6 +1,9 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
+import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
+import com.atlassian.confluence.webdriver.pageobjects.page.content.Editor;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONArray;
@@ -8,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mortbay.util.MultiMap;
 import org.mortbay.util.UrlEncoded;
@@ -16,6 +20,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
 {
@@ -51,6 +56,58 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
         assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
     }
+
+    @Test
+    public void testRemoteLinksAreDeletedWhenMacroIsRemoved() throws Exception
+    {
+        // Reset the page from any previous tests
+        editPage.getEditor().clickSaveAndWaitForPageChange();
+        gotoEditTestPage(user.get());
+
+        final ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
+        final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
+
+        // Check link was created
+        assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+
+        Editor editorPage = viewPage.edit().getEditor();
+        editorPage.getContent().setContent("");
+        editorPage.clickSaveAndWaitForPageChange();
+
+        // Check link was deleted
+        final JSONArray updatedRemoteLinks = getJiraRemoteLinks("TP-1");
+        assertFalse("Page with id '" + viewPage.getPageId() + "' should not be not found in " + updatedRemoteLinks, containsLinkWithPageId(updatedRemoteLinks, String.valueOf(viewPage.getPageId())));
+    }
+
+    @Test
+    public void testRemoteLinksAreNotDeletedWhenOnlyOneMacroIsRemoved() throws Exception
+    {
+        // Reset the page from any previous tests
+        editPage.getEditor().clickSaveAndWaitForPageChange();
+        gotoEditTestPage(user.get());
+
+        // Add two macros to the page
+        addJiraIssueMacroToPage("TP-1", false);
+        EditContentPage editContentPage = addJiraIssueMacroToPage("TP-1", false);
+
+        editContentPage.save();
+        JiraIssuesPage viewPage = bindCurrentPageToJiraIssues();
+
+        // Check link was created
+        final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
+        assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+
+        // Delete one of the macros
+        Editor editorPage = viewPage.edit().getEditor();
+        editorPage.getContent().selectFirstElementWithSelector("img[data-macro-name=\"jira\"]");
+        editorPage.getContent().replaceCurrentSelectionText("");
+        editContentPage.getEditor().clickSaveAndWaitForPageChange();
+
+        // Check link was deleted
+        final JSONArray updatedRemoteLinks = getJiraRemoteLinks("TP-1");
+        assertTrue("Page with id '" + viewPage.getPageId() + "' should not be found in " + updatedRemoteLinks, containsLinkWithPageId(updatedRemoteLinks, String.valueOf(viewPage.getPageId())));
+    }
+
 
     private void deleteRemoteLinks(String issueKey) throws IOException
     {
