@@ -2,6 +2,8 @@ package com.atlassian.confluence.plugins.jira.links;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
 import com.atlassian.confluence.json.json.Json;
@@ -20,7 +22,7 @@ public class JiraRemoteSprintLinkManager extends JiraRemoteLinkManager
     private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteSprintLinkManager.class);
 
     public JiraRemoteSprintLinkManager(
-            ApplicationLinkService applicationLinkService,
+            ReadOnlyApplicationLinkService applicationLinkService,
             HostApplication hostApplication,
             SettingsManager settingsManager,
             JiraMacroFinderService macroFinderService,
@@ -42,8 +44,7 @@ public class JiraRemoteSprintLinkManager extends JiraRemoteLinkManager
     public boolean createLinkToSprint(AbstractPage page, String applinkId, String sprintId, String fallbackUrl, final String creationToken)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
-        ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
-                "Failed to create a remote link to sprint '" + sprintId + "' for the application '" + applinkId + "'.");
+        ReadOnlyApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl);
         if (applicationLink != null)
         {
             return createRemoteSprintLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), sprintId, creationToken);
@@ -57,7 +58,7 @@ public class JiraRemoteSprintLinkManager extends JiraRemoteLinkManager
         }
     }
 
-    private boolean createRemoteSprintLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId, final String creationToken)
+    private boolean createRemoteSprintLink(final ReadOnlyApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId, final String creationToken)
     {
         final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
         final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelinkchecked";

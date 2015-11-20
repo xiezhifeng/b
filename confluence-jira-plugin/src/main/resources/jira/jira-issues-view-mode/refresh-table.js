@@ -1,4 +1,11 @@
-(function($) {
+define('confluence/jim/jira/jira-issues-view-mode/refresh-table', [
+    'jquery',
+    'ajs'
+], function(
+    $,
+    AJS
+) {
+    'use strict';
 
 var RefreshMacro = {
     REFRESH_STATE_STARTED: 1,
@@ -16,8 +23,10 @@ var RefreshMacro = {
             widget.getRefreshButton().bind("click", refresh, RefreshMacro.handleRefreshClick);
             widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
 
-            // submit the loading table asynchronously - always use cache here
-            RefreshMacro.processRefreshWithData(refresh, false);
+            //Display spinner if widget is a placeholder
+            if (widget.getContentModule().is('[data-client-id]')) {
+                RefreshMacro.processRefreshWaiting(refresh);
+            }
         });
         HeaderWidget.getAll().each(function() {
             RefreshMacro.registerSort(this.getSortable());
@@ -28,7 +37,7 @@ var RefreshMacro = {
         });
     },
     onHeaderClick: function(e) {
-        refeshId = e.data.id;
+        var refeshId = e.data.id;
 
         var order = "ASC";
         if ($(this).hasClass("tablesorter-headerAsc")) {
@@ -36,7 +45,7 @@ var RefreshMacro = {
         }
 
         var columnName = $(this).find(".jim-table-header-content").text();
-        var $refreshElement = $("#refresh-wiki-" + refeshId);
+        var $refreshElement = $(AJS.format("#refresh-module-{0} .refresh-wiki", refeshId));
         var wikiMakup =  $refreshElement.data('wikimarkup');
         var pageId = $refreshElement.data('pageid');
         var macroPanel = $("#refresh-" + refeshId);
@@ -45,6 +54,22 @@ var RefreshMacro = {
         var useCache = false;
         refreshWiget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
         RefreshMacro.processRefresh(refresh, useCache, columnName, order);
+    },
+
+    updateRefreshedElement: function($tableElement, replacedTableHtml) {
+        var refreshOldId = $tableElement.attr("id").replace("refresh-module-", "");
+        var $replacedTableElement = $(replacedTableHtml);
+        var refreshNewId = $replacedTableElement.attr("id") && $replacedTableElement.attr("id").replace("refresh-module-", "") || undefined;
+        $.each(this.refreshs, function(i, refresh) {
+            if (refresh.id === refreshOldId) {
+                if(refreshNewId) {
+                    RefreshWidget.get(refresh.id).getContentModule().replaceWith(replacedTableHtml);
+                    new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
+                } else {
+                    new RefreshMacro.CallbackSupport(refresh).errorHandler(replacedTableHtml);
+                }
+            }
+        });
     },
     replaceRefresh: function(oldId, newId) {
         var widget = RefreshWidget.get(oldId);
@@ -79,29 +104,33 @@ var RefreshMacro = {
         RefreshMacro.sortables.push(sort);
     },
     processRefreshWithData: function(refresh, clearCache) {
+        this.processRefreshWaiting(refresh, clearCache);
+        RefreshMacro.processRefresh(refresh, clearCache);
+    },
+    processRefreshWaiting: function(refresh) {
         var widget = RefreshWidget.get(refresh.id);
         widget.getMacroPanel().html(refresh.loadingMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
-        RefreshMacro.processRefresh(refresh, clearCache);
     },
     handleRefreshClick: function(e) {
         // always clear cache here
         RefreshMacro.processRefreshWithData(e.data, true);
     },
     processRefresh: function(refresh, clearCache, columnName, order) {
-        var data = {};
-        if (arguments.length == 2) {
-            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki, clearCache: clearCache};
-        } else if (arguments.length == 4) {
-            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki, clearCache: clearCache, columnName:columnName, order:order};
-        }
         AJS.$.ajax({
             type: "POST",
-            dataType: "html",
-            url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
-            data: data,
-            success: function(reply, textStatus) {
+            dataType: "json",
+            contentType: "application/json",
+            url: Confluence.getContextPath() + "/rest/jiraanywhere/1.0/jira/renderTable",
+            data: AJS.$.toJSON({
+                wikiMarkup: encodeURIComponent(refresh.wiki),
+                clearCache: clearCache,
+                columnName: columnName,
+                order: order
+            }),
+            success: function(response, textStatus) {
                 var refreshNewId;
+                var reply = response.data;
                 // if the reply is from the servlet's error handler, simply render it
                 if ($(reply).hasClass('jim-error-message-table')) {
                     RefreshWidget.get(refresh.id).removeDarkLayer();
@@ -202,7 +231,7 @@ RefreshWidget.getAll = function() {
 };
 
 RefreshWidget.prototype.getErrorMessagePanel = function() {
-    return $("#error-message-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .error-message", this.id));
 };
 
 RefreshWidget.prototype.removeDarkLayer = function() {
@@ -237,31 +266,31 @@ HeaderWidget.prototype.getPageId = function() {
     return $("#refresh-wiki-" + this.id).data('pageid');
 };
 RefreshWidget.prototype.getWikiMarkup = function() {
-    return $("#refresh-wiki-" + this.id).data('wikimarkup');
+    return $(AJS.format("#refresh-module-{0} .refresh-wiki", this.id)).data('wikimarkup');
 };
 
 RefreshWidget.prototype.getRefreshButton = function() {
-    return $("#refresh-issues-button-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .refresh-issues-button", this.id));
 };
 
 RefreshWidget.prototype.getLoadingButton = function() {
-    return $("#refresh-issues-loading-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .refresh-issues-loading", this.id));
 };
 
 HeaderWidget.prototype.getHeadersTable = function() {
-    return $("#jira-issues-" + this.id + " .jira-tablesorter-header");
+    return $(AJS.format("#refresh-module-{0} .jira-issues .jira-tablesorter-header", this.id));
 };
 
 RefreshWidget.prototype.getRefreshLink = function() {
-    return $("#refresh-issues-link-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .refresh-issues-link", this.id));
 };
 
 RefreshWidget.prototype.getJiraIssuesArea = function() {
-    return $("#jira-issues-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .jira-issues", this.id));
 };
 
 RefreshWidget.prototype.getIssuesCountArea = function() {
-    return $("#total-issues-count-" + this.id);
+    return $(AJS.format("#refresh-module-{0} .total-issues-count", this.id));
 };
 
 RefreshWidget.prototype.updateRefreshVisibility = function(state) {
@@ -287,6 +316,8 @@ RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     }
 };
 
-$(function() { RefreshMacro.init() });
+return RefreshMacro;
 
-})(AJS.$);
+});
+
+

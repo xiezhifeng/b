@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira.services;
 
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
@@ -25,13 +25,15 @@ public class TestJiraRemoteLinkCreator  extends TestCase
         HostApplication hostApplication = mock(HostApplication.class);
         SettingsManager settingsManager = mock(SettingsManager.class);
         JiraMacroFinderService finderService = mock(JiraMacroFinderService.class);
-        ApplicationLinkService applicationLinkService = mock(ApplicationLinkService.class);
-        ApplicationLink fakeAppLink = mock(ApplicationLink.class);
+        ReadOnlyApplicationLinkService applicationLinkService = mock(ReadOnlyApplicationLinkService.class);
+        ReadOnlyApplicationLink fakeAppLink = mock(ReadOnlyApplicationLink.class);
         when(applicationLinkService.getApplicationLinks(JiraApplicationType.class)).thenReturn(Collections.EMPTY_LIST);
         when(applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class)).thenReturn(fakeAppLink);
 
+
         JiraRemoteLinkManagerMock objToTest = new JiraRemoteLinkManagerMock(applicationLinkService, hostApplication, settingsManager, finderService, requestFactory);
-        ApplicationLink outAppLink = objToTest.findApplicationLink(new MacroDefinition());
+        ReadOnlyApplicationLink outAppLink = objToTest.findApplicationLink(new MacroDefinition());
+
         Assert.assertNotNull("Must have the default value", outAppLink);
         Assert.assertEquals(fakeAppLink, outAppLink);
     }
@@ -39,7 +41,7 @@ public class TestJiraRemoteLinkCreator  extends TestCase
     private class JiraRemoteLinkManagerMock extends JiraRemoteLinkManager
     {
 
-        public JiraRemoteLinkManagerMock(ApplicationLinkService applicationLinkService,
+        public JiraRemoteLinkManagerMock(ReadOnlyApplicationLinkService applicationLinkService,
                                          HostApplication hostApplication,
                                          SettingsManager settingsManager,
                                          JiraMacroFinderService finderService,
@@ -48,7 +50,7 @@ public class TestJiraRemoteLinkCreator  extends TestCase
             super(applicationLinkService, hostApplication, settingsManager, finderService, requestFactory);
         }
 
-        public ApplicationLink findApplicationLink(final MacroDefinition macroDefinition) {
+        public ReadOnlyApplicationLink findApplicationLink(final MacroDefinition macroDefinition) {
             return super.findApplicationLink(macroDefinition);
         }
     }

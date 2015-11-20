@@ -114,11 +114,6 @@
         <url-pattern>/image-generator</url-pattern>
     </servlet>
 
-    <servlet name="Refresh render servlet" key="jira-issues-refresh-renderer" class="com.atlassian.confluence.extra.jira.RefreshRenderer">
-        <description>Handles refresh macro requests</description>
-        <url-pattern>/jiraRefreshRenderer</url-pattern>
-    </servlet>
-
     <servlet name="Show more renderer servlet" key="two-dimensional-chart-show-more-renderer" class="com.atlassian.confluence.plugins.jiracharts.render.TwoDimensionalShowMoreRenderer">
         <description>Handles refresh macro requests</description>
         <url-pattern>/twoDimensionalShowMoreRenderer</url-pattern>
@@ -152,6 +147,7 @@
         <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
         <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
         <dependency>confluence.web.resources:amd</dependency>
+        <dependency>confluence.extra.jira:refresh-resources</dependency>
     </web-resource>
 
     <web-resource key="web-resources" name="Web resources">
@@ -162,7 +158,6 @@
         <dependency>confluence.extra.jira:jira-issues-view-mode-resources</dependency>
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
-        <dependency>confluence.extra.jira:refresh-resources</dependency>
         <context>atl.general</context>
         <context>preview</context>
     </web-resource>
@@ -199,7 +194,7 @@
             <transformer key="jsI18n"/>
         </transformation>
         <resource type="download" name="refresh.css" location="/jira/refresh.css" />
-        <resource type="download" name="refresh.js" location="/jira/refresh.js" />
+        <resource type="download" name="refresh-table.js" location="/jira/jira-issues-view-mode/refresh-table.js" />
         <dependency>confluence.web.resources:ajs</dependency>
     </web-resource>
 

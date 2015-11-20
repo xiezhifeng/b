@@ -24,6 +24,8 @@ public class JiraJqlHelper
     public static final String FILTER_XML_REGEX = ".+searchrequest-xml/([0-9]+)/SearchRequest.+";
     public static final String SORTING_REGEX = "(Order\\s*BY) (.?)";
     public static final String XML_SORT_REGEX = ".+(jqlQuery|jql)=([^&]+).+tempMax=([0-9]+)";
+    public static final String XML_SORT_REGEX_TEMPMAX = ".+(tempMax=([0-9]+).+jqlQuery|jql)=([^&]+)";
+    public static final String TEMPMAX = "tempMax=([0-9]+)&";
     public static final String SINGLE_ISSUE_REGEX = "^\\s*((KEY|ISSUEKEY)\\s*=)?\\s*\"*[A-Z]+[0-9]*[A-Z]*-[0-9]+\"*\\s*$";
 
     public static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX);
@@ -34,6 +36,7 @@ public class JiraJqlHelper
     public static final Pattern FILTER_XML_PATTERN = Pattern.compile(FILTER_XML_REGEX);
     public static final Pattern SORTING_PATTERN = Pattern.compile(SORTING_REGEX, Pattern.CASE_INSENSITIVE);
     public static final Pattern XML_SORTING_PATTERN = Pattern.compile(XML_SORT_REGEX, Pattern.CASE_INSENSITIVE);
+    public static final Pattern XML_SORTING_PATTERN_TEMPMAX = Pattern.compile(XML_SORT_REGEX_TEMPMAX, Pattern.CASE_INSENSITIVE);
 
     public static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
     /**

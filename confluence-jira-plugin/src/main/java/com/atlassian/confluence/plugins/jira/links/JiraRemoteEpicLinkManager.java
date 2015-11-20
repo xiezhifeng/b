@@ -2,6 +2,8 @@ package com.atlassian.confluence.plugins.jira.links;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
 import com.atlassian.confluence.json.json.Json;
@@ -20,7 +22,7 @@ public class JiraRemoteEpicLinkManager extends JiraRemoteLinkManager
     private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteEpicLinkManager.class);
 
     public JiraRemoteEpicLinkManager(
-            ApplicationLinkService applicationLinkService,
+            ReadOnlyApplicationLinkService applicationLinkService,
             HostApplication hostApplication,
             SettingsManager settingsManager,
             JiraMacroFinderService macroFinderService,
@@ -42,8 +44,7 @@ public class JiraRemoteEpicLinkManager extends JiraRemoteLinkManager
     public boolean createLinkToEpic(AbstractPage page, String applinkId, String issueKey, String fallbackUrl, String creationToken)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
-        ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
-                "Failed to create a remote link to '" + issueKey + "' for the application '" + applinkId + "'.");
+        ReadOnlyApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl);
         if (applicationLink != null)
         {
             return createRemoteEpicLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey, creationToken);
@@ -57,7 +58,7 @@ public class JiraRemoteEpicLinkManager extends JiraRemoteLinkManager
         }
     }
 
-    private boolean createRemoteEpicLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey, final String creationToken)
+    private boolean createRemoteEpicLink(final ReadOnlyApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey, final String creationToken)
     {
         final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
         final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/api/epics/" + GeneralUtil.urlEncode(issueKey) + "/remotelinkchecked";

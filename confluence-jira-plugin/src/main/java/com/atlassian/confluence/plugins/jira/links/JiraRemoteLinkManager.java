@@ -1,8 +1,8 @@
 package com.atlassian.confluence.plugins.jira.links;
 
 import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.host.spi.HostApplication;
@@ -27,14 +27,14 @@ public abstract class JiraRemoteLinkManager
 {
     private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteLinkManager.class);
     
-    private final ApplicationLinkService applicationLinkService;
+    private final ReadOnlyApplicationLinkService applicationLinkService;
     private final HostApplication hostApplication;
     private final SettingsManager settingsManager;
     protected final JiraMacroFinderService macroFinderService;
     protected RequestFactory requestFactory;
 
     public JiraRemoteLinkManager(
-            final ApplicationLinkService applicationLinkService,
+            final ReadOnlyApplicationLinkService applicationLinkService,
             final HostApplication hostApplication,
             final SettingsManager settingsManager,
             final JiraMacroFinderService macroFinderService,
@@ -67,8 +67,8 @@ public abstract class JiraRemoteLinkManager
                 )
                 .setProperty("relationship", "mentioned in")
                 .setProperty("object", new JsonObject()
-                                .setProperty("url", canonicalPageUrl)
-                                .setProperty("title", "Page")
+                        .setProperty("url", canonicalPageUrl)
+                        .setProperty("title", "Page")
                 );
     }
 
@@ -77,7 +77,7 @@ public abstract class JiraRemoteLinkManager
         return "appId=" + hostApplication.getId().get() + "&pageId=" + pageId;
     }
 
-    protected boolean executeRemoteLinkRequest(final ApplicationLink applicationLink, final Json requestBody, final Request request, final String entityId, final OperationType operationType)
+    protected boolean executeRemoteLinkRequest(final ReadOnlyApplicationLink applicationLink, final Json requestBody, final Request request, final String entityId, final OperationType operationType)
     {
         final String operation = operationType.equals(OperationType.CREATE) ? "create" : "delete";
 
@@ -138,11 +138,11 @@ public abstract class JiraRemoteLinkManager
         return true;
     }
 
-    protected ApplicationLink findApplicationLink(final MacroDefinition macroDefinition)
+    protected ReadOnlyApplicationLink findApplicationLink(final MacroDefinition macroDefinition)
     {
-        return Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ApplicationLink>()
+        return Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ReadOnlyApplicationLink>()
         {
-            public boolean apply(ApplicationLink input)
+            public boolean apply(ReadOnlyApplicationLink input)
             {
                 final String serverName = macroDefinition.getParameters().get("server");
                 return input.getName().equals(serverName);
@@ -150,28 +150,21 @@ public abstract class JiraRemoteLinkManager
         }, applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class));
     }
 
-    protected ApplicationLink findApplicationLink(final String applinkId, final String fallbackUrl, String failureMessage)
+    protected ReadOnlyApplicationLink findApplicationLink(final String applinkId, final String fallbackUrl)
     {
-        ApplicationLink applicationLink = null;
+        ReadOnlyApplicationLink applicationLink = null;
 
-        try
+        applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
+        if (applicationLink == null && StringUtils.isNotBlank(fallbackUrl))
         {
-            applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
-            if (applicationLink == null && StringUtils.isNotBlank(fallbackUrl))
+            // Application links in OnDemand aren't set up using the host application ID, so we have to fall back to checking the referring URL:
+            applicationLink = Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ReadOnlyApplicationLink>()
             {
-                // Application links in OnDemand aren't set up using the host application ID, so we have to fall back to checking the referring URL:
-                applicationLink = Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ApplicationLink>()
+                public boolean apply(ReadOnlyApplicationLink input)
                 {
-                    public boolean apply(ApplicationLink input)
-                    {
-                        return StringUtils.containsIgnoreCase(fallbackUrl, input.getDisplayUrl().toString());
-                    }
-                });
-            }
-        }
-        catch (TypeNotInstalledException e)
-        {
-            LOGGER.warn(failureMessage + " Reason: Application link type is currently not installed");
+                    return StringUtils.containsIgnoreCase(fallbackUrl, input.getDisplayUrl().toString());
+                }
+            });
         }
 
         return applicationLink;

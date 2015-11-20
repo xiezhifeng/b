@@ -4,6 +4,8 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
@@ -28,7 +30,7 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
     private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteIssueLinkManager.class);
 
     public JiraRemoteIssueLinkManager(
-            ApplicationLinkService applicationLinkService,
+            ReadOnlyApplicationLinkService applicationLinkService,
             HostApplication hostApplication,
             SettingsManager settingsManager,
             JiraMacroFinderService macroFinderService,
@@ -91,7 +93,7 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
             String defaultParam = macroDefinition.getDefaultParameterValue();
             String keyVal = macroDefinition.getParameters().get("key");
             String issueKey = defaultParam != null ? defaultParam : keyVal;
-            ApplicationLink applicationLink = findApplicationLink(macroDefinition);
+            ReadOnlyApplicationLink applicationLink = findApplicationLink(macroDefinition);
 
             if (applicationLink == null)
             {
@@ -112,7 +114,7 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
         }
     }
 
-    private void createRemoteIssueLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
+    private void createRemoteIssueLink(final ReadOnlyApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
     {
         try
         {
@@ -127,7 +129,7 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
         }
     }
 
-    private void deleteRemoteIssueLink(final ApplicationLink applicationLink, final String pageId, final String issueKey)
+    private void deleteRemoteIssueLink(final ReadOnlyApplicationLink applicationLink, final String pageId, final String issueKey)
     {
         try
         {
