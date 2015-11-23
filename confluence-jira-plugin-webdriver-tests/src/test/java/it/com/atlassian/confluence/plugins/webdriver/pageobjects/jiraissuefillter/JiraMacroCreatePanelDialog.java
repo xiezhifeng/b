@@ -91,6 +91,7 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
     public PageElement getSummaryElement()
     {
         PageElement pageElement = getPanelBodyDialog().find(By.name("summary"));
+        Poller.waitUntilTrue(pageElement.timed().isEnabled());
         Poller.waitUntilTrue(pageElement.timed().isVisible());
         return pageElement;
     }
