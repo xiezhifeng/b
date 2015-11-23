@@ -63,6 +63,7 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraC
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.TwoDimensionalChartDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
@@ -86,6 +87,8 @@ public class AbstractJiraTest
     public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
     public static final String JIRA_SPRINT_MACRO_NAME = "jirasprint";
 
+    private static final int RETRY_TIME = 8;
+
     protected static final String PROJECT_TSTT = "Test Project";
     protected static final String PROJECT_TP = "Test Project 1";
     protected static final String PROJECT_TST = "Test Project 2";
@@ -106,9 +109,17 @@ public class AbstractJiraTest
     @Inject protected static ConfluenceRpcClient rpcClient;
     @Inject protected WebDriverPoller poller;
 
+    protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
+    protected JiraSprintMacroDialog sprintDialog;
     protected static EditContentPage editPage;
+    protected JiraMacroSearchPanelDialog dialogSearchPanel;
+    protected JiraMacroRecentPanelDialog dialogJiraRecentView;
+    protected CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart = null;
+    protected TwoDimensionalChartDialog dialogTwoDimensionalChart;
+    protected PieChartDialog dialogPieChart;
     protected static JiraChartViewPage pageJiraChartView;
     protected static ViewPage viewPage;
+
 
     public static final HttpClient client = new HttpClient();
 
@@ -136,7 +147,7 @@ public class AbstractJiraTest
 
         if (!TestProperties.isOnDemandMode())
         {
-            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, ApplinkHelper.getAuthQueryString(), ApplinkHelper.getBasicQueryString());
+            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, getAuthQueryString(), getBasicQueryString());
         }
 
         //login once, so that we don't repeatedly login and waste time - this test doesn't need it
@@ -148,9 +159,27 @@ public class AbstractJiraTest
         return internalJiraProjects.get(projectName);
     }
 
+    protected MacroBrowserDialog openMacroBrowser(EditContentPage editPage)
+    {
+        editPage.doWaitUntilTinyMceIsInit();
+        return editPage.getEditor().openMacroBrowser();
+    }
+
+    public static String getAuthQueryString()
+    {
+        return "?os_username=" + User.ADMIN.getUsername() + "&os_password=" + User.ADMIN.getPassword();
+    }
+
+    protected static String getBasicQueryString()
+    {
+        final String adminUserName = User.ADMIN.getUsername();
+        final String adminPassword = User.ADMIN.getPassword();
+        return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
+    }
+
     protected static void doWebSudo(final HttpClient client) throws IOException
     {
-        final PostMethod l = new PostMethod(System.getProperty("baseurl.confluence") + "/doauthenticate.action" + ApplinkHelper.getAuthQueryString());
+        final PostMethod l = new PostMethod(System.getProperty("baseurl.confluence") + "/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());
         final int status = client.executeMethod(l);
         assertThat("WebSudo auth returned unexpected status", ImmutableSet.of(SC_MOVED_TEMPORARILY, SC_OK), hasItem(status));
@@ -203,11 +232,15 @@ public class AbstractJiraTest
         return pageBinder.bind(JiraMacroSearchPanelDialog.class);
     }
 
+    protected JiraSprintMacroDialog openSprintDialogFromMacroPlaceholder(EditorContent editorContent, MacroPlaceholder macroPlaceholder)
+    {
+        editorContent.doubleClickEditInlineMacro(macroPlaceholder.getAttribute("data-macro-name"));
+        return pageBinder.bind(JiraSprintMacroDialog.class);
+    }
+
     protected String getMacroParams(EditContentPage editPage, String macroName)
     {
-        EditorContent editorContent =  editPage.getEditor().getContent();
-        List<MacroPlaceholder> macroPlaceholders = editorContent.macroPlaceholderFor(macroName);
-        MacroPlaceholder macroPlaceholder = macroPlaceholders.iterator().next();
+        MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(macroName).iterator().next();
         return macroPlaceholder.getAttribute("data-macro-parameters");
     }
 
@@ -254,26 +287,91 @@ public class AbstractJiraTest
 
     protected JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction) throws Exception
     {
-        JiraMacroSearchPanelDialog dialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         if (withPasteAction)
         {
-            dialog.pasteJqlSearch(jql);
+            dialogSearchPanel.pasteJqlSearch(jql);
         }
         else
         {
-            dialog.inputJqlSearch(jql);
+            dialogSearchPanel.inputJqlSearch(jql);
         }
 
-        dialog.clickSearchButton();
+        dialogSearchPanel.clickSearchButton();
 
-        Poller.waitUntilTrue(dialog.isInsertButtonEnabledTimed());
-        EditContentPage editContentPage = dialog.clickInsertDialog();
-        dialog.waitUntilHidden();
+        Poller.waitUntilTrue(dialogSearchPanel.isInsertButtonEnabledTimed());
+        EditContentPage editContentPage = dialogSearchPanel.clickInsertDialog();
+        dialogSearchPanel.waitUntilHidden();
 
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();
+        return bindCurrentPageToJiraIssues();
+    }
+
+    protected JiraIssuesPage bindCurrentPageToJiraIssues()
+    {
         return pageBinder.bind(JiraIssuesPage.class);
     }
+
+    protected JiraSprintMacroPage bindCurrentPageToSprintPage()
+    {
+        return pageBinder.bind(JiraSprintMacroPage.class);
+    }
+
+    protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication)
+    {
+        openDialogFromMacroBrowser(editPage, "jira chart");
+        PieChartDialog dialog = pageBinder.bind(PieChartDialog.class);
+        dialog.waitUntilVisible();
+
+        if (isAutoAuthentication)
+        {
+            if (dialog.needAuthentication())
+            {
+                // going to authenticate
+                dialog.doOAuthenticate();
+                dialog = pageBinder.bind(PieChartDialog.class);
+            }
+        }
+
+        return dialog;
+    }
+
+    protected PieChartDialog openPieChartAndSearch()
+    {
+        dialogPieChart = openPieChartDialog(true);
+        dialogPieChart.inputJqlSearch("status = open");
+        dialogPieChart.clickPreviewButton();
+
+        Assert.assertTrue(dialogPieChart.hadImageInDialog());
+        return dialogPieChart;
+    }
+
+    protected CreatedVsResolvedChartDialog openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor()
+    {
+        dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
+        dialogCreatedVsResolvedChart.inputJqlSearch("status = open");
+        dialogCreatedVsResolvedChart.clickPreviewButton();
+        assertTrue(dialogCreatedVsResolvedChart.hadChartImage());
+        return dialogCreatedVsResolvedChart;
+    }
+
+    protected CreatedVsResolvedChartDialog openJiraChartCreatedVsResolvedPanelDialog()
+    {
+        PieChartDialog dialog = openPieChartDialog(true);
+        dialog.selectTabItem("Created vs Resolved");
+        closeExistingAlertIfHave();
+        return pageBinder.bind(CreatedVsResolvedChartDialog.class);
+    }
+
+    protected TwoDimensionalChartDialog openTwoDimensionalChartDialog()
+    {
+        PieChartDialog pieChartDialog = openPieChartDialog(true);
+        pieChartDialog.selectTabItem("Two Dimensional");
+        closeExistingAlertIfHave();
+        return pageBinder.bind(TwoDimensionalChartDialog.class);
+    }
+
 
     /**
      * Try to close/dismiss any alert dialog if it appears in editor page.
@@ -305,13 +403,7 @@ public class AbstractJiraTest
         }
     }
 
-    protected MacroBrowserDialog openMacroBrowser(EditContentPage editPage)
-    {
-        editPage.doWaitUntilTinyMceIsInit();
-        return editPage.getEditor().openMacroBrowser();
-    }
-
-    protected void openDialogFromMacroBrowser(EditContentPage editContentPage, String macroName)
+    private void openDialogFromMacroBrowser(EditContentPage editContentPage, String macroName)
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editContentPage);
 
@@ -353,59 +445,5 @@ public class AbstractJiraTest
                 editPage = gotoEditTestPage(user.get());
             }
         }
-    }
-
-    protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication)
-    {
-        openDialogFromMacroBrowser(editPage, "jira chart");
-        PieChartDialog dialog = pageBinder.bind(PieChartDialog.class);
-        dialog.waitUntilVisible();
-
-        if (isAutoAuthentication)
-        {
-            if (dialog.needAuthentication())
-            {
-                // going to authenticate
-                dialog.doOAuthenticate();
-                dialog = pageBinder.bind(PieChartDialog.class);
-            }
-        }
-
-        return dialog;
-    }
-
-    protected PieChartDialog openPieChartAndSearch()
-    {
-        PieChartDialog dialog = openPieChartDialog(true);
-        dialog.inputJqlSearch("status = open");
-        dialog.clickPreviewButton();
-
-        Assert.assertTrue(dialog.hadImageInDialog());
-        return dialog;
-    }
-
-    protected CreatedVsResolvedChartDialog openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor()
-    {
-        CreatedVsResolvedChartDialog dialog = openJiraChartCreatedVsResolvedChartDialog();
-        dialog.inputJqlSearch("status = open");
-        dialog.clickPreviewButton();
-        assertTrue(dialog.hadChartImage());
-        return dialog;
-    }
-
-    protected CreatedVsResolvedChartDialog openJiraChartCreatedVsResolvedChartDialog()
-    {
-        PieChartDialog dialog = openPieChartDialog(true);
-        dialog.selectTabItem("Created vs Resolved");
-        closeExistingAlertIfHave();
-        return pageBinder.bind(CreatedVsResolvedChartDialog.class);
-    }
-
-    protected TwoDimensionalChartDialog openTwoDimensionalChartDialog()
-    {
-        PieChartDialog dialog = openPieChartDialog(true);
-        dialog.selectTabItem("Two Dimensional");
-        closeExistingAlertIfHave();
-        return pageBinder.bind(TwoDimensionalChartDialog.class);
     }
 }

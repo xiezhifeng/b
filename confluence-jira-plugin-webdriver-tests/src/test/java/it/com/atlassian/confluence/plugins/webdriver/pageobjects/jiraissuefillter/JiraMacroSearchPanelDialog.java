@@ -12,6 +12,18 @@ public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
 {
     protected static final String CSS_SELECTOR_RECENT_PANEL = "#my-jira-search";
 
+    /**
+     * @deprecated Use {@link AbstractJiraIssueMacroDialog#getCurrentTabPanel()} instead.
+     */
+    @Deprecated
+    @Override
+    public PageElement getPanelBodyDialog()
+    {
+        PageElement panelBodyDialog = find(CSS_SELECTOR_RECENT_PANEL);
+        Poller.waitUntilTrue(panelBodyDialog.timed().isVisible());
+        return panelBodyDialog;
+    }
+
     public AbstractJiraIssueMacroDialog openDisplayOption()
     {
         Poller.waitUntilTrue(getCurrentTabPanel().find(By.id("jiraMacroDlg")).timed().isVisible());

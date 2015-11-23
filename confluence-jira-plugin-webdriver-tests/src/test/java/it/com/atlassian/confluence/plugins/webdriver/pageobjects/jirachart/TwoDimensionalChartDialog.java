@@ -13,6 +13,17 @@ import org.openqa.selenium.WebElement;
 
 public class TwoDimensionalChartDialog extends AbstractJiraChartDialog
 {
+    protected static final String CSS_SELECTOR_TWO_DIMENSIONAL_PANEL = "#jira-chart-content-twodimensional";
+
+
+    @Override
+    public PageElement getPanelBodyDialog()
+    {
+        PageElement panelBodyDialog = find(CSS_SELECTOR_TWO_DIMENSIONAL_PANEL);
+        Poller.waitUntilTrue(panelBodyDialog.timed().isVisible());
+        return panelBodyDialog;
+    }
+
     public PageElement getXAxis()
     {
         PageElement xAxis = queryPageElement("#twodimensional-xaxis");
@@ -32,7 +43,7 @@ public class TwoDimensionalChartDialog extends AbstractJiraChartDialog
         getYAxis().type(text);
     }
 
-    public PageElement getNumberOfResult()
+     public PageElement getNumberOfResult()
     {
         PageElement numberOfResult = queryPageElement("#twodimensional-number-of-result");
         Poller.waitUntilTrue(numberOfResult.timed().isVisible());
@@ -41,7 +52,7 @@ public class TwoDimensionalChartDialog extends AbstractJiraChartDialog
 
     public PageElement getNumberOfResultError()
     {
-        return getCurrentTabPanel().find(By.cssSelector(".twodimensional-number-of-result-error"));
+        return getPanelBodyDialog().find(By.cssSelector(".twodimensional-number-of-result-error"));
     }
 
     @Override

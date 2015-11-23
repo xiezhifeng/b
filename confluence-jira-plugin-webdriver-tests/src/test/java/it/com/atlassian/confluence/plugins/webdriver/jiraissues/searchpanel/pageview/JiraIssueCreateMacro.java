@@ -32,7 +32,7 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
 
-        JiraIssuesPage jiraIssuesPage = pageBinder.bind(JiraIssuesPage.class);
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         Assert.assertEquals(2, jiraIssuesPage.getIssueCount());
     }
 
@@ -49,7 +49,7 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
 
-        JiraIssuesPage jiraIssuesPage = pageBinder.bind(JiraIssuesPage.class);
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         List<PageElement> columns = jiraIssuesPage.getIssuesTableColumns();
 
         Assert.assertEquals(2, columns.size());
@@ -63,14 +63,14 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
         editPage.getEditor().getContent().setContent("{jira:key=TP-10|cache=off}");
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
-        JiraIssuesPage jiraIssuesPage = pageBinder.bind(JiraIssuesPage.class);
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-single"));
     }
 
     @Test
     public void testUserViewIssueWhenNotMapping() throws JSONException, IOException
     {
-        String authArgs = ApplinkHelper.getAuthQueryString();
+        String authArgs = getAuthQueryString();
         ApplinkHelper.removeAllAppLink(client, authArgs);
         String applinkId = ApplinkHelper.createAppLink(client, "jiratest", authArgs, JIRA_BASE_URL, JIRA_DISPLAY_URL, true);
         ApplinkHelper.enableApplinkOauthMode(client, applinkId, authArgs);
@@ -79,7 +79,7 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
 
-        JiraIssuesPage jiraIssuesPage = pageBinder.bind(JiraIssuesPage.class);
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("TP-10 - Authenticate to see issue details"));
 
         resetupAppLink(client, authArgs);
@@ -93,7 +93,7 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
 
         if (!TestProperties.isOnDemandMode())
         {
-            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, authArg, ApplinkHelper.getBasicQueryString());
+            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, authArg, getBasicQueryString());
         }
     }
 }
