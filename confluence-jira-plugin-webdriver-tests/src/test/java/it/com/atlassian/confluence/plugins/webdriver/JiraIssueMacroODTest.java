@@ -39,7 +39,7 @@ public class JiraIssueMacroODTest extends AbstractJiraODTest{
         jiraMacroCreatePanelDialog.selectProject(PROJECT_TOD.getProjectName());
         jiraMacroCreatePanelDialog.getSummaryElement().type("summary");
 
-        EditContentPage editContentPage = jiraMacroCreatePanelDialog.clickInsertDialog();
+        EditContentPage editContentPage = jiraMacroCreatePanelDialog.insertIssue();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
     }
@@ -132,7 +132,7 @@ public class JiraIssueMacroODTest extends AbstractJiraODTest{
     protected JiraMacroRecentPanelDialog openJiraMacroRecentPanelDialog() throws Exception
     {
         JiraMacroSearchPanelDialog dialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        dialog.selectTabItem("Recently Viewed");
+        dialog.selectMenuItem("Recently Viewed");
 
         waitForAjaxRequest();
 

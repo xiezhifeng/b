@@ -25,6 +25,14 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
     @ElementBy(id = "s2id_jira-sprint-sprint")
     protected SelectElement sprintSelect;
 
+    @ElementBy(cssSelector = ".insert-jira-sprint-macro-button")
+    protected PageElement insertButton;
+
+    public JiraSprintMacroDialog()
+    {
+        super("jira-sprint");
+    }
+
     @Init
     public void bind()
     {
@@ -37,6 +45,11 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
         PageElement panelBodyDialog = find(CSS_SELECTOR_SPRINT_PANEL);
         Poller.waitUntilTrue(panelBodyDialog.timed().isVisible());
         return panelBodyDialog;
+    }
+
+    public void insert()
+    {
+        insertButton.click();
     }
 
     public void selectBoard(String boardName)

@@ -26,10 +26,22 @@ public class JiraChart extends AbstractJiraChartWithoutSavingTest
     }
 
     @Test
+    public void testJiraIssuesMacroLink()
+    {
+        dialogPieChart = openPieChartDialog(true);
+
+        checkNotNull(dialogPieChart.getJiraIssuesMacroAnchor());
+        assertEquals(dialogPieChart.getJiraIssuesMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
+
+        dialogSearchPanel = dialogPieChart.clickJiraIssuesMacroAnchor();
+        assertEquals(dialogSearchPanel.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
+    }
+
+    @Test
     public void testDefaultChart()
     {
         dialogPieChart = openPieChartDialog(true);
-        assertEquals("Pie Chart", dialogPieChart.getSelectedTabItem());
+        assertEquals("Pie Chart", dialogPieChart.getSelectedChart());
     }
 
     /**

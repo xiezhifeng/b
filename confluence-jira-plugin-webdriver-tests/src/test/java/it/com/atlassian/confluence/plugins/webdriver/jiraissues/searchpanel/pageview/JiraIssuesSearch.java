@@ -34,12 +34,12 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
     @Test
     public void testColumnNotSupportSortableInIssueTable() throws Exception
     {
-        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        dialogSearchPanel.inputJqlSearch("status = open");
-        dialogSearchPanel.clickSearchButton();
-        dialogSearchPanel.openDisplayOption();
-        dialogSearchPanel.getDisplayOptionPanel().addColumn("Linked Issues");
-        dialogSearchPanel.clickInsertDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog.inputJqlSearch("status = open");
+        jiraMacroSearchPanelDialog.clickSearchButton();
+        jiraMacroSearchPanelDialog.openDisplayOption();
+        jiraMacroSearchPanelDialog.getDisplayOptionPanel().addColumn("Linked Issues");
+        jiraMacroSearchPanelDialog.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.getEditor().clickSaveAndWaitForPageChange();
         JiraIssuesPage page = pageBinder.bind(JiraIssuesPage.class);
@@ -79,13 +79,11 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
         ApplinkHelper.enableApplinkOauthMode(client, appLinkId, authArgs);
 
         product.refresh();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
 
-        closeDialog(dialogSearchPanel);
-        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        dialogSearchPanel.pasteJqlSearch(jiraURL + "/browse/TST-1");
-
-        Poller.waitUntilTrue(dialogSearchPanel.hasInfoMessage());
-        Assert.assertThat(dialogSearchPanel.getInfoMessage(), StringContains.containsString("Login & Approve to retrieve data from TEST"));
-        Assert.assertFalse(dialogSearchPanel.getSearchButton().isEnabled());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
+        Assert.assertThat(jiraMacroSearchPanelDialog.getInfoMessage(), StringContains.containsString("Login & Approve to retrieve data from TEST"));
+        Assert.assertFalse(jiraMacroSearchPanelDialog.getSearchButton().isEnabled());
     }
 }

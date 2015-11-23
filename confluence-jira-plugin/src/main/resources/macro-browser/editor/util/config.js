@@ -4,10 +4,7 @@ function(
     'use strict';
 
     return {
-        macroIdJiraSprint: 'jirasprint',
-        macroIdJiraIssue: 'jira',
-        macroIdJiraIssueOld: 'jiraissues',
-        macroIdJiraChart: 'jirachart',
+        macroIdSprint: 'jirasprint',
 
         NOT_SUPPORTED_BUILD_NUMBER: -1,
         START_JIRA_UNSUPPORTED_BUILD_NUMBER: 6109, // jira version 6.0.8

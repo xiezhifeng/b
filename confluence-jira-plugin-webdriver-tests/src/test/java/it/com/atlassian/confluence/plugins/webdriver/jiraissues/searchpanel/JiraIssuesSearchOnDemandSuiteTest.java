@@ -26,7 +26,7 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
     public void testSearchWithButton() throws Exception
     {
         openJiraIssueSearchPanelAndStartSearch("TST-1");
-        Poller.waitUntilTrue(dialogSearchPanel.isIssueExistInSearchResult("TST-1"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
     }
 
     @Test
@@ -41,8 +41,8 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
         }
 
         openJiraIssueSearchPanelAndStartSearch(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
-        Poller.waitUntilTrue(dialogSearchPanel.isIssueExistInSearchResult("TSTT-5"));
-        Poller.waitUntilTrue(dialogSearchPanel.isIssueExistInSearchResult("TSTT-4"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-4"));
         assertEquals(deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
     }
 
@@ -50,16 +50,16 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
     public void checkColumnLoadDefaultWhenInsert() throws Exception
     {
         insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
-        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
 
-        assertTrue(dialogSearchPanel.getJqlSearchElement().getValue().equals(""));
-        assertFalse(dialogSearchPanel.getIssuesTable().isPresent());
+        assertTrue(jiraMacroSearchPanelDialog.getJqlSearchElement().getValue().equals(""));
+        assertFalse(jiraMacroSearchPanelDialog.getIssuesTable().isPresent());
 
-        dialogSearchPanel.inputJqlSearch("status = open");
-        dialogSearchPanel.clickSearchButton();
-        dialogSearchPanel.openDisplayOption();
+        jiraMacroSearchPanelDialog.inputJqlSearch("status = open");
+        jiraMacroSearchPanelDialog.clickSearchButton();
+        jiraMacroSearchPanelDialog.openDisplayOption();
 
-        List<String> columns = dialogSearchPanel.getDisplayOptionPanel().getSelectedColumns();
+        List<String> columns = jiraMacroSearchPanelDialog.getDisplayOptionPanel().getSelectedColumns();
         assertEquals(columns.toString(), LIST_DEFAULT_COLUMN.toString());
     }
 }

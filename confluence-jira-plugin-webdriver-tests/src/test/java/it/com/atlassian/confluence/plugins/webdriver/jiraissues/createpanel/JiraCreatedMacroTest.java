@@ -49,7 +49,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         jiraMacroCreatePanelDialog.selectIssueType("Bug");
         // the summary is cached from the previous section, TODO: clean dialog before closing it
         jiraMacroCreatePanelDialog.getSummaryElement().clear();
-        jiraMacroCreatePanelDialog.clickInsertDialog();
+        jiraMacroCreatePanelDialog.submit();
 
         Iterable<PageElement> clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
 
@@ -59,12 +59,12 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         jiraMacroCreatePanelDialog.getSummaryElement().type("    ");
         jiraMacroCreatePanelDialog.setDuedate("zzz");
 
-        jiraMacroCreatePanelDialog.clickInsertDialog();
+        jiraMacroCreatePanelDialog.submit();
         clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
         Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
 
         jiraMacroCreatePanelDialog.getSummaryElement().type("blah");
-        jiraMacroCreatePanelDialog.clickInsertDialog();
+        jiraMacroCreatePanelDialog.submit();
 
         waitForAjaxRequest();
 
@@ -84,15 +84,15 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         Poller.waitUntil(jiraMacroCreatePanelDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage));
 
         Poller.waitUntilFalse("Insert button is disabled when there are unsupported fields",
-                jiraMacroCreatePanelDialog.isInsertButtonEnabledTimed());
+                jiraMacroCreatePanelDialog.isInsertButtonEnabled());
 
         jiraMacroCreatePanelDialog.getSummaryElement().type("Test input summary");
         Poller.waitUntilFalse("Insert button is still disabled when input summary",
-                jiraMacroCreatePanelDialog.isInsertButtonEnabledTimed());
+                jiraMacroCreatePanelDialog.isInsertButtonEnabled());
 
         // Select a project which has not un supported field then Insert Button must be enabled.
         jiraMacroCreatePanelDialog.selectProject(PROJECT_TSTT);
         Poller.waitUntilTrue("Insert button is enable when switch back to a project which hasn't unsupported fields",
-                jiraMacroCreatePanelDialog.isInsertButtonEnabledTimed());
+                jiraMacroCreatePanelDialog.isInsertButtonEnabled());
     }
 }

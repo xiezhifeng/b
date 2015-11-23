@@ -17,24 +17,16 @@ AJS.Editor.JiraConnector.Panel.Recent.prototype = AJS.$.extend(AJS.Editor.JiraCo
                              '</div>' +
                              '</form></div>').appendTo('div#my-recent-issues');
                 
-                var $serverSelect = AJS.$('.select', serverForm);
-                this.applinkServerSelect($serverSelect, function(server){
-                    thiz.selectedServer = server;
-                    thiz.onselect();
+               
+                this.applinkServerSelect(AJS.$('.select', serverForm), function(server){
+                  thiz.selectedServer = server;
+                  thiz.onselect();
                 });
-
-                // first time of rendering, we select the first server, so we will trigger "change" event to
-                // initialize the view
-                $serverSelect.trigger('change');
-            } else {
-                thiz.onselect();
             }
-
             panel.onselect = function(){
                 thiz.onselect();
             };
         },
-
         insertLink: function(){
             this.insertSelected();
         },
@@ -89,4 +81,5 @@ AJS.Editor.JiraConnector.Panel.Recent.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         analyticPanelActionName : "confluence.jira.plugin.recentlyviewadded"
     });
+AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Recent());
 

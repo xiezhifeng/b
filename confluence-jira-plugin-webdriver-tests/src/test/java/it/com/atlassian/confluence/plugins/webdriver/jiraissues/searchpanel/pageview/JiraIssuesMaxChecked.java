@@ -15,10 +15,10 @@ public class JiraIssuesMaxChecked extends AbstractJiraIssuesSearchPanelTest
     @Test
     public void checkMaxIssueHappyCase() throws Exception
     {
-        dialogSearchPanel = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        dialogSearchPanel.showDisplayOption();
-        dialogSearchPanel.fillMaxIssues("1");
-        List<PageElement> issuses = dialogSearchPanel.insertAndSave();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog.showDisplayOption();
+        jiraMacroSearchPanelDialog.fillMaxIssues("1");
+        List<PageElement> issuses = jiraMacroSearchPanelDialog.insertAndSave();
         assertNotNull(issuses);
         assertEquals(1, issuses.size());
     }

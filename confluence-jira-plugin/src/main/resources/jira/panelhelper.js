@@ -54,8 +54,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 AJS.Editor.JiraAnalytics.triggerPannelActionEvent(AJS.Editor.JiraConnector.analyticPanelActionObject);
                 AJS.Editor.JiraConnector.analyticPanelActionObject = null;
             }
-
-            AJS.trigger('jira.links.macro.dialog.close');
+            AJS.Editor.JiraConnector.closePopup();
         },
         disableInsert: function() {
             AJS.$('.insert-issue-button').disable();
@@ -166,7 +165,6 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 onSuccess: function() {
                     server.authUrl = null;
                     success(server);
-                    AJS.trigger('jira.links.macro.dialog.refresh');
                 },
                 onFailure: function() {
                 }
@@ -241,7 +239,6 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             var spinnyContainer = AJS.$('<div class="loading-data"></div>').appendTo(dataContainer);
             this.removeError(container);
             this.showSpinner(spinnyContainer[0], 50, true, true);
-            dataContainer.addClass('loading');
 
             var thiz = this;
             this.currentXhr = AppLinks.makeRequest({
@@ -251,8 +248,6 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 dataType: 'xml',
                 success: function(data){
                     spinnyContainer.remove();
-                    dataContainer.removeClass('loading');
-
                     var issues = AJS.$('item', data);
                     AJS.$(':disabled', container).enable();
                     if (issues.length){
