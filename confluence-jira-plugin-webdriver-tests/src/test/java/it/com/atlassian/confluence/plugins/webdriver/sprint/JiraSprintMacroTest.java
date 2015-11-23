@@ -2,8 +2,6 @@ package it.com.atlassian.confluence.plugins.webdriver.sprint;
 
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
-
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
 
 import org.junit.Test;
@@ -52,8 +50,7 @@ public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
         assertEquals("incorrect sprint id", "sprintId=2", params[2]);
 
         // click again to check the dialog display correctly
-        editorContent.doubleClickEditInlineMacro(sprintMacro.getAttribute("data-macro-name"));
-        sprintDialog = pageBinder.bind(JiraSprintMacroDialog.class);
+        sprintDialog = openSprintDialogFromMacroPlaceholder(editorContent, sprintMacro);
 
         String selectedBoard = sprintDialog.getSelectedBoard();
         String selectedSprint = sprintDialog.getSelectedSprint();

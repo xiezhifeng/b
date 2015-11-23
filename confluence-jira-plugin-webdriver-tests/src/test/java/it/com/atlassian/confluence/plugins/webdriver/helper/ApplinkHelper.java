@@ -1,6 +1,5 @@
 package it.com.atlassian.confluence.plugins.webdriver.helper;
 
-import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.security.InvalidOperationException;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import org.apache.commons.httpclient.HttpClient;
@@ -170,17 +169,5 @@ public class ApplinkHelper
             // do nothing
         }
         return null;
-    }
-
-    public static String getAuthQueryString()
-    {
-        return "?os_username=" + User.ADMIN.getUsername() + "&os_password=" + User.ADMIN.getPassword();
-    }
-
-    public static String getBasicQueryString()
-    {
-        final String adminUserName = User.ADMIN.getUsername();
-        final String adminPassword = User.ADMIN.getPassword();
-        return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
 }

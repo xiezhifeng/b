@@ -17,7 +17,6 @@ public class JiraChartViewPage extends ViewPage
 
     @ElementBy(cssSelector = ".show-link-container a")
     private PageElement showLink;
-
     public PageElement getChartSummary()
     {
         return chartSummary;

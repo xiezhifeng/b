@@ -17,6 +17,8 @@ import static org.hamcrest.Matchers.is;
 
 public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 {
+    private static String CSS_SELECTOR_SPRINT_PANEL = "#jira-sprint-form";
+
     @ElementBy(id = "s2id_jira-sprint-board")
     protected SelectElement boardSelect;
 
@@ -27,6 +29,14 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
     public void bind()
     {
         waitUntilVisible();
+    }
+
+    @Override
+    public PageElement getPanelBodyDialog()
+    {
+        PageElement panelBodyDialog = find(CSS_SELECTOR_SPRINT_PANEL);
+        Poller.waitUntilTrue(panelBodyDialog.timed().isVisible());
+        return panelBodyDialog;
     }
 
     public void selectBoard(String boardName)
@@ -85,13 +95,13 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     private void waitUntilSprintBoardLoaded()
     {
-        PageElement boardOption = getCurrentTabPanel().find(By.cssSelector("select.jira-boards"));
+        PageElement boardOption = getContainerOfSelectedPanel().find(By.cssSelector("select.jira-boards"));
         Poller.waitUntil("Sprint Board selection field is not visible", boardOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().hasClass("loading"), is(false));
     }
 
     private void waitUntilSprintLoaded()
     {
-        PageElement sprintOption = getCurrentTabPanel().find(By.cssSelector("select.jira-sprints"));
+        PageElement sprintOption = getContainerOfSelectedPanel().find(By.cssSelector("select.jira-sprints"));
         Poller.waitUntil("Sprint selection field is not visible", sprintOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().hasClass("loading"), is(false));
     }
 }

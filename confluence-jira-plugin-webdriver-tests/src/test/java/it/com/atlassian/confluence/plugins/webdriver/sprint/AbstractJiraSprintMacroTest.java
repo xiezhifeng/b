@@ -5,7 +5,6 @@ import it.com.atlassian.confluence.plugins.webdriver.model.BoardModel;
 import it.com.atlassian.confluence.plugins.webdriver.model.KanbanBoardModel;
 import it.com.atlassian.confluence.plugins.webdriver.model.ScrumBoardModel;
 import it.com.atlassian.confluence.plugins.webdriver.model.SprintModel;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -23,8 +22,6 @@ public class AbstractJiraSprintMacroTest extends AbstractJiraTest
 
     protected static final BoardModel SCRUM_BOARD_2 = new ScrumBoardModel("Scrum Board 2");
     protected static final BoardModel KANBAN_BOARD = new KanbanBoardModel("Kanban Board");
-
-    protected JiraSprintMacroDialog sprintDialog;
 
     @BeforeClass
     public static void init() throws Exception
@@ -58,6 +55,6 @@ public class AbstractJiraSprintMacroTest extends AbstractJiraTest
         sprintDialog.clickInsertDialog();
         editPage.save();
 
-        return pageBinder.bind(JiraSprintMacroPage.class);
+        return bindCurrentPageToSprintPage();
     }
 }

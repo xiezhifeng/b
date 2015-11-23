@@ -27,8 +27,6 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     protected static final List<String> LIST_MULTIVALUE_COLUMN = ImmutableList.of("Summary", "Issue Type", "Key", "Component/s", "Fix Version/s");
     protected static List<String> LIST_DEFAULT_COLUMN = ImmutableList.of("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
 
-    protected JiraMacroSearchPanelDialog dialogSearchPanel;
-
     @BeforeClass
     public static void init() throws Exception
     {
@@ -65,6 +63,8 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         macroPlaceholder.click();
         return pageBinder.bind(JiraMacroPropertyPanel.class);
     }
+
+
 
     protected JiraIssuesPage bindCurrentPageToJiraIssues()
     {
@@ -104,6 +104,5 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         Poller.waitUntil(dialog.getJqlSearchElement().timed().getValue(), Matchers.containsString(jql));
 
         dialog.clickInsertDialog();
-        dialog.waitUntilHidden();
     }
 }

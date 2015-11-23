@@ -34,7 +34,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
     {
         if (StringUtils.isNotEmpty(globalTestAppLinkId))
         {
-            ApplinkHelper.deleteApplink(client, globalTestAppLinkId, ApplinkHelper.getAuthQueryString());
+            ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
         }
         globalTestAppLinkId = "";
         super.tearDown();
@@ -58,24 +58,24 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
 
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();
-        return pageBinder.bind(JiraIssuesPage.class);
+        return bindCurrentPageToJiraIssues();
     }
 
     protected JiraIssuesPage gotoPage(Long pageId)
     {
         product.viewPage(String.valueOf(pageId));
-        return pageBinder.bind(JiraIssuesPage.class);
+        return bindCurrentPageToJiraIssues();
     }
 
     protected JiraIssuesPage setupErrorEnv(String jql) throws IOException, JSONException
     {
-        String authArgs = ApplinkHelper.getAuthQueryString();
+        String authArgs = getAuthQueryString();
         String applinkId = ApplinkHelper.createAppLink(client, "jira_applink", authArgs, "http://test.jira.com", "http://test.jira.com", false);
         globalTestAppLinkId = applinkId;
         createMacroPlaceholderFromQueryString(editPage, "{jiraissues:" + jql + "|serverId=" + applinkId + "}", OLD_JIRA_ISSUE_MACRO_NAME);
         editPage.save();
 
-        return pageBinder.bind(JiraIssuesPage.class);
+        return bindCurrentPageToJiraIssues();
     }
 
     @Test
@@ -160,13 +160,13 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
     @Test
     public void testChangeApplinkName()
     {
-        String authArgs = ApplinkHelper.getAuthQueryString();
+        String authArgs = getAuthQueryString();
         String applinkId = ApplinkHelper.getPrimaryApplinkId(client, authArgs);
         String jimMarkup = "{jira:jqlQuery=status\\=open||serverId="+applinkId+"||server=oldInvalidName}";
 
         editPage.getEditor().getContent().setContent(jimMarkup);
         editPage.save();
-        assertTrue(pageBinder.bind(JiraIssuesPage.class).getNumberOfIssuesInTable() > 0);
+        assertTrue(bindCurrentPageToJiraIssues().getNumberOfIssuesInTable() > 0);
     }
 
     @Test
@@ -182,7 +182,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         dialogSearchPanel.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
-        JiraIssuesPage jiraIssuesPage = pageBinder.bind(JiraIssuesPage.class);
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
 
         assertTrue(jiraIssuesPage.getIssuesTableElement().isPresent());
         assertFalse(jiraIssuesPage.getIssuesCountElement().isPresent());
@@ -194,7 +194,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
     {
         EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
         editContentPage.save();
-        JiraIssuesPage jiraIssuesPage = pageBinder.bind(JiraIssuesPage.class);
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         assertEquals(jiraIssuesPage.getIssuesTableColumns().size(), LIST_TEST_COLUMN.size());
     }
 
@@ -203,7 +203,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
     {
         EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_DEFAULT_COLUMN, "status=open");
         editContentPage.save();
-        JiraIssuesPage jiraIssuesPage = pageBinder.bind(JiraIssuesPage.class);
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         Assert.assertTrue(jiraIssuesPage.getFirstRowValueOfAssignee().contains("<script>alert('Administrator')</script>admin"));
     }
 
@@ -216,7 +216,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         Assert.assertEquals("TEST", jiraErrorLink.getText());
         Assert.assertEquals("http://test.jira.com/browse/TEST?src=confmacro", jiraErrorLink.getAttribute("href"));
 
-        ApplinkHelper.deleteApplink(client, globalTestAppLinkId, ApplinkHelper.getAuthQueryString());
+        ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
         globalTestAppLinkId = null;
     }
 
@@ -230,7 +230,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         Assert.assertEquals("View these issues in JIRA", jiraErrorLink.getText());
         Assert.assertEquals("http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro", jiraErrorLink.getAttribute("href"));
 
-        ApplinkHelper.deleteApplink(client, globalTestAppLinkId, ApplinkHelper.getAuthQueryString());
+        ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
         globalTestAppLinkId = null;
     }
 
@@ -256,7 +256,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         Assert.assertEquals("View these issues in JIRA", jiraErrorLink.getText());
         Assert.assertEquals("http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro", jiraErrorLink.getAttribute("href"));
 
-        ApplinkHelper.deleteApplink(client, globalTestAppLinkId, ApplinkHelper.getAuthQueryString());
+        ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
         globalTestAppLinkId = null;
     }
 
@@ -281,7 +281,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
     {
         EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_MULTIVALUE_COLUMN, "key IN (TP-1, TP-2)");
         editContentPage.save();
-        JiraIssuesPage jiraIssuesPage = pageBinder.bind(JiraIssuesPage.class);
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
 
         // Multiple values case
         String component = jiraIssuesPage.getValueInTable(4, 1);

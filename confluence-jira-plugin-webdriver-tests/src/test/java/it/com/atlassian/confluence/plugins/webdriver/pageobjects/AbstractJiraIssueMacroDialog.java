@@ -66,7 +66,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
      */
     public void selectTabItem(String tabText)
     {
-        List<PageElement> tabAnchors = getMenuTabsOfCurrentPanel().findAll(By.tagName("a"));
+        List<PageElement> tabAnchors = getDialogTabsOfCurrentPanel().findAll(By.tagName("a"));
 
         for(PageElement anchor : tabAnchors)
         {
@@ -84,7 +84,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
      */
     public String getSelectedTabItem()
     {
-        List<PageElement> tabs = getMenuTabsOfCurrentPanel().findAll(By.tagName("li"));
+        List<PageElement> tabs = getDialogTabsOfCurrentPanel().findAll(By.tagName("li"));
 
         for(PageElement tab : tabs)
         {
@@ -125,7 +125,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public PageElement getJqlSearchElement()
     {
-        PageElement pageElement = getCurrentTabPanel().find(By.name("jiraSearch"));
+        PageElement pageElement = getPanelBodyDialog().find(By.name("jiraSearch"));
         Poller.waitUntilTrue(pageElement.timed().isVisible());
         return pageElement;
     }
@@ -196,7 +196,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
      */
     public AbstractJiraIssueMacroDialog openDisplayOption()
     {
-        PageElement openLink = getCurrentTabPanel().find(By.cssSelector("[data-js=\"display-option-trigger\"]"));
+        PageElement openLink = getPanelBodyDialog().find(By.cssSelector("[data-js=\"display-option-trigger\"]"));
         Poller.waitUntilTrue(openLink.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible());
         if (openLink.isPresent() && openLink.isVisible())
         {
@@ -214,7 +214,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
             @Override
             public Boolean get()
             {
-                return getCurrentTabPanel().find(By.cssSelector("[data-js=\"display-option-wrapper\"]"))
+                return getPanelBodyDialog().find(By.cssSelector("[data-js=\"display-option-wrapper\"]"))
                         .javascript().execute("return jQuery(arguments[0]).css(\"bottom\")").equals("0px");
             }
         };
@@ -238,11 +238,11 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
      */
     public void selectTabItem(int index)
     {
-        Poller.waitUntilTrue(getMenuTabsOfCurrentPanel().timed().isVisible());
-        getMenuTabsOfCurrentPanel().find(By.cssSelector("li.menu-item:nth-child(" + index + ") > a")).click();
+        Poller.waitUntilTrue(getDialogTabsOfCurrentPanel().timed().isVisible());
+        getDialogTabsOfCurrentPanel().find(By.cssSelector("li.menu-item:nth-child(" + index + ") > a")).click();
     }
 
-    public PageElement getMenuTabsOfCurrentPanel()
+    public PageElement getDialogTabsOfCurrentPanel()
     {
         return getContainerOfSelectedPanel().find(By.cssSelector(".tabs-menu"));
     }
@@ -251,6 +251,8 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     {
         return issuesTable.find(By.cssSelector(".my-result")).timed().isVisible();
     }
+
+    public abstract PageElement getPanelBodyDialog();
 
     /**
      * Get current active tab panel
@@ -292,7 +294,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public PageElement queryPageElement(String cssSelector)
     {
-        PageElement pageElement = getCurrentTabPanel().find(By.cssSelector(cssSelector));
+        PageElement pageElement = getPanelBodyDialog().find(By.cssSelector(cssSelector));
         Poller.waitUntilTrue(pageElement.timed().isVisible());
         return pageElement;
     }
@@ -377,7 +379,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public void waitUntilNoSpinner()
     {
-        PageElement spinner = getCurrentTabPanel().find(By.cssSelector(".loading-data .spinner"));
+        PageElement spinner = getContainerOfSelectedPanel().find(By.cssSelector(".loading-data .spinner"));
         if (spinner.isPresent())
         {
             waitUntilFalse(spinner.timed().isPresent());

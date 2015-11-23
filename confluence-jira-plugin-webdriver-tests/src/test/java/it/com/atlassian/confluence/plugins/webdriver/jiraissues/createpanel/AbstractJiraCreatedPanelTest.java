@@ -2,7 +2,6 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
 import com.atlassian.util.concurrent.NotNull;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
 
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 
@@ -13,8 +12,6 @@ import org.junit.BeforeClass;
 
 public class AbstractJiraCreatedPanelTest extends AbstractJiraTest
 {
-    protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
-
     @BeforeClass
     public static void init() throws Exception
     {
@@ -60,6 +57,9 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraTest
         MacroPlaceholder jim  = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).get(0);
         return getIssueKey(jim.getAttribute("data-macro-parameters"));
     }
+
+
+
 
     protected String getIssueKey(String macroParam)
     {

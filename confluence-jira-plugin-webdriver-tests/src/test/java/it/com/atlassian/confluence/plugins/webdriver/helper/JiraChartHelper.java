@@ -1,7 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.helper;
 
 import com.atlassian.webdriver.AtlassianWebDriver;
-
 import com.google.common.base.Function;
 
 import org.openqa.selenium.By;

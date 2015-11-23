@@ -4,13 +4,6 @@ package it.com.atlassian.confluence.plugins.webdriver;
 import com.atlassian.jira.testkit.client.Backdoor;
 import com.atlassian.jira.testkit.client.util.TestKitLocalEnvironmentData;
 import it.com.atlassian.confluence.plugins.webdriver.model.JiraProjectModel;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.TwoDimensionalChartDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -24,17 +17,10 @@ public class AbstractJiraODTest extends AbstractJiraTest
     protected static final JiraProjectModel PROJECT_THQ = new JiraProjectModel("Test OD Project 2","THQ");
     protected static String projectLead = "admin";
 
-    protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
-    protected JiraMacroRecentPanelDialog dialogJiraRecentView;
-    protected PieChartDialog dialogPieChart;
-    protected JiraMacroSearchPanelDialog dialogSearchPanel;
-    protected CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart = null;
-    protected TwoDimensionalChartDialog dialogTwoDimensionalChart;
-
     @BeforeClass
     public static void init() throws Exception
     {
-        createODTestData();
+        creatODTestData();
     }
 
     @Before
@@ -60,7 +46,7 @@ public class AbstractJiraODTest extends AbstractJiraTest
         deleteODTestData();
     }
 
-    public static void createODTestData() {
+    public static void creatODTestData() {
         long projectId;
         projectId = jiraBackdoor.project().addProject(PROJECT_TOD.getProjectName(),PROJECT_TOD.getProjectKey(), projectLead);
         PROJECT_TOD.setProjectId(String.valueOf(projectId));
@@ -75,6 +61,8 @@ public class AbstractJiraODTest extends AbstractJiraTest
         projectId = jiraBackdoor.project().addProject(PROJECT_THQ.getProjectName(),PROJECT_THQ.getProjectKey(), projectLead);
         PROJECT_THQ.setProjectId(String.valueOf(projectId));
         jiraBackdoor.issues().createIssue(PROJECT_THQ.getProjectKey(), "New Bug");
+
+
     }
 
     public static void deleteODTestData(){
@@ -82,4 +70,5 @@ public class AbstractJiraODTest extends AbstractJiraTest
         jiraBackdoor.project().deleteProject(PROJECT_TZA.getProjectKey());
         jiraBackdoor.project().deleteProject(PROJECT_THQ.getProjectKey());
     }
+
 }
