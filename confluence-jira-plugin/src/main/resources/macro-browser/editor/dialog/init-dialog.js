@@ -45,7 +45,6 @@ function(
                 {
                     id: 'tab-recent-issue',
                     isActive: false,
-                    isAlwaysRefreshWhenActive: true,
                     name: AJS.I18n.getText('insert.jira.issue.recent'),
                     PanelContentView: AJS.Editor.JiraConnector.Panel.Recent
                 }

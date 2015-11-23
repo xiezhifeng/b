@@ -248,14 +248,13 @@ public class AbstractJiraTest
     {
         openDialogFromMacroBrowser(editPage, "embed jira issues");
         JiraMacroSearchPanelDialog dialog = pageBinder.bind(JiraMacroSearchPanelDialog.class);
-        dialog.waitUntilVisible();
         return dialog;
     }
 
     protected JiraSprintMacroDialog openSprintDialogFromMacroBrowser(EditContentPage editPage) throws Exception
     {
         JiraMacroSearchPanelDialog dialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        dialog.selectPanel("Sprint");
+        dialog.selectMenuItem("JIRA Sprints");
         return pageBinder.bind(JiraSprintMacroDialog.class);
     }
 
@@ -277,7 +276,8 @@ public class AbstractJiraTest
     {
         JiraMacroSearchPanelDialog dialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         dialog.selectTabItem("Create New Issue");
-        return pageBinder.bind(JiraMacroCreatePanelDialog.class);
+        jiraMacroCreatePanelDialog = pageBinder.bind(JiraMacroCreatePanelDialog.class);
+        return jiraMacroCreatePanelDialog;
     }
 
     protected JiraIssuesPage createPageWithJiraIssueMacro(String jql) throws Exception
@@ -358,8 +358,8 @@ public class AbstractJiraTest
 
     protected CreatedVsResolvedChartDialog openJiraChartCreatedVsResolvedPanelDialog()
     {
-        PieChartDialog dialog = openPieChartDialog(true);
-        dialog.selectTabItem("Created vs Resolved");
+        PieChartDialog pieChartDialog = openPieChartDialog(true);
+        pieChartDialog.selectTabItem("Created vs Resolved");
         closeExistingAlertIfHave();
         return pageBinder.bind(CreatedVsResolvedChartDialog.class);
     }
