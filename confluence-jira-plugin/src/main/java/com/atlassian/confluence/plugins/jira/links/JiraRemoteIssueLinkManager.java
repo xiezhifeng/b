@@ -9,6 +9,8 @@ import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
+import com.atlassian.confluence.extra.jira.model.PageDTO;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.pages.AbstractPage;
@@ -19,24 +21,31 @@ import com.atlassian.sal.api.net.RequestFactory;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 
 import static com.atlassian.sal.api.net.Request.MethodType.DELETE;
 import static com.atlassian.sal.api.net.Request.MethodType.POST;
 
-public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
+public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager implements DisposableBean
 {
     private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteIssueLinkManager.class);
+    private static final int THREAD_POOL_SIZE = Integer.getInteger("jira.remotelink.threadpool.size", 10);
+    private final ExecutorService jiraLinkExecutorService;
 
     public JiraRemoteIssueLinkManager(
             ReadOnlyApplicationLinkService applicationLinkService,
             HostApplication hostApplication,
             SettingsManager settingsManager,
             JiraMacroFinderService macroFinderService,
-            RequestFactory requestFactory)
+            RequestFactory requestFactory,
+            JiraExecutorFactory executorFactory)
     {
         super(applicationLinkService, hostApplication, settingsManager, macroFinderService, requestFactory);
+        this.jiraLinkExecutorService = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, "Jira remote link executor");
     }
 
     public void updateIssueLinksForEmbeddedMacros(final AbstractPage prevPage, final AbstractPage page)
@@ -82,36 +91,47 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
         return remoteLinkMacros;
     }
 
-    private void updateRemoteLinks(AbstractPage page, Iterable<JiraIssueLinkMacro> jiraIssueLinkMacros, OperationType operationType)
+    private void updateRemoteLinks(AbstractPage page, final Iterable<JiraIssueLinkMacro> jiraIssueLinkMacros, final OperationType operationType)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
 
-        for (JiraIssueLinkMacro jiraIssueLinkMacro : jiraIssueLinkMacros)
+        final PageDTO pageDTO = new PageDTO();
+        pageDTO.setId(page.getId());
+        Callable jiraRemoteLinkCallable = new Callable<Void>()
         {
-            MacroDefinition macroDefinition = jiraIssueLinkMacro.getMacroDefinition();
-
-            String defaultParam = macroDefinition.getDefaultParameterValue();
-            String keyVal = macroDefinition.getParameters().get("key");
-            String issueKey = defaultParam != null ? defaultParam : keyVal;
-            ReadOnlyApplicationLink applicationLink = findApplicationLink(macroDefinition);
-
-            if (applicationLink == null)
+            @Override
+            public Void call() throws Exception
             {
-                LOGGER.warn("Failed to update a remote link to {} in {}. Reason: Application link not found.",
-                        issueKey,
-                        macroDefinition.getParameters().get("server"));
-                continue;
-            }
+                for (JiraIssueLinkMacro jiraIssueLinkMacro : jiraIssueLinkMacros)
+                {
+                    MacroDefinition macroDefinition = jiraIssueLinkMacro.getMacroDefinition();
 
-            if (operationType == OperationType.CREATE)
-            {
-                createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+                    String defaultParam = macroDefinition.getDefaultParameterValue();
+                    String keyVal = macroDefinition.getParameters().get("key");
+                    String issueKey = defaultParam != null ? defaultParam : keyVal;
+                    ReadOnlyApplicationLink applicationLink = findApplicationLink(macroDefinition);
+
+                    if (applicationLink == null)
+                    {
+                        LOGGER.warn("Failed to update a remote link to {} in {}. Reason: Application link not found.",
+                                issueKey,
+                                macroDefinition.getParameters().get("server"));
+                        continue;
+                    }
+
+                    if (operationType == OperationType.CREATE)
+                    {
+                        createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(pageDTO), pageDTO.getIdAsString(), issueKey);
+                    }
+                    else
+                    {
+                        deleteRemoteIssueLink(applicationLink, pageDTO.getIdAsString(), issueKey);
+                    }
+                }
+                return null;
             }
-            else
-            {
-                deleteRemoteIssueLink(applicationLink, page.getIdAsString(), issueKey);
-            }
-        }
+        };
+        jiraLinkExecutorService.submit(jiraRemoteLinkCallable);
     }
 
     private void createRemoteIssueLink(final ReadOnlyApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
@@ -189,5 +209,11 @@ public class JiraRemoteIssueLinkManager extends JiraRemoteLinkManager
         {
             return macroDefinition;
         }
+    }
+
+    @Override
+    public void destroy() throws Exception
+    {
+        jiraLinkExecutorService.shutdown();
     }
 }
