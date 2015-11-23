@@ -197,10 +197,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         }
     }
 
-    public void processRequestTable(final ClientId clientId, final Map<String, String> macroParams, Map<String, Object> contextMap, final ConversionContext conversionContext,
-                                    final List<String> columnNames, final String url,
-                                    final ReadOnlyApplicationLink appLink,
-                                    final boolean forceAnonymous, final boolean useCache) throws CredentialsRequiredException, IOException, ResponseException, MacroExecutionException
+    public void processRequestTable(final ClientId clientId, final Map<String, String> macroParams, final ConversionContext conversionContext,
+                                    final ReadOnlyApplicationLink appLink) throws CredentialsRequiredException, IOException, ResponseException, MacroExecutionException
     {
         JiraResponseData existingJiraReponseData = jiraIssuesCache.get(clientId);
         if (existingJiraReponseData != null)
