@@ -7,7 +7,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     var thiz = this;
 
     var validateNumberToShow = function() {
-        var $numberToShowError = AJS.$('.twodimensional-number-of-result-error');
+        var $numberToShowError = $('.twodimensional-number-of-result-error');
         var numberToShow = thiz.chartElements.numberToShow.val();
         if (AJS.Editor.JiraChart.Helper.isNumber(numberToShow) && numberToShow > 0) {
             $numberToShowError.empty();
@@ -70,9 +70,9 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
         var macroParams = AJS.Editor.JiraChart.Helper.getCommonMacroParamsFromDialog(this.chartElements, this.container);
         macroParams.chartType = CHART_TYPE;
         macroParams.xstattype = this.chartElements.xstattype.val();
-        macroParams.ystattype = AJS.trim(this.chartElements.ystattype.val());
-        macroParams.sortBy = AJS.trim(this.chartElements.sortBy.val());
-        macroParams.sortDirection = AJS.trim(this.chartElements.sortDirection.val());
+        macroParams.ystattype = $.trim(this.chartElements.ystattype.val());
+        macroParams.sortBy = $.trim(this.chartElements.sortBy.val());
+        macroParams.sortDirection = $.trim(this.chartElements.sortDirection.val());
         macroParams.showTotals = this.chartElements.showTotals.prop('checked');
         macroParams.numberToShow = this.chartElements.numberToShow.val();
         return macroParams;
@@ -113,7 +113,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
             thiz.chartElements.xstattype.val('statuses');
             thiz.chartElements.ystattype.val('assignees');
             if (thiz.isFormValid()) {
-                thiz.doSearch();
+                AJS.Editor.JiraChart.search(thiz.container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
@@ -123,3 +123,4 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
 
 AJS.Editor.JiraChart.Panel.TwoDimensionalChart.prototype = AJS.Editor.JiraChart.Panel.prototype;
 AJS.Editor.JiraChart.Panel.TwoDimensionalChart.prototype.constructor = AJS.Editor.JiraChart.Panel.TwoDimensionalChart;
+AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.TwoDimensionalChart(AJS.$));

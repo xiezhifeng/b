@@ -12,7 +12,7 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
 
     var validateDayPrevious = function() {
         var periodName  = thiz.chartElements.periodName.val();
-        var dayprevious = AJS.trim(thiz.chartElements.daysprevious.val());
+        var dayprevious = $.trim(thiz.chartElements.daysprevious.val());
         var error = thiz.container.find(".days-previous-error");
         if (dayprevious === "") {
             thiz.container.find(".days-previous-error").html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.required.error"));
@@ -133,7 +133,7 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
         var macroParams = AJS.Editor.JiraChart.Helper.getCommonMacroParamsFromDialog(this.chartElements, this.container);
         macroParams.chartType = CHART_TYPE;
         macroParams.periodName = this.chartElements.periodName.val();
-        macroParams.daysprevious = AJS.trim(this.chartElements.daysprevious.val());
+        macroParams.daysprevious = $.trim(this.chartElements.daysprevious.val());
         macroParams.isCumulative = this.chartElements.isCumulative.prop('checked');
         macroParams.showUnresolvedTrend = this.chartElements.showUnresolvedTrend.prop('checked');
         macroParams.versionLabel = this.chartElements.versionLabel.val();
@@ -158,3 +158,5 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
 };
 
 AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart.prototype = AJS.Editor.JiraChart.Panel.prototype;
+AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart.prototype.constructor = AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart;
+AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart(AJS.$));

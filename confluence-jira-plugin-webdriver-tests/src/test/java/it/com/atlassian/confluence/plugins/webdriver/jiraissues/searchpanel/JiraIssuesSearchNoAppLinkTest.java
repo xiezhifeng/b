@@ -37,6 +37,7 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraTest
             .permission(userNonAdmin, SpacePermission.VIEW, SpacePermission.PAGE_EDIT, SpacePermission.BLOG_EDIT)
             .build();
 
+    protected EditContentPage editPage;
     protected WarningAppLinkDialog warningAppLinkDialog;
 
     @BeforeClass
@@ -55,17 +56,30 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraTest
     @Before
     public void setup() throws Exception
     {
-        getReadyOnEditTestPage();
+        if (editPage == null)
+        {
+            editPage = gotoEditTestPage(user.get());
+        }
+        else
+        {
+            if (editPage.getEditor().isCancelVisibleNow())
+            {
+                // in editor page.
+                editPage.getEditor().getContent().clear();
+            }
+            else
+            {
+                // in view page, and then need to go to edit page.
+                editPage = gotoEditTestPage(user.get());
+            }
+        }
     }
 
     @After
-    public void tearDown() throws Exception
+    public void clearUp() throws Exception
     {
         cancelEditPage(editPage);
-        if (warningAppLinkDialog != null && warningAppLinkDialog.isVisible())
-        {
-            warningAppLinkDialog.clickCancel();
-        }
+        closeDialog(warningAppLinkDialog);
     }
 
     @Test

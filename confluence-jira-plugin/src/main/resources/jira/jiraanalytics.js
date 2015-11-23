@@ -47,7 +47,7 @@ AJS.Editor.JiraAnalytics = {
 
     setupPanelActionProperties : function(panel, source, label) {
         var properties = {};
-        if (source === JiraLinksDialogMacroView.OPEN_DIALOG_SOURCE.instructionalText) {
+        if (source === AJS.Editor.JiraConnector.source.instructionalText) {
             if (panel.analyticPanelActionName === 'confluence.jira.plugin.issuecreated') {
                 properties.issueType = panel.container.find('select[name="issuetype"] :selected').text();
             } else if (panel.analyticPanelActionName === 'confluence.jira.plugin.searchadded') {
@@ -107,7 +107,7 @@ $.aop.before({target: AJS.MacroBrowser, method: 'loadMacroInBrowser'},
   function(metadata, target) {
     if (metadata && metadata[0] && metadata[0].pluginKey == 'confluence.extra.jira') {
         AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
-            source: JiraLinksDialogMacroView.OPEN_DIALOG_SOURCE.macroBrowser
+            source : AJS.Editor.JiraConnector.source.macroBrowser
         });
     }
   }
@@ -116,7 +116,7 @@ $.aop.before({target: tinymce.confluence.macrobrowser, method: 'macroBrowserTool
   function(metadata, target) {
     if (metadata && metadata[0] && metadata[0].presetMacroMetadata && metadata[0].presetMacroMetadata.pluginKey == 'confluence.extra.jira') {
         AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
-            source: JiraLinksDialogMacroView.OPEN_DIALOG_SOURCE.editorBraceKey
+            source : AJS.Editor.JiraConnector.source.editorBraceKey
         });
     }
   }

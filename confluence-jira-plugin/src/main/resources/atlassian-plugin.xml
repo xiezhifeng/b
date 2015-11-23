@@ -182,85 +182,23 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
     </web-resource>
 
-    <web-resource key="macro-browser-util-resources" name="Macro browser utilities resources">
+    <web-resource key="common-macro-browser-editor-resources" name="Common macro browser editor resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
 
-        <resource type="download" name="module-exporter.js"
-                  location="amd/module-exporter.js"/>
-        <resource type="download" name="config.js"
-                  location="macro-browser/editor/util/config.js"/>
-        <resource type="download" name="helper.js"
-                  location="macro-browser/editor/util/helper.js"/>
-        <resource type="download" name="service.js"
-                  location="macro-browser/editor/util/service.js"/>
-        <resource type="download" name="select2-mixin.js"
-                  location="macro-browser/editor/util/select2-mixin.js"/>
+        <resource type="download" name="macro-browser-editor-config.js" location="macro-browser/editor/util/config.js"/>
+        <resource type="download" name="macro-browser-editor-helper.js" location="macro-browser/editor/util/helper.js"/>
+        <resource type="download" name="macro-browser-editor-service.js" location="macro-browser/editor/util/service.js"/>
+        <resource type="download" name="macro-browser-editor-select2-mixin.js" location="macro-browser/editor/util/select2-mixin.js"/>
 
-        <dependency>confluence.web.resources:ajs</dependency>
-        <dependency>confluence.web.resources:amd</dependency>
-    </web-resource>
+        <resource type="download" name="macro-browser-editor-abstract-dialog-view.js" location="macro-browser/editor/dialog/abstract-dialog-view.js"/>
+        <resource type="download" name="macro-browser-editor-abstract-panel-view.js" location="macro-browser/editor/dialog/abstract-panel-view.js"/>
 
-    <web-resource key="macro-browser-panel-resources" name="Macro browser dialog panel resources">
-        <transformation extension="js">
-            <transformer key="jsI18n"/>
-        </transformation>
-
-        <resource type="download" name="validation-mixin.js"
-                  location="macro-browser/editor/dialog-panel/validation-mixin.js"/>
-        <resource type="download" name="panel-collection.js"
-                  location="macro-browser/editor/dialog-panel/panel-collection.js"/>
-        <resource type="download" name="abstract-panel-view.js"
-                  location="macro-browser/editor/dialog-panel/abstract-panel-view.js"/>
-
-        <dependency>confluence.web.resources:ajs</dependency>
-        <dependency>confluence.web.resources:amd</dependency>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
-        <dependency>${atlassian.plugin.key}:macro-browser-util-resources</dependency>
-    </web-resource>
-
-    <web-resource key="macro-browser-editor-resources" name="Macro browser editor resources">
-        <transformation extension="js">
-            <transformer key="jsI18n"/>
-        </transformation>
-        <transformation extension="soy">
-            <transformer key="soyTransformer">
-                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
-            </transformer>
-        </transformation>
-        <transformation extension="less">
-            <transformer key="less-transformer"/>
-        </transformation>
-
-        <resource type="download" name="template.soy.js"
-                  location="macro-browser/editor/template.soy"/>
-        <resource type="download" name="main.css" location="macro-browser/editor/main.less"/>
-
-        <resource type="download" name="abstract-dialog-view.js"
-                  location="macro-browser/editor/dialog/abstract-dialog-view.js"/>
-        <resource type="download" name="analytic-mixin.js"
-                  location="macro-browser/editor/dialog/analytic-mixin.js"/>
-        <resource type="download" name="jira-links-dialog-macro-view.js"
-                  location="macro-browser/editor/dialog/jira-links-dialog-macro-view.js"/>
-        <resource type="download" name="init-dialog.js"
-                  location="macro-browser/editor/dialog/init-dialog.js"/>
-
-        <dependency>confluence.web.resources:ajs</dependency>
         <dependency>confluence.web.resources:amd</dependency>
         <dependency>com.atlassian.auiplugin:aui-select2</dependency>
-        <dependency>com.atlassian.auiplugin:dialog2</dependency>
-        <dependency>com.atlassian.confluence.plugins.confluence-macro-browser:macro-browser-js</dependency>
-
-        <dependency>${atlassian.plugin.key}:macro-browser-panel-resources</dependency>
-        <dependency>${atlassian.plugin.key}:macro-browser-util-resources</dependency>
-        <dependency>${atlassian.plugin.key}:macro-browser-editor-jirasprint-resource</dependency>
-
-        <dependency>${atlassian.plugin.key}:dialogsJs</dependency>
-        <dependency>${atlassian.plugin.key}:jirachart-macro</dependency>
-
-        <context>editor</context>
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency>
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
     </web-resource>
 
     <web-resource key="pdf-export-resources" name="PDF export resources">
@@ -322,6 +260,7 @@
 
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
         <resource type="download" name="create-issues-soy.js" location="templates/soy/create_issues.soy"/>
+        <context>editor</context>
 
         <dependency>confluence.web.resources:page-editor</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
@@ -451,6 +390,7 @@
         <resource type="download" name="piechart-panel.js" location="/jirachart/piechart-panel.js"/>
         <resource type="download" name="createdvsresolvedchart-panel.js" location="/jirachart/createdvsresolvedchart-panel.js"/>
         <resource type="download" name="twodimensionalchart-panel.js" location="/jirachart/twodimensionalchart-panel.js"/>
+        <context>editor</context>
     </web-resource>
 
     <!-- JIRA SPRINT MACRO -->
@@ -494,15 +434,17 @@
             <transformer key="less-transformer"/>
         </transformation>
 
-        <resource type="download" name="main.css"
-            location="macro-browser/editor/jira-sprint-panel/main.less"/>
-        <resource type="download" name="template.soy.js"
-            location="macro-browser/editor/jira-sprint-panel/template.soy"/>
+        <resource type="download" name="macro-browser-editor-jirasprint-main.css" location="macro-browser/editor/jira-sprint-dialog/main.less"/>
+        <resource type="download" name="macro-browser-editor-jirasprint-template.soy.js" location="macro-browser/editor/jira-sprint-dialog/template.soy"/>
 
-        <resource type="download" name="sprint-panel-view.js"
-            location="macro-browser/editor/jira-sprint-panel/sprint-panel-view.js"/>
+        <resource type="download" name="macro-browser-editor-jirasprint-dialog-view.js" location="macro-browser/editor/jira-sprint-dialog/dialog-view.js"/>
+        <resource type="download" name="macro-browser-editor-jirasprint-panel-view.js" location="macro-browser/editor/jira-sprint-dialog/sprint-panel-view.js"/>
+        <resource type="download" name="macro-browser-editor-jirasprint-init.js" location="macro-browser/editor/jira-sprint-dialog/init.js"/>
 
-        <dependency>${atlassian.plugin.key}:macro-browser-panel-resources</dependency>
+        <dependency>confluence.extra.jira:common-macro-browser-editor-resources</dependency>
+        <dependency>com.atlassian.confluence.plugins.confluence-macro-browser:macro-browser-js</dependency>
+
+        <context>editor</context>
     </web-resource>
 
     <resource type="download" name="jirachart_images/" location="jirachart/images/"/>

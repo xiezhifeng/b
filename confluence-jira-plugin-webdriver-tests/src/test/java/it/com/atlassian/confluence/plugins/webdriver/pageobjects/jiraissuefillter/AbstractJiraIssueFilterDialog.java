@@ -1,18 +1,43 @@
 package it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter;
 
 
+import com.atlassian.pageobjects.elements.query.TimedCondition;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.AbstractJiraIssueMacroDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedQuery;
 
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.AbstractJiraIssueMacroDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
+import org.openqa.selenium.By;
 
 public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMacroDialog
 {
+    @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
+    protected PageElement insertButton;
 
     @ElementBy(cssSelector = "#my-jira-search form button[title='Search']")
     protected PageElement searchButton;
+
+    public AbstractJiraIssueFilterDialog()
+    {
+        super("jira-connector");
+    }
+
+    public void submit()
+    {
+        insertButton.click();
+    }
+
+    public TimedQuery<Boolean> isInsertButtonEnabled()
+    {
+        return insertButton.timed().isEnabled();
+}
+
+    public PageElement getInsertButton()
+    {
+        return insertButton;
+    }
     
     public PageElement getJiraChartMacroAnchor()
     {
@@ -38,8 +63,6 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
     {
         Poller.waitUntilTrue(getSearchButton().timed().isVisible());
         getSearchButton().click();
-        Poller.waitUntilTrue(searchButton.timed().isEnabled());
-        waitUntilNoSpinner();
         return this;
     }
 
@@ -66,5 +89,14 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
     public PageElement getMaxIssuesTxt()
     {
         return find("#jira-maximum-issues");
+    }
+
+    public TimedCondition hasInsertButton(){
+        return insertButton.timed().isVisible();
+    }
+
+    public boolean isInsertable()
+    {
+        return insertButton.isEnabled();
     }
 }

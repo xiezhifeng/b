@@ -107,7 +107,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     @Test
     public void checkInputValueCreatedVsResolvedChartInJQLSearchField()
     {
-        dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
 
         dialogCreatedVsResolvedChart.inputJqlSearch("TP-1");
         dialogCreatedVsResolvedChart.clickPreviewButton();
@@ -123,4 +123,5 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
         dialogCreatedVsResolvedChart.clickBorderImage();
         assertTrue(dialogCreatedVsResolvedChart.hadBorderImageInDialog());
     }
+
 }

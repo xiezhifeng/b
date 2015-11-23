@@ -240,7 +240,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
      */
     var isJqlNotEmpty = function(jqlElement) {
         if (jqlElement) {
-            return AJS.trim(jqlElement.val()) !== "" && jqlElement.val() !== jqlElement.attr('placeholder');// supports IEs because it will return place holder value instead of the actual value when it is empty.
+            return AJS.$.trim(jqlElement.val()) !== "" && jqlElement.val() !== jqlElement.attr('placeholder');// supports IEs because it will return place holder value instead of the actual value when it is empty.
         }
         return false;
     };

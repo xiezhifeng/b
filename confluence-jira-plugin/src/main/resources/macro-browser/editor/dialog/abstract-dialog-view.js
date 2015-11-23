@@ -2,61 +2,120 @@ define('confluence/jim/macro-browser/editor/dialog/abstract-dialog-view', [
     'jquery',
     'underscore',
     'ajs',
-    'backbone',
-    'confluence/jim/macro-browser/editor/dialog/validation-mixin',
-    'confluence/jim/macro-browser/editor/dialog/abstract-panel-view'
+    'backbone'
 ],
 function(
     $,
     _,
     AJS,
-    Backbone,
-    JiraDialogValidationMixin,
-    AbstractPanelView
+    Backbone
 ) {
     'use strict';
 
-    var AbstractDialogView = Backbone.View.extend({
-        events: {
-            'click .dialog-close-button': 'close',
-            'click .dialog-submit-button': 'handleClickInsertButton',
-            'click .dialog-back-link': 'openMacroBrowserDialog',
-            'click .panels .page-menu-item': '_handleClickPanel'
-        },
+    var tinymce = window.tinymce;
 
-        template: Confluence.Templates.JiraIssueMacro.Dialog,
+    var AbstractDialogView = Backbone.View.extend({
 
         initialize: function(options) {
+
             // id of dialog
-            this.dialogId = 'jira-issue-dialog';
+            this.dialogId = '';
+
+            // title of dialog
+            this.dialogTitle = '';
 
             // macro id of dialog
             this.macroId = '';
 
-            // an instance of AUI Dialog 2
-            this.dialog = null;
+            // CSS class for primary Insert button
+            this.cssClassInsertButton = '';
 
-            // instance of active tab
-            this.currentTabContentView = null;
+            // an instance of `AJS.ConfluenceDialog`
+            this.popup = null;
 
             // list of panel objects
             this.panels = options && options.panels ? options.panels : [];
 
+            // macroId is used to insert content to editor
+            this.macroId = options && options.macroId ? options.macroId : '';
+
+            this.externalLinks = options && options.externalLinks ? options.externalLinks : [];
+
             // essential DOM elements
             this.view = {
-                // insert button of the dialog
                 $insertButton: null,
-                // left panel of the dialog
-                $panel: null
+                $searchButton: null
             };
 
             this.isValid = true;
 
+            this.on('dialog.process.finish', this.renderExternalLinks, this);
             this.on('dialog.process.finish', this.preRenderValidation, this);
-            this.on('dialog.showing.begin', this._renderTabContainers, this);
+        },
 
-            this.listenTo(this.panels, 'selected.tab.changed', this._updateUISelectedTabChanged);
-            this.listenTo(this.panels, 'selected.panel.changed', this._updateUISelectedPanelChanged);
+        /**
+         * Init Confluence Dialog once
+         */
+        _initDialog: function() {
+            if (this.popup) {
+                // do not need to initialize dialog
+                return;
+            }
+
+            this.trigger('dialog.process.begin');
+
+            this.popup = new AJS.ConfluenceDialog({
+                width: 840,
+                height: 590,
+                id: this.dialogId
+            });
+
+            this.popup.addHeader(this.dialogTitle);
+
+            // add insert button
+            var insertText = AJS.I18n.getText('insert.jira.issue.button.insert');
+            this.popup.addButton(insertText, this.handleClickInsertButton.bind(this), this.cssClassInsertButton);
+
+            // add button cancel
+            var cancelText = AJS.I18n.getText('insert.jira.issue.button.cancel');
+            this.popup.addCancel(cancelText, this.close.bind(this));
+
+            // add link select macro
+            this.popup.addLink(AJS.I18n.getText('insert.jira.issue.button.select.macro'), function() {
+                this.popup.hide();
+                AJS.MacroBrowser.open(false);
+            }.bind(this), 'dialog-back-link');
+
+            // add panels
+            var panels = this.panels;
+            _.each(panels, function(panel) {
+                if (typeof (panel.panelTitle) === 'function') {
+                    this.popup.addPanel(panel.panelTitle());
+                } else if (panel.panelTitle) {
+                    this.popup.addPanel(panel.panelTitle);
+                }
+
+                var panelDialog = this.popup.getCurrentPanel();
+                panel.render({
+                    dialog: this,
+                    panelDialog: panelDialog
+                });
+
+            }.bind(this));
+
+            var $container = this.popup.popup.element;
+
+            this.$el = $container;
+            this.el = this.$el[0];
+            this.delegateEvents();
+
+            this.view.$insertButton = this.$('.' + this.cssClassInsertButton);
+
+            // go to first panel
+            this.popup.gotoPanel(0);
+            this.popup.overrideLastTab();
+
+            this.trigger('dialog.process.finish');
         },
 
         render: function(macroOptions) {
@@ -64,7 +123,7 @@ function(
 
             // do not show the dialog if it is invalid state.
             if (this.isValid) {
-                this.dialog.show();
+                this.popup.show();
                 this.trigger('dialog.showing.begin', macroOptions);
             } else {
                 this.toggleEnableInsertButton(false);
@@ -72,139 +131,124 @@ function(
         },
 
         /**
-         * Re-render current panel UI
-         */
-        refresh: function() {
-            // remove all tab content
-            var $containerContent = this.$el.find('.dialog-main-content');
-            this.panels.each(function(panel) {
-                _.each(panel.get('tabs'), function(tab) {
-                    var $tabContainer = $containerContent.find('#' + tab.id);
-                    $tabContainer.empty();
-                }, this);
-            }, this);
-
-            this._renderTabContainers();
-
-            this._updateUISelectedPanelChanged();
-            this._updateUISelectedTabChanged();
-        },
-
-        /**
-         * Init Confluence Dialog once
-         * When the dialog 2 is close, it will be destroyed completely, so we need to create Dialog2 instance again.
-         */
-        _initDialog: function() {
-            this.trigger('dialog.process.begin');
-
-            var dialogMarkup = this.template.dialog({
-                panels: this.panels.toJSON()
-            });
-            this.dialog = AJS.dialog2(dialogMarkup);
-
-            this.$el =  this.dialog.$el;
-            this.el = this.$el[0];
-
-            this.delegateEvents();
-
-            this.view.$panel = this.$('.panels');
-            this.view.$insertButton = this.$('.dialog-submit-button');
-
-            this.trigger('dialog.process.finish');
-        },
-
-        /**
          * Some some validation on early state.
          * If the dialog is in invalid state after validation, the dialog should not appear.
          */
         preRenderValidation: function() {
-            this._fetchServersData();
-
-            // TODO: because legacy code is storing servers data in global variable which is populated when editor is opening.
+            // TODO: because we are storing servers data in global variable which is populated when editor is opening.
             this.servers = AJS.Editor.JiraConnector.servers;
-            this.isValid = this.validateServers(this.servers);
-        },
 
-        /**
-         * Render all tabs content view of all panels in DOM because
-         * we all to keep state of tab.
-         * @private
-         */
-        _renderTabContainers: function() {
-            var $containerContent = this.$el.find('.dialog-main-content');
-
-            AJS.tabs.setup();
-
-            // render all tabs content
-            this.panels.each(function(panel) {
-                _.each(panel.get('tabs'), function(tab) {
-                    var $tabContainer = $containerContent.find('#' + tab.id);
-
-                    var PanelContentView = tab.PanelContentView;
-                    var tabContentView = new PanelContentView({
-                        macroId: panel.get('macroId')
-                    });
-
-                    // legacy code
-                    if (tabContentView.init) {
-                        tabContentView.init($tabContainer);
-                    } else {
-                        // new dialog/panel
-                        tabContentView.render({
-                            dialog: this
-                        });
-                        $tabContainer.append(tabContentView.$el);
-                    }
-
-                    tab.cachedView = tabContentView;
-                }, this);
-            }, this);
-
-            $containerContent.find('.menu-item a').on('tabSelect', this._handleTabSelect.bind(this));
-        },
-
-        _fetchServersData: function() {
-            // prefetch server columns for autocompletion feature
-            if (!AJS.Editor.JiraConnector.servers) {
+            // check no app link config
+            if (this.servers.length === 0) {
+                this.showingWarningPopupToSetUpAppLink();
+                this.isValid = false;
                 return;
             }
 
-            var len = AJS.Editor.JiraConnector.servers.length;
-            for ( var i = 0; i < len; i++) {
-                var server = AJS.Editor.JiraConnector.servers[i];
+            this.isValid = true;
+        },
 
-                window.AppLinks.makeRequest({
-                    appId: server.id,
-                    type: 'GET',
-                    url: '/rest/api/2/field',
-                    dataType: 'json',
-                    serverIndex: i,
-                    success: function(data) {
-                        if (data && data.length) {
-                            AJS.Editor.JiraConnector.servers[this.serverIndex].columns = data;
-                        }
-                    },
-                    error: function() {
-                        AJS.log('Jira Issues Macro: unable to retrieve fields from AppLink: ' + server.id);
-                    }
+        showingWarningPopupToSetUpAppLink: function() {
+            var isAdmin = AJS.Meta.get('is-admin');
+
+            // create new dialog
+            var warningDialog = new AJS.ConfluenceDialog({width: 600, height: 400, id: 'warning-applink-dialog'});
+
+            // add title dialog
+            var warningDialogTitle = AJS.I18n.getText('applink.connector.jira.popup.title');
+            warningDialog.addHeader(warningDialogTitle);
+
+            // add button cancel
+            warningDialog.addLink(AJS.I18n.getText('insert.jira.issue.button.cancel'), function() {
+                warningDialog.hide();
+                tinymce.confluence.macrobrowser.macroBrowserCancel();
+            });
+
+            // add body content in panel
+            var bodyContent = Confluence.Templates.ConfluenceJiraPlugin.warningDialog({
+                isAdministrator: isAdmin
+            });
+
+            if (isAdmin) {
+                // add button set connect
+                warningDialog.addButton(AJS.I18n.getText('applink.connector.jira.popup.button.admin'), function() {
+                    AJS.Editor.JiraConnector.clickConfigApplink = true;
+                    warningDialog.hide();
+                    tinymce.confluence.macrobrowser.macroBrowserCancel();
+                    window.open(AJS.contextPath() + '/admin/listapplicationlinks.action', '_blank');
+                }, 'create-dialog-create-button app_link');
+
+                // apply class css of form
+                warningDialog.popup.element
+                        .find('.create-dialog-create-button')
+                        .removeClass('button-panel-button')
+                        .addClass('aui-button aui-button-primary');
+
+            } else {
+                // add button contact admin
+                warningDialog.addButton(AJS.I18n.getText('applink.connector.jira.popup.button.contact.admin'), function() {
+                    warningDialog.hide();
+
+                    tinymce.confluence.macrobrowser.macroBrowserCancel();
+                    window.open(AJS.contextPath() + '/wiki/contactadministrators.action', '_blank');
                 });
             }
+
+            warningDialog.addPanel('Panel 1', bodyContent);
+            warningDialog.get('panel:0').setPadding(0);
+            warningDialog.show();
+            warningDialog.gotoPanel(0);
+        },
+
+        /**
+         * Open the dialog with macro options
+         * @param {Object} macroOptions
+         */
+        open: function(macroOptions) {
+            this.render(macroOptions);
         },
 
         /**
          * Close dialog
          */
         close: function() {
-            this.panels.resetCachedView();
-            this.dialog.hide();
-            window.tinymce.confluence.macrobrowser.macroBrowserCancel();
+            this.popup.hide();
+            tinymce.confluence.macrobrowser.macroBrowserCancel();
         },
 
-        openMacroBrowserDialog: function(e) {
-            e.preventDefault();
+        renderExternalLinks: function() {
+            if (!this.externalLinks.length) {
+                return;
+            }
 
-            this.close();
-            AJS.MacroBrowser.open(false);
+            var linksMarkup = Confluence.Templates.ConfluenceJiraPlugin.addCrossMacroLinks({
+                links: this.externalLinks
+            });
+
+            var $menu = this.$('ul.dialog-page-menu');
+            $menu.append(linksMarkup).show();
+
+            _.each(this.externalLinks, function(link) {
+                if (typeof link.callBack === 'function') {
+                    $menu.find('#' + link.id).on('click', link.callBack.bind(this));
+                }
+            }, this);
+        },
+
+        /**
+         * Handle clicking insert button to submit dialog
+         */
+        handleClickInsertButton: function() {
+            var panel = this.panels[this.popup.getCurrentPanel().id];
+            var params = panel.getUserInputData();
+
+            if (AJS.Editor.inRichTextMode() && params) {
+                tinymce.confluence.macrobrowser.macroBrowserComplete({
+                    name: this.macroId,
+                    params: params
+                });
+                this.close();
+            }
         },
 
         /**
@@ -213,110 +257,12 @@ function(
          */
         toggleEnableInsertButton: function(isEnabled) {
             if (isEnabled) {
-                this.view.$insertButton.enable();
+                this.view.$insertButton.removeAttr('disabled');
             } else {
-                this.view.$insertButton.disable();
+                this.view.$insertButton.attr('disabled', 'disabled');
             }
-        },
-
-        /**
-         * Handle clicking Insert button of the dialog.
-         */
-        handleClickInsertButton: function() {
-        },
-
-        /**
-         * Handle logic when users click on panel title
-         * @param e
-         * @private
-         */
-        _handleClickPanel: function(e) {
-            var $this = $(e.target).closest('.page-menu-item');
-
-            $this.parent().find('.page-menu-item').removeClass('selected');
-            $this.addClass('selected');
-
-            this.currentTabContentView = null;
-
-            // update selected panel without trigger events.
-            var newPanelId = $this.attr('data-panel-id');
-            var currentPanel = this.panels.setSelectedForPanelById(newPanelId, false);
-
-            // update current macro id in dialog
-            this.macroId = currentPanel.get('macroId');
-
-            // update tooltip for dialog
-            this.$('.aui-dialog2-footer-hint .other-footer-hint').html(currentPanel.get('tooltipFooter'));
-
-            // show tab content
-            var $containerContent = this.$el.find('.dialog-main-content');
-            $containerContent.find('.dialog-main-content-inner')
-                    .addClass('hidden')
-                    .filter('.' + currentPanel.id).removeClass('hidden');
-
-            AJS.tabs.change($containerContent.find('.menu-item[data-tab-id=' + this.panels.getActiveTab().id + '] a'));
-        },
-
-        _handleTabSelect: function(event, data) {
-            // update new active tab
-            var newTabId = data.tab.closest('.menu-item').attr('data-tab-id');
-            this.panels.setActiveForTabByTabId(newTabId, false);
-
-            var currentNewTab = this.panels.getActiveTab();
-            this.currentTabContentView = currentNewTab.cachedView;
-
-            // for dialog2
-            if (currentNewTab.cachedView instanceof AbstractPanelView) {
-                var isOpenFromMacro =  this.openDialogOptions && this.openDialogOptions.params && this.openDialogOptions.params.serverId;
-                this.currentTabContentView.initWithMacroOption(this.openDialogOptions, isOpenFromMacro);
-            } else {
-                // for legacy code:
-                // because legacy code does not have good APIs, so this is workaround to be compatiable with old code.
-                if (this.currentTabContentView.focusForm) {
-                    this.currentTabContentView.focusForm();
-                }
-
-                if (this.currentTabContentView.setInsertButtonState) {
-                    this.currentTabContentView.setInsertButtonState();
-                }
-
-                if (this.currentTabContentView.validateSelectedServer) {
-                    this.currentTabContentView.validateSelectedServer();
-                }
-
-                if (this.currentTabContentView.handleInsertButton) {
-                    this.currentTabContentView.handleInsertButton();
-                }
-            }
-        },
-
-        _updateUISelectedPanelChanged: function() {
-            // find default selected panel
-            var selectedPanel = this.panels.getSelectedPanel();
-
-            if (selectedPanel) {
-                this.view.$panel.find('.page-menu-item[data-panel-id=' + selectedPanel.get('id') + ']').trigger('click');
-            }
-        },
-
-        _updateUISelectedTabChanged: function() {
-            // find default selected panel
-            var selectActive = this.panels.getActiveTab();
-
-            if (selectActive) {
-                AJS.tabs.change(this.$el.find('.menu-item[data-tab-id=' + selectActive.id + '] a'));
-            }
-        }
-    }, {
-        OPEN_DIALOG_SOURCE: {
-            macroBrowser: 'macro_browser',
-            editorBraceKey: 'editor_brace_key',
-            editorHotKey: 'editor_hot_key',
-            editorDropdownLink: 'editor_dropdown_link',
-            instructionalText: 'instructional text'
         }
     });
 
-    _.extend(AbstractDialogView.prototype, JiraDialogValidationMixin);
     return AbstractDialogView;
 });

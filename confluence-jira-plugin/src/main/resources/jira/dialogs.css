@@ -37,7 +37,12 @@
 }
 
 #my-recent-issues .jiraSearchResults.data-table {
+    height:443px;
     position: relative;
+}
+
+#my-recent-issues .jira-server-select ~ .jiraSearchResults.data-table {
+    height: 395px;
 }
 
 #my-jira-search .jql-insert-check{
@@ -49,7 +54,7 @@
     table-layout: fixed;
 }
 #my-jira-search .data-table .issue-checkbox-column {
-    width: 40px;
+    width: 10px;
     text-align: center;
 }
 .jiraSearchResults.data-table td{
@@ -65,7 +70,8 @@
     width:25%;
 }
 
-#jira-issue-dialog .loading-data {
+.jiraSearchResults.data-table .loading-data,
+.create-issue-container .loading-blanket .loading-data{
     position: absolute;
     top: 50%;
     left: 50%;
@@ -128,37 +134,30 @@ div.oauth-message{
 #my-jira-search {
     position: relative;
     z-index: 40;
+    height: 463px;
     overflow: hidden;
 }
 #my-jira-search div.search-input {
     display: inline-block;
-    width: 300px;
+    width: 290px;
     margin-right: 10px;
 }
-#my-jira-search div.search-input.one-server,
-#my-jira-search div.search-input.one-server > input {
+#my-jira-search div.search-input.one-server {
     width: 560px;
-    max-width: 560px;
 }
-
 #my-jira-search .group {
     padding: 4px 0 4px 145px;
 }
-
 .jql-display-opts-overlay {
     position: absolute;
     z-index: 50;
     width: 100%;
     background: #FFF;
     border-top: 1px solid #ccc;
-    overflow: auto;
-    height: 100%;
 }
-
 .jql-display-opts-inner {
-    padding: 5px 0 0 0 ;
+    padding: 12px 15px;
 }
-
 .jql-display-opts-close span {
     background: url(bullets.png) no-repeat left -50px;
     width: 15px;
@@ -198,8 +197,7 @@ a.jql-display-opts-open span {
 }
 
 #my-jira-search .jiraSearchResults.data-table {
-    height: calc(100% - 94px);
-    width: 100%;
+    height: 365px;
 }
 
 .aui-dialog .dialog-panel-body .warning-body {

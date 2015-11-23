@@ -1,4 +1,4 @@
-{namespace Confluence.Templates.JiraIssueMacro.Dialog}
+{namespace Confluence.Templates.JiraSprints.Dialog}
 
 /**
  * JIRA Sprint home wizard template
@@ -43,29 +43,61 @@
     </form>
 {/template}
 
+
 /**
-* Select option
-* @param items
-*/
-{template .selectOptions}
-    {foreach $item in $items}
-        <option value="{$item.id}">{$item.name}</option>
+ * Error message for missing Oauth url
+ */
+{template .errorMessageOauth}
+    <div class="aui-message-container oauth-form">
+        <div class="aui-message info">
+            <span class="aui-icon icon-info"></span>{getText('jira.sprint.oauth.message.text')}&nbsp;
+            <a href="#">{getText('jira.sprint.oauth.link.text')}</a>
+        </div>
+    </div>
+{/template}
+
+/**
+ * Servers select box
+ * @param servers
+ */
+{template .serverOptions}
+    {foreach $server in $servers}
+        <option value="{$server.id}">{$server.name}</option>
     {/foreach}
 {/template}
 
+/**
+ * Option template for Board
+ * @param boards
+ */
+{template .boardOptions}
+    {foreach $board in $boards}
+        <option value="{$board.id}">{$board.name}</option>
+    {/foreach}
+{/template}
 
 /**
- * Loading option of select element
+ * Option template for Sprint
+ * @param sprints
+ */
+{template .sprintOptions}
+    {foreach $sprint in $sprints}
+        <option value="{$sprint.id}">{$sprint.name}</option>
+    {/foreach}
+{/template}
+
+/**
+ * Servers select box
  */
 {template .loadingOption}
-    <option value="" selected="selected">
+    <option value="loading" selected="selected">
         {getText('jira.sprint.select.loading.value')}
     </option>
 {/template}
 
 
 /**
- * Default option of select box
+ * Servers select box
  * @param defaultValue
  */
 {template .defaultOption}

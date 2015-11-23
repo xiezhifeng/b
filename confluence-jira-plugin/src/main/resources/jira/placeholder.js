@@ -3,9 +3,7 @@
 
         AJS.bind('editor.text-placeholder.activated', function(e, data) {
             if(data && data.placeholderType === 'jira') {
-                AJS.trigger('jira.links.macro.dialog.open', {
-                    openSource: JiraLinksDialogMacroView.OPEN_DIALOG_SOURCE.instructionalText
-                });
+                AJS.Editor.JiraConnector.open(AJS.Editor.JiraConnector.source.instructionalText);
             }
         });
 

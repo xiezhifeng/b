@@ -34,7 +34,7 @@ public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
         sprintDialog.selectBoard(SCRUM_BOARD_1.getName());
         sprintDialog.selectSprint(SPRINT2.getName());
 
-        sprintDialog.clickInsertDialog();
+        sprintDialog.insert();
 
         // check edit mode
         EditorContent editorContent = editPage.getEditor().getContent();

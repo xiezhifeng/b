@@ -15,7 +15,7 @@
  * Renders a content display option overlay
  */
 {template .displayOptsOverlayHtml}
-    <div class='jql-display-opts-overlay data-table' data-js="display-option-wrapper" aria-disabled="true">
+    <div class='jql-display-opts-overlay data-table' data-js="display-option-wrapper">
         <form id="jiraMacroDlg" class="aui" action="#">
             <div class='jql-display-opts-inner'>
                 <a href='#' class='jql-display-opts-open' data-js="display-option-trigger" data-title="{getText('insert.jira.issue.option.displayoptions.tooltip')}"><span></span><strong>{getText('insert.jira.issue.option.displayoptions')}</strong></a>
@@ -170,7 +170,7 @@
     </div>
     <div class="jira-chart-img">
     </div>
-    <div class="jira-chart-option" data-js="display-option-wrapper" aria-disabled="true">
+    <div class="jira-chart-option" data-js="display-option-wrapper" >
         <form action="#" class="aui" id="jiraChartMacroOption">
             <div class="jiraChartOption">
                 <a class="jirachart-display-opts-open" data-js="display-option-trigger" href="#">

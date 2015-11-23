@@ -4,6 +4,7 @@ define('confluence/jim/macro-browser/editor/jirasprint/sprint-panel-view', [
     'ajs',
     'backbone',
     'confluence/jim/macro-browser/editor/dialog/abstract-panel-view',
+    'confluence/jim/macro-browser/editor/util/config',
     'confluence/jim/macro-browser/editor/util/service'
 ],
 function(
@@ -12,6 +13,7 @@ function(
     AJS,
     Backbone,
     AbstractPanelView,
+    config,
     service
 ) {
     'use strict';
@@ -22,8 +24,14 @@ function(
             'change .jira-sprints': '_onSelectSprintChanged'
         },
 
-        initialize: function(options) {
+        initialize: function() {
             AbstractPanelView.prototype.initialize.apply(this, arguments);
+
+            this.panelTitle = AJS.I18n.getText('jira.sprint.panel.title');
+            this.panelId = 'jira-sprint-panel';
+
+            // a map of template functions
+            this.template = Confluence.Templates.JiraSprints.Dialog;
         },
 
         render: function(options) {
@@ -99,13 +107,13 @@ function(
                     .done(function(boards) {
                         this.boards = boards;
 
-                        this.fillDataSelect2(this.view.$boards, boards);
+                        var templateSelect2Option = this.template.boardOptions;
+                        this.fillDataSelect2(this.view.$boards, templateSelect2Option, {boards: boards});
 
-                        if (this.macroOptions &&
-                            this.macroOptions.params &&
-                            this.macroOptions.params.boardId) {
+                        if (this.macroOptions) {
                             this.setSelect2Value(this.view.$boards, this.macroOptions.params.boardId);
                         }
+
                     }.bind(this));
         },
 
@@ -122,13 +130,13 @@ function(
                     .done(function(sprints) {
                         this.sprints = sprints;
 
-                        this.fillDataSelect2(this.view.$sprints, sprints);
+                        var templateSelect2Option = this.template.sprintOptions;
+                        this.fillDataSelect2(this.view.$sprints, templateSelect2Option, {sprints: sprints});
 
-                        if (this.macroOptions &&
-                            this.macroOptions.params &&
-                            this.macroOptions.params.sprintId) {
+                        if (this.macroOptions) {
                             this.setSelect2Value(this.view.$sprints, this.macroOptions.params.sprintId);
                         }
+
                     }.bind(this));
         },
 
@@ -136,6 +144,7 @@ function(
             var boardId = parseInt(this.view.$boards.val(), 10);
             var selectedBoard = _.findWhere(this.boards, {id: boardId});
             this.formData.set('selectedBoard', selectedBoard);
+            this.resetSelect2Options(this.view.$sprints);
         },
 
         _onSelectSprintChanged: function() {
@@ -182,8 +191,6 @@ function(
 
         /**
          * Do some validations before submiting the dialog.
-         * If the state of this panel is invalid, Insert button of the dialog will not be disabled.
-         * In other hand, the Insert button is always enable. The dialog is not close if state of the dialog is invalid.
          * @returns {boolean}
          */
         validate: function() {

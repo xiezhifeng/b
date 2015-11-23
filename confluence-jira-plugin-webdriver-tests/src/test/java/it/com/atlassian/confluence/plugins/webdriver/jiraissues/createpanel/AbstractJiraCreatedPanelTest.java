@@ -21,8 +21,23 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraTest
     @Before
     public void setup() throws Exception
     {
-        getReadyOnEditTestPage();
-
+       if (editPage == null)
+        {
+            editPage = gotoEditTestPage(user.get());
+        }
+        else
+        {
+            if (editPage.getEditor().isCancelVisibleNow())
+            {
+                // in editor page.
+                editPage.getEditor().getContent().clear();
+            }
+            else
+            {
+                // in view page, and then need to go to edit page.
+                editPage = gotoEditTestPage(user.get());
+            }
+        }
         jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
     }
@@ -42,7 +57,7 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraTest
     protected String createJiraIssue(String project, String issueType, String summary,
                                      @NotNull String epicName)
     {
-        jiraMacroCreatePanelDialog.selectTabItem("Create New Issue");
+        jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
         jiraMacroCreatePanelDialog.selectProject(project);
 
         waitForAjaxRequest();
@@ -52,7 +67,7 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraTest
 
         jiraMacroCreatePanelDialog.setEpicName(epicName);
 
-        jiraMacroCreatePanelDialog.clickInsertDialog();
+        jiraMacroCreatePanelDialog.insertIssue();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         MacroPlaceholder jim  = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).get(0);
         return getIssueKey(jim.getAttribute("data-macro-parameters"));

@@ -2,7 +2,6 @@
     padding: 10px 10px 0 10px;
 }
 
-#jira-issue-dialog .jira-chart-search .search-help,
 #jira-chart .jira-chart-search .search-help {
     font-size: 10px;
 }
@@ -12,13 +11,13 @@
     z-index: 40;
     height: 470px;
     overflow: hidden;
+    margin-top: 10px;
 }
 
-#jira-chart .jira-chart-img,
-#jira-issue-dialog .jira-chart-img {
-    margin : 10px;
-    padding : 0;
-    overflow : hidden;
+#jira-chart .jira-chart-img {
+	margin : 10px;
+	padding : 0;
+	overflow : hidden;
 }
 
 #chart-preview-iframe {
@@ -59,14 +58,12 @@
 	margin-right : -19px;
 }
 
-#jira-chart .jira-chart-search-input.one-server,
-#jira-issue-dialog .jira-chart-search-input.one-server {
+#jira-chart .jira-chart-search-input.one-server {
     display: inline-block;
     width: 535px;
 }
 
-#jira-chart .jira-chart-option,
-#jira-issue-dialog .jira-chart-option {
+#jira-chart .jira-chart-option {
     background: none repeat scroll 0 0 #FFFFFF;
     border-top: 1px solid #CCCCCC;
     position: absolute;
@@ -74,14 +71,12 @@
     z-index: 50;
 }
 
-#jira-chart a.jirachart-display-opts-open, #jira-chart a.jirachart-display-opts-close,
-#jira-issue-dialog a.jirachart-display-opts-open, #jira-issue-dialog a.jirachart-display-opts-close {
+#jira-chart a.jirachart-display-opts-open, #jira-chart a.jirachart-display-opts-close {
     font-size: 14px;
     line-height: 27px;
 }
 
-#jira-chart a.jirachart-display-opts-open.disabled,
-#jira-issue-dialog a.jirachart-display-opts-open.disabled {
+#jira-chart a.jirachart-display-opts-open.disabled {
     opacity: .5;
     text-decoration: none;
     cursor: help;
@@ -92,8 +87,7 @@
     padding: 0 !important;
 }
 
-#jira-chart .jira-chart-img .jira-chart-macro-img,
-#jira-issue-dialog .jira-chart-img .jira-chart-macro-img {
+#jira-chart .jira-chart-img .jira-chart-macro-img {
     text-align: center;
     padding-top: 2px;
     height: 375px;
@@ -106,7 +100,7 @@
 
 .jira-chart-search-input {
     display: inline-block;
-    width: 390px;
+    width: 380px;
 }
 
 #jira-chart-servers.select {
@@ -115,12 +109,10 @@
     max-width: 125px;
 }
 
-#jira-chart .jirachart-border,
-#jira-issue-dialog .jirachart-border {
+#jira-chart .jirachart-border {
     border: 1px solid #CCCCCC;
 }
 
-#jira-issue-dialog .display-option-icon,
 #jira-chart .display-option-icon {
     width: 15px;
     height: 15px;
@@ -129,28 +121,23 @@
     margin: 0 5px 3px 0;
 }
 
-#jira-issue-dialog .jirachart-display-opts-close .display-option-icon,
 #jira-chart .jirachart-display-opts-close .display-option-icon {
     background: url(icon-expand-view-down.png) no-repeat;
 }
 
-#jira-issue-dialog .jirachart-display-opts-open .display-option-icon,
 #jira-chart .jirachart-display-opts-open .display-option-icon {
     background: url(icon-expand-view-up.png) no-repeat;
 }
 
-#jira-issue-dialog .panel-jira-chart .loading-data {
-    position: absolute;
-    top: calc(50% - 60px);
-    left: calc(50% - 60px);
+#jira-chart .loading-data {
+    margin-left: 250px;
+    margin-top: 60px;
 }
 
-#jira-issue-dialog .moreToCome,
 #jira-chart .moreToCome {
     padding-left: 10px;
 }
 
-#jira-issue-dialog .dialog-page-menu li button::-moz-focus-inner,
 #jira-chart .dialog-page-menu li button::-moz-focus-inner {
     margin: 0;
     padding: 0;
@@ -192,7 +179,6 @@
     width: 535px;
 }
 
-#jira-issue-dialog .help-aligment,
 #jira-chart .help-aligment {
     margin-left: 10px;
     cursor: pointer;
