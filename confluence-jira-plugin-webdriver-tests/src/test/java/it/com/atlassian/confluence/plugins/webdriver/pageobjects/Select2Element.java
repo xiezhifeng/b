@@ -29,9 +29,9 @@ public class Select2Element extends ConfluenceAbstractPageComponent
     {
         PageElement pageElement = selectElement.find(By.cssSelector(".select2-choice"));
         Poller.waitUntilTrue(pageElement.timed().isVisible());
+
         pageElement.javascript().execute("jQuery(arguments[0]).trigger('mousedown')");
         waitUntilDropdownIsVisible();
-
         return this;
     }
 

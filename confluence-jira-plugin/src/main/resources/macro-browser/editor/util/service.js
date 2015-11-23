@@ -13,10 +13,6 @@ function(
     var cacheServerData = null;
 
     return {
-        clearCache: function() {
-            cacheServerData = null;
-        },
-
         loadJiraServers: function() {
             var dfd = $.Deferred();
 

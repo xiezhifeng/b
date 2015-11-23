@@ -249,7 +249,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             AJS.$(panel).select(function() {
                 thiz.validate();
             });
-
             // add tipsy tooltip
             var $optionsPanel = AJS.$('.jql-display-opts-open.disabled');
             var tipsyOptions = {
@@ -260,7 +259,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 delayOut: 0
             };
             $optionsPanel.tooltip(tipsyOptions);
-            this.validate();
         },
 
         focusForm: function() {
@@ -321,7 +319,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         },
 
         validate: function(acceptNoResult, searchParams) {
-            var _this = this;
             var container = this.container;
             var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
             var searchPanel = AJS.Editor.JiraConnector.Panel.Search.prototype;
@@ -335,7 +332,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 searchPanel.changeInsertOptionStatus(selectedIssueCount, acceptNoResult, searchParams);
             } else {
                 if (AJS.$('.jira-oauth-message-marker', container).length) {
-                    _this.authCheck(this.selectedServer);
+                    searchPanel.authCheck(this.selectedServer);
                 }
                 AJS.$('input', container).focus();
                 searchPanel.disableInsert();
@@ -600,7 +597,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         addDisplayOptionPanel: function() {
             //get content from soy template
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
-            this.container.find('.jiraSearchResults').after(displayOptsOverlayHtml());
+            AJS.$(".jiraSearchResults").after(displayOptsOverlayHtml());
             //Here we need to bind the submit and return false to prevent the user submission.
             AJS.$("#jiraMacroDlg").unbind("submit").on("submit", function(e) {
                     return false;
@@ -611,8 +608,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var jiraIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;
             //add infor view all
             if(totalIssues > 20) {
-                var markup = Confluence.Templates.ConfluenceJiraPlugin.viewAll({'jiraIssuesLink': jiraIssuesLink});
-                this.container.find('.my-result.aui').after(markup);
+                AJS.$(".my-result.aui").after(Confluence.Templates.ConfluenceJiraPlugin.viewAll({'jiraIssuesLink':jiraIssuesLink}));
             }
             //update total issues display
             var totalIssuesText = AJS.I18n.getText('insert.jira.issue.option.count.sample', totalIssues);

@@ -76,7 +76,6 @@ function(
             this.resetSelect2Options($el);
 
             if (isLoading) {
-                $el.addClass('loading');
                 $el.after('<span class="aui-icon aui-icon-wait">Loading...</span>');
                 this.toggleEnableSelect2($el, false);
 
@@ -85,7 +84,6 @@ function(
 
                 this.selectFirstValueInSelect2($el);
             } else {
-                $el.removeClass('loading');
                 $el.parent().find('.aui-icon-wait').remove();
                 this.toggleEnableSelect2($el, true);
             }
@@ -94,7 +92,6 @@ function(
         resetSelect2Options: function($el) {
             this.toggleEnableSelect2($el, true);
             $el.parent().find('.aui-icon-wait').remove();
-            $el.removeClass('loading');
 
             $el.empty();
             $el.auiSelect2('data', null);

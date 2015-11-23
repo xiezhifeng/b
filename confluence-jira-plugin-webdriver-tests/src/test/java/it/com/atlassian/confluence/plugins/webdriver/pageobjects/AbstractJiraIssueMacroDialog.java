@@ -54,12 +54,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         waitUntilVisible();
     }
 
-    public void waitUntilVisible()
-    {
-        super.waitUntilVisible();
-        Poller.waitUntilFalse(getDialog().timed().hasClass("loading"));
-    }
-
     /**
      * Select a tab by tab name
      * @param tabText
@@ -73,7 +67,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
             if(tabText.equals(anchor.getText()))
             {
                 anchor.click();
-                Poller.waitUntil(anchor.timed().getAttribute("aria-selected"), Matchers.equalToIgnoringCase("true"));
+                Poller.waitUntilTrue(anchor.timed().hasAttribute("aria-selected", "true"));
                 break;
             }
         }
@@ -272,24 +266,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         PageElement selectedPanel = find(".page-menu-item.selected");
         String selectedPanelId = selectedPanel.getAttribute("data-panel-id");
         return find(".dialog-main-content-inner." + selectedPanelId);
-    }
-
-    /**
-     * Select a panel by panel name
-     */
-    public void selectPanel(String panelName)
-    {
-        List<PageElement> panels = findAll(".dialog-page-menu .page-menu-item");
-
-        for(PageElement panel : panels)
-        {
-            if(panelName.equals(panel.getText()))
-            {
-                panel.click();
-                Poller.waitUntilTrue(panel.timed().hasClass("selected"));
-                break;
-            }
-        }
     }
 
     public PageElement queryPageElement(String cssSelector)

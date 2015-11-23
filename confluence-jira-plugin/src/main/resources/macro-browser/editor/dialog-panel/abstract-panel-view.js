@@ -81,8 +81,7 @@ function(
             this.dialogView.toggleEnableInsertButton(true);
 
             // just init once time because we want to keep view state when switching between panels/views
-            if (this.isAlreadyInit &&
-                this.formData.get('isValid')) {
+            if (this.isAlreadyInit) {
                 return;
             }
 
@@ -226,8 +225,6 @@ function(
             }.bind(this));
 
             dfd.fail(function(xhr, errorStatus) {
-                this.formData.set('isValid', false);
-                service.clearCache();
                 this.handleRequestError($select, errorStatus);
             }.bind(this));
 
@@ -277,7 +274,6 @@ function(
                 // avoid "formData" model trigger change event
                 this.formData.attributes.selectedServer = null;
                 this.dialogView.toggleEnableInsertButton(false);
-                service.clearCache();
             }
         },
 
