@@ -54,6 +54,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public void selectBoard(String boardName)
     {
+        waitUntilBoardLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
         select.waitForFinishLoading();
         select.openDropdown();
@@ -62,6 +63,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public void selectSprint(String sprintName)
     {
+        waitUntilSprintLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
         select.waitForFinishLoading();
         select.openDropdown();
@@ -70,11 +72,13 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public List<String> getAllBoardOptions()
     {
+        waitUntilBoardLoaded();
         return getAllOptions(boardSelect);
     }
 
     public List<String> getAllSprintOptions()
     {
+        waitUntilSprintLoaded();
         return getAllOptions(sprintSelect);
     }
 
@@ -91,6 +95,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public String getSelectedBoard()
     {
+        waitUntilBoardLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
         select.waitForFinishLoading();
         return select.getSelectedOption().getText();
@@ -98,8 +103,25 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public String getSelectedSprint()
     {
+        waitUntilSprintLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
         select.waitForFinishLoading();
         return select.getSelectedOption().getText();
+    }
+
+    private void waitUntilSelectHasOption(String cssClassOfSelect)
+    {
+        PageElement option = getPanelBodyDialog().find(By.cssSelector(cssClassOfSelect + " option[value]"));
+        Poller.waitUntil("Select element does not have any option", option.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible(), is(true));
+    }
+
+    private void waitUntilBoardLoaded()
+    {
+        waitUntilSelectHasOption("select.jira-boards");
+    }
+
+    private void waitUntilSprintLoaded()
+    {
+        waitUntilSelectHasOption("select.jira-sprints");
     }
 }
