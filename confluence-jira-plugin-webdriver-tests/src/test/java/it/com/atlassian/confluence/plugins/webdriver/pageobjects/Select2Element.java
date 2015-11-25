@@ -4,7 +4,6 @@ import com.atlassian.confluence.webdriver.pageobjects.component.ConfluenceAbstra
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 
 import org.openqa.selenium.By;
 
@@ -87,10 +86,5 @@ public class Select2Element extends ConfluenceAbstractPageComponent
     {
         Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-results")).timed().isVisible());
         return select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
-    }
-
-    public void waitForFinishLoading()
-    {
-        Poller.waitUntilFalse(selectElement.find(By.tagName("select")).withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().hasClass("loading"));
     }
 }
