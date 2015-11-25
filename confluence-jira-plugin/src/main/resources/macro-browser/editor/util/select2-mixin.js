@@ -74,22 +74,33 @@ function(
         },
 
         toggleSelect2Loading: function($el, isLoading) {
+            this.resetSelect2Options($el);
+
             if (isLoading) {
-                this.resetSelect2Options($el);
+                $el.addClass('loading');
+
+                // add loading icon on the right of the select
+                $el.after('<span class="aui-icon aui-icon-wait">Loading...</span>');
                 this.toggleEnableSelect2($el, false);
 
+                // add loading option
                 var markup = this.template.loadingOption();
                 $el.append(markup);
 
                 $el.auiSelect2('val', 'loading');
 
             } else {
-                this.resetSelect2Options($el);
+                $el.removeClass('loading');
+                $el.parent().find('.aui-icon-wait').remove();
                 this.toggleEnableSelect2($el, true);
             }
         },
 
         resetSelect2Options: function($el) {
+            $el.removeClass('loading');
+            $el.parent().find('.aui-icon-wait').remove();
+            this.toggleEnableSelect2($el, true);
+
             $el.empty();
             $el.auiSelect2('data', null);
         },
