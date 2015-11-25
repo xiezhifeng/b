@@ -55,6 +55,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
     public void selectBoard(String boardName)
     {
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
+        select.waitForFinishLoading();
         select.openDropdown();
         select.chooseOption(boardName);
     }
@@ -62,6 +63,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
     public void selectSprint(String sprintName)
     {
         Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
+        select.waitForFinishLoading();
         select.openDropdown();
         select.chooseOption(sprintName);
     }
@@ -79,6 +81,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
     public List<String> getAllOptions(PageElement select)
     {
         Select2Element select2 = pageBinder.bind(Select2Element.class, select);
+        select2.waitForFinishLoading();
         select2.openDropdown();
         List<String> options = select2.getAllOptions();
         options.remove(0);

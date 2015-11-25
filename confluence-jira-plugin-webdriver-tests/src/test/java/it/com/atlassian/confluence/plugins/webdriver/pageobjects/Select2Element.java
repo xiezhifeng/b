@@ -28,8 +28,6 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     public Select2Element openDropdown()
     {
-        waitForFinishLoading();
-
         PageElement pageElement = selectElement.find(By.cssSelector(".select2-choice"));
         Poller.waitUntilTrue(pageElement.timed().isVisible());
 
@@ -93,6 +91,6 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     public void waitForFinishLoading()
     {
-        Poller.waitUntilFalse(selectElement.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().hasClass("loading"));
+        Poller.waitUntilFalse(selectElement.find(By.tagName("select")).withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().hasClass("loading"));
     }
 }
