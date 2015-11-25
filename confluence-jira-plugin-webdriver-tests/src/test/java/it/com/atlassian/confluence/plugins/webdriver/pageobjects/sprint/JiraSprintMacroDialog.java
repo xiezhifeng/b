@@ -54,7 +54,6 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public void selectBoard(String boardName)
     {
-        waitUntilSprintBoardLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
         select.openDropdown();
         select.chooseOption(boardName);
@@ -62,7 +61,6 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public void selectSprint(String sprintName)
     {
-        waitUntilSprintLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
         select.openDropdown();
         select.chooseOption(sprintName);
@@ -70,51 +68,35 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
 
     public List<String> getAllBoardOptions()
     {
-        waitUntilSprintBoardLoaded();
-        Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
-        select.openDropdown();
-        List<String> options = select.getAllOptions();
-        options.remove(0);
-        select.closeDropdown();
-
-        return options;
+        return getAllOptions(boardSelect);
     }
 
     public List<String> getAllSprintOptions()
     {
-        waitUntilSprintLoaded();
-        Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
-        select.openDropdown();
-        List<String> options = select.getAllOptions();
-        options.remove(0);
-        select.closeDropdown();
+        return getAllOptions(sprintSelect);
+    }
 
+    public List<String> getAllOptions(PageElement select)
+    {
+        Select2Element select2 = pageBinder.bind(Select2Element.class, select);
+        select2.openDropdown();
+        List<String> options = select2.getAllOptions();
+        options.remove(0);
+        select2.closeDropdown();
         return options;
     }
 
     public String getSelectedBoard()
     {
-        waitUntilSprintBoardLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
+        select.waitForFinishLoading();
         return select.getSelectedOption().getText();
     }
 
     public String getSelectedSprint()
     {
-        waitUntilSprintLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, sprintSelect);
+        select.waitForFinishLoading();
         return select.getSelectedOption().getText();
-    }
-
-    private void waitUntilSprintBoardLoaded()
-    {
-        PageElement boardOption = getPanelBodyDialog().find(By.cssSelector("select.jira-boards option[value]"));
-        Poller.waitUntil("Sprint Board selection field is not visible", boardOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible(), is(true));
-    }
-
-    private void waitUntilSprintLoaded()
-    {
-        PageElement sprintOption = getPanelBodyDialog().find(By.cssSelector("select.jira-sprints option[value]"));
-        Poller.waitUntil("Sprint selection field is not visible", sprintOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible(), is(true));
     }
 }
