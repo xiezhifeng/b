@@ -223,7 +223,9 @@ public class AbstractJiraTest
     protected JiraMacroSearchPanelDialog openJiraIssuesDialogFromMacroPlaceholder(EditContentPage editPage, MacroPlaceholder macroPlaceholder)
     {
         editPage.getEditor().getContent().doubleClickEditInlineMacro(macroPlaceholder.getAttribute("data-macro-name"));
-        return pageBinder.bind(JiraMacroSearchPanelDialog.class);
+        JiraMacroSearchPanelDialog dialog = pageBinder.bind(JiraMacroSearchPanelDialog.class);
+        dialog.waitUntilVisible();
+        return dialog;
     }
 
     protected JiraSprintMacroDialog openSprintDialogFromMacroPlaceholder(EditorContent editorContent, MacroPlaceholder macroPlaceholder)

@@ -7,7 +7,6 @@ import org.openqa.selenium.By;
 
 public class JiraMacroPropertyPanel extends MacroPropertyPanel implements PageComponent
 {
-
     public PageElement getPropertyPanel(String cssSelector)
     {
         return propertyPanelElement.find(By.cssSelector(cssSelector));
