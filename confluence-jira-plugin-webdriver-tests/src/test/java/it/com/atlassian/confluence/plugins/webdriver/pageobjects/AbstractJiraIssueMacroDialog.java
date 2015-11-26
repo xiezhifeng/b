@@ -24,9 +24,6 @@ import java.util.List;
  */
 public abstract class AbstractJiraIssueMacroDialog extends Dialog
 {
-    @ElementBy(cssSelector = ".jiraSearchResults")
-    protected PageElement issuesTable;
-
     public AbstractJiraIssueMacroDialog(String id)
     {
         super(id);
@@ -97,32 +94,32 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public AbstractJiraIssueMacroDialog clickSelectAllIssueOption()
     {
-        Poller.waitUntilTrue(issuesTable.timed().isPresent());
-        issuesTable.find(ByJquery.$("input[type='checkbox'][name='jira-issue-all']")).click();
+        Poller.waitUntilTrue(getIssuesTable().timed().isPresent());
+        getIssuesTable().find(ByJquery.$("input[type='checkbox'][name='jira-issue-all']")).click();
         return this;
     }
 
     public AbstractJiraIssueMacroDialog clickSelectIssueOption(String key)
     {
-        Poller.waitUntilTrue(issuesTable.timed().isPresent());
-        issuesTable.find(ByJquery.$("input[type='checkbox'][value='" + key + "']")).click();
+        Poller.waitUntilTrue(getIssuesTable().timed().isPresent());
+        getIssuesTable().find(ByJquery.$("input[type='checkbox'][value='" + key + "']")).click();
         return this;
     }
 
     public boolean isSelectAllIssueOptionChecked()
     {
-        Poller.waitUntilTrue(issuesTable.timed().isPresent());
-        return issuesTable.find(ByJquery.$("input[type='checkbox'][name='jira-issue-all']")).isSelected();
+        Poller.waitUntilTrue(getIssuesTable().timed().isPresent());
+        return getIssuesTable().find(ByJquery.$("input[type='checkbox'][name='jira-issue-all']")).isSelected();
     }
 
     public TimedCondition isIssueExistInSearchResult(String issueKey)
     {
-        return issuesTable.find(ByJquery.$("input[value='" + issueKey + "']")).timed().isVisible();
+        return getIssuesTable().find(ByJquery.$("input[value='" + issueKey + "']")).timed().isVisible();
     }
 
     public PageElement getIssuesTable()
     {
-        return issuesTable;
+        return getPanelBodyDialog().find(By.className("jiraSearchResults"));
     }
 
     public DisplayOptionPanel getDisplayOptionPanel()
@@ -205,7 +202,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public TimedCondition resultsTableIsVisible()
     {
-        return issuesTable.find(By.cssSelector(".my-result")).timed().isVisible();
+        return getIssuesTable().find(By.cssSelector(".my-result")).timed().isVisible();
     }
 
     public abstract PageElement getPanelBodyDialog();

@@ -77,10 +77,10 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     protected JiraMacroPropertyPanel getJiraMacroPropertyPanel(MacroPlaceholder macroPlaceholder)
     {
         macroPlaceholder.click();
-        return pageBinder.bind(JiraMacroPropertyPanel.class);
+        JiraMacroPropertyPanel panel = pageBinder.bind(JiraMacroPropertyPanel.class);
+        Poller.waitUntilTrue(panel.isVisible());
+        return panel;
     }
-
-
 
     protected JiraIssuesPage bindCurrentPageToJiraIssues()
     {
@@ -118,6 +118,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         JiraMacroSearchPanelDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
         dialog.clickSearchButton();
         Poller.waitUntil(dialog.getJqlSearchElement().timed().getValue(), Matchers.containsString(jql));
+        Poller.waitUntilTrue(dialog.resultsTableIsVisible());
 
         dialog.clickInsertDialog();
     }
