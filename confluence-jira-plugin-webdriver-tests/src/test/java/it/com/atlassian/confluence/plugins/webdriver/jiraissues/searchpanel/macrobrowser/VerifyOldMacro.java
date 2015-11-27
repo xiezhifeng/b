@@ -4,6 +4,7 @@ import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlac
 import com.atlassian.pageobjects.elements.PageElement;
 
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -32,8 +33,8 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTe
     public void testNoSummaryButtonInTableIssue()
     {
         MacroPlaceholder macroPlaceholder = createMacroPlaceholderFromQueryString(editPage, "{jiraissues:status=open}", OLD_JIRA_ISSUE_MACRO_NAME);
-        PageElement showSummary = getJiraMacroPropertyPanel(macroPlaceholder).getPropertyPanel(".macro-property-panel-show-summary.hidden");
-        waitUntilTrue(showSummary.timed().isPresent());
+        PageElement showSummary = getJiraMacroPropertyPanel(macroPlaceholder).getPropertyPanel(".macro-property-panel-show-summary");
+        Assert.assertTrue(showSummary.hasClass("hidden"));
     }
 
     @Test
