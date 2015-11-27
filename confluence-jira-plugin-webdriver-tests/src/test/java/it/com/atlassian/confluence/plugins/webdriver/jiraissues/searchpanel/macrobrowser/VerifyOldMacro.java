@@ -34,7 +34,7 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTe
     {
         MacroPlaceholder macroPlaceholder = createMacroPlaceholderFromQueryString(editPage, "{jiraissues:status=open}", OLD_JIRA_ISSUE_MACRO_NAME);
         PageElement showSummary = getJiraMacroPropertyPanel(macroPlaceholder).getPropertyPanel(".macro-property-panel-show-summary");
-        Assert.assertTrue(showSummary.hasClass("hidden"));
+        Assert.assertTrue(!showSummary.isPresent() || showSummary.hasClass("hidden"));
     }
 
     @Test
