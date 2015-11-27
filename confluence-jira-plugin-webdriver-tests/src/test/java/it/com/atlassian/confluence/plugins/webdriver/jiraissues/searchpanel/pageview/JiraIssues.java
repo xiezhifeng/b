@@ -232,6 +232,18 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
+    public void testJIMTableErrorWithWrongJQL() throws Exception
+    {
+        EditContentPage editContentPage = gotoEditTestPage(user.get());
+        editContentPage.getEditor().getContent().setContent("{jira:project = TSTTTTT}");
+        editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        editContentPage.save();
+
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
+        Poller.waitUntilTrue("JIM table contains an error", jiraIssuesPage.getErrorMessage().timed().hasClass("jim-error-message-table"));
+    }
+
+    @Test
     public void testCountErrorJiraLink() throws IOException, JSONException
     {
         JiraIssuesPage jiraIssuesPage = setupErrorEnv("status=open|count=true");
