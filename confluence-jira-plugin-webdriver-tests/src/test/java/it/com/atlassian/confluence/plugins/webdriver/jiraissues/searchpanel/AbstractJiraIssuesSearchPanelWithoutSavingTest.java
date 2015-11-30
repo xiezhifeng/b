@@ -20,6 +20,6 @@ public class AbstractJiraIssuesSearchPanelWithoutSavingTest extends AbstractJira
     public void setup() throws Exception
     {
         Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
-        editPage.getEditor().getContent().clear();
+        editPage.getEditor().getContent().clear().focus();
     }
  }

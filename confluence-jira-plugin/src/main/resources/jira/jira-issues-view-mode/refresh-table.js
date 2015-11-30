@@ -62,10 +62,11 @@ var RefreshMacro = {
         var refreshNewId = $replacedTableElement.attr("id") && $replacedTableElement.attr("id").replace("refresh-module-", "") || undefined;
         $.each(this.refreshs, function(i, refresh) {
             if (refresh.id === refreshOldId) {
-                if(refreshNewId) {
+                if (refreshNewId || $replacedTableElement.hasClass("jim-error-message")) {
                     RefreshWidget.get(refresh.id).getContentModule().replaceWith(replacedTableHtml);
                     new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
                 } else {
+                    //unexpected error
                     new RefreshMacro.CallbackSupport(refresh).errorHandler(replacedTableHtml);
                 }
             }

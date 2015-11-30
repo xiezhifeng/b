@@ -42,7 +42,11 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   </osgi:service>
   <beans:bean id="base64JiraChartImageService" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService"/>
   <beans:bean id="confluenceEventListener" autowire="default" class="com.atlassian.confluence.plugins.jira.ConfluenceEventListener"/>
-  <beans:bean id="jiraRemoteLinkCreator" autowire="default" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
+
+  <beans:bean id="jiraRemoteSprintLinkManager" autowire="default" class="com.atlassian.confluence.plugins.jira.links.JiraRemoteSprintLinkManager"/>
+  <beans:bean id="jiraRemoteEpicLinkManager" autowire="default" class="com.atlassian.confluence.plugins.jira.links.JiraRemoteEpicLinkManager"/>
+  <beans:bean id="jiraRemoteIssueLinkManager" autowire="default" class="com.atlassian.confluence.plugins.jira.links.JiraRemoteIssueLinkManager"/>
+
   <beans:bean id="imagePlaceHolderHelper" autowire="default" class="com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper"/>
   <beans:bean id="jiraIssueSortingManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssueSortingManager"/>
   <beans:bean id="jiraMacroPageTemplateEventListener" autowire="default" class="com.atlassian.confluence.plugins.jira.event.JiraMacroPageTemplateEventListener"/>

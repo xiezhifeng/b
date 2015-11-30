@@ -197,10 +197,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         }
     }
 
-    public void processRequestTable(final ClientId clientId, final Map<String, String> macroParams, Map<String, Object> contextMap, final ConversionContext conversionContext,
-                                    final List<String> columnNames, final String url,
-                                    final ReadOnlyApplicationLink appLink,
-                                    final boolean forceAnonymous, final boolean useCache) throws CredentialsRequiredException, IOException, ResponseException, MacroExecutionException
+    public void processRequestTable(final ClientId clientId, final Map<String, String> macroParams, final ConversionContext conversionContext,
+                                    final ReadOnlyApplicationLink appLink) throws CredentialsRequiredException, IOException, ResponseException, MacroExecutionException
     {
         JiraResponseData existingJiraReponseData = jiraIssuesCache.get(clientId);
         if (existingJiraReponseData != null)
@@ -208,22 +206,21 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             existingJiraReponseData.increaseStackCount();
             return;
         }
-        final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
-        final Map<String, Object> renderingMapContext = MapUtil.copyOf(contextMap);
-        renderingMapContext.put(JiraIssuesMacro.PARAM_PLACEHOLDER, false);
+        final StreamableMacro jiraIssuesMacro = (StreamableMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
 
         final JiraResponseData jiraResponseData = new JiraResponseData(appLink.getId().get(), 1);
         jiraIssuesCache.put(clientId, jiraResponseData);
         Callable<Map<String, List<String>>> jiraTableCallable = new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
             {
-                jiraIssuesMacro.registerTableRefreshContext(macroParams, renderingMapContext, conversionContext);
-                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
-                jiraIssuesMacro.setupContextMapForStaticTable(renderingMapContext, channel, appLink);
-                String renderedTableHtml = jiraIssuesMacro.getRenderedTemplate(renderingMapContext, true, JiraIssuesMacro.JiraIssuesType.TABLE);
+                ConversionContext newConvertionContext = new DefaultConversionContext(conversionContext.getPageContext());
+                newConvertionContext.setProperty(JiraIssuesMacro.PARAM_PLACEHOLDER, false);
+                newConvertionContext.setProperty(JiraIssuesMacro.CLIENT_ID, clientId.toString());
+                Future<String> futureHtmlMacro = streamableMacroExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroParams, newConvertionContext,
+                        jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), null, null, null));
 
                 MultiMap jiraResultMap = new MultiValueMap();
-                jiraResultMap.put(ISSUE_KEY_TABLE_PREFIX + clientId, renderedTableHtml);
+                jiraResultMap.put(ISSUE_KEY_TABLE_PREFIX + clientId, futureHtmlMacro.get());
                 jiraIssuesCache.get(clientId).add(jiraResultMap);
                 return jiraResultMap;
             }

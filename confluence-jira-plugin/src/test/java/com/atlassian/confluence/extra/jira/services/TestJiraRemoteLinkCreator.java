@@ -5,7 +5,7 @@ import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
-import com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator;
+import com.atlassian.confluence.plugins.jira.links.JiraRemoteLinkManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.net.RequestFactory;
@@ -30,16 +30,18 @@ public class TestJiraRemoteLinkCreator  extends TestCase
         when(applicationLinkService.getApplicationLinks(JiraApplicationType.class)).thenReturn(Collections.EMPTY_LIST);
         when(applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class)).thenReturn(fakeAppLink);
 
-        JiraRemoteLinkCreatorMock objToTest = new JiraRemoteLinkCreatorMock(applicationLinkService, hostApplication, settingsManager, finderService, requestFactory);
+
+        JiraRemoteLinkManagerMock objToTest = new JiraRemoteLinkManagerMock(applicationLinkService, hostApplication, settingsManager, finderService, requestFactory);
         ReadOnlyApplicationLink outAppLink = objToTest.findApplicationLink(new MacroDefinition());
+
         Assert.assertNotNull("Must have the default value", outAppLink);
         Assert.assertEquals(fakeAppLink, outAppLink);
     }
 
-    private class JiraRemoteLinkCreatorMock extends JiraRemoteLinkCreator
+    private class JiraRemoteLinkManagerMock extends JiraRemoteLinkManager
     {
 
-        public JiraRemoteLinkCreatorMock(ReadOnlyApplicationLinkService applicationLinkService,
+        public JiraRemoteLinkManagerMock(ReadOnlyApplicationLinkService applicationLinkService,
                                          HostApplication hostApplication,
                                          SettingsManager settingsManager,
                                          JiraMacroFinderService finderService,
