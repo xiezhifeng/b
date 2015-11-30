@@ -3,27 +3,20 @@ package com.atlassian.confluence.plugins.jira;
 import com.atlassian.applinks.api.event.ApplicationLinkDetailsChangedEvent;
 import com.atlassian.applinks.api.event.ApplicationLinkMadePrimaryEvent;
 import com.atlassian.confluence.event.events.content.blogpost.BlogPostCreateEvent;
-import com.atlassian.confluence.event.events.content.blogpost.BlogPostRestoreEvent;
-import com.atlassian.confluence.event.events.content.blogpost.BlogPostTrashedEvent;
 import com.atlassian.confluence.event.events.content.blogpost.BlogPostUpdateEvent;
 import com.atlassian.confluence.event.events.content.page.PageCreateEvent;
-import com.atlassian.confluence.event.events.content.page.PageRemoveEvent;
-import com.atlassian.confluence.event.events.content.page.PageRestoreEvent;
-import com.atlassian.confluence.event.events.content.page.PageTrashedEvent;
 import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.confluence.plugins.jira.event.PageCreatedFromJiraAnalyticsEvent;
-import com.atlassian.confluence.plugins.jira.links.JiraRemoteEpicLinkManager;
-import com.atlassian.confluence.plugins.jira.links.JiraRemoteIssueLinkManager;
-import com.atlassian.confluence.plugins.jira.links.JiraRemoteSprintLinkManager;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -39,11 +32,7 @@ public class ConfluenceEventListener implements DisposableBean
     private static final int THREAD_POOL_SIZE = Integer.getInteger("jira.remotelink.threadpool.size", 10);
 
     private final EventPublisher eventPublisher;
-
-    private final JiraRemoteSprintLinkManager jiraRemoteSprintLinkManager;
-    private final JiraRemoteEpicLinkManager jiraRemoteEpicLinkManager;
-    private final JiraRemoteIssueLinkManager jiraRemoteIssueLinkManager;
-
+    private final JiraRemoteLinkCreator jiraRemoteLinkCreator;
     private final JiraConnectorManager jiraConnectorManager;
 
     private final ExecutorService jiraLinkExecutorService;
@@ -66,18 +55,11 @@ public class ConfluenceEventListener implements DisposableBean
     private static final String AGILE_MODE_VALUE_PLAN = "plan";
     private static final String AGILE_MODE_VALUE_REPORT = "report";
 
-    public ConfluenceEventListener(
-            EventPublisher eventPublisher,
-            JiraRemoteSprintLinkManager jiraRemoteSprintLinkManager,
-            JiraRemoteIssueLinkManager jiraRemoteIssueLinkManager,
-            JiraRemoteEpicLinkManager jiraRemoteEpicLinkManager,
-            JiraConnectorManager jiraConnectorManager,
-            JiraExecutorFactory executorFactory)
+    public ConfluenceEventListener(EventPublisher eventPublisher, JiraRemoteLinkCreator jiraRemoteLinkCreator, JiraConnectorManager jiraConnectorManager,
+                                   JiraExecutorFactory executorFactory)
     {
         this.eventPublisher = eventPublisher;
-        this.jiraRemoteSprintLinkManager = jiraRemoteSprintLinkManager;
-        this.jiraRemoteEpicLinkManager = jiraRemoteEpicLinkManager;
-        this.jiraRemoteIssueLinkManager = jiraRemoteIssueLinkManager;
+        this.jiraRemoteLinkCreator = jiraRemoteLinkCreator;
         this.jiraConnectorManager = jiraConnectorManager;
         jiraLinkExecutorService = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, "Jira remote link executor");
         eventPublisher.register(this);
@@ -86,135 +68,57 @@ public class ConfluenceEventListener implements DisposableBean
     @EventListener
     public void createJiraRemoteLinks(PageCreateEvent event)
     {
-        createJiraRemoteLinksForNewPage(event.getPage(), event.getContext());
+        updateJiraRemoteLinks(event.getPage(), null, "", event.getContext());
     }
 
     @EventListener
     public void createJiraRemoteLinks(BlogPostCreateEvent event)
     {
-        createJiraRemoteLinksForNewPage(event.getBlogPost(), event.getContext());
+        updateJiraRemoteLinks(event.getBlogPost(), null, "", event.getContext());
     }
 
     @EventListener
     public void updateJiraRemoteLinks(BlogPostUpdateEvent event)
     {
-        if (event.getBlogPost().isCurrent())
-        {
-            updateJiraRemoteLinks(event.getBlogPost(), event.getOriginalBlogPost());
-        }
+        updateJiraRemoteLinks(event.getBlogPost(), event.getOriginalBlogPost(), "", null);
     }
 
     @EventListener
-    public void updateJiraRemoteLinks(PageUpdateEvent event)
+    public void createJiraRemoteLinks(PageUpdateEvent event)
     {
-        if (event.getPage().isCurrent())
-        {
-            updateJiraRemoteLinks(event.getOriginalPage(), event.getPage());
-        }
+        updateJiraRemoteLinks(event.getPage(), event.getOriginalPage(), "", null);
     }
 
     @EventListener
-    public void handleBlueprintPageCreate(BlueprintPageCreateEvent event)
+    public void createJiraRemoteLinks(BlueprintPageCreateEvent event)
     {
-        handleBlueprintPageCreate(event.getPage(), event.getBlueprintKey().getCompleteKey(), event.getContext());
+        updateJiraRemoteLinks(event.getPage(), null, event.getBlueprintKey().getCompleteKey(), event.getContext());
     }
 
-    @EventListener
-    public void deleteJiraRemoteLinks(PageRemoveEvent event)
+    private void updateJiraRemoteLinks(final AbstractPage currentPage, final AbstractPage originalPage, final String bluePrintKey, final Map<String, ?> context)
     {
-        deleteJiraRemoteLinks(event.getPage());
-    }
-
-    @EventListener
-    public void deleteJiraRemoteLinks(PageTrashedEvent event)
-    {
-        deleteJiraRemoteLinks(event.getPage());
-    }
-
-    @EventListener
-    public void deleteJiraRemoteLinks(BlogPostTrashedEvent event)
-    {
-        deleteJiraRemoteLinks(event.getBlogPost());
-    }
-
-    @EventListener
-    public void restoreJiraRemoteLinks(PageRestoreEvent event)
-    {
-        createJiraRemoteLinksForRestoredPage(event.getPage());
-    }
-
-    @EventListener
-    public void restoreJiraRemoteLinks(BlogPostRestoreEvent event)
-    {
-        createJiraRemoteLinksForRestoredPage(event.getBlogPost());
-    }
-
-    private void createJiraRemoteLinksForRestoredPage(final AbstractPage newPage)
-    {
-        executeJiraLinkCallable(new Callable<Void>()
-        {
+        Callable jiraRemoteLinkCallable = new Callable<Void>() {
             @Override
             public Void call() throws Exception
             {
-                jiraRemoteIssueLinkManager.createIssueLinksForEmbeddedMacros(newPage);
+                if (originalPage == null) //create page/blogpost/blueprint page
+                {
+                    // A PageCreateEvent was also triggered (and handled) but only the BlueprintPageCreateEvent's context
+                    // contains the parameters we're checking for (when the page being created is a blueprint)
+                    if (StringUtils.isBlank(bluePrintKey)) //for page/blogpost
+                    {
+                        jiraRemoteLinkCreator.createLinksForEmbeddedMacros(currentPage);
+                    }
+                    handlePageCreateInitiatedFromJIRAEntity(currentPage, bluePrintKey, Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
+                }
+                else //update page/blogpost
+                {
+                    jiraRemoteLinkCreator.createLinksForEmbeddedMacros(originalPage, currentPage);
+                }
                 return null;
             }
-        });
-    }
-
-    private void createJiraRemoteLinksForNewPage(final AbstractPage newPage, final Map<String, ?> context)
-    {
-        executeJiraLinkCallable(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception
-            {
-                jiraRemoteIssueLinkManager.createIssueLinksForEmbeddedMacros(newPage);
-                handlePageCreateInitiatedFromJIRAEntity(newPage, "", Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
-                return null;
-            }
-        });
-    }
-
-    private void updateJiraRemoteLinks(final AbstractPage originalPage, final AbstractPage currentPage)
-    {
-        executeJiraLinkCallable(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception
-            {
-                jiraRemoteIssueLinkManager.updateIssueLinksForEmbeddedMacros(originalPage, currentPage);
-                return null;
-            }
-        });
-    }
-
-    private void deleteJiraRemoteLinks(final AbstractPage page)
-    {
-        executeJiraLinkCallable(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception {
-                jiraRemoteIssueLinkManager.deleteIssueLinksForEmbeddedMacros(page);
-                return null;
-            }
-        });
-    }
-
-    private void handleBlueprintPageCreate(final AbstractPage page, final String blueprintKey, final Map<String, ?> context)
-    {
-        executeJiraLinkCallable(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                handlePageCreateInitiatedFromJIRAEntity(page, blueprintKey, Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
-                return null;
-            }
-        });
-    }
-
-    private void executeJiraLinkCallable(Callable<Void> callable)
-    {
-        jiraLinkExecutorService.submit(callable);
+        };
+        jiraLinkExecutorService.submit(jiraRemoteLinkCallable);
     }
 
     @EventListener
@@ -238,7 +142,7 @@ public class ConfluenceEventListener implements DisposableBean
             if (containsValue(ISSUE_KEY, params, false) &&
                     containsValue(FALLBACK_URL, params, true) && containsValue(CREATION_TOKEN, params, true))
             {
-                boolean successfulLink = jiraRemoteEpicLinkManager.createLinkToEpic(page, params.get(APPLINK_ID),
+                boolean successfulLink = jiraRemoteLinkCreator.createLinkToEpic(page, params.get(APPLINK_ID),
                         params.get(ISSUE_KEY), params.get(FALLBACK_URL), params.get(CREATION_TOKEN));
                 if (successfulLink)
                 {
@@ -249,7 +153,7 @@ public class ConfluenceEventListener implements DisposableBean
             else if (containsValue(SPRINT_ID, params, false) && containsValue(FALLBACK_URL, params, true) &&
                     containsValue(CREATION_TOKEN, params, true) && containsValue(AGILE_MODE, params, true))
             {
-                boolean successfulLink = jiraRemoteSprintLinkManager.createLinkToSprint(page, params.get(APPLINK_ID),
+                boolean successfulLink = jiraRemoteLinkCreator.createLinkToSprint(page, params.get(APPLINK_ID),
                         params.get(SPRINT_ID), params.get(FALLBACK_URL), params.get(CREATION_TOKEN));
                 if (successfulLink && AGILE_MODE_VALUE_PLAN.equals(params.get(AGILE_MODE)))
                 {
