@@ -382,4 +382,25 @@ public class AbstractJiraTest
         MacroForm macroForm = macroItems.iterator().next().select();
         macroForm.waitUntilHidden();
     }
+
+    protected void makeSureInEditPage()
+    {
+        if (editPage == null)
+        {
+            editPage = gotoEditTestPage(user.get());
+        }
+        else
+        {
+            if (editPage.getEditor().isCancelVisibleNow())
+            {
+                // in editor page.
+                editPage.getEditor().getContent().clear();
+            }
+            else
+            {
+                // in view page, and then need to go to edit page.
+                editPage = gotoEditTestPage(user.get());
+            }
+        }
+    }
 }
