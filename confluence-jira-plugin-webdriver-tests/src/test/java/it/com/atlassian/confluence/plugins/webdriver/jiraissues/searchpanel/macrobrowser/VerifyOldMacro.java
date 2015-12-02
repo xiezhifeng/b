@@ -18,7 +18,6 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTe
     {
         String jiraMacro = "{jiraissues:" + JIRA_DISPLAY_URL + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TP}";
         convertJiraIssuesToJiraMacro(editPage, jiraMacro, "project = TP", OLD_JIRA_ISSUE_MACRO_NAME);
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         assertThat(getMacroParams(editPage, JIRA_ISSUE_MACRO_NAME), containsString("jqlQuery= project \\= TP"));
     }
 
@@ -26,7 +25,6 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTe
     public void testConvertJiraIssueToJiraWithKey() {
         String jiraIssuesMacro = "{jiraissues:key=TP-1}";
         convertJiraIssuesToJiraMacro(editPage, jiraIssuesMacro, "key = TP-1", OLD_JIRA_ISSUE_MACRO_NAME);
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         assertThat(getMacroParams(editPage, JIRA_ISSUE_MACRO_NAME), containsString("key=TP-1"));
     }
 
@@ -34,6 +32,7 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTe
     public void testNoSummaryButtonInTableIssue()
     {
         MacroPlaceholder macroPlaceholder = createMacroPlaceholderFromQueryString(editPage, "{jiraissues:status=open}", OLD_JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(OLD_JIRA_ISSUE_MACRO_NAME);
         PageElement showSummary = getJiraMacroPropertyPanel(macroPlaceholder).getPropertyPanel(".macro-property-panel-show-summary");
         Assert.assertTrue(!showSummary.isPresent() || showSummary.hasClass("hidden"));
     }
@@ -42,7 +41,6 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTe
     public void testConvertJiraIssueToJiraWithColumns()
     {
         convertJiraIssuesToJiraMacro(editPage, "{jiraissues:status=open|columns=key,summary,type}", "status = open", OLD_JIRA_ISSUE_MACRO_NAME);
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         assertThat(getMacroParams(editPage, JIRA_ISSUE_MACRO_NAME), containsString("columns=key,summary,type"));
     }
 
@@ -50,8 +48,6 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTe
     public void testConvertJiraIssueToJiraWithCount()
     {
         convertJiraIssuesToJiraMacro(editPage, "{jiraissues:status=open|count=true}", "status = open", OLD_JIRA_ISSUE_MACRO_NAME);
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        String macroParam = getMacroParams(editPage, JIRA_ISSUE_MACRO_NAME);
-        assertThat(macroParam, containsString("count=true"));
+        assertThat(getMacroParams(editPage, JIRA_ISSUE_MACRO_NAME), containsString("count=true"));
     }
 }

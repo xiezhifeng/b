@@ -82,6 +82,8 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         return panel;
     }
 
+
+
     protected JiraIssuesPage bindCurrentPageToJiraIssues()
     {
         return pageBinder.bind(JiraIssuesPage.class);
