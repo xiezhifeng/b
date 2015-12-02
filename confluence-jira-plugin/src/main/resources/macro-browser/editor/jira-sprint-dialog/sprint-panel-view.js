@@ -145,6 +145,7 @@ function(
             var boardId = parseInt(this.view.$boards.val(), 10);
             var selectedBoard = _.findWhere(this.boards, {id: boardId});
             this.formData.set('selectedBoard', selectedBoard);
+            this.resetSelect2Options(this.view.$sprints);
         },
 
         _onSelectSprintChanged: function() {
