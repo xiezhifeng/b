@@ -19,12 +19,12 @@ import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.ReturningResponseHandler;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpStatus;
 
 import javax.ws.rs.core.MediaType;
@@ -49,7 +49,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     private HttpRetrievalService httpRetrievalService;
 
-    private com.google.common.cache.Cache<ReadOnlyApplicationLink, Boolean> batchIssueCapableCache;
+    private LoadingCache<ReadOnlyApplicationLink, Boolean> batchIssueCapableCache;
     // private final static String saxParserClass =
     // "org.apache.xerces.parsers.SAXParser";
 
@@ -475,7 +475,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return getBatchIssueCapableCache().getUnchecked(appLink);
     }
 
-    private com.google.common.cache.Cache<ReadOnlyApplicationLink, Boolean> getBatchIssueCapableCache()
+    private LoadingCache<ReadOnlyApplicationLink, Boolean> getBatchIssueCapableCache()
     {
         if (batchIssueCapableCache == null)
         {
