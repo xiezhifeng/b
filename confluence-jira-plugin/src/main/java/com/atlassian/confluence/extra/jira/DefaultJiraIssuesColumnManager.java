@@ -12,9 +12,9 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.sal.api.net.Request.MethodType;
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +29,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     private static final String REST_URL_FIELD_INFO = "/rest/api/2/field";
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
 
-    private Cache<ReadOnlyApplicationLink, Map<String, JiraColumnInfo>> jiraColumnsCache;
+    private LoadingCache<ReadOnlyApplicationLink, Map<String, JiraColumnInfo>> jiraColumnsCache;
 
     private final JiraIssuesSettingsManager jiraIssuesSettingsManager;
     private final LocaleManager localeManager;
@@ -109,7 +109,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         return (appLink != null) ? getInternalColumnInfo().getUnchecked(appLink) : Collections.<String, JiraColumnInfo>emptyMap();
     }
 
-    private Cache<ReadOnlyApplicationLink, Map<String, JiraColumnInfo>> getInternalColumnInfo()
+    private LoadingCache<ReadOnlyApplicationLink, Map<String, JiraColumnInfo>> getInternalColumnInfo()
     {
         if (jiraColumnsCache == null)
         {

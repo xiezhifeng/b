@@ -8,9 +8,10 @@ import com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.atlassian.sal.api.net.ResponseStatusException;
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -28,7 +29,7 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
 
     private ReadOnlyApplicationLinkService appLinkService;
     private AuthenticationConfigurationManager authenticationConfigurationManager;
-    private Cache<ReadOnlyApplicationLink, JiraServerBean> jiraServersCache;
+    private LoadingCache<ReadOnlyApplicationLink, JiraServerBean> jiraServersCache;
 
     public DefaultJiraConnectorManager(ReadOnlyApplicationLinkService appLinkService, AuthenticationConfigurationManager authenticationConfigurationManager)
     {
@@ -120,7 +121,7 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
         return null; // return null if applicationLink is null
     }
 
-    private Cache<ReadOnlyApplicationLink, JiraServerBean> getJiraServersCache()
+    private LoadingCache<ReadOnlyApplicationLink, JiraServerBean> getJiraServersCache()
     {
         if (jiraServersCache == null)
         {
