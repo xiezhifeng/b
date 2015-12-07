@@ -17,7 +17,7 @@ public interface JiraAgileService
      * @throws ResponseException
      */
     @Nonnull
-    String getBoards(@Nonnull ReadOnlyApplicationLink readOnlyApplicationLink) throws CredentialsRequiredException, ResponseException;
+    String getBoards(@Nonnull ReadOnlyApplicationLink readOnlyApplicationLink, String nameFilter) throws CredentialsRequiredException, ResponseException;
 
     /**
      * Get all sprints on one board

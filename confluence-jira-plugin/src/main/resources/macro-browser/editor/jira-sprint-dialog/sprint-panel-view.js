@@ -103,7 +103,7 @@ function(
         _fillBoardData: function() {
             var serverId = this.formData.get('selectedServer').id;
 
-            this.fillDataInSelect2(this.view.$boards, service.loadBoardsData(serverId))
+            this.fillDataInSelect2(this.view.$boards, service.loadBoardsData(serverId, ""))
                     .done(function(boards) {
                         this.boards = boards;
 
