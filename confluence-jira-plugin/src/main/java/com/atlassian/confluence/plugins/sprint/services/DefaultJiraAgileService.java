@@ -36,7 +36,7 @@ public class DefaultJiraAgileService implements JiraAgileService
     @Override
     public String getBoards(@Nonnull ReadOnlyApplicationLink readOnlyApplicationLink, String nameFilter) throws CredentialsRequiredException, ResponseException
     {
-        String jsonStringResult = retrieveJsonString(readOnlyApplicationLink, AGILE_BOARD_REST_PATH + nameFilter);
+        String jsonStringResult = retrieveJsonString(readOnlyApplicationLink, AGILE_BOARD_REST_PATH + (nameFilter == null? "": nameFilter));
         return readValues(jsonStringResult);
     }
 
