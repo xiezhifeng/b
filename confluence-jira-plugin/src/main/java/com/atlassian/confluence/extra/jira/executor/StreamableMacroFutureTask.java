@@ -48,6 +48,11 @@ public class StreamableMacroFutureTask implements Callable<String>
     @Override
     public String call() throws Exception
     {
+        return renderValue();
+    }
+
+    public String renderValue()
+    {
         final long remainingTimeout = context.getTimeout().getTime();
         if (remainingTimeout <= 0)
         {
