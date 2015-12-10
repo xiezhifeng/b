@@ -1,0 +1,40 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="https://docs.atlassian.com/aui/latest/styles/index.css"/>
+    <link rel="stylesheet" type="text/css" href="//aui-cdn.atlassian.com/aui-adg/5.9.4/css/aui.css"/>
+
+</head>
+<body>
+<div class="aui-flatpack-example">
+
+    <q class="quote">
+        What happens when you add a shiny new browser to a stack of already-disagreeing citizens? You’ll inevitably
+        find some bugs. This is the story of how we found a rendering quirk and how the Atlassian frontend team
+        found and refined the fix. The Problem The Atlassian User Interface (AUI) library has just finished an IE10
+        sprint to get our library prepped and ready for the newest member of the browser family. While IE10 seems
+        generally quite good, we found a couple of problems due to IE10 dropping conditional comments; plus some
+        undesirable behaviours.
+    </q>
+
+
+    <div>
+        <div>
+            <span style="margin-top: 20px; margin-right: 15px; margin-left: 10px" class="aui-avatar aui-avatar-project aui-avatar-large">
+                <span class="aui-avatar-inner">
+                    <img src="//docs.atlassian.com/aui/latest/docs/images/project-128.png">
+                </span>
+            </span>
+            <div style="display: inline-block; ">
+                <div>
+                    <h4>page Name</h4>
+                </div>
+                <div>
+                    <cite>space name | editor name</cite>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
