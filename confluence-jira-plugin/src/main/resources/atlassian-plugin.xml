@@ -357,6 +357,23 @@
         </parameters>
     </xhtml-macro>
 
+    <!-- QUOTE MACRO -->
+    <macro name='smart-quote' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='smart-quote'>
+        <description>JIRA Chart Macro</description>
+    </macro>
+    <xhtml-macro name='smart-quote' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='smart-quote-xhtml'
+                 icon="/download/resources/confluence.extra.jira/images/jira-chart-macro-icon.png">
+        <description key="jirachart.macro.description"/>
+        <category name="development"/>
+        <parameters>
+            <parameter name="server" type="string" required="true">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
+            </parameter>
+        </parameters>
+    </xhtml-macro>
+
+
     <web-resource key="jirachart-resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>

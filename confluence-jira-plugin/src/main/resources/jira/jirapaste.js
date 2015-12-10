@@ -19,6 +19,17 @@
             jqlRegExAlternateFormat: /jql\=([^&]+)/,
 
             pasteHandler : function(uri, node, done) {
+
+                var macro = {
+                    name : 'smart-quote',
+                    params : {
+
+                    }
+                };
+                tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);
+                return;
+
+
                 var servers = AJS.Editor.JiraConnector.servers;
                 var jiraAnalytics = AJS.Editor.JiraAnalytics;
                 var pasteEventProperties = {};

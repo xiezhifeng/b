@@ -110,45 +110,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     @Override
     public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext context)
     {
-        JiraChart jiraChart = null;
-        try
-        {
-
-            String jql = GeneralUtil.urlDecode(parameters.get(PARAM_JQL));
-            String serverId = parameters.get(PARAM_SERVER_ID);
-            String chartType = parameters.get(PARAM_CHART_TYPE);
-            String authenticated = parameters.get(PARAM_AUTHENTICATED);
-            if (authenticated == null)
-            {
-                authenticated = "false";
-            }
-
-            jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
-            getJqlValidator().doValidate(parameters, jiraChart.isVerifyChartSupported());
-
-            if (jql != null && serverId != null)
-            {
-                ReadOnlyApplicationLink appLink = readOnlyApplicationLinkService.getApplicationLink(new ApplicationId(serverId));
-                if (appLink != null && jiraChart != null)
-                {
-                    UrlBuilder urlBuilder = new UrlBuilder(IMAGE_GENERATOR_SERVLET);
-                    urlBuilder.add("macro", "jirachart")
-                              .add(PARAM_JQL, jql)
-                              .add(PARAM_SERVER_ID, serverId)
-                              .add(PARAM_CHART_TYPE, chartType)
-                              .add(PARAM_AUTHENTICATED, authenticated);
-
-                    return new DefaultImagePlaceholder(jiraChart.getImagePlaceholderUrl(parameters, urlBuilder), null, false);
-                }
-
-            }
-        }
-        catch (Exception e)
-        {
-            log.error("error get image place holder", e);
-        }
-
-        return new DefaultImagePlaceholder(jiraChart != null ? jiraChart.getDefaultImagePlaceholderUrl() : null, null, false);
+        return new DefaultImagePlaceholder("/download/resources/confluence.extra.jira/jira-table.png", null, false);
     }
 
     @Override
