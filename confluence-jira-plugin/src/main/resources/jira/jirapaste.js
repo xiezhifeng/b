@@ -23,7 +23,7 @@
                 var macro = {
                     name : 'smart-quote',
                     params : {
-
+                        quoteId: uri.queryKey.quoteId
                     }
                 };
                 tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);

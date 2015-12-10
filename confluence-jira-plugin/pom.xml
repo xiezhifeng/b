@@ -250,6 +250,12 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.mywork</groupId>
+            <artifactId>mywork-api</artifactId>
+            <version>3.0.5-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -386,6 +392,7 @@
                     <!-- force MF/MANIFEST.MF to be generated, for OBR generation -->
                     <instructions>
                         <Import-Package>
+                            com.atlassian.mywork.service,
                             com.atlassian.analytics.api.annotations,
                             com.atlassian.applinks.api,
                             com.atlassian.applinks.api.application.jira,

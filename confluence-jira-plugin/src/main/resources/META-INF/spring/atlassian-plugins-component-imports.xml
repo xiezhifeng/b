@@ -78,4 +78,10 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:value>com.atlassian.sal.api.features.DarkFeatureManager</beans:value>
     </osgi:interfaces>
   </osgi:reference>
+
+  <osgi:reference id="notificationService">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.mywork.service.LocalNotificationService</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
 </beans:beans>
