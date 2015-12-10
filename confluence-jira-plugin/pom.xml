@@ -392,6 +392,7 @@
                     <!-- force MF/MANIFEST.MF to be generated, for OBR generation -->
                     <instructions>
                         <Import-Package>
+                            com.atlassian.confluence.api.service.people,
                             com.atlassian.mywork.service,
                             com.atlassian.analytics.api.annotations,
                             com.atlassian.applinks.api,

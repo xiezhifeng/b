@@ -6,13 +6,18 @@ import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_SERVER_ID;
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.isSupportedChart;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
 
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
+import com.atlassian.confluence.api.model.people.Person;
+import com.atlassian.confluence.api.service.people.PersonService;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.core.ContentEntityManager;
+import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
@@ -34,6 +39,7 @@ import com.atlassian.confluence.web.UrlBuilder;
 
 import com.atlassian.applinks.api.ApplicationId;
 
+import com.atlassian.mywork.model.Quote;
 import com.atlassian.mywork.service.LocalNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +63,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private final JiraChartFactory jiraChartFactory;
     private final JiraExceptionHelper jiraExceptionHelper;
     private final LocalNotificationService notificationService;
+    private final ContentEntityManager contentEntityManager;
+    private final PersonService personService;
 
     /**
      * JiraChartMacro constructor
@@ -66,7 +74,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param i18NBeanFactory I18n bean factory
      */
     public JiraChartMacro(MacroExecutorService executorService, ReadOnlyApplicationLinkService readOnlyApplicationLinkService, I18NBeanFactory i18NBeanFactory,
-            JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory, JiraExceptionHelper jiraExceptionHelper, LocalNotificationService notificationService)
+            JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory
+            , JiraExceptionHelper jiraExceptionHelper, LocalNotificationService notificationService, ContentEntityManager contentEntityManager, PersonService personService)
     {
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
@@ -75,13 +84,25 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         this.jiraChartFactory = jiraChartFactory;
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.notificationService = notificationService;
+        this.contentEntityManager = contentEntityManager;
+        this.personService = personService;
     }
 
     @Override
     public String execute(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException
     {
-        Map<String, Object> contextMap = null;
+        Quote quote = notificationService.getQuote(Long.parseLong(parameters.get("quoteId")));
+        ContentEntityObject ceo = contentEntityManager.getById(Long.parseLong(quote.getContentId()));
+
+        Person person = personService.find().withUserKey(ceo.getCreator().getKey()).fetchOne().get();
+
+        Map<String, Object> contextMap = new HashMap<String, Object>();
+        contextMap.put("quote", quote.getQuote());
+        contextMap.put("avatar", person.getProfilePicture().getPath());
+        contextMap.put("page-name", ceo.getTitle());
+        contextMap.put("editor-name", ceo.getCreator().getFullName());
+
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "smart-quote.vm", contextMap);
     }
 

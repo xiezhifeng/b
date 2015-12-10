@@ -84,4 +84,16 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:value>com.atlassian.mywork.service.LocalNotificationService</beans:value>
     </osgi:interfaces>
   </osgi:reference>
+
+  <osgi:reference id="personService">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.api.service.people.PersonService</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+
+  <osgi:reference id="contentEntityManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.core.ContentEntityManager</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
 </beans:beans>

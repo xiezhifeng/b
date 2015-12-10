@@ -190,7 +190,7 @@ public class TestJiraChartMacro extends TestCase
                 JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory,
                 JiraExceptionHelper jiraExceptionHelper)
         {
-            super(executorService, applicationLinkService, i18nBeanFactory, jiraConnectorManager, jiraChartFactory, jiraExceptionHelper, null);
+            super(executorService, applicationLinkService, i18nBeanFactory, jiraConnectorManager, jiraChartFactory, jiraExceptionHelper, null, null,null);
             this.setJqlValidator(jqlValidator);
         }
 
