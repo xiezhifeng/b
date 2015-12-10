@@ -24,6 +24,7 @@
                     name : 'smart-quote',
                     params : {
                         quoteId: uri.queryKey.quoteId
+                        //quoteId: 2
                     }
                 };
                 tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);

@@ -26,10 +26,11 @@ import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
-import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChart;
+import com.atlassian.confluence.pages.AbstractPage;
+import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
@@ -43,12 +44,13 @@ import com.atlassian.mywork.model.Quote;
 import com.atlassian.mywork.service.LocalNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * The macro to display Jira chart
  *
  */
-public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
+public class JiraChartMacro implements Macro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
@@ -75,7 +77,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      */
     public JiraChartMacro(MacroExecutorService executorService, ReadOnlyApplicationLinkService readOnlyApplicationLinkService, I18NBeanFactory i18NBeanFactory,
             JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory
-            , JiraExceptionHelper jiraExceptionHelper, LocalNotificationService notificationService, ContentEntityManager contentEntityManager, PersonService personService)
+            , JiraExceptionHelper jiraExceptionHelper, LocalNotificationService notificationService,
+                          ContentEntityManager contentEntityManager, PersonService personService)
     {
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
@@ -93,7 +96,17 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             throws MacroExecutionException
     {
         Quote quote = notificationService.getQuote(Long.parseLong(parameters.get("quoteId")));
-        ContentEntityObject ceo = contentEntityManager.getById(Long.parseLong(quote.getContentId()));
+        ContentEntityObject ceo = null;
+        try
+        {
+            ceo = contentEntityManager.getById(Long.parseLong(quote.getContentId()));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+
 
         Person person = personService.find().withUserKey(ceo.getCreator().getKey()).fetchOne().get();
 
@@ -125,7 +138,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         return new DefaultImagePlaceholder("/download/resources/confluence.extra.jira/jira-table.png", null, false);
     }
 
-    @Override
+    /*@Override
     public Streamable executeToStream(Map<String, String> parameters, Streamable body, ConversionContext context)
             throws MacroExecutionException
     {
@@ -137,7 +150,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                 .executionTimeoutErrorMsg("jirachart.error.timeout.execution")
                 .connectionTimeoutErrorMsg("jirachart.error.timeout.connection")
                 .interruptedErrorMsg("jirachart.error.interrupted").build();
-    }
+    }*/
 
     public JQLValidator getJqlValidator()
     {

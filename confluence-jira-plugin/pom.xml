@@ -516,7 +516,12 @@
                             org.springframework.beans,
                             org.springframework.beans.factory,
                             org.springframework.beans.factory.config,
-                            org.xml.sax
+                            org.xml.sax,
+                            com.atlassian.mywork.model,
+                            com.atlassian.confluence.api.model,
+                            com.atlassian.fugue,
+                            com.atlassian.confluence.api.model.people,
+                            com.atlassian.confluence.api.model.web
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.confluence.extra.jira,
