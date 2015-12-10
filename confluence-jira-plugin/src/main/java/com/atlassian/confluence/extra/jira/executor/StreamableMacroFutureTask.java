@@ -51,6 +51,12 @@ public class StreamableMacroFutureTask implements Callable<String>
         return renderValue();
     }
 
+    /**
+     * Render Jira element to html directly without threading support
+     * as the plan StreamableMacroFutureTask will not execute in threading pool and will be removed in future,
+     * after implement asynchronous for count
+     * @return String html
+     */
     public String renderValue()
     {
         final long remainingTimeout = context.getTimeout().getTime();
