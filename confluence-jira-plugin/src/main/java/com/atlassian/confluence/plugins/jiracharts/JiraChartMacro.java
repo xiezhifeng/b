@@ -34,6 +34,7 @@ import com.atlassian.confluence.web.UrlBuilder;
 
 import com.atlassian.applinks.api.ApplicationId;
 
+import com.atlassian.mywork.service.LocalNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private final JiraConnectorManager jiraConnectorManager;
     private final JiraChartFactory jiraChartFactory;
     private final JiraExceptionHelper jiraExceptionHelper;
+    private final LocalNotificationService notificationService;
 
     /**
      * JiraChartMacro constructor
@@ -64,7 +66,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param i18NBeanFactory I18n bean factory
      */
     public JiraChartMacro(MacroExecutorService executorService, ReadOnlyApplicationLinkService readOnlyApplicationLinkService, I18NBeanFactory i18NBeanFactory,
-            JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory, JiraExceptionHelper jiraExceptionHelper)
+            JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory, JiraExceptionHelper jiraExceptionHelper, LocalNotificationService notificationService)
     {
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
@@ -72,6 +74,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         this.jiraConnectorManager = jiraConnectorManager;
         this.jiraChartFactory = jiraChartFactory;
         this.jiraExceptionHelper = jiraExceptionHelper;
+        this.notificationService = notificationService;
     }
 
     @Override
