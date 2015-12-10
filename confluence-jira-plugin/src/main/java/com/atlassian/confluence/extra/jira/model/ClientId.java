@@ -37,7 +37,7 @@ public class ClientId
 
     public static ClientId fromElement(String serverId, String pageId, String userId)
     {
-        return fromElement(serverId, pageId, userId, "");
+        return fromElement(serverId, pageId, userId, null);
     }
 
     public static ClientId fromClientId(String clientId)

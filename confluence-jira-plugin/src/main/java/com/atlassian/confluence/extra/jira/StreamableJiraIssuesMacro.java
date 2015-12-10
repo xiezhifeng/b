@@ -43,6 +43,7 @@ import com.atlassian.webresource.api.assembler.PageBuilderService;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.concurrent.ConcurrentUtils;
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 /**
@@ -242,14 +242,17 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      */
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext conversionContext, final ContentEntityObject entity) throws MacroExecutionException
     {
+        JiraRequestData jiraRequestData = JiraIssueUtil.parseRequestData(parameters, getI18NBean());
+        JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData.getRequestType(), jiraRequestData.getRequestData());
+
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
         // the element must be available now because we already request all JIRA issues as batches in trySingleIssuesBatching
-        String key = JiraUtil.getSingleIssueKey(parameters);
         ConfluenceUser currentUser = AuthenticatedUserThreadLocal.get();
-        if (key != null && entity != null)
+        if (issuesType == JiraIssuesType.SINGLE)
         {
             try
             {
+                String key = JiraUtil.getSingleIssueKey(parameters);
                 String serverId = getServerIdFromKey(parameters, key, conversionContext);
                 if (serverId != null)
                 {
@@ -261,7 +264,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         Element element = elementMap != null ? elementMap.get(key) : null;
                         String jiraServerUrl = jiraBatchRequestData.getServerUrl();
                         Exception exception = jiraBatchRequestData.getException();
-                        return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser, element, jiraServerUrl, exception));
+                        return ConcurrentUtils.constantFuture(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser, element, jiraServerUrl, exception).renderValue());
                     }
                 }
                 else
@@ -277,17 +280,18 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     LOGGER.debug(macroExecutionException.toString());
                 }
                 final String exceptionMessage = macroExecutionException.getMessage();
-                return executorService.submit(new Callable<String>()
-                {
-                    @Override
-                    public String call() throws Exception
-                    {
-                        return jiraExceptionHelper.renderBatchingJIMExceptionMessage(exceptionMessage, parameters);
-                    }
-                });
+                return ConcurrentUtils.constantFuture(jiraExceptionHelper.renderBatchingJIMExceptionMessage(exceptionMessage, parameters));
             }
         }
-
+        else if (issuesType == JiraIssuesType.TABLE)
+        {
+            return ConcurrentUtils.constantFuture(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser).renderValue());
+        }
+        /**
+         * fallback rendering COUNT
+         * this one still lock the page for rendering, and potentially makes performance issue,
+         * should be removed after implement asynchronous loading for COUNT
+         */
         return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser));
     }
 
