@@ -280,7 +280,11 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             return ConcurrentUtils.constantFuture(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser).renderValue());
         }
-        //fallback rendering COUNT
+        /**
+         * fallback rendering COUNT
+         * this one still lock the page for rendering, and potentially makes performance issue,
+         * should be removed after implement asynchronous loading for COUNT
+         */
         return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser));
     }
 
