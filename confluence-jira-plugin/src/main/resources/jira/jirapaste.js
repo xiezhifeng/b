@@ -19,17 +19,17 @@
             jqlRegExAlternateFormat: /jql\=([^&]+)/,
 
             pasteHandler : function(uri, node, done) {
-
-                var macro = {
-                    name : 'smart-quote',
-                    params : {
-                        quoteId: uri.queryKey.quoteId
-                        //quoteId: 2
-                    }
-                };
-                tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);
+                if(uri.queryKey.quoteId) {
+                    var macro = {
+                        name : 'smart-quote',
+                        params : {
+                            quoteId: uri.queryKey.quoteId
+                            //quoteId: 2
+                        }
+                    };
+                    tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);
+                }
                 return;
-
 
                 var servers = AJS.Editor.JiraConnector.servers;
                 var jiraAnalytics = AJS.Editor.JiraAnalytics;
