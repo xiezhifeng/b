@@ -115,6 +115,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
         contextMap.put("avatar", person.getProfilePicture().getPath());
         contextMap.put("page-name", ceo.getTitle());
         contextMap.put("editor-name", ceo.getCreator().getFullName());
+        contextMap.put("page-link", "/pages/viewpage.action?pageId=" + ceo.getId());
 
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "smart-quote.vm", contextMap);
     }
@@ -135,7 +136,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     @Override
     public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext context)
     {
-        return new DefaultImagePlaceholder("/download/resources/confluence.extra.jira/jira-table.png", null, false);
+        return new DefaultImagePlaceholder("/download/resources/confluence.extra.jira/quote-placeholder.png", null, false);
     }
 
     /*@Override

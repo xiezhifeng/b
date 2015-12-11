@@ -319,6 +319,9 @@
 	<resource type="download" name="jira-table.png" location="/jira/jira-table.png">
 	    <param name="content-type" value="image/jpeg"/>
 	</resource>
+    <resource type="download" name="quote-placeholder.png" location="/jira/quote-placeholder.png">
+        <param name="content-type" value="image/jpeg"/>
+    </resource>
     <web-resource key="proxy-js">
         <resource type="download" name="proxy.js" location="/jira/proxy.js"/>   
         <dependency>confluence.web.resources:ajs</dependency>  
@@ -366,9 +369,7 @@
         <description key="jirachart.macro.description"/>
         <category name="development"/>
         <parameters>
-            <parameter name="server" type="string" required="true">
-                <option key="showKeyInPlaceholder" value="false" />
-                <option key="showValueInPlaceholder" value="false" />
+            <parameter name="quoteId" type="string" required="true">
             </parameter>
         </parameters>
     </xhtml-macro>
