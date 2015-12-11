@@ -32,6 +32,7 @@ import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
+import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -67,6 +68,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     private final LocalNotificationService notificationService;
     private final ContentEntityManager contentEntityManager;
     private final PersonService personService;
+    private final SettingsManager settingsManager;
 
     /**
      * JiraChartMacro constructor
@@ -78,7 +80,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     public JiraChartMacro(MacroExecutorService executorService, ReadOnlyApplicationLinkService readOnlyApplicationLinkService, I18NBeanFactory i18NBeanFactory,
             JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory
             , JiraExceptionHelper jiraExceptionHelper, LocalNotificationService notificationService,
-                          ContentEntityManager contentEntityManager, PersonService personService)
+                          ContentEntityManager contentEntityManager, PersonService personService, SettingsManager settingsManager)
     {
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
@@ -89,6 +91,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
         this.notificationService = notificationService;
         this.contentEntityManager = contentEntityManager;
         this.personService = personService;
+        this.settingsManager = settingsManager;
     }
 
     @Override
@@ -115,7 +118,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
         contextMap.put("avatar", person.getProfilePicture().getPath());
         contextMap.put("page-name", ceo.getTitle());
         contextMap.put("editor-name", ceo.getCreator().getFullName());
-        contextMap.put("page-link", "/pages/viewpage.action?pageId=" + ceo.getId());
+        contextMap.put("page-link", settingsManager.getGlobalSettings().getBaseUrl() + "/pages/viewpage.action?pageId=" + ceo.getId());
 
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "smart-quote.vm", contextMap);
     }
