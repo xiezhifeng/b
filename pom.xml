@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin-parent</artifactId>
-    <version>5.7.2</version>
+    <version>5.7.2-guava18-m01</version>
 
     <organization>
         <name>Atlassian</name>
@@ -123,6 +123,8 @@
         <maven.release.plugin.version>2.5.2</maven.release.plugin.version>
         <od.testing.configuration>use-maven,3</od.testing.configuration>
         <javadoc.version>2.8</javadoc.version>
+
+        <guava.version>11.0.2</guava.version>
     </properties>
 
     <distributionManagement>

@@ -24,7 +24,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpStatus;
 
 import javax.ws.rs.core.MediaType;
@@ -49,7 +48,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     private HttpRetrievalService httpRetrievalService;
 
-    private com.google.common.cache.Cache<ApplicationLink, Boolean> batchIssueCapableCache;
+    private com.google.common.cache.LoadingCache<ApplicationLink, Boolean> batchIssueCapableCache;
     // private final static String saxParserClass =
     // "org.apache.xerces.parsers.SAXParser";
 
@@ -471,7 +470,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return getBatchIssueCapableCache().getUnchecked(appLink);
     }
 
-    private com.google.common.cache.Cache<ApplicationLink, Boolean> getBatchIssueCapableCache()
+    private com.google.common.cache.LoadingCache<ApplicationLink, Boolean> getBatchIssueCapableCache()
     {
         if (batchIssueCapableCache == null)
         {
