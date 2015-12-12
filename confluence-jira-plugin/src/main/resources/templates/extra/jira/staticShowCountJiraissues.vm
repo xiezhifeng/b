@@ -1,11 +1,16 @@
-<span class="static-jira-issues_count">
-    <a class="issue-link" href="$clickableUrl">
-        #if($count == "0" || $count == "1")
-            $i18n.getText("jiraissues.static.issue.word","$count")
-        #else
-            $i18n.getText("jiraissues.static.issues.word","$count")
-        #end
-    </a>
+<span class="static-jira-issues_count" #if($clientId) data-jira-key="issue-count-$clientId" data-client-id="$clientId" #end>
+    #if($clientId)
+        <span class="aui-icon aui-icon-wait issue-placeholder" />
+        $i18n.getText("jiraissues.static.issues.word", "Couting...")
+    #else
+        <a class="issue-link" href="$clickableUrl">
+            #if($count == "0" || $count == "1")
+                $i18n.getText("jiraissues.static.issue.word","$count")
+            #else
+                $i18n.getText("jiraissues.static.issues.word","$count")
+            #end
+        </a>
+    #end
     #if ($oAuthUrl)
         <span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span>
     #end

@@ -3,7 +3,6 @@ package com.atlassian.confluence.extra.jira;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputDeviceType;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
@@ -30,7 +29,6 @@ import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.macro.StreamableMacro;
-import com.atlassian.confluence.search.service.ContentTypeEnum;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -138,7 +136,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         long batchStart = System.currentTimeMillis();
         try
         {
-            String content = entity.getBodyContent().getBody();
             // We find all MacroDefinitions for single JIRA issues in the body
             try
             {
@@ -153,13 +150,9 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     {
                         Map<String, Object> resultsMap;
                         // only use batch processing with web browser, do not support mobile
-                        if (conversionContext.getOutputType().equals(RenderContextOutputType.DISPLAY)
-                                && conversionContext.getOutputDeviceType().equals(ConversionContextOutputDeviceType.DESKTOP)
-                                && (entity.getTypeEnum() == ContentTypeEnum.BLOG
-                                    || entity.getTypeEnum() == ContentTypeEnum.PAGE
-                                    || entity.getTypeEnum() == ContentTypeEnum.COMMENT))
+                        if (isAsyncSupport(conversionContext))
                         {
-                            ClientId clientId = ClientId.fromElement(serverId, entity.getIdAsString(), JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get()));
+                            ClientId clientId = ClientId.fromElement(JiraIssuesType.SINGLE, serverId, entity.getIdAsString(), JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get()));
                             // retrieve data from jira
                             asyncJiraIssueBatchService.processRequest(clientId, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext);
                             resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(clientId, serverId, keys, conversionContext);
@@ -283,16 +276,8 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 return ConcurrentUtils.constantFuture(jiraExceptionHelper.renderBatchingJIMExceptionMessage(exceptionMessage, parameters));
             }
         }
-        else if (issuesType == JiraIssuesType.TABLE)
-        {
-            return ConcurrentUtils.constantFuture(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser).renderValue());
-        }
-        /**
-         * fallback rendering COUNT
-         * this one still lock the page for rendering, and potentially makes performance issue,
-         * should be removed after implement asynchronous loading for COUNT
-         */
-        return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser));
+        //TABLE & COUNT
+        return ConcurrentUtils.constantFuture(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser).renderValue());
     }
 
     private String getServerIdFromKey(Map<String, String> parameters, String issueKey, ConversionContext conversionContext) throws MacroExecutionException
