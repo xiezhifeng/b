@@ -276,16 +276,8 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 return ConcurrentUtils.constantFuture(jiraExceptionHelper.renderBatchingJIMExceptionMessage(exceptionMessage, parameters));
             }
         }
-        else if (issuesType == JiraIssuesType.TABLE)
-        {
-            return ConcurrentUtils.constantFuture(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser).renderValue());
-        }
-        /**
-         * fallback rendering COUNT
-         * this one still lock the page for rendering, and potentially makes performance issue,
-         * should be removed after implement asynchronous loading for COUNT
-         */
-        return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser));
+        //TABLE & COUNT
+        return ConcurrentUtils.constantFuture(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser).renderValue());
     }
 
     private String getServerIdFromKey(Map<String, String> parameters, String issueKey, ConversionContext conversionContext) throws MacroExecutionException
