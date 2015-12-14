@@ -154,8 +154,11 @@ public class ConfluenceEventListener implements DisposableBean
                 }
                 else
                 {
-                    jiraRemoteLinkCreator.createRemoteIssueLink(page, params.get(APPLINK_ID),
-                            params.get(ISSUE_KEY), params.get(FALLBACK_URL));
+                     if ("issueDirect".equalsIgnoreCase(params.get(AGILE_MODE)))
+                     {
+                         jiraRemoteLinkCreator.createRemoteIssueLink(page, params.get(APPLINK_ID),
+                                 params.get(ISSUE_KEY), params.get(FALLBACK_URL));
+                     }
                 }
             }
             else if (containsValue(SPRINT_ID, params, false) && containsValue(FALLBACK_URL, params, true) &&
