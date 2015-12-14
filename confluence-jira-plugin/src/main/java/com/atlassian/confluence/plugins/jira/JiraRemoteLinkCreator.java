@@ -22,6 +22,8 @@ import com.atlassian.sal.api.net.RequestFactory;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.ResponseHandler;
+
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
@@ -142,6 +144,39 @@ public class JiraRemoteLinkCreator
             LOGGER.warn("Failed to create a remote link to the sprint with ID '{}' for the application link ID '{}'. Reason: Application link not found.",
                 sprintId,
                 applinkId);
+            return false;
+        }
+    }
+
+    /**
+     * Create remote link to JIRA issue
+     * @param page          Confluence page to create the remote link for.
+     * @param applinkId     Application ID of the JIRA instance of the remote link.
+     * @param issueKey      JIRA issue key to create link for
+     * @param fallbackUrl   Display URL of the JIRA instance of the remote link, used as a fallback when no match is found for the application ID.
+     * @return true if the remote link was successfully created.
+     */
+    public boolean createRemoteIssueLink(AbstractPage page, String applinkId, String issueKey, String fallbackUrl)
+    {
+        Preconditions.checkNotNull(page);
+        Preconditions.checkArgument(StringUtils.isNotEmpty(applinkId));
+        Preconditions.checkArgument(StringUtils.isNotEmpty(issueKey));
+        Preconditions.checkArgument(StringUtils.isNotEmpty(fallbackUrl));
+
+        final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
+
+        ReadOnlyApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
+                "Failed to create a remote link to issue '" + issueKey + "' for the application '" + applinkId + "'.");
+        if (applicationLink != null)
+        {
+            createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+            return true;
+        }
+        else
+        {
+            LOGGER.warn("Failed to create a remote link to the issue with ID '{}' for the application link ID '{}'. Reason: Application link not found.",
+                    issueKey,
+                    applinkId);
             return false;
         }
     }
