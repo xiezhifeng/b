@@ -14,11 +14,15 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.sprint.model.JiraSprintModel;
 import com.atlassian.confluence.plugins.sprint.services.JiraAgileService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * The macro to display Jira Sprint
@@ -29,6 +33,7 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
     public static final String JIRASPRINT = "jirasprint";
     public static final String MACRO_ID_PARAMETER = "sprintId";
     private static final String MACRO_RESOURCE_PATH = "/download/resources/confluence.extra.jira:jirasprint-xhtml";
+    private static final Set<String> SUPPORTED_SPRINT_VIEW_PARAMS = ImmutableSet.of("sprintId", "view", "chart", "projectKey");
 
     private final ApplicationLinkResolver applicationLinkResolver;
     private final JiraExceptionHelper jiraExceptionHelper;
@@ -69,7 +74,9 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
             {
                 throw new MacroExecutionException(i18nResolver.getText("jira.sprint.error.noapplinks"));
             }
-            contextMap.put("clickableUrl", generateJiraSprintLink(applicationLink, sprintId, parameters.get("boardId")));
+
+            contextMap.put("clickableUrl", generateJiraSprintLink(applicationLink, parameters));
+
             try
             {
                 JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(applicationLink, parameters.get(MACRO_ID_PARAMETER));
@@ -113,11 +120,26 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
 
     private String getDefaultSprintName(Map<String, String> parameters)
     {
-        return StringUtils.defaultString(parameters.get("sprintName"), i18nResolver.getText("confluence.extra.jira.jirasprint.label"));
+        String sprintName = StringUtils.defaultString(parameters.get("sprintName"), parameters.get("sprintId"));
+        return StringUtils.defaultString(sprintName, i18nResolver.getText("confluence.extra.jira.jirasprint.label"));
     }
 
-    private String generateJiraSprintLink(ReadOnlyApplicationLink applicationLink, String sprintId, String boardId)
+    private String generateJiraSprintLink(ReadOnlyApplicationLink applicationLink, Map<String, String> parameters)
     {
-        return applicationLink.getDisplayUrl() + String.format("/secure/GHLocateSprintOnBoard.jspa?rapidViewId=%s&sprintId=%s", boardId, sprintId);
+        UrlBuilder urlBuilder = new UrlBuilder(applicationLink.getDisplayUrl() + "/secure/GHLocateSprintOnBoard.jspa");
+
+        urlBuilder.add("rapidViewId", parameters.get("boardId"));
+
+        for (String paramName: SUPPORTED_SPRINT_VIEW_PARAMS)
+        {
+            String paramValue = parameters.get(paramName);
+            if (StringUtils.isNotEmpty(paramValue))
+            {
+                urlBuilder.add(paramName, parameters.get(paramName));
+            }
+        }
+
+
+        return urlBuilder.toUrl();
     }
 }

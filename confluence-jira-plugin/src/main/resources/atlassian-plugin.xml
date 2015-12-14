@@ -134,19 +134,28 @@
         <context>editor</context>
     </web-resource>
 
+    <web-resource key="amd-support" name="AMD support resource">
+        <resource type="download" name="amd-confluence-shim.js" location="amd/confluence-shim.js"/>
+        <resource type="download" name="amd-module-exporter.js" location="amd/module-exporter.js"/>
+
+        <dependency>confluence.web.resources:ajs</dependency>
+        <dependency>confluence.web.resources:amd</dependency>
+    </web-resource>
+
     <!--Jira Issues in View Mode-->
     <web-resource key="jira-issues-view-mode-resources" name="Jira issues in view mode resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
-        <resource type="download" name="amd-confluence-shim.js" location="amd/confluence-shim.js"/>
+
         <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
         <resource type="download" name="jira-issues-fetching-job.js" location="jira/jira-issues-view-mode/fetching-job.js"/>
         <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
         <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
         <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
+
+        <dependency>${atlassian.plugin.key}:amd-support</dependency>
         <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
-        <dependency>confluence.web.resources:amd</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
     </web-resource>
 
@@ -284,8 +293,13 @@
     
     <web-resource key="autoconvert-jira" name="Autoconvert Jira">
         <description>Convert URLs from applinked Jira link to Jira macros.</description>
-        <resource type="download" name="jirapaste.js" location="/jira/jirapaste.js"/>
+
+        <resource type="download" name="jira-paste-link.js" location="editor-plugins/jira-paste-link.js"/>
+
+        <dependency>${atlassian.plugin.key}:amd-support</dependency>
+        <dependency>confluence.web.resources:jsUri</dependency>
         <dependency>com.atlassian.confluence.plugins.confluence-paste:autoconvert-core</dependency>
+
         <context>editor</context>
     </web-resource>
 
