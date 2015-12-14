@@ -40,10 +40,11 @@ function(
             return dfd.promise();
         },
 
-        loadBoardsData: function(serverId) {
+        loadBoardsData: function(serverId, nameFilter) {
             return $.ajax({
                 dataType: 'json',
-                url: AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/agile/' + serverId + '/boards',
+                url: AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/agile/' + serverId + '/boards?name=' +
+                    ((nameFilter === undefined || nameFilter === null)? "" : nameFilter),
                 timeout: AJS.Meta.getNumber('connection-timeout')
             });
         },

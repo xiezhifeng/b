@@ -14,6 +14,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -38,12 +39,12 @@ public class JiraSprintsResource
 
     @GET
     @Path("/{jiraServerId}/boards")
-    public Response getBoards(@PathParam("jiraServerId") String jiraServerId)
+    public Response getBoards(@PathParam("jiraServerId") String jiraServerId, @QueryParam("name") String nameFilter)
     {
         ReadOnlyApplicationLink applicationLink = applicationLinkResolver.getAppLinkForServer("", jiraServerId);
         try
         {
-            return Response.ok(jiraAgileService.getBoards(applicationLink)).build();
+            return Response.ok(jiraAgileService.getBoards(applicationLink, nameFilter)).build();
         }
         catch (CredentialsRequiredException e)
         {
