@@ -148,7 +148,7 @@ define('confluence/jim/editor-plugins/jira-paste-link', [
          */
         _getSprintMacroParamsIfHave: function(url, serverId) {
             // matches a rapid view JIRA link, ex: https://jira.atlassian.com/secure/RapidBoard.jspa?...
-            var rapidViewJiraLink = /\/RapidBoard\.jspa(\?|&){1}/;
+            var rapidViewJiraLink = /\/RapidBoard\.jspa\?{1}/;
 
             if (!rapidViewJiraLink.test(url)) {
                 return null;
