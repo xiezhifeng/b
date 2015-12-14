@@ -980,7 +980,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             || RenderContext.HTML_EXPORT.equals(conversionContext.getOutputType());
     }
 
-    protected boolean isAsyncSupport(ConversionContext conversionContext) {
+    protected boolean isAsyncSupport(ConversionContext conversionContext)
+    {
         ContentEntityObject entity = conversionContext.getEntity();
         return getBooleanProperty(conversionContext.getProperty(PARAM_PLACEHOLDER, true))
                 && !darkFeatureManager.isFeatureEnabledForCurrentUser(AsyncJiraIssueBatchService.DARK_FEATURE_DISABLE_ASYNC_LOADING_KEY)
