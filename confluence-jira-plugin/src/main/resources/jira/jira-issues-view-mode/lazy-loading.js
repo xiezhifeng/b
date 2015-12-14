@@ -27,7 +27,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
                         if ($jiraElement.hasClass('jira-table')) {
                             jiraRefreshTableMacro.updateRefreshedElement($jiraElement, htmlPlaceHolders[0]);
                         } else {
-                            $jiraElement.replaceWith(htmlPlaceHolders[index]);
+                            $jiraElement.replaceWith(htmlPlaceHolders[index] || htmlPlaceHolders[0]);
                         }
                     });
             });
