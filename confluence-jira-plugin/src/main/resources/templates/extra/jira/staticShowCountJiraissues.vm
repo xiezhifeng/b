@@ -1,7 +1,7 @@
 <span class="static-jira-issues_count" #if($clientId) data-jira-key="issue-count-$clientId" data-client-id="$clientId" #end>
     #if($clientId)
         <span class="aui-icon aui-icon-wait issue-placeholder" />
-        $i18n.getText("jiraissues.static.issues.word", "Couting...")
+        $i18n.getText("jiraissues.static.issue.counting")
     #else
         <a class="issue-link" href="$clickableUrl">
             #if($count == "0" || $count == "1")
