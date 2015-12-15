@@ -12,7 +12,6 @@ import com.atlassian.confluence.event.events.content.page.PageRestoreEvent;
 import com.atlassian.confluence.event.events.content.page.PageTrashedEvent;
 import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
-import com.atlassian.confluence.extra.jira.executor.JiraExecutorFactory;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.confluence.plugins.jira.event.PageCreatedFromJiraAnalyticsEvent;
@@ -30,13 +29,10 @@ import org.springframework.beans.factory.DisposableBean;
 
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 
 public class ConfluenceEventListener implements DisposableBean
 {
     private final static Logger LOGGER = LoggerFactory.getLogger(ConfluenceEventListener.class);
-    private static final int THREAD_POOL_SIZE = Integer.getInteger("jira.remotelink.threadpool.size", 10);
 
     private final EventPublisher eventPublisher;
 
@@ -46,7 +42,6 @@ public class ConfluenceEventListener implements DisposableBean
 
     private final JiraConnectorManager jiraConnectorManager;
 
-    private final ExecutorService jiraLinkExecutorService;
     private static final Function<Object, String> PARAM_VALUE_TO_STRING_FUNCTION = new Function<Object, String>()
     {
         @Override
@@ -71,15 +66,13 @@ public class ConfluenceEventListener implements DisposableBean
             JiraRemoteSprintLinkManager jiraRemoteSprintLinkManager,
             JiraRemoteIssueLinkManager jiraRemoteIssueLinkManager,
             JiraRemoteEpicLinkManager jiraRemoteEpicLinkManager,
-            JiraConnectorManager jiraConnectorManager,
-            JiraExecutorFactory executorFactory)
+            JiraConnectorManager jiraConnectorManager)
     {
         this.eventPublisher = eventPublisher;
         this.jiraRemoteSprintLinkManager = jiraRemoteSprintLinkManager;
         this.jiraRemoteEpicLinkManager = jiraRemoteEpicLinkManager;
         this.jiraRemoteIssueLinkManager = jiraRemoteIssueLinkManager;
         this.jiraConnectorManager = jiraConnectorManager;
-        jiraLinkExecutorService = executorFactory.newLimitedThreadPool(THREAD_POOL_SIZE, "Jira remote link executor");
         eventPublisher.register(this);
     }
 
@@ -151,70 +144,28 @@ public class ConfluenceEventListener implements DisposableBean
 
     private void createJiraRemoteLinksForRestoredPage(final AbstractPage newPage)
     {
-        executeJiraLinkCallable(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception
-            {
-                jiraRemoteIssueLinkManager.createIssueLinksForEmbeddedMacros(newPage);
-                return null;
-            }
-        });
+        jiraRemoteIssueLinkManager.createIssueLinksForEmbeddedMacros(newPage);
     }
 
     private void createJiraRemoteLinksForNewPage(final AbstractPage newPage, final Map<String, ?> context)
     {
-        executeJiraLinkCallable(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception
-            {
-                jiraRemoteIssueLinkManager.createIssueLinksForEmbeddedMacros(newPage);
-                handlePageCreateInitiatedFromJIRAEntity(newPage, "", Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
-                return null;
-            }
-        });
+        jiraRemoteIssueLinkManager.createIssueLinksForEmbeddedMacros(newPage);
+        handlePageCreateInitiatedFromJIRAEntity(newPage, "", Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
     }
 
     private void updateJiraRemoteLinks(final AbstractPage originalPage, final AbstractPage currentPage)
     {
-        executeJiraLinkCallable(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception
-            {
-                jiraRemoteIssueLinkManager.updateIssueLinksForEmbeddedMacros(originalPage, currentPage);
-                return null;
-            }
-        });
+        jiraRemoteIssueLinkManager.updateIssueLinksForEmbeddedMacros(originalPage, currentPage);
     }
 
     private void deleteJiraRemoteLinks(final AbstractPage page)
     {
-        executeJiraLinkCallable(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception {
-                jiraRemoteIssueLinkManager.deleteIssueLinksForEmbeddedMacros(page);
-                return null;
-            }
-        });
+        jiraRemoteIssueLinkManager.deleteIssueLinksForEmbeddedMacros(page);
     }
 
     private void handleBlueprintPageCreate(final AbstractPage page, final String blueprintKey, final Map<String, ?> context)
     {
-        executeJiraLinkCallable(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                handlePageCreateInitiatedFromJIRAEntity(page, blueprintKey, Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
-                return null;
-            }
-        });
-    }
-
-    private void executeJiraLinkCallable(Callable<Void> callable)
-    {
-        jiraLinkExecutorService.submit(callable);
+        handlePageCreateInitiatedFromJIRAEntity(page, blueprintKey, Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
     }
 
     @EventListener
@@ -287,7 +238,6 @@ public class ConfluenceEventListener implements DisposableBean
 
     public void destroy() throws Exception
     {
-        jiraLinkExecutorService.shutdown();
         eventPublisher.unregister(this);
     }
 }
