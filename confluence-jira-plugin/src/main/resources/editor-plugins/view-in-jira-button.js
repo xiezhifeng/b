@@ -74,7 +74,7 @@ define('confluence/jim/editor-plugins/view-in-jira-button', [
 
             // make sure macro has both board and sprint id
             if (boardId && sprintId) {
-                var url = AJS.format('/secure/RapidBoard.jspa?rapidView={0}&sprint={1}', boardId, sprintId);
+                var url = AJS.format('/secure/GHLocateSprintOnBoard.jspa?rapidViewId={0}&sprintId={1}', boardId, sprintId);
 
                 var otherSupportParams  = _.omit(parameters, EXCLUDE_PARAMS);
 
