@@ -496,6 +496,7 @@
                             org.apache.commons.lang;version="2.6",
                             org.apache.commons.lang.math;version="2.6",
                             org.apache.commons.lang3;version="3.1",
+                            org.apache.commons.lang3.concurrent;version="3.1",
                             org.apache.log4j,
                             org.codehaus.jackson,
                             org.codehaus.jackson.map;version="1.9",

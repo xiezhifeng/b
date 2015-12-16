@@ -13,11 +13,13 @@ import com.atlassian.confluence.extra.jira.model.ClientId;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
+import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -100,8 +102,9 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         {
             // check if JIRA server version is greater than 6.0.2 (build number 6097)
             // if so, continue. Otherwise, skip this
+            //When user hasn't authenticated, buildNumber == -1, it should not be unsupported jira exception
             JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLink);
-            if (jiraServerBean.getBuildNumber() >= SUPPORTED_JIRA_SERVER_BUILD_NUMBER)
+            if (jiraServerBean.getBuildNumber() == -1 || jiraServerBean.getBuildNumber() >= SUPPORTED_JIRA_SERVER_BUILD_NUMBER)
             {
                 // make request to JIRA and build results
                 Map<String, Object> resultsMap = Maps.newHashMap();
@@ -207,6 +210,17 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         }
         catch (CredentialsRequiredException credentialsRequiredException)
         {
+            try
+            {
+                channel = jiraIssuesManager.retrieveXMLAsChannel(url, JiraIssuesColumnManager.SINGLE_ISSUE_COLUMN_NAMES, applicationLink,
+                        true, false);
+                return channel;
+            }
+            catch (Exception e)
+            {
+                jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
+            }
+
             return null; // we will send a request for each of single issues later
         }
         catch (MalformedRequestException e)

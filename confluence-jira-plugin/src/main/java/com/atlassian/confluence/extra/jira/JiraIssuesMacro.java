@@ -11,6 +11,7 @@ import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
+import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
@@ -32,6 +33,7 @@ import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.search.service.ContentTypeEnum;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
@@ -42,6 +44,7 @@ import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.renderer.RenderContext;
+import com.atlassian.renderer.RenderContextOutputType;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
@@ -291,6 +294,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         // Prepare the maxIssuesToDisplay for velocity template
         int maximumIssues = staticMode ? JiraUtil.getMaximumIssues(params.get(MAXIMUM_ISSUES)) : JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
+        if (issuesType == JiraIssuesType.COUNT)
+        {
+            maximumIssues = 0;
+        }
         contextMap.put(MAX_ISSUES_TO_DISPLAY, maximumIssues);
 
         String clickableUrl = JiraIssueUtil.getClickableUrl(requestData, requestType, applink, params.get(BASE_URL));
@@ -440,7 +447,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     break;
 
                 case COUNT:
-                    populateContextMapForStaticCountIssues(contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext);
+                    populateContextMapForStaticCountIssues(params, contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext);
                     break;
 
                 case TABLE:
@@ -738,10 +745,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
 
             // only do lazy loading for table in this 2 output types & in desktop env
-            boolean placeholder = isViewingOrPreviewing
-                    && ConversionContextOutputDeviceType.DESKTOP.equals(conversionContext.getOutputDeviceType())
-                    && getBooleanProperty(conversionContext.getProperty(PARAM_PLACEHOLDER, true))
-                    && !darkFeatureManager.isFeatureEnabledForCurrentUser(AsyncJiraIssueBatchService.DARK_FEATURE_DISABLE_ASYNC_LOADING_KEY);
+            boolean placeholder = isViewingOrPreviewing && isAsyncSupport(conversionContext);
             contextMap.put(PARAM_PLACEHOLDER, placeholder);
             if (!placeholder)
             {
@@ -751,10 +755,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                ClientId clientId = ClientId.fromElement(appLink.getId().get(), conversionContext.getEntity().getIdAsString(),
+                ClientId clientId = ClientId.fromElement(JiraIssuesType.TABLE, appLink.getId().get(), conversionContext.getEntity().getIdAsString(),
                         JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get()), String.valueOf(macroParams.get("jqlQuery")));
                 contextMap.put("clientId", clientId);
-                asyncJiraIssueBatchService.processRequestTable(clientId, macroParams, conversionContext, appLink);
+                asyncJiraIssueBatchService.processRequestWithJql(clientId, macroParams, conversionContext, appLink);
 
                 // Placeholder mode for table
                 contextMap.put("trustedConnection", false);
@@ -852,30 +856,40 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("dateFormat", new SimpleDateFormat(formatSettingsManager.getDateFormat(), locale));
     }
 
-    private void populateContextMapForStaticCountIssues(Map<String, Object> contextMap, List<String> columnNames,
+    private void populateContextMapForStaticCountIssues(Map<String, String> macroParams, Map<String, Object> contextMap, List<String> columnNames,
                                                         String url, ReadOnlyApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
     {
-        try
+        if (isAsyncSupport(conversionContext))
         {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
-            Element element = channel.getChannelElement();
-            Element totalItemsElement = element.getChild("issue");
-            String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
+            ClientId clientId = ClientId.fromElement(JiraIssuesType.COUNT, appLink.getId().get(), conversionContext.getEntity().getIdAsString(),
+                    JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get()), String.valueOf(macroParams.get("jqlQuery")));
+            contextMap.put("clientId", clientId);
+            asyncJiraIssueBatchService.processRequestWithJql(clientId, macroParams, conversionContext, appLink);
+        }
+        else
+        {
+            try
+            {
+                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
+                Element element = channel.getChannelElement();
+                Element totalItemsElement = element.getChild("issue");
+                String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
 
-            contextMap.put(COUNT, count);
-        }
-        catch (CredentialsRequiredException e)
-        {
-            contextMap.put(COUNT, getCountIssuesWithAnonymous(url, columnNames, appLink, forceAnonymous, useCache));
-            contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
-        }
-        catch (MalformedRequestException e)
-        {
-            contextMap.put(COUNT, DEFAULT_JIRA_ISSUES_COUNT);
-        }
-        catch (Exception e)
-        {
-            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
+                contextMap.put(COUNT, count);
+            }
+            catch (CredentialsRequiredException e)
+            {
+                contextMap.put(COUNT, getCountIssuesWithAnonymous(url, columnNames, appLink, forceAnonymous, useCache));
+                contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
+            }
+            catch (MalformedRequestException e)
+            {
+                contextMap.put(COUNT, DEFAULT_JIRA_ISSUES_COUNT);
+            }
+            catch (Exception e)
+            {
+                jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
+            }
         }
     }
 
@@ -964,6 +978,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             || RenderContext.EMAIL.equals(conversionContext.getOutputType())
             || RenderContext.FEED.equals(conversionContext.getOutputType())
             || RenderContext.HTML_EXPORT.equals(conversionContext.getOutputType());
+    }
+
+    protected boolean isAsyncSupport(ConversionContext conversionContext)
+    {
+        ContentEntityObject entity = conversionContext.getEntity();
+        return getBooleanProperty(conversionContext.getProperty(PARAM_PLACEHOLDER, true))
+                && !darkFeatureManager.isFeatureEnabledForCurrentUser(AsyncJiraIssueBatchService.DARK_FEATURE_DISABLE_ASYNC_LOADING_KEY)
+                && RenderContextOutputType.DISPLAY.equals(conversionContext.getOutputType())
+                && ConversionContextOutputDeviceType.DESKTOP.equals(conversionContext.getOutputDeviceType())
+                && (entity.getTypeEnum() == ContentTypeEnum.BLOG || entity.getTypeEnum() == ContentTypeEnum.PAGE || entity.getTypeEnum() == ContentTypeEnum.COMMENT);
     }
 
     protected int getResultsPerPageParam(StringBuffer urlParam)
