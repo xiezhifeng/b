@@ -128,9 +128,13 @@
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
-        <resource type="download" name="view-in-jira.js" location="templates/extra/jira/view-in-jira.js"/>
+
+        <resource type="download" name="view-in-jira-button.js" location="editor-plugins/view-in-jira-button.js"/>
         <resource type="download" name="show-summary.js" location="templates/extra/jira/show-summary.js"/>
         <resource type="download" name="macro-icon.css" location="templates/extra/jira/macro-icon.css"/>
+
+        <dependency>${atlassian.plugin.key}:amd-support</dependency>
+
         <context>editor</context>
     </web-resource>
 
@@ -429,6 +433,9 @@
                 <option key="showValueInPlaceholder" value="true" />
             </parameter>
         </parameters>
+        <property-panel>
+            <button id="view-in-jira" label="view.in.jira" action="#" />
+        </property-panel>
     </xhtml-macro>
 
     <web-resource key="jirasprint-resources">
