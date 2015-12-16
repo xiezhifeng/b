@@ -11,7 +11,7 @@ public class JiraBatchRequestData
 {
     private Map<String, Element> elementMap; // Map of (JIRA Issue Key, JDOM Element) pairs
 
-    private String serverUrl;
+    private String displayUrl;
 
     private Exception exception;
 
@@ -25,14 +25,14 @@ public class JiraBatchRequestData
         this.elementMap = elementMap;
     }
 
-    public String getServerUrl()
+    public String getDisplayUrl()
     {
-        return serverUrl;
+        return displayUrl;
     }
 
-    public void setServerUrl(String serverUrl)
+    public void setDisplayUrl(String displayUrl)
     {
-        this.serverUrl = serverUrl;
+        this.displayUrl = displayUrl;
     }
 
     public Exception getException()

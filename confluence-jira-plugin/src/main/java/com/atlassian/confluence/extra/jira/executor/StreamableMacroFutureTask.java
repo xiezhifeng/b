@@ -8,7 +8,6 @@ import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.StreamableMacro;
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 
 import org.jdom.Element;
@@ -22,24 +21,26 @@ public class StreamableMacroFutureTask implements Callable<String>
     private final ConversionContext context;
     private final StreamableMacro macro;
     private final Element element;
-    private final String jiraServerUrl;
+    private final String jiraDisplayUrl;
+    private final String jiraRpcUrl;
     private final Exception exception;
     private final JiraExceptionHelper jiraExceptionHelper;
 
     public StreamableMacroFutureTask(final JiraExceptionHelper jiraExceptionHelper, final Map<String, String> parameters, final ConversionContext context,
             final StreamableMacro macro, final ConfluenceUser user)
     {
-        this(jiraExceptionHelper, parameters, context, macro, user, null, null, null);
+        this(jiraExceptionHelper, parameters, context, macro, user, null, null, null, null);
     }
 
     public StreamableMacroFutureTask(final JiraExceptionHelper jiraExceptionHelper, final Map<String, String> parameters, final ConversionContext context,
-            final StreamableMacro macro, final ConfluenceUser user, final Element element, final String jiraServerUrl, final Exception exception)
+            final StreamableMacro macro, final ConfluenceUser user, final Element element, final String jiraDisplayUrl, final String jiraRpcUrl, final Exception exception)
     {
         this.parameters = parameters;
         this.context = context;
         this.macro = macro;
         this.element = element;
-        this.jiraServerUrl = jiraServerUrl;
+        this.jiraDisplayUrl = jiraDisplayUrl;
+        this.jiraRpcUrl = jiraRpcUrl;
         this.exception = exception;
         this.jiraExceptionHelper = jiraExceptionHelper;
     }
@@ -69,7 +70,7 @@ public class StreamableMacroFutureTask implements Callable<String>
             if (element != null) // is single issue jira markup and in batch
             {
                 final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
-                return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl);
+                return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraDisplayUrl, jiraRpcUrl);
             }
             else if (exception != null)
             {

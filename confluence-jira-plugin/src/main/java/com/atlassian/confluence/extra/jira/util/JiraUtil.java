@@ -217,16 +217,27 @@ public class JiraUtil
         {
             return;
         }
+
+        correctIconURL(element, appLink.getDisplayUrl().toString(), appLink.getRpcUrl().toString());
+    }
+
+    public static void correctIconURL(Element element, String displayUrl, String rpcUrl)
+    {
+        if (displayUrl == null || rpcUrl == null)
+        {
+            return;
+        }
+
         for (Element child : (List<Element>) element.getChildren())
         {
             Attribute iconUrl = child.getAttribute("iconUrl");
-            if (iconUrl == null || StringUtils.isEmpty(iconUrl.getValue())) 
+            if (iconUrl == null || StringUtils.isEmpty(iconUrl.getValue()))
             {
                 continue;
             }
-            if (iconUrl.getValue().startsWith(appLink.getRpcUrl().toString())) 
+            if (iconUrl.getValue().startsWith(rpcUrl))
             {
-                iconUrl.setValue(iconUrl.getValue().replace(appLink.getRpcUrl().toString(), appLink.getDisplayUrl().toString()));
+                iconUrl.setValue(iconUrl.getValue().replace(rpcUrl, displayUrl));
             }
         }
     }

@@ -963,7 +963,7 @@ public class TestJiraIssuesMacro extends TestCase
         assertEquals(elementMap.size(), 5);
         Element issue = elementMap.get("TSTT-1");
         assertNotNull(issue);
-        String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
+        String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_DISPLAY_URL);
         assertEquals(jiraServerUrl, "http://displayurl/jira/browse/");
     }
 

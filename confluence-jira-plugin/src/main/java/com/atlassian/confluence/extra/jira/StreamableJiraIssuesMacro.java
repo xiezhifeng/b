@@ -165,10 +165,10 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         if (MapUtils.isNotEmpty(resultsMap))
                         {
                             Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
-                            String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
+                            String jiraDisplayUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_DISPLAY_URL);
                             // Store the results to TheadLocal maps for later use
                             jiraBatchRequestData.setElementMap(elementMap);
-                            jiraBatchRequestData.setServerUrl(jiraServerUrl);
+                            jiraBatchRequestData.setDisplayUrl(jiraDisplayUrl);
                         }
                     }
                     catch (MacroExecutionException macroExecutionException)
@@ -255,9 +255,9 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     {
                         Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
                         Element element = elementMap != null ? elementMap.get(key) : null;
-                        String jiraServerUrl = jiraBatchRequestData.getServerUrl();
+                        String jiraDisplayUrl = jiraBatchRequestData.getDisplayUrl();
                         Exception exception = jiraBatchRequestData.getException();
-                        return ConcurrentUtils.constantFuture(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser, element, jiraServerUrl, exception).renderValue());
+                        return ConcurrentUtils.constantFuture(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, currentUser, element, jiraDisplayUrl, null, exception).renderValue());
                     }
                 }
                 else
