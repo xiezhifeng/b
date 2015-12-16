@@ -68,7 +68,10 @@ public class AbstractJiraSprintMacroTest extends AbstractJiraTest
     {
         sprintDialog.selectBoard(board.getName());
         sprintDialog.selectSprint(sprint.getName());
+
         sprintDialog.insert();
+        sprintDialog.waitUntilHidden();
+
         editPage.save();
 
         return bindCurrentPageToSprintPage();

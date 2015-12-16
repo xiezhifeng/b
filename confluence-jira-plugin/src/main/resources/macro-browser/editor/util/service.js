@@ -41,10 +41,11 @@ function(
         },
 
         loadBoardsData: function(serverId, nameFilter) {
+            nameFilter = nameFilter || '';
+
             return $.ajax({
                 dataType: 'json',
-                url: AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/agile/' + serverId + '/boards?name=' +
-                    ((nameFilter === undefined || nameFilter === null)? "" : nameFilter),
+                url: AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/agile/' + serverId + '/boards?name=' + encodeURIComponent(nameFilter),
                 timeout: AJS.Meta.getNumber('connection-timeout')
             });
         },

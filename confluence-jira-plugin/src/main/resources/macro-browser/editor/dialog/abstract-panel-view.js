@@ -85,11 +85,11 @@ function(
             this.view.$servers.on('change', this._onSelectServerChanged.bind(this));
 
             // init server select
-            this.setupSelect2(this.view.$servers,
-                    'select2-server-container',
-                    'select2-server-dropdown',
-                    AJS.I18n.getText('jira.server.placeholder'),
-                    true);
+            this.setupSelect2({
+                $el: this.view.$servers,
+                placeholderText: AJS.I18n.getText('jira.server.placeholder'),
+                isRequired: true
+            });
 
             this._fillServersData();
         },
@@ -102,20 +102,16 @@ function(
 
         onOpenDialog: function(macroOptions) {
             this.formData.reset();
+
             if (macroOptions && macroOptions.params && macroOptions.name === this.dialogView.macroId) {
                 this.macroOptions = macroOptions;
-
-                this._fillServersData().done(function() {
-                    this.reset();
-                    this.setSelect2Value(this.view.$servers, macroOptions.params.serverId);
-                }.bind(this));
             } else {
                 this.macroOptions = null;
-                this._fillServersData().done(function() {
-                    this.selectFirstValueInSelect2(this.view.$servers);
-                    this.reset();
-                }.bind(this));
             }
+
+            this._fillServersData().done(function() {
+                this.reset();
+            }.bind(this));
         },
 
         reset: function() {
@@ -293,17 +289,28 @@ function(
                             return;
                         }
 
-                        var templateSelect2Option = this.template.serverOptions;
-                        this.fillDataSelect2(this.view.$servers, templateSelect2Option, {servers: this.servers});
+                        this.fillDataSelect2(this.view.$servers, this.servers);
 
                         // only have one server, select it and hide server select2
                         if (this.servers.length === 1) {
                             this.view.$servers.parent().addClass('hidden');
                             this.removeEmptyOptionInSelect2(this.view.$servers);
-
-                            // trigger change to load other data, such as board data
-                            this.setSelect2Value(this.view.$servers, this.servers[0].id);
                         }
+
+                        // after loading server data, this is initial value to set as selected.
+                        var selectedServerId = this.macroOptions && this.macroOptions.params
+                                                    ? this.macroOptions.params.serverId
+                                                    : null;
+
+                        // choose a server as selected by default.
+                        if (selectedServerId) {
+                            this.setSelect2Value(this.view.$servers, selectedServerId);
+                        } else if (this.primaryServer) {
+                            this.setSelect2Value(this.view.$servers, this.primaryServer.id);
+                        } else {
+                            this.selectFirstValueInSelect2(this.view.$servers);
+                        }
+
                     }.bind(this));
         },
 

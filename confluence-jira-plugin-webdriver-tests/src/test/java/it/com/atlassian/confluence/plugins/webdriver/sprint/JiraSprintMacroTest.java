@@ -8,8 +8,10 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static it.com.atlassian.confluence.plugins.webdriver.model.SprintStatus.*;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
@@ -44,10 +46,10 @@ public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
         assertEquals("incorrect number of inserted macros", 1, macros.size());
 
         MacroPlaceholder sprintMacro = macros.get(0);
-        String[] params = sprintMacro.getAttribute("data-macro-parameters").split("\\|");
+        String params = sprintMacro.getAttribute("data-macro-parameters");
 
-        assertEquals("incorrect board id", "boardId=1", params[0]);
-        assertEquals("incorrect sprint id", "sprintId=2", params[2]);
+        assertThat(params, containsString("boardId=1"));
+        assertThat(params, containsString("sprintId=2"));
 
         // click again to check the dialog display correctly
         sprintDialog = openSprintDialogFromMacroPlaceholder(editorContent, sprintMacro);

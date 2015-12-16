@@ -5,6 +5,7 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.sprint.model.JiraSprintModel;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
@@ -36,7 +37,7 @@ public class DefaultJiraAgileService implements JiraAgileService
     @Override
     public String getBoards(@Nonnull ReadOnlyApplicationLink readOnlyApplicationLink, String nameFilter) throws CredentialsRequiredException, ResponseException
     {
-        String jsonStringResult = retrieveJsonString(readOnlyApplicationLink, AGILE_BOARD_REST_PATH + (nameFilter == null? "": nameFilter));
+        String jsonStringResult = retrieveJsonString(readOnlyApplicationLink, AGILE_BOARD_REST_PATH + JiraUtil.utf8Encode(nameFilter == null? "": nameFilter));
         return readValues(jsonStringResult);
     }
 

@@ -24,7 +24,7 @@
                     {getText('jira.sprint.label.board')}
                     <span class="aui-icon icon-required"> required</span>
                 </label>
-                <select id="jira-sprint-board" class="jira-boards" name="jira-board"></select>
+                <input type="hidden" id="jira-sprint-board" class="jira-boards" name="jira-board">
                 <div class="error hidden"></div>
             </div>
 
@@ -56,35 +56,17 @@
     </div>
 {/template}
 
+
 /**
  * Servers select box
- * @param servers
+ * @param items
  */
-{template .serverOptions}
-    {foreach $server in $servers}
-        <option value="{$server.id}">{$server.name}</option>
+{template .selectOptions}
+    {foreach $item in $items}
+        <option value="{$item.id}">{$item.name}</option>
     {/foreach}
 {/template}
 
-/**
- * Option template for Board
- * @param boards
- */
-{template .boardOptions}
-    {foreach $board in $boards}
-        <option value="{$board.id}">{$board.name}</option>
-    {/foreach}
-{/template}
-
-/**
- * Option template for Sprint
- * @param sprints
- */
-{template .sprintOptions}
-    {foreach $sprint in $sprints}
-        <option value="{$sprint.id}">{$sprint.name}</option>
-    {/foreach}
-{/template}
 
 /**
  * Servers select box

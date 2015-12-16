@@ -52,6 +52,7 @@ public class Select2Element extends ConfluenceAbstractPageComponent
     {
         select2Dropdown.click();
         Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-results")).timed().isVisible());
+        Poller.waitUntilFalse(select2Dropdown.find(By.className("select2-searching")).timed().isVisible());
 
         List<PageElement> options = getAllOptionsPageElement();
 
@@ -63,6 +64,8 @@ public class Select2Element extends ConfluenceAbstractPageComponent
                 break;
             }
         }
+
+        Poller.waitUntilEquals(value, selectElement.find(By.className("select2-chosen")).timed().getText());
     }
 
     public List<String> getAllOptions()
@@ -85,6 +88,8 @@ public class Select2Element extends ConfluenceAbstractPageComponent
     public List<PageElement> getAllOptionsPageElement()
     {
         Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-results")).timed().isVisible());
+        Poller.waitUntilFalse(select2Dropdown.find(By.className("select2-searching")).timed().isVisible());
+
         return select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
     }
 }
