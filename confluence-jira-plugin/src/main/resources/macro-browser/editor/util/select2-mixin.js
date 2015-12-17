@@ -19,37 +19,46 @@ function(
      * These methods will extend other object, such as a Backbone View.
      */
     var Select2Mixin = {
-        template: Confluence.Templates.JiraSprints.Dialog,
-
-        setupSelect2: function($el, containerCSS, dropDownCSS, placeholderText, isRequired) {
-            var opts = {
+        /**
+         * Convert a select element into select2 element
+         *
+         * @param {Object} options
+         * @param {jQuery object} options.$el
+         * @param {string} options.placeholderText
+         * @param {boolean} options.isRequired
+         * @param {object} options.overrideSelect2Ops
+         */
+        setupSelect2: function(options) {
+            var defaultOptsSelect2 = {
+                // minimumInputLength: 3,
+                maximumSelectionSize: 1,
+                placeholder: options.placeholderText,
                 width: '300px',
-                containerCssClass: containerCSS,
-                dropdownCssClass: dropDownCSS,
-                formatResult: function(result, label, query) {
-                    label.attr('title', result.text);
-                    return $.fn.select2.defaults.formatResult.apply(this, arguments);
-                }
+                containerCssClass: 'select2-container-' + options.$el.attr('id'),
+                dropdownCssClass: 'select2-dropdown-' + options.$el.attr('id')
             };
+            var optsSelect2 = defaultOptsSelect2;
 
-            $el.auiSelect2(opts);
-
-            if (isRequired) {
-                // clear empty option when opening select2 first name
-                $el.on('select2-opening', function() {
-                    $el.find('option[value="' + config.DEFAULT_OPTION_VALUE + '"]').addClass('hidden');
-                });
+            if (options.overrideSelect2Ops) {
+                optsSelect2 = $.extend({}, optsSelect2, options.overrideSelect2Ops);
             }
 
-            // set placeholder
-            this.$(dropDownCSS + ' .select2-input').attr('placeholder', placeholderText);
+            options.$el.auiSelect2(optsSelect2);
+
+            if (options.isRequired) {
+                // clear empty option when opening select2 first name
+                options.$el.on('select2-opening', function() {
+                    options.$el.find('option[value="' + config.DEFAULT_OPTION_VALUE + '"]').addClass('hidden');
+                });
+            }
         },
 
-        fillDataSelect2: function($el, templateName, option) {
+        fillDataSelect2: function($el, data) {
+            this.toggleSelect2Loading($el, false);
             this.toggleEnableSelect2($el, false);
             this.resetAndAddDefaultOption($el);
 
-            var markup = templateName(option);
+            var markup = this.template.selectOptions({items: data});
             $el.append(markup);
 
             this.toggleEnableSelect2($el, true);
@@ -73,26 +82,31 @@ function(
             }
         },
 
-        toggleSelect2Loading: function($el, isLoading) {
+        toggleSelect2Loading: function($el, isLoading, isForInputType) {
             this.resetSelect2Options($el);
 
             if (isLoading) {
                 $el.addClass('loading');
 
-                // add loading icon on the right of the select
-                $el.after('<span class="aui-icon aui-icon-wait">Loading...</span>');
-                this.toggleEnableSelect2($el, false);
+                if (!isForInputType) {
+                    // add loading icon on the right of the select
+                    $el.after('<span class="aui-icon aui-icon-wait">Loading...</span>');
+                    this.toggleEnableSelect2($el, false);
 
-                // add loading option
-                var markup = this.template.loadingOption();
-                $el.append(markup);
+                    // add loading option
+                    var markup = this.template.loadingOption();
+                    $el.append(markup);
 
-                $el.auiSelect2('val', 'loading');
+                    $el.auiSelect2('val', 'loading');
+                }
 
             } else {
                 $el.removeClass('loading');
-                $el.parent().find('.aui-icon-wait').remove();
-                this.toggleEnableSelect2($el, true);
+
+                if (!isForInputType) {
+                    $el.parent().find('.aui-icon-wait').remove();
+                    this.toggleEnableSelect2($el, true);
+                }
             }
         },
 

@@ -57,6 +57,7 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
         waitUntilSprintBoardLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
         select.openDropdown();
+        waitUntilSprintBoardLoaded();
         select.chooseOption(boardName);
     }
 
@@ -73,8 +74,8 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
         waitUntilSprintBoardLoaded();
         Select2Element select = pageBinder.bind(Select2Element.class, boardSelect);
         select.openDropdown();
+        waitUntilSprintBoardLoaded();
         List<String> options = select.getAllOptions();
-        options.remove(0);
         select.closeDropdown();
 
         return options;
@@ -106,9 +107,14 @@ public class JiraSprintMacroDialog extends AbstractJiraIssueMacroDialog
         return select.getSelectedOption().getText();
     }
 
+    /**
+     * Because board select is input[type=hidden],
+     * so we don't need to wait for existence of option element like doing with sprint select
+     */
     private void waitUntilSprintBoardLoaded()
     {
-        waitForHasOptionValue("select.jira-boards");
+        PageElement select = getPanelBodyDialog().find(By.cssSelector(".jira-boards"));
+        Poller.waitUntilFalse(select.timed().hasClass("loading"));
     }
 
     private void waitUntilSprintLoaded()

@@ -42,21 +42,18 @@ function(
 
             this.servers = [];
             this.primaryServer = null;
-            this.boards = [];
-            this.sprints = [];
 
             // update default values of formData
             _.extend(this.formData.defaults, {
                 selectedBoard: null,
                 selectedSprint: null
             });
-            this.listenTo(this.formData, 'change:selectedBoard', this._handleBoardChanged);
-            this.listenTo(this.formData, 'change:selectedSprint', this._handleSprintChanged);
+
             this.listenTo(this.formData, 'change:selectedServer', function() {
                 this.reset();
 
                 if (this.formData.get('isValid')) {
-                    this._fillBoardData();
+                    this._fillBoardData('');
                 }
             });
 
@@ -73,20 +70,26 @@ function(
         },
 
         _initSelect2Fields: function() {
-            this.setupSelect2(this.view.$boards,
-                    'select2-board-container',
-                    'select2-board-dropdown',
-                    AJS.I18n.getText('jira.sprint.board.placeholder'),
-                    true);
+            var fillBoardData = _.debounce(this._fillBoardData.bind(this), 500);
 
-            this.setupSelect2(this.view.$sprints,
-                    'select2-sprint-container',
-                    'select2-sprint-dropdown',
-                    AJS.I18n.getText('jira.sprint.sprint.placeholder'),
-                    true);
+            // setup board select
+            this.setupSelect2({
+                $el: this.view.$boards,
+                placeholderText: AJS.I18n.getText('jira.sprint.board.placeholder'),
+                isRequired: true,
+                overrideSelect2Ops: {
+                    query: function(query) {
+                        fillBoardData(query.term, query.callback);
+                    }
+                }
+            });
 
-            // update tab index for select boxes otherwise tab key won't work on them
-            this.$('.aui-select2-choice').attr('tabindex', 10);
+            // setup sprint select
+            this.setupSelect2({
+                $el: this.view.$sprints,
+                placeholderText: AJS.I18n.getText('jira.sprint.sprint.placeholder'),
+                isRequired: true
+            });
         },
 
         reset: function() {
@@ -100,21 +103,50 @@ function(
          * Load board data and fill in sprint select box.
          * @private
          */
-        _fillBoardData: function() {
+        _fillBoardData: function(queryTerm, callback) {
             var serverId = this.formData.get('selectedServer').id;
 
-            this.fillDataInSelect2(this.view.$boards, service.loadBoardsData(serverId, ""))
-                    .done(function(boards) {
-                        this.boards = boards;
+            this.toggleSelect2Loading(this.view.$boards, true, true);
 
-                        var templateSelect2Option = this.template.boardOptions;
-                        this.fillDataSelect2(this.view.$boards, templateSelect2Option, {boards: boards});
+            var promise = service.loadBoardsData(serverId, queryTerm)
+            .done(function(boards) {
+                this.toggleSelect2Loading(this.view.$boards, false, true);
 
-                        if (this.macroOptions) {
-                            this.setSelect2Value(this.view.$boards, this.macroOptions.params.boardId);
-                        }
+                // format data to adapt select2 requirement
+                _.each(boards, function(board) {
+                    board.text = board.name;
+                });
 
-                    }.bind(this));
+                var data = {
+                    results: boards,
+                    text: 'name'
+                };
+
+                if (callback) {
+                    callback(data);
+                } else {
+                    // re-open from macro placeholder
+                    if (this.macroOptions) {
+                        var boardId = this.macroOptions.params.boardId;
+                        var boardName = this.macroOptions.params.boardName;
+                        boardName = boardName || boardId;
+
+                        this.view.$boards.select2('data', {
+                            id: boardId,
+                            text: boardName,
+                            name: boardName
+                        }, true);
+                    }
+                }
+
+                return data;
+            }.bind(this))
+            .fail(function(xhr, errorString, errorStatus) {
+                this.resetSelect2Options(this.view.$sprints);
+                this.handleRequestError(this.view.$boards, errorStatus);
+            }.bind(this));
+
+            return promise;
         },
 
         /**
@@ -127,51 +159,32 @@ function(
 
             var dfd = service.loadSprintsData(serverId, boardId);
             this.fillDataInSelect2(this.view.$sprints, dfd)
-                    .done(function(sprints) {
-                        this.sprints = sprints;
+                .done(function(sprints) {
+                    this.sprints = sprints;
 
-                        var templateSelect2Option = this.template.sprintOptions;
-                        this.fillDataSelect2(this.view.$sprints, templateSelect2Option, {sprints: sprints});
+                    this.fillDataSelect2(this.view.$sprints, sprints);
 
-                        if (this.macroOptions) {
-                            this.setSelect2Value(this.view.$sprints, this.macroOptions.params.sprintId);
-                        }
+                    if (this.macroOptions) {
+                        this.setSelect2Value(this.view.$sprints, this.macroOptions.params.sprintId);
+                    }
 
-                    }.bind(this));
+                }.bind(this));
         },
 
         _onSelectBoardChanged: function() {
-            this.resetSelect2Options(this.view.$sprints);
-            var boardId = parseInt(this.view.$boards.val(), 10);
-            var selectedBoard = _.findWhere(this.boards, {id: boardId});
-            this.formData.set('selectedBoard', selectedBoard);
-            this.resetSelect2Options(this.view.$sprints);
-        },
-
-        _onSelectSprintChanged: function() {
-            var sprintId = parseInt(this.view.$sprints.val(), 10);
-            var selectedSprint = _.findWhere(this.sprints, {id: sprintId});
-            this.formData.set('selectedSprint', selectedSprint);
-        },
-
-        _handleBoardChanged: function() {
-            var selectedBoard = this.formData.get('selectedBoard');
+            var selectedBoard = this.view.$boards.select2('data');
 
             if (!selectedBoard) {
-                this.resetSelect2Options(this.view.$boards);
                 return;
             }
 
+            this.formData.set('selectedBoard', selectedBoard);
             this._fillSprintData();
         },
 
-        _handleSprintChanged: function() {
-            var selectedBoard = this.formData.get('selectedBoard');
-            var selectedSprint = this.formData.get('selectedSprint');
-
-            if (!selectedBoard || !selectedSprint) {
-                this.resetSelect2Options(this.view.$sprints);
-            }
+        _onSelectSprintChanged: function() {
+            var selectedSprint = this.view.$sprints.select2('data');
+            this.formData.set('selectedSprint', selectedSprint);
         },
 
         getUserInputData: function() {
@@ -182,6 +195,7 @@ function(
                 userInputData = {
                     serverId: this.formData.get('selectedServer').id,
                     boardId: this.formData.get('selectedBoard').id,
+                    boardName: this.formData.get('selectedBoard').name,
                     sprintId: this.formData.get('selectedSprint').id,
                     sprintName: this.formData.get('selectedSprint').name
                 };

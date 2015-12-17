@@ -139,7 +139,7 @@ function(
             this.servers = AJS.Editor.JiraConnector.servers;
 
             // check no app link config
-            if (this.servers.length === 0) {
+            if (!this.servers || this.servers.length === 0) {
                 this.showingWarningPopupToSetUpAppLink();
                 this.isValid = false;
                 return;
