@@ -135,6 +135,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String CLIENT_ID = "clientId";
     public static final String CLICKABLE_URL = "clickableUrl";
     public static final String JIRA_SERVER_URL = "jiraServerUrl";
+
+    // URL fragment appended to the display URL to create links to issues
+    public static final String JIRA_BROWSE_URL = "/browse/";
+
     public static final String TEMPLATE_PATH = "templates/extra/jira";
     public static final String MOBILE = "mobile";
     public static final String SERVER = "server";
@@ -1173,7 +1177,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         JiraUtil.correctIconURL(issue, displayUrl, rpcUrl);
 
         setupContextMapForStaticSingleIssue(contextMap, issue, null);
-        contextMap.put(CLICKABLE_URL, displayUrl + "/browse/" + issue.getChild(KEY).getValue());
+        contextMap.put(CLICKABLE_URL, displayUrl + JIRA_BROWSE_URL + issue.getChild(KEY).getValue());
 
 
         boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
