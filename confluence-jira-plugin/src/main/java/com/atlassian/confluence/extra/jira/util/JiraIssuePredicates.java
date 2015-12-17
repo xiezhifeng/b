@@ -59,4 +59,14 @@ public class JiraIssuePredicates
         }
     });
 
+    public static Predicate<MacroDefinition> isCountIssue = Predicates.and(Predicates.not(isSingleIssue), new Predicate<MacroDefinition>()
+    {
+        @Override
+        public boolean apply(MacroDefinition macroDefinition)
+        {
+            Map<String, String> parameters = macroDefinition.getParameters();
+            return Boolean.parseBoolean(parameters.get("count"));
+        }
+    });
+
 }
