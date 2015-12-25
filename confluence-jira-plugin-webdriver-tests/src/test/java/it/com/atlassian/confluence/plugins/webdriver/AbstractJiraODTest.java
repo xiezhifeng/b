@@ -26,23 +26,7 @@ public class AbstractJiraODTest extends AbstractJiraTest
     @Before
     public void setUp()
     {
-        if (editPage == null)
-        {
-            editPage = gotoEditTestPage(user.get());
-        }
-        else
-        {
-            if (editPage.getEditor().isCancelVisibleNow())
-            {
-                // in editor page.
-                editPage.getEditor().getContent().clear();
-            }
-            else
-            {
-                // in view page, and then need to go to edit page.
-                editPage = gotoEditTestPage(user.get());
-            }
-        }
+        makeSureInEditPage();
     }
 
     @After

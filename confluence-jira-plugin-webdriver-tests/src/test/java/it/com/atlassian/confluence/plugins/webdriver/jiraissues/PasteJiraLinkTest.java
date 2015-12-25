@@ -8,7 +8,6 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
@@ -20,17 +19,12 @@ import static org.junit.Assert.assertThat;
 
 public class PasteJiraLinkTest extends AbstractJiraTest
 {
-    @BeforeClass
-    public static void init() throws Exception
-    {
-        editPage = gotoEditTestPage(user.get());
-    }
-
     @Before
     public void setup() throws Exception
     {
         makeSureInEditPage();
         editPage.getEditor().getContent().clear();
+        waitForFinishLoadingAppLinkInfo();
     }
 
     @AfterClass

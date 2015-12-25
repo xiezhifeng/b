@@ -80,8 +80,6 @@ public class AbstractJiraTest
     public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
     public static final String JIRA_SPRINT_MACRO_NAME = "jirasprint";
 
-    private static final int RETRY_TIME = 8;
-
     protected static final String PROJECT_TSTT = "Test Project";
     protected static final String PROJECT_TP = "Test Project 1";
     protected static final String PROJECT_TST = "Test Project 2";
@@ -101,6 +99,7 @@ public class AbstractJiraTest
     @Inject protected static ConfluenceRestClient restClient;
     @Inject protected static ConfluenceRpcClient rpcClient;
     @Inject protected WebDriverPoller poller;
+    @Inject protected JavascriptExecutor jsExecutor;
 
     protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
     protected JiraSprintMacroDialog sprintDialog;
@@ -381,6 +380,18 @@ public class AbstractJiraTest
 
         MacroForm macroForm = macroItems.iterator().next().select();
         macroForm.waitUntilHidden();
+    }
+
+    protected void waitForFinishLoadingAppLinkInfo()
+    {
+        poller.waitUntil(new Function<WebDriver, Boolean>()
+        {
+            @Override
+            public Boolean apply(final WebDriver input)
+            {
+                return (Boolean) jsExecutor.executeScript("return (AJS.Editor.JiraConnector.servers && AJS.Editor.JiraConnector.servers.length > 0);");
+            }
+        });
     }
 
     protected void makeSureInEditPage()
