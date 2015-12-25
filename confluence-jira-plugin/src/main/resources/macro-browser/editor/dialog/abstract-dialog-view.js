@@ -2,13 +2,17 @@ define('confluence/jim/macro-browser/editor/dialog/abstract-dialog-view', [
     'jquery',
     'underscore',
     'ajs',
-    'backbone'
+    'backbone',
+    'confluence/jim/util/analytic',
+    'confluence/jim/macro-browser/editor/util/config'
 ],
 function(
     $,
     _,
     AJS,
-    Backbone
+    Backbone,
+    analytic,
+    config
 ) {
     'use strict';
 
@@ -206,6 +210,10 @@ function(
          */
         open: function(macroOptions) {
             this.render(macroOptions);
+
+            if (macroOptions && macroOptions.name === config.macroIdSprint) {
+                analytic.sendOpenSprintDialogEvent();
+            }
         },
 
         /**
@@ -243,6 +251,11 @@ function(
             var params = panel.getUserInputData();
 
             if (AJS.Editor.inRichTextMode() && params) {
+
+                if (this.macroId === config.macroIdSprint) {
+                    analytic.sendInsertSprintMacroToEdtiorContentEvent();
+                }
+
                 tinymce.confluence.macrobrowser.macroBrowserComplete({
                     name: this.macroId,
                     params: params

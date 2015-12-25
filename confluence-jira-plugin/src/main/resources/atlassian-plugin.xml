@@ -20,7 +20,9 @@
         </property-panel>
     </macro>
 
-     <macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro" key="jiraissues"
+    <analytics-whitelist key="analytic-whitelist.json" resource="util/whitelist.json"/>
+
+    <macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro" key="jiraissues"
            icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description.legacy"/>
         <property-panel>
@@ -124,16 +126,21 @@
 
     <resource type="i18n" name="i18n" location="resources/jiraissues" />
 
-    <web-resource key="macro-browser-resources" name="Macro browser resources">
+    <web-resource key="macro-browser-resources" name="Macro browser/editor plugins resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
 
         <resource type="download" name="view-in-jira-button.js" location="editor-plugins/view-in-jira-button.js"/>
+        <!--Convert URLs from applinked Jira link to Jira macros.-->
+        <resource type="download" name="jira-paste-link.js" location="editor-plugins/jira-paste-link.js"/>
         <resource type="download" name="show-summary.js" location="templates/extra/jira/show-summary.js"/>
         <resource type="download" name="macro-icon.css" location="templates/extra/jira/macro-icon.css"/>
 
         <dependency>${atlassian.plugin.key}:amd-support</dependency>
+        <dependency>${atlassian.plugin.key}:common</dependency>
+        <dependency>confluence.web.resources:jsUri</dependency>
+        <dependency>com.atlassian.confluence.plugins.confluence-paste:autoconvert-core</dependency>
 
         <context>editor</context>
     </web-resource>
@@ -146,19 +153,27 @@
         <dependency>confluence.web.resources:amd</dependency>
     </web-resource>
 
+    <web-resource key="common" name="Common resource">
+        <resource type="download" name="analytic.js" location="util/analytic.js"/>
+        <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
+
+        <dependency>confluence.web.resources:ajs</dependency>
+        <dependency>confluence.web.resources:amd</dependency>
+    </web-resource>
+
     <!--Jira Issues in View Mode-->
     <web-resource key="jira-issues-view-mode-resources" name="Jira issues in view mode resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
 
-        <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
         <resource type="download" name="jira-issues-fetching-job.js" location="jira/jira-issues-view-mode/fetching-job.js"/>
         <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
         <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
         <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
 
         <dependency>${atlassian.plugin.key}:amd-support</dependency>
+        <dependency>${atlassian.plugin.key}:common</dependency>
         <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
     </web-resource>
@@ -293,18 +308,6 @@
     <web-resource key="mobile-browser-resources" name="Mobile Macro browser resources">
         <resource type="download" name="mobile-macro.css" location="templates/mobile/extra/jira/mobile-macro.css"/>
         <context>atl.mobile.confluence.view.content</context>
-    </web-resource>
-    
-    <web-resource key="autoconvert-jira" name="Autoconvert Jira">
-        <description>Convert URLs from applinked Jira link to Jira macros.</description>
-
-        <resource type="download" name="jira-paste-link.js" location="editor-plugins/jira-paste-link.js"/>
-
-        <dependency>${atlassian.plugin.key}:amd-support</dependency>
-        <dependency>confluence.web.resources:jsUri</dependency>
-        <dependency>com.atlassian.confluence.plugins.confluence-paste:autoconvert-core</dependency>
-
-        <context>editor</context>
     </web-resource>
 
     <web-resource key="text-placeholders-jira" name="Text Placeholders Jira">

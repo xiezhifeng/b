@@ -1,11 +1,13 @@
 define('confluence/jim/editor-plugins/jira-paste-link', [
     'ajs',
     'confluence/jsUri',
-    'underscore'
+    'underscore',
+    'confluence/jim/util/analytic'
 ], function(
     AJS,
     Uri,
-    _
+    _,
+    analytic
 ) {
     'use strict';
 
@@ -178,6 +180,8 @@ define('confluence/jim/editor-plugins/jira-paste-link', [
                         macro.params[paramName] = paramValue;
                     }
                 });
+
+                analytic.sendPasteSprintLinkEvent();
             }
 
             return macro;
