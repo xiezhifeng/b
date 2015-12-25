@@ -148,6 +148,8 @@
         <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
         <dependency>confluence.web.resources:amd</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
+        <context>atl.general</context>
+        <context>preview</context>
     </web-resource>
 
     <web-resource key="web-resources" name="Web resources">
