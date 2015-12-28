@@ -169,8 +169,7 @@ public class JiraRemoteLinkCreator
                 "Failed to create a remote link to issue '" + issueKey + "' for the application '" + applinkId + "'.");
         if (applicationLink != null)
         {
-            createConfluencePageLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
-            return true;
+            return createConfluencePageLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
         }
         else
         {
@@ -253,22 +252,21 @@ public class JiraRemoteLinkCreator
         return result.getOrElse(false);
     }
 
-    private void createConfluencePageLink(final ReadOnlyApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
+    private boolean createConfluencePageLink(final ReadOnlyApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
     {
-        safeRestCall(new Callable<Void>()
+        return safeRestCall(new Callable<Boolean>()
         {
             @Override
-            public Void call() throws Exception
+            public Boolean call() throws Exception
             {
                 final Json remoteLink =
                         new JiraRemoteLinkJsonBuilder().withPageUrl(canonicalPageUrl).withIssueKey(issueKey).build();
 
                 final String requestUrl = "rest/jc/1.0/issue/linkConfluencePage";
                 final ApplicationLinkRequest request = applicationLink.createAuthenticatedRequestFactory().createRequest(POST, requestUrl);
-                createRemoteLink(applicationLink, remoteLink, request, issueKey);
-                return null;
+                return createRemoteLink(applicationLink, remoteLink, request, issueKey);
             }
-        });
+        }).getOrElse(false);
     }
 
     private void createRemoteIssueLink(final ReadOnlyApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
