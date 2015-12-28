@@ -1,13 +1,3 @@
-div.refresh-macro {
-    margin: 0;
-    padding: 0.5em;
-    border: solid 2px rgb(240, 240, 240);
-    background-color: rgb(250,250,250);
-    font-weight: bolder;
-    font-size: 110%;
-    color: rgb(5, 5, 5);
-    display: none;
-}
 
 div.refresh-macro .spinner {
     padding: 0.4em;

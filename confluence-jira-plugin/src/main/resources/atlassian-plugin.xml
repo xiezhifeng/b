@@ -147,7 +147,6 @@
         <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
         <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
         <dependency>confluence.web.resources:amd</dependency>
-        <dependency>confluence.extra.jira:refresh-resources</dependency>
     </web-resource>
 
     <web-resource key="web-resources" name="Web resources">
