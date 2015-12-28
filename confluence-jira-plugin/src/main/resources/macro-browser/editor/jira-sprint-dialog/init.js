@@ -43,7 +43,9 @@ function(
 
     // support other dialogs can send trigger to open jira-sprint dialog
     AJS.bind('jim.jira.sprint.open', function() {
-        jiraSprintDialogView.open();
+        jiraSprintDialogView.open({
+            name: config.macroIdSprint
+        });
     });
 
     AJS.MacroBrowser.setMacroJsOverride(config.macroIdSprint, {

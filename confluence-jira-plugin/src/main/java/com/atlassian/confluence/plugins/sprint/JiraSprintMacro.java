@@ -11,10 +11,12 @@ import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.plugins.sprint.event.SprintMacroViewAnalyticEvent;
 import com.atlassian.confluence.plugins.sprint.model.JiraSprintModel;
 import com.atlassian.confluence.plugins.sprint.services.JiraAgileService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.web.UrlBuilder;
+import com.atlassian.event.api.EventPublisher;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
 import org.apache.commons.lang.StringUtils;
@@ -41,6 +43,8 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
     private final JiraAgileService jiraAgileService;
     private final SoyTemplateRenderer soyTemplateRenderer;
     private final I18nResolver i18nResolver;
+    private final EventPublisher eventPublisher;
+
 
     /**
      * JiraChartMacro constructor
@@ -50,8 +54,13 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
      * @param imagePlaceHolderHelper image placeholder helper
      * @param jiraAgileService jira agile service
      */
-    public JiraSprintMacro(ApplicationLinkResolver applicationLinkResolver,JiraExceptionHelper jiraExceptionHelper, ImagePlaceHolderHelper imagePlaceHolderHelper,
-                           JiraAgileService jiraAgileService, SoyTemplateRenderer soyTemplateRenderer, I18nResolver i18nResolver)
+    public JiraSprintMacro(ApplicationLinkResolver applicationLinkResolver,
+                            JiraExceptionHelper jiraExceptionHelper,
+                            ImagePlaceHolderHelper imagePlaceHolderHelper,
+                            JiraAgileService jiraAgileService,
+                            SoyTemplateRenderer soyTemplateRenderer,
+                            I18nResolver i18nResolver,
+                            EventPublisher eventPublisher)
     {
         this.applicationLinkResolver = applicationLinkResolver;
         this.jiraExceptionHelper = jiraExceptionHelper;
@@ -59,6 +68,7 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
         this.jiraAgileService = jiraAgileService;
         this.soyTemplateRenderer = soyTemplateRenderer;
         this.i18nResolver = i18nResolver;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -82,6 +92,9 @@ public class JiraSprintMacro implements Macro, EditorImagePlaceholder
                 JiraSprintModel jiraSprintModel = jiraAgileService.getJiraSprint(applicationLink, parameters.get(MACRO_ID_PARAMETER));
                 contextMap.put("sprintName", jiraSprintModel.getName());
                 contextMap.put("status", jiraSprintModel.getState());
+
+                // fire analytic event.
+                eventPublisher.publish(new SprintMacroViewAnalyticEvent());
             }
             catch (CredentialsRequiredException credentialsRequiredException)
             {
