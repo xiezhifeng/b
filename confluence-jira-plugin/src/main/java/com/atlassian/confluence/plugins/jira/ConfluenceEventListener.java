@@ -135,19 +135,30 @@ public class ConfluenceEventListener implements DisposableBean
 
     //If content was created from JIRA with the proper parameters, we call specific endpoints that allow us to link the content back from JIRA
     //even if the user is not authorised
-    private void handlePageCreateInitiatedFromJIRAEntity(AbstractPage page, String blueprintModuleKey, Map<String, String> params)
+    private void handlePageCreateInitiatedFromJIRAEntity(final AbstractPage page, final String blueprintModuleKey, final Map<String, String> params)
     {
         if (containsValue(APPLINK_ID, params, false))
         {
             if (containsValue(ISSUE_KEY, params, false) &&
-                    containsValue(FALLBACK_URL, params, true) && containsValue(CREATION_TOKEN, params, true))
+                    containsValue(FALLBACK_URL, params, true))
             {
-                boolean successfulLink = jiraRemoteLinkCreator.createLinkToEpic(page, params.get(APPLINK_ID),
-                        params.get(ISSUE_KEY), params.get(FALLBACK_URL), params.get(CREATION_TOKEN));
-                if (successfulLink)
+                if (containsValue(CREATION_TOKEN, params, true))
                 {
-                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this,
-                            PageCreatedFromJiraAnalyticsEvent.EventType.EPIC_FROM_PLAN_MODE, blueprintModuleKey));
+                    boolean successfulLink = jiraRemoteLinkCreator.createLinkToEpic(page, params.get(APPLINK_ID),
+                            params.get(ISSUE_KEY), params.get(FALLBACK_URL), params.get(CREATION_TOKEN));
+                    if (successfulLink)
+                    {
+                        eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this,
+                                PageCreatedFromJiraAnalyticsEvent.EventType.EPIC_FROM_PLAN_MODE, blueprintModuleKey));
+                    }
+                }
+                else
+                {
+                     if ("issueDirect".equalsIgnoreCase(params.get(AGILE_MODE)))
+                     {
+                         jiraRemoteLinkCreator.createRemoteIssueLink(page, params.get(APPLINK_ID),
+                                 params.get(ISSUE_KEY), params.get(FALLBACK_URL));
+                     }
                 }
             }
             else if (containsValue(SPRINT_ID, params, false) && containsValue(FALLBACK_URL, params, true) &&

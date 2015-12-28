@@ -1,10 +1,17 @@
 package com.atlassian.confluence.extra.jira.util;
 
 import com.atlassian.applinks.api.*;
+import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.applinks.api.auth.types.OAuthAuthenticationProvider;
 import com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager;
+import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.net.Request;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Jira connector utils
@@ -104,6 +111,59 @@ public class JiraConnectorUtils
         {
             throw new TypeNotInstalledException("Can not get Application Link");
         }
+        return applicationLink;
+    }
+
+    /**
+     * Find application link match with the one defined in macro definition
+     *
+     * @param applicationLinkService
+     * @param macroDefinition
+     * @return
+     */
+    public static ReadOnlyApplicationLink findApplicationLink(
+            final ReadOnlyApplicationLinkService applicationLinkService,
+            final MacroDefinition macroDefinition) {
+        return Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ReadOnlyApplicationLink>()
+        {
+            public boolean apply(ReadOnlyApplicationLink input)
+            {
+                return StringUtils.equals(input.getName(), macroDefinition.getParameters().get("server"))
+                        || StringUtils.equals(input.getId().get(), macroDefinition.getParameters().get("serverId"));
+            }
+        }, applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class));
+    }
+
+    /**
+     * Try to find matched application link by using appLinkId or URl
+     *
+     * @param applicationLinkService
+     * @param applinkId
+     * @param fallbackUrl
+     * @param failureMessage
+     * @return
+     */
+    public static ReadOnlyApplicationLink findApplicationLink(
+            final ReadOnlyApplicationLinkService applicationLinkService,
+            final String applinkId,
+            final String fallbackUrl,
+            String failureMessage)
+    {
+        ReadOnlyApplicationLink applicationLink = null;
+
+        applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
+        if (applicationLink == null && StringUtils.isNotBlank(fallbackUrl))
+        {
+            // Application links in OnDemand aren't set up using the host application ID, so we have to fall back to checking the referring URL:
+            applicationLink = Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ReadOnlyApplicationLink>()
+            {
+                public boolean apply(ReadOnlyApplicationLink input)
+                {
+                    return StringUtils.containsIgnoreCase(fallbackUrl, input.getDisplayUrl().toString());
+                }
+            });
+        }
+
         return applicationLink;
     }
 }
