@@ -34,7 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.atlassian.confluence.extra.jira.util.ApplicationLinkHelper.findApplicationLink;
+import static com.atlassian.confluence.extra.jira.util.JiraConnectorUtils.findApplicationLink;
 import static com.atlassian.sal.api.net.Request.MethodType.POST;
 import static com.atlassian.sal.api.net.Request.MethodType.PUT;
 

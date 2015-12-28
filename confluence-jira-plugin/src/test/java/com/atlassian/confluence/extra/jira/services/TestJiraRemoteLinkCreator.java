@@ -10,7 +10,6 @@ import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.applinks.test.mock.MockApplicationLinkRequest;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
-import com.atlassian.confluence.extra.jira.util.ApplicationLinkHelper;
 import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator;
 import com.atlassian.confluence.setup.settings.Settings;
@@ -32,6 +31,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import static com.atlassian.confluence.extra.jira.util.JiraConnectorUtils.findApplicationLink;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -72,7 +72,7 @@ public class TestJiraRemoteLinkCreator  extends TestCase
 
     public void testGetAppLinkByMacroDefinition()
     {
-        ReadOnlyApplicationLink outAppLink = new ApplicationLinkHelper().findApplicationLink(applicationLinkService, new MacroDefinition());
+        ReadOnlyApplicationLink outAppLink = findApplicationLink(applicationLinkService, new MacroDefinition());
         Assert.assertNotNull("Must have the default value", outAppLink);
         Assert.assertEquals(fakeAppLink, outAppLink);
     }
