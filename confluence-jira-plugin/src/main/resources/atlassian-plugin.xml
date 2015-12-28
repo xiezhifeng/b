@@ -139,13 +139,17 @@
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
+        <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
+        <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
+        <dependency>confluence.web.resources:amd</dependency>
+    </web-resource>
+
+    <web-resource key="jira-issues-view-mode-async-resource" name="Jira issues async resource in view mode">
+        <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
+        <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
         <resource type="download" name="amd-confluence-shim.js" location="amd/confluence-shim.js"/>
         <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
         <resource type="download" name="jira-issues-fetching-job.js" location="jira/jira-issues-view-mode/fetching-job.js"/>
-        <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
-        <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
-        <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
-        <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
         <dependency>confluence.web.resources:amd</dependency>
     </web-resource>
 
@@ -177,7 +181,7 @@
         </transformation>
         <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
         <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
     </web-resource>
 

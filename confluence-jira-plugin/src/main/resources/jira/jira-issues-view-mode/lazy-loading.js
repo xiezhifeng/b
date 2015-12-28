@@ -161,29 +161,34 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
         }
     };
 
+    var jimResource = {
+        loadTableResourceIfNeeded: function() {
+            var resDefer = $.Deferred();
+            var $jiraTableIssues = $('.wiki-content .jira-table[data-jira-key]');
+
+            if ($jiraTableIssues.length) {
+                WRM.require(WEB_RESOURCE_TABLE, function() {
+                    jiraRefreshTableMacro = require('confluence/jim/jira/jira-issues-view-mode/refresh-table');
+                    jiraRefreshTableMacro.init();
+                    resDefer.resolve();
+                });
+            } else {
+                resDefer.resolve();
+            }
+
+            return resDefer.promise();
+        }
+    };
+
     var exportModule = {
         /**
          * Initialize the module
          * @return {Object} a Promise object
          */
-        init: function() {
-            $jiraIssuesEls = $('.wiki-content [data-jira-key][data-client-id]');
-            var dfd = null;
-
-            // prepare data element for table placeholder
-            var $jiraTableIssues = $('.wiki-content .jira-table[data-jira-key]');
-            if ($jiraTableIssues.length) {
-                dfd = WRM.require(WEB_RESOURCE_TABLE)
-                    .pipe(function() {
-                        jiraRefreshTableMacro = require('confluence/jim/jira/jira-issues-view-mode/refresh-table');
-                        jiraRefreshTableMacro.init();
-                        return core.loadOneByOneJiraServerStrategy();
-                    });
-            } else {
-                dfd = core.loadOneByOneJiraServerStrategy();
-            }
-
-            return dfd;
+        init: function($jiraIssuesElement) {
+            $jiraIssuesEls = $jiraIssuesElement;
+            return $.when(jimResource.loadTableResourceIfNeeded())
+                .pipe(core.loadOneByOneJiraServerStrategy);
         }
     };
 

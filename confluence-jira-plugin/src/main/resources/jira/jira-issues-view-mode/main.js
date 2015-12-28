@@ -1,19 +1,29 @@
 require([
     'ajs',
-    'jquery',
-    'confluence/jim/jira/jira-issues-view-mode/lazy-loading',
-    'confluence/jim/jira/jira-issues-view-mode/fix-ui'
+    'jquery'
 ], function(
     AJS,
-    $,
-    JiraIssuesLazyLoading,
-    JiraIssuesFixUI
+    $
 ){
     'use strict';
 
+    var WEB_JIM_RESOURCE = "wr!confluence.extra.jira:jira-issues-view-mode-async-resource";
+
     $(document).ready(function() {
-        JiraIssuesLazyLoading.init().pipe(function() {
-            JiraIssuesFixUI.fixBreakIconInOldConf();
+        var $jiraIssuesEls = $('.wiki-content [data-jira-key][data-client-id]');
+        if ($jiraIssuesEls.length == 0) {
+            return false;
+        }
+
+        WRM.require(WEB_JIM_RESOURCE, function() {
+            require([
+                'confluence/jim/jira/jira-issues-view-mode/lazy-loading',
+                'confluence/jim/jira/jira-issues-view-mode/fix-ui'
+            ], function(JiraIssuesLazyLoading, JiraIssuesFixUI) {
+                JiraIssuesLazyLoading.init($jiraIssuesEls).done(function() {
+                    JiraIssuesFixUI.fixBreakIconInOldConf();
+                });
+            });
         });
     });
 });
