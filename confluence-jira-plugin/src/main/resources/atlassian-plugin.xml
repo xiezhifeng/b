@@ -176,7 +176,6 @@
         <dependency>${atlassian.plugin.key}:amd-support</dependency>
         <dependency>${atlassian.plugin.key}:common</dependency>
         <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
-        <dependency>confluence.extra.jira:refresh-resources</dependency>
     </web-resource>
 
     <web-resource key="web-resources" name="Web resources">

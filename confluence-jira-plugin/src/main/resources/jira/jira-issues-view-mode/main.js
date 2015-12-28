@@ -2,22 +2,17 @@ require([
     'ajs',
     'jquery',
     'confluence/jim/jira/jira-issues-view-mode/lazy-loading',
-    'confluence/jim/jira/jira-issues-view-mode/fix-ui',
-    'confluence/jim/jira/jira-issues-view-mode/refresh-table'
+    'confluence/jim/jira/jira-issues-view-mode/fix-ui'
 ], function(
     AJS,
     $,
     JiraIssuesLazyLoading,
-    JiraIssuesFixUI,
-    JiraRefreshTableMacro
+    JiraIssuesFixUI
 ){
     'use strict';
 
     $(document).ready(function() {
-        // prepare data element for table placeholder
-        JiraRefreshTableMacro.init();
-
-        JiraIssuesLazyLoading.init().done(function() {
+        JiraIssuesLazyLoading.init().pipe(function() {
             JiraIssuesFixUI.fixBreakIconInOldConf();
         });
     });

@@ -2,16 +2,17 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     'jquery',
     'ajs',
     'underscore',
-    'confluence/jim/jira/jira-issues-view-mode/fetching-job',
-    'confluence/jim/jira/jira-issues-view-mode/refresh-table'
+    'confluence/jim/jira/jira-issues-view-mode/fetching-job'
 ], function(
     $,
     AJS,
     _,
-    FetchingJob,
-    jiraRefreshTableMacro
+    FetchingJob
 ) {
     'use strict';
+    var WEB_RESOURCE_TABLE = "wr!confluence.extra.jira:refresh-resources";
+    var jiraRefreshTableMacro;
+
 
     var ui = {
         /**
@@ -176,7 +177,22 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @return {Object} a Promise object
          */
         init: function() {
-            return core.loadOneByOneJiraServerStrategy();
+            var dfd = null;
+
+            // prepare data element for table placeholder
+            var $jiraTableIssues = $('.wiki-content .jira-table[data-jira-key]');
+            if ($jiraTableIssues.length) {
+                dfd = WRM.require(WEB_RESOURCE_TABLE)
+                    .pipe(function() {
+                        jiraRefreshTableMacro = require('confluence/jim/jira/jira-issues-view-mode/refresh-table');
+                        jiraRefreshTableMacro.init();
+                        return core.loadOneByOneJiraServerStrategy();
+                    });
+            } else {
+                dfd = core.loadOneByOneJiraServerStrategy();
+            }
+
+            return dfd;
         }
     };
 
