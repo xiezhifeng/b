@@ -2,16 +2,17 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     'jquery',
     'ajs',
     'underscore',
-    'confluence/jim/jira/jira-issues-view-mode/fetching-job',
-    'confluence/jim/jira/jira-issues-view-mode/refresh-table'
+    'confluence/jim/jira/jira-issues-view-mode/fetching-job'
 ], function(
     $,
     AJS,
     _,
-    FetchingJob,
-    jiraRefreshTableMacro
+    FetchingJob
 ) {
     'use strict';
+    var WEB_RESOURCE_TABLE = "wr!confluence.extra.jira:refresh-resources";
+    var jiraRefreshTableMacro;
+
 
     // list of jQuery DOM object of all single JIM in page
     var $jiraIssuesEls = null;
@@ -160,14 +161,34 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
         }
     };
 
+    var jimResource = {
+        loadTableResourceIfNeeded: function() {
+            var resDefer = $.Deferred();
+            var $jiraTableIssues = $('.wiki-content .jira-table[data-jira-key]');
+
+            if ($jiraTableIssues.length) {
+                WRM.require(WEB_RESOURCE_TABLE, function() {
+                    jiraRefreshTableMacro = require('confluence/jim/jira/jira-issues-view-mode/refresh-table');
+                    jiraRefreshTableMacro.init();
+                    resDefer.resolve();
+                });
+            } else {
+                resDefer.resolve();
+            }
+
+            return resDefer.promise();
+        }
+    };
+
     var exportModule = {
         /**
          * Initialize the module
          * @return {Object} a Promise object
          */
-        init: function() {
-            $jiraIssuesEls = $('.wiki-content [data-jira-key][data-client-id]');
-            return core.loadOneByOneJiraServerStrategy();
+        init: function($jiraIssuesElement) {
+            $jiraIssuesEls = $jiraIssuesElement;
+            return $.when(jimResource.loadTableResourceIfNeeded())
+                .pipe(core.loadOneByOneJiraServerStrategy);
         }
     };
 

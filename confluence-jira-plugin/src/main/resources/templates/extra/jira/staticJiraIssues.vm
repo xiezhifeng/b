@@ -62,9 +62,8 @@
 #end
 <div id="refresh-module-$refreshId" class="refresh-module-id jira-table" #if($clientId) data-client-id="$clientId" data-jira-key="issue-table-$clientId" #end>
     <p>
-        #if ($placeholder || ($enableRefresh && !$singleIssueTable))
+       #if ($placeholder || ($enableRefresh && !$singleIssueTable))
             <div id="refresh-$refreshId" class="refresh-macro">
-                <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($refreshTitle)</em> &hellip;
             </div>
         #end
 
@@ -249,7 +248,9 @@
                 #end
                 #if ($placeholder || $enableRefresh)
                     <span class="refresh-action-group">
-                        <div id="refresh-issues-loading-$refreshId" class="button-spinner hidden refresh-issues-loading"></div>
+                        <div id="refresh-issues-loading-$refreshId" class="button-spinner refresh-issues-loading">
+                            <span class="aui-icon aui-icon-wait">Loading...</span>
+                        </div>
                         <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action refresh-issues-button" rel="nofollow"></a>
                         <a id="refresh-issues-link-$refreshId" class="refresh-action refresh-issues-link" rel="nofollow">$i18n.getText("jiraissues.refresh")</a>
                         <span id="error-message-$refreshId" class="error-message hidden"></span>
@@ -259,4 +260,9 @@
             </div>
         #end
     </p>
+
+    #if ($placeholder)
+        <div class="jim-sortable-dark-layout"></div>
+    #end
+
 </div>
