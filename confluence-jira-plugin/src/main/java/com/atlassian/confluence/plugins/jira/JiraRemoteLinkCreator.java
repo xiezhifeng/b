@@ -27,6 +27,7 @@ import com.atlassian.sal.api.net.ResponseHandler;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -407,7 +408,7 @@ public class JiraRemoteLinkCreator
         public JsonObject build()
         {
             JsonObject returnJsonObj = null;
-            if (StringUtils.isNotEmpty(pageId) && StringUtils.isNoneEmpty(pageUrl))
+            if (!Strings.isNullOrEmpty(pageId) && !Strings.isNullOrEmpty(pageUrl))
             {
                 returnJsonObj = new JsonObject()
                         .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
@@ -422,23 +423,23 @@ public class JiraRemoteLinkCreator
                         );
             }
 
-            if (returnJsonObj != null && StringUtils.isNoneEmpty(creationToken))
+            if (returnJsonObj != null && !Strings.isNullOrEmpty(creationToken))
             {
                 returnJsonObj.setProperty("creationToken", creationToken);
             }
 
-            if (returnJsonObj == null && StringUtils.isNotEmpty(pageUrl) && StringUtils.isNotEmpty(issueKey))
+            if (returnJsonObj == null && !Strings.isNullOrEmpty(pageUrl) && !Strings.isNullOrEmpty(issueKey))
             {
                 returnJsonObj = new JsonObject()
-                    .setProperty("pageUrl", pageUrl)
-                    .setProperty("issueKey", issueKey);
+                        .setProperty("pageUrl", pageUrl)
+                        .setProperty("issueKey", issueKey);
             }
 
-            if (returnJsonObj == null && StringUtils.isNotEmpty(pageId) && StringUtils.isNotEmpty(pageTitle))
+            if (returnJsonObj == null && !Strings.isNullOrEmpty(pageId) && !Strings.isNullOrEmpty(pageTitle))
             {
                 returnJsonObj = new JsonObject()
-                    .setProperty("pageId", pageId)
-                    .setProperty("pageTitle", pageTitle);
+                        .setProperty("pageId", pageId)
+                        .setProperty("pageTitle", pageTitle);
             }
 
             return returnJsonObj;
