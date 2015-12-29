@@ -149,7 +149,9 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     {
         EditContentPage editContentPage = clickInsertDialog();
         ViewPage viewPage = editContentPage.save();
-        return viewPage.getMainContent().findAll(By.cssSelector("table.aui tr.rowNormal"));
+        By tableElement = By.cssSelector("table.aui tr.rowNormal");
+        Poller.waitUntilTrue(viewPage.getMainContent().find(tableElement).timed().isVisible());
+        return viewPage.getMainContent().findAll(tableElement);
     }
 
     /**
