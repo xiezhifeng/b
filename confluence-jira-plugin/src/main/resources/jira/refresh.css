@@ -9,22 +9,8 @@ div.refresh-macro {
     display: none;
 }
 
-div.refresh-macro .spinner {
-    padding: 0.4em;
-    padding-right: 1em;
-    vertical-align: middle;
-}
-
-div.refresh-issues-bottom {
-    margin-top: 5px;
-}
-
 a.refresh-action {
     cursor: pointer;
-}
-
-span.refresh-action-group {
-    padding-left: 7px;
 }
 
 .refresh-action-group .error-message {
@@ -52,35 +38,4 @@ span.refresh-action-group {
 
 .refresh-action-group .error-message .jira-link {
     content: " - ";
-}
-
-.refresh-issues-bottom .button-spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    vertical-align: middle;
-}
-
-/**
- * The position of spinner is now set by JS as inline style. To override it, we have to use !important here.
- */
-.refresh-issues-bottom .button-spinner .spinner {
-    left: 8px !important;
-    top: 8px !important;
-}
-
-.jim-sortable-dark-layout {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 100;
-}
-
-
-.refresh-module-id {
-    position: relative;
 }

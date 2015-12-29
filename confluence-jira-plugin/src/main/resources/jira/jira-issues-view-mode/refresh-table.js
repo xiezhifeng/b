@@ -74,7 +74,7 @@ var RefreshMacro = {
     },
     replaceRefresh: function(oldId, newId) {
         var widget = RefreshWidget.get(oldId);
-        widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_DONE);
+        widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_DONE, newId);
         $.each(this.refreshs, function(i, refresh) {
             if (refresh.id === oldId) {
                 RefreshMacro.refreshs.splice(i, 1);
@@ -111,7 +111,7 @@ var RefreshMacro = {
     processRefreshWaiting: function(refresh) {
         var widget = RefreshWidget.get(refresh.id);
         widget.getMacroPanel().html(refresh.loadingMsg);
-        widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
+        widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED, refresh.id);
     },
     handleRefreshClick: function(e) {
         // always clear cache here
@@ -274,8 +274,8 @@ RefreshWidget.prototype.getRefreshButton = function() {
     return $(AJS.format("#refresh-module-{0} .refresh-issues-button", this.id));
 };
 
-RefreshWidget.prototype.getLoadingButton = function() {
-    return $(AJS.format("#refresh-module-{0} .refresh-issues-loading", this.id));
+RefreshWidget.prototype.getLoadingButton = function(id) {
+    return $(AJS.format("#refresh-module-{0} .refresh-issues-loading", id || this.id));
 };
 
 HeaderWidget.prototype.getHeadersTable = function() {
@@ -294,25 +294,26 @@ RefreshWidget.prototype.getIssuesCountArea = function() {
     return $(AJS.format("#refresh-module-{0} .total-issues-count", this.id));
 };
 
-RefreshWidget.prototype.updateRefreshVisibility = function(state) {
+RefreshWidget.prototype.updateRefreshVisibility = function(state, newId) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
         this.displayDarkLayer();
         this.getErrorMessagePanel().addClass('hidden');
         this.getRefreshLink().text(AJS.I18n.getText("jiraissues.loading"));
         this.getRefreshButton().hide();
-        this.getLoadingButton().removeClass('hidden').spin();
+        this.getLoadingButton(newId).removeClass('hidden');
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
+        // hide loading spinner
+        this.getLoadingButton(newId).addClass('hidden')
+        this.removeDarkLayer();
         this.getRefreshButton().show();
         this.getRefreshLink().show();
-        this.removeDarkLayer();
         this.getErrorMessagePanel().removeClass('hidden');
-        this.getLoadingButton().addClass('hidden').spinStop();
         this.getRefreshLink().text(AJS.I18n.getText("jiraissues.refresh"));
     } else if (state === RefreshMacro.REFRESH_STATE_DONE) {
-        // No need to un-hide elements since they will be replaced
+        // hide loading spinner
+        this.getLoadingButton(newId).addClass('hidden')
         this.removeDarkLayer();
         this.getRefreshButton().show();
-        this.getLoadingButton().addClass('hidden').spinStop();
         this.getRefreshLink().text(AJS.I18n.getText("jiraissues.refresh"));
     }
 };
