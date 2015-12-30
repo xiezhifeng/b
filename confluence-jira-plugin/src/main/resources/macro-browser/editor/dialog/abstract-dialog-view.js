@@ -3,7 +3,7 @@ define('confluence/jim/macro-browser/editor/dialog/abstract-dialog-view', [
     'underscore',
     'ajs',
     'backbone',
-    'confluence/jim/util/analytic',
+    'confluence/jim/util/analytics',
     'confluence/jim/macro-browser/editor/util/config'
 ],
 function(

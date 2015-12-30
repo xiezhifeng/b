@@ -2,7 +2,7 @@ define('confluence/jim/editor-plugins/jira-paste-link', [
     'ajs',
     'confluence/jsUri',
     'underscore',
-    'confluence/jim/util/analytic'
+    'confluence/jim/util/analytics'
 ], function(
     AJS,
     Uri,
