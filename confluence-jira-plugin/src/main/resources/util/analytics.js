@@ -1,4 +1,4 @@
-define('confluence/jim/util/analytic', [
+define('confluence/jim/util/analytics', [
     'ajs'
 ],
 function(

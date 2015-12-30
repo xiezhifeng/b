@@ -154,7 +154,7 @@
     </web-resource>
 
     <web-resource key="common" name="Common resource">
-        <resource type="download" name="analytic.js" location="util/analytic.js"/>
+        <resource type="download" name="analytics.js" location="util/analytics.js"/>
         <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
 
         <dependency>confluence.web.resources:ajs</dependency>
