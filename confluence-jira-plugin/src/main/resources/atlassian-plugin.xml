@@ -159,6 +159,7 @@
 
         <dependency>confluence.web.resources:ajs</dependency>
         <dependency>confluence.web.resources:amd</dependency>
+        <dependency>confluence.web.resources:analytics-support</dependency>
     </web-resource>
 
     <!--Jira Issues in View Mode-->
