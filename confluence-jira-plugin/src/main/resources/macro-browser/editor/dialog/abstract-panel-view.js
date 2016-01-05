@@ -21,8 +21,6 @@ function(
     'use strict';
 
     // cache some global vars
-    var AppLinks = window.AppLinks;
-
     var FormDataModel = Backbone.Model.extend({
         defaults: {
             selectedServer: null,
