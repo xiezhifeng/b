@@ -20,9 +20,6 @@ function(
 ) {
     'use strict';
 
-    // cache some global vars
-    var AppLinks = window.AppLinks;
-
     var FormDataModel = Backbone.Model.extend({
         defaults: {
             selectedServer: null,
@@ -35,6 +32,8 @@ function(
     });
 
     var AbstractPanelView = Backbone.View.extend({
+        template: Confluence.Templates.JiraSprints.Dialog,
+
         initialize: function() {
             // id of panel
             this.panelId = '';
@@ -51,6 +50,7 @@ function(
             this.servers = [];
 
             this.on('reload.data', function() {
+                this.toggleEnablePanel(true);
                 this._fillServersData();
             }, this);
         },
@@ -125,12 +125,15 @@ function(
         },
 
         toggleEnablePanel: function(isEnabled) {
+            var $formControl = this.$('input, area, select');
+
             if (isEnabled) {
-                this.$('input, area').removeAttr('disabled');
+                $formControl.enable();
             } else {
-                this.$('input, area').attr('disabled', 'disabled');
+                $formControl.disable();
             }
 
+            $formControl.select2('enable', isEnabled);
             this.dialogView.toggleEnableInsertButton(isEnabled);
         },
 
@@ -193,30 +196,43 @@ function(
         },
 
         validateServer: function(server) {
-            var _this = this;
-
             var isValid = this.validateJiraServerSupported(server);
 
             if (isValid && server && server.authUrl) {
-                var markup = this.template.errorMessageOauth();
-                this.view.$errorMessage
-                        .removeClass('hidden')
-                        .append(markup);
-
-                this.view.$errorMessage.find('a').click(function(e) {
-                    e.preventDefault();
-
-                    AppLinks.authenticateRemoteCredentials(server.authUrl, function() {
-                        server.authUrl = null;
-                        _this.view.$errorMessage.empty().addClass('hidden');
-                        _this.trigger('reload.data');
-                    });
-                });
-
+                this._renderErrorMessageUnauthentication(server);
                 isValid = false;
             }
 
             return isValid;
+        },
+
+        _renderErrorMessageUnauthentication: function(server) {
+            var _this = this;
+
+            var hasAppLinksUtilResources = (window.AppLinks && window.AppLinks.authenticateRemoteCredentials);
+            var markup = this.template.errorMessageOauth({
+                forceUserToReload: !hasAppLinksUtilResources
+            });
+            this.view.$errorMessage
+                    .removeClass('hidden')
+                    .append(markup);
+
+            this.view.$errorMessage.find('a').click(function(e) {
+                e.preventDefault();
+
+                if (hasAppLinksUtilResources) {
+                    window.AppLinks.authenticateRemoteCredentials(server.authUrl, function() {
+                        server.authUrl = null;
+                        _this.view.$errorMessage.empty().addClass('hidden');
+                        _this.trigger('reload.data');
+                    });
+                } else {
+                    // in some special pages, ex: Upload Add-on page,
+                    // somehow we can not load async applinks resources.
+                    // Users must reload page manually after finishing authentication.
+                    window.open(server.authUrl, 'com_atlassian_applinks_authentication');
+                }
+            });
         },
 
         validateRequiredFields: function($el, message) {
@@ -234,19 +250,16 @@ function(
 
         validateJiraServerSupported: function(server) {
             if (helper.isJiraUnSupportedVersion(server)) {
-                var markup = Confluence.Templates.ConfluenceJiraPlugin.showJiraUnsupportedVersion({});
+                var markup = this.template.showJiraUnsupportedVersion({});
 
                 this.view.$errorMessage
                         .html(markup)
                         .removeClass('hidden');
 
-                this.toggleEnablePanel(false);
-
                 return false;
             }
 
             this.view.$errorMessage.empty().addClass('hidden');
-            this.toggleEnablePanel(true);
 
             return true;
         },
@@ -324,11 +337,8 @@ function(
 
             this.formData.set('isValid', this.validateServer(selectedServer));
 
-            if (this.formData.get('isValid')) {
-                this.dialogView.toggleEnableInsertButton(true);
-            } else {
-                this.dialogView.toggleEnableInsertButton(false);
-            }
+            var isValid = this.formData.get('isValid');
+            this.toggleEnablePanel(isValid);
         },
 
         _onSelectServerChanged: function() {

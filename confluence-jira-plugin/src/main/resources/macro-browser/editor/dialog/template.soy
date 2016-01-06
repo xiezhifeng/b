@@ -1,0 +1,29 @@
+{namespace Confluence.Templates.JiraSprints.Dialog}
+
+/**
+ *  Show message to let users know that your JIRA version is not supported.
+ */
+{template .showJiraUnsupportedVersion}
+    <div class="jira-unsupported-version aui-message-container">
+        <div class="aui-message warning">
+            {getText('jira.version.unsupported')}
+            <span class="aui-icon icon-warning"></span>
+        </div>
+    </div>
+{/template}
+
+/**
+ * Error message for missing Oauth url
+ * @param forceUserToReload - show a message to let users know that they must reload page manually.
+ */
+{template .errorMessageOauth}
+    <div class="aui-message-container oauth-form">
+        <div class="aui-message info">
+            <span class="aui-icon icon-info"></span>{getText('jira.sprint.oauth.message.text')}&nbsp;
+            <a href="#">{getText('jira.sprint.oauth.link.text')}</a>.
+            {if $forceUserToReload}
+                <p>{getText('jira.sprint.oauth.reload.page.manually')}</p>
+            {/if}
+        </div>
+    </div>
+{/template}

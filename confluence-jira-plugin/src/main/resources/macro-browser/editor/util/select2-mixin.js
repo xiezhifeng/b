@@ -113,9 +113,12 @@ function(
         resetSelect2Options: function($el) {
             $el.removeClass('loading');
             $el.parent().find('.aui-icon-wait').remove();
-            this.toggleEnableSelect2($el, true);
 
             $el.empty();
+            // add an empty option to keep showing placeholder text
+            // see detail in: http://select2.github.io/select2/#documentation
+            $el.append('<option></option>');
+
             $el.auiSelect2('data', null);
         },
 
