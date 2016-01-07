@@ -1,5 +1,6 @@
 package com.atlassian.confluence.plugins.conluenceview.services.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,15 +45,12 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
 
         final PageResponse<Content> contents = searchService.searchContent(cql, new Expansion("history", new Expansions().prepend("lastUpdated")));
 
-        final Collection<ConfluencePage> pages = Collections2.transform(contents.getResults(), new Function<Content, ConfluencePage>()
+        final Collection<ConfluencePage> pages = new ArrayList<ConfluencePage>();
+        for (Content content : contents)
         {
-            @Override
-            public ConfluencePage apply(Content content)
-            {
-                final Date lastUpdated = contents.getResults().get(0).getHistory().getLastUpdatedRef().get().getWhen().toDate();
-                return new ConfluencePage(content.getId().asLong(), content.getLinks().get(LinkType.WEB_UI).getPath(), content.getTitle(), lastUpdated);
-            }
-        });
+//            final Date lastUpdated = content.getHistory().getLastUpdatedRef().get().getWhen().toDate();
+            pages.add(new ConfluencePage(content.getId().asLong(), content.getTitle(), content.getLinks().get(LinkType.WEB_UI).getPath(), new Date()));
+        }
 
         final String cacheToken = StringUtils.isBlank(query.getCacheToken()) ? UUID.randomUUID().toString() : query.getCacheToken();
         requestCache.put(cacheToken, cql);
