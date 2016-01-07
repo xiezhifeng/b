@@ -157,8 +157,7 @@
         <resource type="download" name="analytics.js" location="util/analytics.js"/>
         <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
 
-        <dependency>confluence.web.resources:ajs</dependency>
-        <dependency>confluence.web.resources:amd</dependency>
+        <dependency>${atlassian.plugin.key}:amd-support</dependency>
         <dependency>confluence.web.resources:analytics-support</dependency>
     </web-resource>
 
@@ -168,14 +167,18 @@
             <transformer key="jsI18n"/>
         </transformation>
 
-        <resource type="download" name="jira-issues-fetching-job.js" location="jira/jira-issues-view-mode/fetching-job.js"/>
-        <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
-        <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
         <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
 
-        <dependency>${atlassian.plugin.key}:amd-support</dependency>
         <dependency>${atlassian.plugin.key}:common</dependency>
         <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
+    </web-resource>
+
+    <web-resource key="jira-issues-view-mode-async-resource" name="Jira issues async resource in view mode">
+        <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
+        <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
+        <resource type="download" name="amd-confluence-shim.js" location="amd/confluence-shim.js"/>
+        <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
+        <resource type="download" name="jira-issues-fetching-job.js" location="jira/jira-issues-view-mode/fetching-job.js"/>
     </web-resource>
 
     <web-resource key="web-resources" name="Web resources">
@@ -337,9 +340,10 @@
         <context>dashboard</context>
     </web-resource>
     
-	<resource type="download" name="jira-table.png" location="/jira/jira-table.png">
-	    <param name="content-type" value="image/jpeg"/>
-	</resource>
+    <resource type="download" name="jira-table.png" location="/jira/jira-table.png">
+        <param name="content-type" value="image/jpeg"/>
+    </resource>
+
     <web-resource key="proxy-js">
         <resource type="download" name="proxy.js" location="/jira/proxy.js"/>   
         <dependency>confluence.web.resources:ajs</dependency>  
