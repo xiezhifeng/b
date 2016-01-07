@@ -257,6 +257,13 @@
             <version>5.0.5</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-java-api</artifactId>
+            <version>${confluence.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -428,6 +435,8 @@
                             com.atlassian.confluence.pages.thumbnail,
                             com.atlassian.confluence.plugin.descriptor.web.conditions,
                             com.atlassian.confluence.plugins.createcontent.events; version="2.0",
+                            com.atlassian.confluence.api.service.search,
+                            com.atlassian.confluence.api.model.*,
                             com.atlassian.confluence.renderer,
                             com.atlassian.confluence.renderer.radeox.macros,
                             com.atlassian.confluence.search.service,

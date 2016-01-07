@@ -54,4 +54,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean" id="jiraChartFactory">
      <beans:property name="serviceLocatorInterface" value="com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory"/>
   </beans:bean>
+
+    <beans:bean id="confluencePagesService" autowire="default" class="com.atlassian.confluence.plugins.conluenceview.services.impl.DefaultConfluencePagesService"/>
 </beans:beans>

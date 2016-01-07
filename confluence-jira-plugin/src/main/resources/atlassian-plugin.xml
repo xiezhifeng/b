@@ -491,4 +491,6 @@
         <url-pattern>/rest/mobile/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </servlet-filter>
+
+    <!--<component-import key="searchService" interface="com.atlassian.confluence.api.service.search.CQLSearchService"/>-->
 </atlassian-plugin>
