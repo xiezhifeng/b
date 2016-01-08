@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.8.4</version>
+        <version>5.8.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin-webdriver-tests</artifactId>
