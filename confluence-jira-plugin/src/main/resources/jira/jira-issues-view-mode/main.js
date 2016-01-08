@@ -1,24 +1,29 @@
 require([
     'ajs',
-    'jquery',
-    'confluence/jim/jira/jira-issues-view-mode/lazy-loading',
-    'confluence/jim/jira/jira-issues-view-mode/fix-ui',
-    'confluence/jim/jira/jira-issues-view-mode/refresh-table'
+    'jquery'
 ], function(
     AJS,
-    $,
-    JiraIssuesLazyLoading,
-    JiraIssuesFixUI,
-    JiraRefreshTableMacro
+    $
 ){
     'use strict';
 
-    $(document).ready(function() {
-        // prepare data element for table placeholder
-        JiraRefreshTableMacro.init();
+    var WEB_JIM_RESOURCE = "wr!confluence.extra.jira:jira-issues-view-mode-async-resource";
 
-        JiraIssuesLazyLoading.init().done(function() {
-            JiraIssuesFixUI.fixBreakIconInOldConf();
+    $(document).ready(function() {
+        var $jiraIssuesEls = $('.wiki-content [data-jira-key][data-client-id]');
+        if ($jiraIssuesEls.length == 0) {
+            return false;
+        }
+
+        WRM.require(WEB_JIM_RESOURCE, function() {
+            require([
+                'confluence/jim/jira/jira-issues-view-mode/lazy-loading',
+                'confluence/jim/jira/jira-issues-view-mode/fix-ui'
+            ], function(JiraIssuesLazyLoading, JiraIssuesFixUI) {
+                JiraIssuesLazyLoading.init($jiraIssuesEls).done(function() {
+                    JiraIssuesFixUI.fixBreakIconInOldConf();
+                });
+            });
         });
     });
 });

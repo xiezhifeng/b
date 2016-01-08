@@ -11,7 +11,6 @@
 
     <name>Confluence JIRA Plugin</name>
     <description>Macros to retrieve information from JIRA.</description>
-    <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
 
     <profiles>
         <profile>
