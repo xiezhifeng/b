@@ -188,7 +188,7 @@ AJS.Editor.JiraConnector = (function($) {
 
             $container.find('#open-jira-sprint-dialog').on('click', function() {
                 AJS.Editor.JiraConnector.closePopup();
-                AJS.trigger('jim.jira.sprint.open');
+                AJS.trigger('jim.jira.sprint.open', { isOpenFromOtherDialog: true });
             });
         }
 

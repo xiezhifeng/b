@@ -129,7 +129,7 @@ AJS.Editor.JiraChart = (function($) {
 
         $container.find('#open-jira-sprint-dialog').on('click', function() {
             AJS.Editor.JiraChart.close();
-            AJS.trigger('jim.jira.sprint.open');
+            AJS.trigger('jim.jira.sprint.open', { isOpenFromOtherDialog: true });
         });
     };
 

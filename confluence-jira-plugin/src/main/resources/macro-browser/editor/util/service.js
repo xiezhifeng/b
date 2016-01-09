@@ -56,6 +56,10 @@ function(
                 url: AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/agile/' + serverId + '/boards/' + boardId + '/sprints',
                 timeout: AJS.Meta.getNumber('connection-timeout')
             });
+        },
+
+        resetCachingData: function() {
+            cacheServerData = null;
         }
     };
 });
