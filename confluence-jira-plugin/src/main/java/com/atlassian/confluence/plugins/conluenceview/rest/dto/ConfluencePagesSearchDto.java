@@ -1,4 +1,4 @@
-package com.atlassian.confluence.plugins.conluenceview.rest.results;
+package com.atlassian.confluence.plugins.conluenceview.rest.dto;
 
 import java.util.Collection;
 
@@ -10,20 +10,14 @@ import com.atlassian.confluence.extra.jira.model.ConfluencePage;
 
 @XmlAccessorType (XmlAccessType.FIELD)
 @XmlRootElement
-public class ConfluencePagesSearchResult
+public class ConfluencePagesSearchDto extends GenericResponseDto
 {
-    String cacheToken;
     Collection<ConfluencePage> pages;
 
-    private ConfluencePagesSearchResult(Builder builder)
+    private ConfluencePagesSearchDto(Builder builder)
     {
-        cacheToken = builder.cacheToken;
+        super(builder.status, builder.errorMessage);
         pages = builder.pages;
-    }
-
-    public String getCacheToken()
-    {
-        return cacheToken;
     }
 
     public Collection<ConfluencePage> getPages()
@@ -36,20 +30,9 @@ public class ConfluencePagesSearchResult
         return new Builder();
     }
 
-    public static final class Builder
+    public static final class Builder extends GenericResponseDto.Builder
     {
-        private String cacheToken;
         private Collection<ConfluencePage> pages;
-
-        private Builder()
-        {
-        }
-
-        public Builder withCacheToken(String cacheToken)
-        {
-            this.cacheToken = cacheToken;
-            return this;
-        }
 
         public Builder withPages(Collection<ConfluencePage> pages)
         {
@@ -57,9 +40,9 @@ public class ConfluencePagesSearchResult
             return this;
         }
 
-        public ConfluencePagesSearchResult build()
+        public ConfluencePagesSearchDto build()
         {
-            return new ConfluencePagesSearchResult(this);
+            return new ConfluencePagesSearchDto(this);
         }
     }
 }

@@ -525,7 +525,8 @@
                             org.springframework.beans,
                             org.springframework.beans.factory,
                             org.springframework.beans.factory.config,
-                            org.xml.sax
+                            org.xml.sax,
+                            org.joda.time.*
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.confluence.extra.jira,

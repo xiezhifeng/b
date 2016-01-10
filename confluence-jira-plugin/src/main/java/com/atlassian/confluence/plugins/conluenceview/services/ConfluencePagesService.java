@@ -1,8 +1,8 @@
 package com.atlassian.confluence.plugins.conluenceview.services;
 
-import com.atlassian.confluence.plugins.conluenceview.rest.results.ConfluencePagesSearchResult;
+import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesSearchDto;
 
 public interface ConfluencePagesService
 {
-    ConfluencePagesSearchResult search(ConfluencePagesQuery query);
+    ConfluencePagesSearchDto search(ConfluencePagesQuery query);
 }
