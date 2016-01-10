@@ -16,6 +16,9 @@ public class PagesSearchParam
     List<Long> pageIds;
     String cacheToken;
 
+    Integer limit;
+    Integer start;
+
     public String getCacheToken()
     {
         return cacheToken;
@@ -24,5 +27,15 @@ public class PagesSearchParam
     public List<Long> getPageIds()
     {
         return pageIds;
+    }
+
+    public Integer getLimit()
+    {
+        return limit;
+    }
+
+    public Integer getStart()
+    {
+        return start;
     }
 }

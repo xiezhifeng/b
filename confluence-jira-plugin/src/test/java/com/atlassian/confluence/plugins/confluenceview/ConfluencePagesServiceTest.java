@@ -39,6 +39,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 public class ConfluencePagesServiceTest
 {
+    private static final String CQL = "id in (1,2) and type = page order by lastModified desc";
+    private static final String CQL_WITH_PAGING = "id in (1,2) and type = page order by lastModified desc limit 1 start 0";
+
     ConfluencePagesService service;
 
     @Mock
@@ -97,14 +100,14 @@ public class ConfluencePagesServiceTest
 
         final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).withPageIds(pageIds).build();
 
-        String cql = "id in (1,2) and type = page order by lastModified desc";
-        when(cqlSearchService.searchContent(eq(cql), isA(Expansion.class))).thenReturn(contents);
+
+        when(cqlSearchService.searchContent(eq(CQL_WITH_PAGING), isA(Expansion.class))).thenReturn(contents);
 
         when(cache.get(TOKEN)).thenReturn(null);
         final ConfluencePagesSearchDto result = service.search(query);
         assertEquals(2, result.getPages().size());
         // verify that request ids is cached
-        Mockito.verify(cache, times(1)).put(TOKEN, cql);
+        Mockito.verify(cache, times(1)).put(TOKEN, CQL);
     }
 
     @Test
@@ -114,15 +117,14 @@ public class ConfluencePagesServiceTest
 
         final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).withPageIds(pageIds).build();
 
-        String cql = "id in (1,2) and type = page order by lastModified desc";
-        when(cache.get(TOKEN)).thenReturn(cql);
+        when(cache.get(TOKEN)).thenReturn(CQL);
 
-        when(cqlSearchService.searchContent(eq(cql), isA(Expansion.class))).thenReturn(contents);
+        when(cqlSearchService.searchContent(eq(CQL_WITH_PAGING), isA(Expansion.class))).thenReturn(contents);
 
         ConfluencePagesSearchDto result = service.search(query);
         assertEquals(2, result.getPages().size());
 
-        Mockito.verify(cache, times(1)).put(TOKEN, cql);
+        Mockito.verify(cache, times(1)).put(TOKEN, CQL);
     }
 
     @Test
@@ -146,14 +148,29 @@ public class ConfluencePagesServiceTest
     {
         final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).build();
 
-        String cql = "id in (1,2) and type = page order by lastModified desc";
-        when(cache.get(TOKEN)).thenReturn(cql);
+        when(cache.get(TOKEN)).thenReturn(CQL);
 
-        when(cqlSearchService.searchContent(eq(cql), isA(Expansion.class))).thenReturn(contents);
+        when(cqlSearchService.searchContent(eq(CQL_WITH_PAGING), isA(Expansion.class))).thenReturn(contents);
 
         ConfluencePagesSearchDto result = service.search(query);
         assertEquals(2, result.getPages().size());
 
-        Mockito.verify(cache, never()).put(TOKEN, cql);
+        Mockito.verify(cache, never()).put(TOKEN, CQL);
+    }
+
+    @Test
+    public void testPaging()
+    {
+        final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).withLimit(3).withStart(1).build();
+
+        when(cache.get(TOKEN)).thenReturn(CQL);
+
+        String pagingCQL = "id in (1,2) and type = page order by lastModified desc limit 3 start 1";
+        when(cqlSearchService.searchContent(eq(pagingCQL), isA(Expansion.class))).thenReturn(contents);
+
+        ConfluencePagesSearchDto result = service.search(query);
+        assertEquals(2, result.getPages().size());
+
+        Mockito.verify(cache, never()).put(TOKEN, CQL);
     }
 }

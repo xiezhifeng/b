@@ -28,6 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 public class DefaultConfluencePagesService implements ConfluencePagesService
 {
     public static final String PAGES_SEARCH_CQL = "id in (%s) and type = page order by lastModified desc";
+    public static final String PAGES_SEARCH_CQL_PAGING = "limit %d start %d";
+
 
     private final CQLSearchService searchService;
     private Map<String, String> requestCache;
@@ -101,7 +103,12 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
             requestCache.put(token, cql);
         }
 
-        return cql;
+        return cql += " " + getPaging(query);
+    }
+
+    private String getPaging(ConfluencePagesQuery query)
+    {
+        return String.format(PAGES_SEARCH_CQL_PAGING, query.getLimit(), query.getStart());
     }
 
     private void validate(final ConfluencePagesQuery query)
