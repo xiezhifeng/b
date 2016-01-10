@@ -21,10 +21,10 @@ public class GenericResponseDto implements Serializable
 
     private String errorMessage;
 
-    protected GenericResponseDto(int status, String errorMessage)
+    protected GenericResponseDto(Builder builder)
     {
-            this.status = status;
-        this.errorMessage = errorMessage;
+        this.status = builder.status;
+        this.errorMessage = builder.errorMessage;
     }
 
     public String getErrorMessage()
@@ -63,6 +63,11 @@ public class GenericResponseDto implements Serializable
         {
             this.errorMessage = errorMessage;
             return this;
+        }
+
+        public GenericResponseDto build()
+        {
+            return new GenericResponseDto(this);
         }
     }
 }

@@ -16,7 +16,7 @@ public class ConfluencePagesSearchDto extends GenericResponseDto
 
     private ConfluencePagesSearchDto(Builder builder)
     {
-        super(builder.status, builder.errorMessage);
+        super(builder);
         pages = builder.pages;
     }
 

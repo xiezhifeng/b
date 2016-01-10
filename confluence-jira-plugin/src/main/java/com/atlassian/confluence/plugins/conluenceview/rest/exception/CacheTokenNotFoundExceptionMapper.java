@@ -15,9 +15,10 @@ public class CacheTokenNotFoundExceptionMapper implements ExceptionMapper<CacheT
     public Response toResponse(CacheTokenNotFoundException exception)
     {
         return Response
-            .ok(new GenericResponseDto.Builder()
-                    .withStatus(HttpStatus.SC_OK)
-                    .withErrorMessage("Cache token not found"))
-            .build();
+                .ok(new GenericResponseDto.Builder()
+                        .withStatus(HttpStatus.SC_OK)
+                        .withErrorMessage("Cache token not found")
+                        .build())
+                .build();
     }
 }

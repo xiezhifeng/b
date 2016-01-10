@@ -91,23 +91,7 @@ public class ConfluencePagesServiceTest
     }
 
     @Test
-    public void testCacheTokenNotFoundAndEmptyPageIds()
-    {
-        try
-        {
-            ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).build();
-            when(cache.get(TOKEN)).thenReturn(null);
-            service.search(query);
-            assertTrue("This line of code is not expected to be executed", false);
-        }
-        catch (Exception e)
-        {
-            assertTrue(e instanceof CacheTokenNotFoundException);
-        }
-    }
-
-    @Test
-    public void testCacheTokenNotFoundAndPageIds()
+    public void testWithPageIdsAndCacheTokenNotFound()
     {
         List<Long> pageIds = Arrays.asList(1l, 2l);
 
@@ -124,11 +108,43 @@ public class ConfluencePagesServiceTest
     }
 
     @Test
-    public void testWithCacheTokenInCache()
+    public void testWithPageIdsAndCacheTokenInCache()
     {
         List<Long> pageIds = Arrays.asList(1l, 2l);
 
         final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).withPageIds(pageIds).build();
+
+        String cql = "id in (1,2) and type = page order by lastModified desc";
+        when(cache.get(TOKEN)).thenReturn(cql);
+
+        when(cqlSearchService.searchContent(eq(cql), isA(Expansion.class))).thenReturn(contents);
+
+        ConfluencePagesSearchDto result = service.search(query);
+        assertEquals(2, result.getPages().size());
+
+        Mockito.verify(cache, times(1)).put(TOKEN, cql);
+    }
+
+    @Test
+    public void testWithEmptyPageIdsAndCacheTokenNotFound()
+    {
+        try
+        {
+            ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).build();
+            when(cache.get(TOKEN)).thenReturn(null);
+            service.search(query);
+            assertTrue("This line of code is not expected to be executed", false);
+        }
+        catch (Exception e)
+        {
+            assertTrue(e instanceof CacheTokenNotFoundException);
+        }
+    }
+
+    @Test
+    public void testWithPageIdsEmptyAndCacheTokenInCache()
+    {
+        final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).build();
 
         String cql = "id in (1,2) and type = page order by lastModified desc";
         when(cache.get(TOKEN)).thenReturn(cql);

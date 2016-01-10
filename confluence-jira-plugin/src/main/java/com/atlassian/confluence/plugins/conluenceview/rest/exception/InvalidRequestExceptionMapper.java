@@ -15,9 +15,10 @@ public class InvalidRequestExceptionMapper implements ExceptionMapper<InvalidReq
     public Response toResponse(InvalidRequestException exception)
     {
         return Response
-            .ok(new GenericResponseDto.Builder()
-                    .withStatus(HttpStatus.SC_BAD_REQUEST)
-                    .withErrorMessage(exception.getMessage()))
-            .build();
+                .ok(new GenericResponseDto.Builder()
+                        .withStatus(HttpStatus.SC_BAD_REQUEST)
+                        .withErrorMessage(exception.getMessage())
+                        .build())
+                .build();
     }
 }

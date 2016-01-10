@@ -71,35 +71,34 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
         // get cql from cache by token
         String cql = requestCache.get(token);
 
-        // if cql has not been cached
-        if (StringUtils.isBlank(cql))
-        {
-            final List<Long> pageIds = query.getPageIds();
+        final List<Long> pageIds = query.getPageIds();
 
-            if (CollectionUtils.isEmpty(pageIds))
+        if (CollectionUtils.isEmpty(pageIds))
+        {
+            if (StringUtils.isBlank(cql))
             {
                 // tell client to send pageIds in next request
                 throw new CacheTokenNotFoundException();
             }
-            else
+        }
+        else
+        {
+            StringBuffer buffer = new StringBuffer("");
+
+            for (Long pageId : pageIds)
             {
-                StringBuffer buffer = new StringBuffer("");
-
-                for (Long pageId : pageIds)
-                {
-                    buffer.append(pageId + ",");
-                }
-
-                pageIdsStr = buffer.toString();
-                if (pageIdsStr.contains(","))
-                {
-                    pageIdsStr = pageIdsStr.substring(0, pageIdsStr.length() - 1);
-                }
-
-                cql = String.format(PAGES_SEARCH_CQL, pageIdsStr);
-
-                requestCache.put(token, cql);
+                buffer.append(pageId + ",");
             }
+
+            pageIdsStr = buffer.toString();
+            if (pageIdsStr.contains(","))
+            {
+                pageIdsStr = pageIdsStr.substring(0, pageIdsStr.length() - 1);
+            }
+
+            cql = String.format(PAGES_SEARCH_CQL, pageIdsStr);
+
+            requestCache.put(token, cql);
         }
 
         return cql;
