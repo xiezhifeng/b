@@ -19,7 +19,7 @@ import com.atlassian.confluence.extra.jira.model.ConfluencePage;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesSearchDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.CacheTokenNotFoundException;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequestException;
-import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesQuery;
+import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
 
 import com.google.common.annotations.VisibleForTesting;

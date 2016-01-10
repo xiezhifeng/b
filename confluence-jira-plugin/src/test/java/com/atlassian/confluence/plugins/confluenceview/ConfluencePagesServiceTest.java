@@ -21,7 +21,7 @@ import com.atlassian.confluence.api.service.search.CQLSearchService;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesSearchDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.CacheTokenNotFoundException;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequestException;
-import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesQuery;
+import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
 import com.atlassian.confluence.plugins.conluenceview.services.impl.DefaultConfluencePagesService;
 

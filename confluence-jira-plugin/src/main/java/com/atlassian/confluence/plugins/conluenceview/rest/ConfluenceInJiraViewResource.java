@@ -8,7 +8,7 @@ import javax.ws.rs.core.Response;
 
 import com.atlassian.confluence.plugins.conluenceview.rest.params.PagesSearchParam;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesSearchDto;
-import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesQuery;
+import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 

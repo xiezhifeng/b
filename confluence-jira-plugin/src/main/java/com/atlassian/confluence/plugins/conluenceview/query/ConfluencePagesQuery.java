@@ -1,23 +1,17 @@
-package com.atlassian.confluence.plugins.conluenceview.services;
+package com.atlassian.confluence.plugins.conluenceview.query;
 
 import java.util.List;
 
-public class ConfluencePagesQuery
+public class ConfluencePagesQuery extends PagingQuery
 {
-    public static final int DEFAULT_LIMIT = 1;
-    public static final int DEFAULT_START = 0;
-
     List<Long> pageIds;
     String cacheToken;
-    Integer limit;
-    Integer start;
 
     private ConfluencePagesQuery(Builder builder)
     {
+        super(builder);
         cacheToken = builder.cacheToken;
         pageIds = builder.pageIds;
-        limit = builder.limit;
-        start = builder.start;
     }
 
     public static Builder newBuilder()
@@ -35,22 +29,10 @@ public class ConfluencePagesQuery
         return cacheToken;
     }
 
-    public Integer getLimit()
-    {
-        return limit == null ? DEFAULT_LIMIT : limit;
-    }
-
-    public Integer getStart()
-    {
-        return start == null ? DEFAULT_START : start;
-    }
-
-    public static final class Builder
+    public static final class Builder extends PagingQuery.Builder
     {
         private String cacheToken;
         private List<Long> pageIds;
-        private Integer limit = DEFAULT_LIMIT;
-        private Integer start = DEFAULT_START;
 
         private Builder()
         {
@@ -70,13 +52,13 @@ public class ConfluencePagesQuery
 
         public Builder withLimit(Integer limit)
         {
-            this.limit = limit;
+            super.withLimit(limit);
             return this;
         }
 
         public Builder withStart(Integer start)
         {
-            this.start = start;
+            super.withStart(start);
             return this;
         }
 
