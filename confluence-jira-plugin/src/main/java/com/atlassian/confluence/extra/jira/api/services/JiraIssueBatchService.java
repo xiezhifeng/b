@@ -14,7 +14,8 @@ import java.util.Set;
 public interface JiraIssueBatchService
 {
     static final String ELEMENT_MAP = "elementMap";
-    static final String JIRA_SERVER_URL = "jiraServerUrl";
+    static final String JIRA_DISPLAY_URL = "jiraDisplayUrl";
+    static final String JIRA_RPC_URL = "jiraRpcUrl";
     static final Long SUPPORTED_JIRA_SERVER_BUILD_NUMBER = 6097L; // JIRA version 6.0.2
 
     /**

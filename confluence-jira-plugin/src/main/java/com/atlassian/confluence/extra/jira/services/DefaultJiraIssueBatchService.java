@@ -13,13 +13,11 @@ import com.atlassian.confluence.extra.jira.model.ClientId;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
-import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,8 +74,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                 elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
             }
             resultsMap.put(ELEMENT_MAP, elementMap);
-            String jiraServerUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl()) + "/browse/";
-            resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
+            String jiraDisplayUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl());
+            resultsMap.put(JIRA_DISPLAY_URL, jiraDisplayUrl);
             return resultsMap;
         }
         else
@@ -128,8 +126,13 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                         elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
                     }
                     resultsMap.put(ELEMENT_MAP, elementMap);
-                    String jiraServerUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl()) + "/browse/";
-                    resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
+
+                    String jiraDisplayUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl());
+                    resultsMap.put(JIRA_DISPLAY_URL, jiraDisplayUrl);
+
+                    String jiraRpcUrl = JiraUtil.normalizeUrl(appLink.getRpcUrl());
+                    resultsMap.put(JIRA_RPC_URL, jiraRpcUrl);
+
                     return resultsMap;
                 }
             }

@@ -958,13 +958,13 @@ public class TestJiraIssuesMacro extends TestCase
     {
         Set keys = new HashSet();
         Map<String, Object> map = jiraIssueBatchService.getBatchResults(APPLICATION_ID, keys, createDefaultConversionContext(true));
-        assertEquals(map.entrySet().size(), 2); // always contains 2 entries
+        assertEquals(map.entrySet().size(), 3); // always contains 3 entries
         Map<String, Element> elementMap = (Map<String, Element>) map.get(JiraIssueBatchService.ELEMENT_MAP);
         assertEquals(elementMap.size(), 5);
         Element issue = elementMap.get("TSTT-1");
         assertNotNull(issue);
-        String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
-        assertEquals(jiraServerUrl, "http://displayurl/jira/browse/");
+        String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_DISPLAY_URL);
+        assertEquals(jiraServerUrl, "http://displayurl/jira");
     }
 
     private String merge(String templateName, Map context) throws Exception

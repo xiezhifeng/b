@@ -135,6 +135,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String CLIENT_ID = "clientId";
     public static final String CLICKABLE_URL = "clickableUrl";
     public static final String JIRA_SERVER_URL = "jiraServerUrl";
+
+    // URL fragment appended to the display URL to create links to issues
+    public static final String JIRA_BROWSE_URL = "/browse/";
+
     public static final String TEMPLATE_PATH = "templates/extra/jira";
     public static final String MOBILE = "mobile";
     public static final String SERVER = "server";
@@ -1154,7 +1158,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     // render a single JIRA issue from a JDOM Element
-    public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl) throws Exception {
+    public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String displayUrl, String rpcUrl) throws Exception {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         String outputType = conversionContext.getOutputType();
         // added parameters for pdf export
@@ -1169,8 +1173,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
         }
+
+        JiraUtil.correctIconURL(issue, displayUrl, rpcUrl);
+
         setupContextMapForStaticSingleIssue(contextMap, issue, null);
-        contextMap.put(CLICKABLE_URL, serverUrl + issue.getChild(KEY).getValue());
+        contextMap.put(CLICKABLE_URL, displayUrl + JIRA_BROWSE_URL + issue.getChild(KEY).getValue());
+
 
         boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
 

@@ -265,7 +265,9 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                 //take the result and render
                 MultiMap jiraResultMap = new MultiValueMap();
                 Map<String, Element> elementMap = (Map<String, Element>) issueResultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
-                String jiraServerUrl = (String) issueResultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
+
+                String jiraDisplayUrl = (String) issueResultsMap.get(JiraIssueBatchService.JIRA_DISPLAY_URL);
+                String jiraRpcUrl = (String) issueResultsMap.get(JiraIssueBatchService.JIRA_RPC_URL);
 
                 for (MacroDefinition macroDefinition : macroDefinitions)
                 {
@@ -273,7 +275,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     if (batchRequest.contains(issueKey))
                     {
                         Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
-                        jiraResultMap.put(issueKey, new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception).renderValue());
+                        jiraResultMap.put(issueKey, new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraDisplayUrl, jiraRpcUrl, exception).renderValue());
                     }
                 }
 
