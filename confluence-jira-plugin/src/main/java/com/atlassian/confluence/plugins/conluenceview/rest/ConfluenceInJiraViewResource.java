@@ -34,7 +34,10 @@ public class ConfluenceInJiraViewResource
     @Path ("/pages/search")
     public Response getBoards(PagesSearchParam param)
     {
-        ConfluencePagesSearchDto result = confluencePagesService.search(ConfluencePagesQuery.newBuilder().withCacheToken(param.getCacheToken()).withPageIds(param.getPageIds()).build());
+        ConfluencePagesSearchDto result = confluencePagesService.search(ConfluencePagesQuery.newBuilder()
+                .withCacheToken(param.getCacheToken()).withPageIds(param.getPageIds())
+                .withLimit(param.getLimit()).withStart(param.getStart()).build());
+
         return Response.ok(result).build();
     }
 }

@@ -11,7 +11,9 @@ import com.atlassian.confluence.api.model.Expansion;
 import com.atlassian.confluence.api.model.Expansions;
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.api.model.link.LinkType;
+import com.atlassian.confluence.api.model.pagination.PageRequest;
 import com.atlassian.confluence.api.model.pagination.PageResponse;
+import com.atlassian.confluence.api.model.pagination.SimplePageRequest;
 import com.atlassian.confluence.api.service.search.CQLSearchService;
 import com.atlassian.confluence.extra.jira.model.ConfluencePage;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesSearchDto;
@@ -28,8 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 public class DefaultConfluencePagesService implements ConfluencePagesService
 {
     public static final String PAGES_SEARCH_CQL = "id in (%s) and type = page order by lastModified desc";
-    public static final String PAGES_SEARCH_CQL_PAGING = "limit %d start %d";
-
 
     private final CQLSearchService searchService;
     private Map<String, String> requestCache;
@@ -52,7 +52,8 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
 
         final String cql = buildCql(query);
 
-        final PageResponse<Content> contents = searchService.searchContent(cql, new Expansion("history", new Expansions().prepend("lastUpdated")));
+        PageRequest request = new SimplePageRequest(query.getStart(), query.getLimit());
+        final PageResponse<Content> contents = searchService.searchContent(cql, request, new Expansion("history", new Expansions().prepend("lastUpdated")));
 
         final Collection<ConfluencePage> pages = new ArrayList<ConfluencePage>();
         for (Content content : contents)
@@ -103,12 +104,7 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
             requestCache.put(token, cql);
         }
 
-        return cql += " " + getPaging(query);
-    }
-
-    private String getPaging(ConfluencePagesQuery query)
-    {
-        return String.format(PAGES_SEARCH_CQL_PAGING, query.getLimit(), query.getStart());
+        return cql;
     }
 
     private void validate(final ConfluencePagesQuery query)
