@@ -439,6 +439,7 @@
                             com.atlassian.confluence.api.model.*,
                             com.atlassian.confluence.renderer,
                             com.atlassian.confluence.renderer.radeox.macros,
+                            com.atlassian.confluence.rest.api.model,
                             com.atlassian.confluence.search.service,
                             com.atlassian.confluence.security,
                             com.atlassian.confluence.setup,

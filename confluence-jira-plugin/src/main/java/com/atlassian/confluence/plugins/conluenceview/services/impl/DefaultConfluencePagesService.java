@@ -10,6 +10,7 @@ import java.util.Map;
 import com.atlassian.confluence.api.model.Expansion;
 import com.atlassian.confluence.api.model.Expansions;
 import com.atlassian.confluence.api.model.content.Content;
+import com.atlassian.confluence.api.model.content.Label;
 import com.atlassian.confluence.api.model.link.LinkType;
 import com.atlassian.confluence.api.model.pagination.PageRequest;
 import com.atlassian.confluence.api.model.pagination.PageResponse;
@@ -21,6 +22,7 @@ import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDt
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.CacheTokenNotFoundException;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequestException;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
+import com.atlassian.confluence.rest.api.model.RestList;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -53,13 +55,28 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
         final String cql = buildCql(query);
 
         PageRequest request = new SimplePageRequest(query.getStart(), query.getLimit());
-        final PageResponse<Content> contents = searchService.searchContent(cql, request, new Expansion("history", new Expansions().prepend("lastUpdated")));
+        final PageResponse<Content> contents = searchService.searchContent(cql, request,
+                new Expansion("history", new Expansions().prepend("lastUpdated")),
+                new Expansion("metadata", new Expansions().prepend("labels")));
 
         final Collection<ConfluencePageDto> pages = new ArrayList<ConfluencePageDto>();
         for (Content content : contents)
         {
+            final Map<String, Object> metadata = content.getMetadata();
+            List<String> labelList = new ArrayList<String>();
+            if (metadata != null)
+            {
+                if (metadata.get("labels") != null)
+                {
+                    List<Label> labels = ((RestList) metadata.get("labels")).getResults();
+                    for (Label label : labels)
+                    {
+                        labelList.add(label.getLabel());
+                    }
+                }
+            }
             final Date lastUpdated = content.getHistory().getLastUpdatedRef().get().getWhen().toDate();
-            pages.add(new ConfluencePageDto(content.getId().asLong(), content.getTitle(), content.getLinks().get(LinkType.WEB_UI).getPath(), lastUpdated));
+            pages.add(new ConfluencePageDto(content.getId().asLong(), content.getTitle(), content.getLinks().get(LinkType.WEB_UI).getPath(), lastUpdated, labelList));
         }
 
         return ConfluencePagesDto.newBuilder().withPages(pages).build();

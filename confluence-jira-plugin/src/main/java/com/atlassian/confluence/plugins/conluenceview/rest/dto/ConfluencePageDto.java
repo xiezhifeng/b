@@ -1,6 +1,7 @@
 package com.atlassian.confluence.plugins.conluenceview.rest.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -14,13 +15,15 @@ public class ConfluencePageDto
     String pageTitle;
     String pageUrl;
     Date lastModified;
+    List<String> labels;
 
-    public ConfluencePageDto(Long pageId, String pageTitle, String pageUrl, Date lastModified)
+    public ConfluencePageDto(Long pageId, String pageTitle, String pageUrl, Date lastModified, List<String> labels)
     {
         this.pageId = pageId;
         this.pageTitle = pageTitle;
         this.pageUrl = pageUrl;
         this.lastModified = lastModified;
+        this.labels = labels;
     }
 
     public Long getPageId()
@@ -41,5 +44,10 @@ public class ConfluencePageDto
     public Date getLastModified()
     {
         return lastModified;
+    }
+
+    public List<String> getLabels()
+    {
+        return labels;
     }
 }
