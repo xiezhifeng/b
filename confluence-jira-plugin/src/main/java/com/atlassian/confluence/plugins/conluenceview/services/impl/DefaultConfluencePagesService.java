@@ -15,8 +15,8 @@ import com.atlassian.confluence.api.model.pagination.PageRequest;
 import com.atlassian.confluence.api.model.pagination.PageResponse;
 import com.atlassian.confluence.api.model.pagination.SimplePageRequest;
 import com.atlassian.confluence.api.service.search.CQLSearchService;
-import com.atlassian.confluence.extra.jira.model.ConfluencePage;
-import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesSearchDto;
+import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePageDto;
+import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.CacheTokenNotFoundException;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequestException;
 import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
@@ -46,7 +46,7 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
         this.requestCache = requestCache;
     }
 
-    public ConfluencePagesSearchDto search(final ConfluencePagesQuery query)
+    public ConfluencePagesDto search(final ConfluencePagesQuery query)
     {
         validate(query);
 
@@ -55,14 +55,14 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
         PageRequest request = new SimplePageRequest(query.getStart(), query.getLimit());
         final PageResponse<Content> contents = searchService.searchContent(cql, request, new Expansion("history", new Expansions().prepend("lastUpdated")));
 
-        final Collection<ConfluencePage> pages = new ArrayList<ConfluencePage>();
+        final Collection<ConfluencePageDto> pages = new ArrayList<ConfluencePageDto>();
         for (Content content : contents)
         {
             final Date lastUpdated = content.getHistory().getLastUpdatedRef().get().getWhen().toDate();
-            pages.add(new ConfluencePage(content.getId().asLong(), content.getTitle(), content.getLinks().get(LinkType.WEB_UI).getPath(), lastUpdated));
+            pages.add(new ConfluencePageDto(content.getId().asLong(), content.getTitle(), content.getLinks().get(LinkType.WEB_UI).getPath(), lastUpdated));
         }
 
-        return ConfluencePagesSearchDto.newBuilder().withPages(pages).build();
+        return ConfluencePagesDto.newBuilder().withPages(pages).build();
     }
 
     private String buildCql(ConfluencePagesQuery query)

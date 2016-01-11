@@ -18,7 +18,7 @@ import com.atlassian.confluence.api.model.pagination.PageResponseImpl;
 import com.atlassian.confluence.api.model.pagination.SimplePageRequest;
 import com.atlassian.confluence.api.model.reference.Reference;
 import com.atlassian.confluence.api.service.search.CQLSearchService;
-import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesSearchDto;
+import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.CacheTokenNotFoundException;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequestException;
 import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-public class ConfluencePagesServiceTest
+public class ConfluencePagesServiceTestDto
 {
     private static final String CQL = "id in (1,2) and type = page order by lastModified desc";
 
@@ -106,7 +106,7 @@ public class ConfluencePagesServiceTest
         when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class))).thenReturn(contents);
 
         when(cache.get(TOKEN)).thenReturn(null);
-        final ConfluencePagesSearchDto result = service.search(query);
+        final ConfluencePagesDto result = service.search(query);
         assertEquals(2, result.getPages().size());
         // verify that request ids is cached
         Mockito.verify(cache, times(1)).put(TOKEN, CQL);
@@ -124,7 +124,7 @@ public class ConfluencePagesServiceTest
         PageRequest request = new SimplePageRequest(1, 0);
         when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class))).thenReturn(contents);
 
-        ConfluencePagesSearchDto result = service.search(query);
+        ConfluencePagesDto result = service.search(query);
         assertEquals(2, result.getPages().size());
 
         Mockito.verify(cache, times(1)).put(TOKEN, CQL);
@@ -156,7 +156,7 @@ public class ConfluencePagesServiceTest
         PageRequest request = new SimplePageRequest(1, 0);
         when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class))).thenReturn(contents);
 
-        ConfluencePagesSearchDto result = service.search(query);
+        ConfluencePagesDto result = service.search(query);
         assertEquals(2, result.getPages().size());
 
         Mockito.verify(cache, never()).put(TOKEN, CQL);

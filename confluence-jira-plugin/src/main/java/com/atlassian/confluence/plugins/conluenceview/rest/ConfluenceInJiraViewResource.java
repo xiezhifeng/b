@@ -7,7 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import com.atlassian.confluence.plugins.conluenceview.rest.params.PagesSearchParam;
-import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesSearchDto;
+import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDto;
 import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
@@ -34,7 +34,7 @@ public class ConfluenceInJiraViewResource
     @Path ("/pages/search")
     public Response getBoards(PagesSearchParam param)
     {
-        ConfluencePagesSearchDto result = confluencePagesService.search(ConfluencePagesQuery.newBuilder()
+        ConfluencePagesDto result = confluencePagesService.search(ConfluencePagesQuery.newBuilder()
                 .withCacheToken(param.getCacheToken()).withPageIds(param.getPageIds())
                 .withLimit(param.getLimit()).withStart(param.getStart()).build());
 

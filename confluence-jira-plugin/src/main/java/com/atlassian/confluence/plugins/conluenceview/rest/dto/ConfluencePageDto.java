@@ -1,4 +1,4 @@
-package com.atlassian.confluence.extra.jira.model;
+package com.atlassian.confluence.plugins.conluenceview.rest.dto;
 
 import java.util.Date;
 
@@ -8,14 +8,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType (XmlAccessType.FIELD)
 @XmlRootElement
-public class ConfluencePage
+public class ConfluencePageDto
 {
     Long pageId;
     String pageTitle;
     String pageUrl;
     Date lastModified;
 
-    public ConfluencePage(Long pageId, String pageTitle, String pageUrl, Date lastModified)
+    public ConfluencePageDto(Long pageId, String pageTitle, String pageUrl, Date lastModified)
     {
         this.pageId = pageId;
         this.pageTitle = pageTitle;

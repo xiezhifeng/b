@@ -6,21 +6,19 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.atlassian.confluence.extra.jira.model.ConfluencePage;
-
 @XmlAccessorType (XmlAccessType.FIELD)
 @XmlRootElement
-public class ConfluencePagesSearchDto extends GenericResponseDto
+public class ConfluencePagesDto extends GenericResponseDto
 {
-    Collection<ConfluencePage> pages;
+    Collection<ConfluencePageDto> pages;
 
-    private ConfluencePagesSearchDto(Builder builder)
+    private ConfluencePagesDto(Builder builder)
     {
         super(builder);
         pages = builder.pages;
     }
 
-    public Collection<ConfluencePage> getPages()
+    public Collection<ConfluencePageDto> getPages()
     {
         return pages;
     }
@@ -32,17 +30,17 @@ public class ConfluencePagesSearchDto extends GenericResponseDto
 
     public static final class Builder extends GenericResponseDto.Builder
     {
-        private Collection<ConfluencePage> pages;
+        private Collection<ConfluencePageDto> pages;
 
-        public Builder withPages(Collection<ConfluencePage> pages)
+        public Builder withPages(Collection<ConfluencePageDto> pages)
         {
             this.pages = pages;
             return this;
         }
 
-        public ConfluencePagesSearchDto build()
+        public ConfluencePagesDto build()
         {
-            return new ConfluencePagesSearchDto(this);
+            return new ConfluencePagesDto(this);
         }
     }
 }
