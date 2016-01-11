@@ -32,7 +32,7 @@ public class ConfluenceInJiraViewResource
 
     @POST
     @Path ("/pages/search")
-    public Response getBoards(PagesSearchParam param)
+    public Response getPages(PagesSearchParam param)
     {
         ConfluencePagesDto result = confluencePagesService.search(ConfluencePagesQuery.newBuilder()
                 .withCacheToken(param.getCacheToken()).withPageIds(param.getPageIds())

@@ -2,7 +2,7 @@ package com.atlassian.confluence.plugins.conluenceview.query;
 
 public abstract class PagingQuery
 {
-    public static final Integer PAGE_ITEM_COUNT = 50;
+    public static final Integer MAX_ALLOW_ITEM_PER_PAGE = 50;
 
     private Integer limit;
 
@@ -38,12 +38,12 @@ public abstract class PagingQuery
 
         protected Integer getMaxAllowItemPerPage()
         {
-            return PAGE_ITEM_COUNT;
+            return MAX_ALLOW_ITEM_PER_PAGE;
         }
 
         protected Builder withLimit(Integer limit)
         {
-            if (limit > PAGE_ITEM_COUNT || limit <= 0)
+            if (limit > MAX_ALLOW_ITEM_PER_PAGE || limit <= 0)
             {
                 limit = getMaxAllowItemPerPage();
             }
