@@ -1,10 +1,11 @@
-package com.atlassian.confluence.plugins.conluenceview.rest.exception;
+package com.atlassian.confluence.plugins.conluenceview.rest.exception.mapper;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.GenericResponseDto;
+import com.atlassian.confluence.plugins.conluenceview.rest.exception.CacheTokenNotFoundException;
 
 import org.apache.commons.httpclient.HttpStatus;
 
@@ -16,7 +17,7 @@ public class CacheTokenNotFoundExceptionMapper implements ExceptionMapper<CacheT
     {
         return Response
                 .ok(new GenericResponseDto.Builder()
-                        .withStatus(HttpStatus.SC_OK)
+                        .withStatus(HttpStatus.SC_NOT_FOUND)
                         .withErrorMessage("Cache token not found")
                         .build())
                 .build();
