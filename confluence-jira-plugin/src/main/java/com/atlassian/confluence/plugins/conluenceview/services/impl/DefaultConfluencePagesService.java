@@ -15,11 +15,11 @@ import com.atlassian.confluence.api.model.pagination.PageRequest;
 import com.atlassian.confluence.api.model.pagination.PageResponse;
 import com.atlassian.confluence.api.model.pagination.SimplePageRequest;
 import com.atlassian.confluence.api.service.search.CQLSearchService;
+import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePageDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.CacheTokenNotFoundException;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequestException;
-import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
 
 import com.google.common.annotations.VisibleForTesting;

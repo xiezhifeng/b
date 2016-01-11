@@ -122,7 +122,6 @@
         <javadoc.version>2.8</javadoc.version>
 
         <guava.version>11.0.2</guava.version>
-        <confluence-search.version>2.0.1</confluence-search.version>
     </properties>
 
     <distributionManagement>
