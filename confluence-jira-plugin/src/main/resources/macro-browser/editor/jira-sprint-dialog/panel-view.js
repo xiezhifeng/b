@@ -111,6 +111,7 @@ function(
             var promise = service.loadBoardsData(serverId, queryTerm)
             .done(function(boards) {
                 this.toggleSelect2Loading(this.view.$boards, false, true);
+                this.dialogView.toggleEnableInsertButton(true);
 
                 // format data to adapt select2 requirement
                 _.each(boards, function(board) {
@@ -143,7 +144,7 @@ function(
             }.bind(this))
             .fail(function(xhr, errorString, errorStatus) {
                 this.resetSelect2Options(this.view.$sprints);
-                this.handleRequestError(this.view.$boards, errorStatus);
+                this.handleAjaxRequestError(this.view.$boards, errorStatus);
             }.bind(this));
 
             return promise;
@@ -184,6 +185,11 @@ function(
 
         _onSelectSprintChanged: function() {
             var selectedSprint = this.view.$sprints.select2('data');
+
+            if (!selectedSprint.name) {
+                selectedSprint.name = selectedSprint.text;
+            }
+
             this.formData.set('selectedSprint', selectedSprint);
         },
 

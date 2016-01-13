@@ -23,7 +23,7 @@ function(
     var FormDataModel = Backbone.Model.extend({
         defaults: {
             selectedServer: null,
-            isValid: true
+            isValid: false
         },
 
         reset: function() {
@@ -90,8 +90,6 @@ function(
                 placeholderText: AJS.I18n.getText('jira.server.placeholder'),
                 isRequired: true
             });
-
-            this._fillServersData();
         },
 
         onBeginInitDialog: function() {
@@ -101,6 +99,18 @@ function(
         },
 
         onOpenDialog: function(macroOptions) {
+            // don't need to re-render dialog if switching from other dialogs and form is valid
+            if (macroOptions.isOpenFromOtherDialog &&
+                this.formData.get('isValid')) {
+                return;
+            }
+
+            // open from other dialogs, we need to merge new `macroOptions` with current `macroOptions` of current dialog
+            if (macroOptions.isOpenFromOtherDialog &&
+                this.macroOptions) {
+                _.extend(macroOptions, this.macroOptions);
+            }
+
             this.formData.reset();
 
             if (macroOptions && macroOptions.params && macroOptions.name === this.dialogView.macroId) {
@@ -109,6 +119,10 @@ function(
                 this.macroOptions = null;
             }
 
+            this.init();
+        },
+
+        init: function() {
             this._fillServersData().done(function() {
                 this.reset();
             }.bind(this));
@@ -126,6 +140,9 @@ function(
 
         toggleEnablePanel: function(isEnabled) {
             var $formControl = this.$('input, area, select');
+
+            // should not disable server select in all cases because we want users to select other server.
+            $formControl = $formControl.not('[name=jira-server]');
 
             if (isEnabled) {
                 $formControl.enable();
@@ -152,7 +169,13 @@ function(
             }
         },
 
-        handleRequestError: function($el, errorStatus) {
+        /**
+         * Show error message when there is an error in ajax request.
+         * Insert button of dialog will be disabled in case there is an error.
+         * @param $el
+         * @param errorStatus
+         */
+        handleAjaxRequestError: function($el, errorStatus) {
             var errorMessage = AJS.I18n.getText('jira.sprint.validation.cannot.connect');
 
             if (errorStatus === 'timeout') {
@@ -223,6 +246,13 @@ function(
                 if (hasAppLinksUtilResources) {
                     window.AppLinks.authenticateRemoteCredentials(server.authUrl, function() {
                         server.authUrl = null;
+
+                        // reset data for global variable so that other dialogs don't need to do authentication again.
+                        var findedServer = _.findWhere(window.AJS.Editor.JiraConnector.servers, {id: server.id});
+                        if (findedServer) {
+                            findedServer.authUrl = null;
+                        }
+
                         _this.view.$errorMessage.empty().addClass('hidden');
                         _this.trigger('reload.data');
                     });
@@ -278,10 +308,11 @@ function(
             dfd.done(function() {
                 this.toggleSelect2Loading($select, false);
                 this.view.$errorMessage.empty().addClass('hidden');
+                this.dialogView.toggleEnableInsertButton(true);
             }.bind(this));
 
             dfd.fail(function(xhr, errorStatus) {
-                this.handleRequestError($select, errorStatus);
+                this.handleAjaxRequestError($select, errorStatus);
             }.bind(this));
 
             return dfd;
@@ -338,7 +369,15 @@ function(
             this.formData.set('isValid', this.validateServer(selectedServer));
 
             var isValid = this.formData.get('isValid');
+
+            // if there is any error regarding to server,
+            // we will disable all form controls, ex: input, select, Insert button dialog...
             this.toggleEnablePanel(isValid);
+
+            // should not cache any data if there is any error regarding to server
+            if (!isValid) {
+                service.resetCachingData();
+            }
         },
 
         _onSelectServerChanged: function() {

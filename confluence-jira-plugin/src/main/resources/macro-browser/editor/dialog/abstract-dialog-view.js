@@ -139,17 +139,19 @@ function(
          * If the dialog is in invalid state after validation, the dialog should not appear.
          */
         preRenderValidation: function() {
-            // TODO: because we are storing servers data in global variable which is populated when editor is opening.
-            this.servers = AJS.Editor.JiraConnector.servers;
-
             // check no app link config
-            if (!this.servers || this.servers.length === 0) {
+            if (!this.getListServers() || this.getListServers().length === 0) {
                 this.showingWarningPopupToSetUpAppLink();
                 this.isValid = false;
                 return;
             }
 
             this.isValid = true;
+        },
+
+        getListServers: function() {
+            // TODO: because we are storing servers data in global variable which is populated when editor is opening.
+            return window.AJS.Editor.JiraConnector.servers;
         },
 
         showingWarningPopupToSetUpAppLink: function() {
