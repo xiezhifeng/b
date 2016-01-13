@@ -84,7 +84,7 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraTest
     protected void validateWarningDialog(String buttonText)
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
-        macroBrowserDialog.searchForFirst("embed jira issues").select();
+        macroBrowserDialog.searchForFirst("link to jira issues or sprints").select();
 
         warningAppLinkDialog = pageBinder.bind(WarningAppLinkDialog.class);
         Assert.assertEquals("Connect Confluence To JIRA", warningAppLinkDialog.getDialogTitle());
