@@ -22,6 +22,7 @@ div.bmDiv {
     border-radius: 3px;
     display: inline-block;
     line-height: 18px; /* CONFDEV-21720 */
+    white-space: normal;
 }
 
 .jira-issue .aui-lozenge {
@@ -55,7 +56,7 @@ div.bmDiv {
     padding-left: 18px; /* 16px icon + 2px padding to match parent padding */
 }
 
-.jira-status{
+.jira-status {
     color: #707070;
     font-size: 12px;
     font-weight: bold;
