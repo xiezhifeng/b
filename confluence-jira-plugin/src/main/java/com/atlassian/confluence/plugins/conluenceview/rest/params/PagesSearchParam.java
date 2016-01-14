@@ -7,10 +7,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 @XmlAccessorType (XmlAccessType.FIELD)
 @XmlRootElement
 @JsonIgnoreProperties (ignoreUnknown = true)
+@JsonSerialize (include = JsonSerialize.Inclusion.NON_NULL)
 public class PagesSearchParam
 {
     List<Long> pageIds;
@@ -18,6 +20,7 @@ public class PagesSearchParam
 
     Integer limit;
     Integer start;
+    String searchString;
 
     public String getCacheToken()
     {
@@ -37,5 +40,10 @@ public class PagesSearchParam
     public Integer getStart()
     {
         return start;
+    }
+
+    public String getSearchString()
+    {
+        return searchString;
     }
 }

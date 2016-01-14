@@ -31,7 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class DefaultConfluencePagesService implements ConfluencePagesService
 {
-    public static final String PAGES_SEARCH_CQL = "id in (%s) and type = page order by lastModified desc";
+    public static final String PAGES_SEARCH_BY_ID_CQL = "id in (%s) and type = page order by lastModified desc";
+    public static final String PAGES_SEARCH_BY_TEXT_CQL = "text ~\"%s\"";
 
     private final CQLSearchService searchService;
     private Map<String, String> requestCache;
@@ -52,7 +53,12 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
     {
         validate(query);
 
-        final String cql = buildCql(query);
+        String cql = buildCql(query);
+
+        if (StringUtils.isNotBlank(query.getSearchString()))
+        {
+            cql = String.format(PAGES_SEARCH_BY_TEXT_CQL, query.getSearchString().trim()) + " and " + cql;
+        }
 
         PageRequest request = new SimplePageRequest(query.getStart(), query.getLimit());
         final PageResponse<Content> contents = searchService.searchContent(cql, request,
@@ -116,7 +122,7 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
                 pageIdsStr = pageIdsStr.substring(0, pageIdsStr.length() - 1);
             }
 
-            cql = String.format(PAGES_SEARCH_CQL, pageIdsStr);
+            cql = String.format(PAGES_SEARCH_BY_ID_CQL, pageIdsStr);
 
             requestCache.put(token, cql);
         }

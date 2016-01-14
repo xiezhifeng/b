@@ -40,6 +40,7 @@ public class ConfluenceInJiraViewResource
     {
         ConfluencePagesDto result = confluencePagesService.search(ConfluencePagesQuery.newBuilder()
                 .withCacheToken(param.getCacheToken()).withPageIds(param.getPageIds())
+                .withSearchString(param.getSearchString())
                 .withLimit(param.getLimit()).withStart(param.getStart()).build());
 
         return Response.ok(result).build();
