@@ -83,12 +83,12 @@ function(
         },
 
         toggleSelect2Loading: function($el, isLoading, isForInputType) {
-            this.resetSelect2Options($el);
+            $el.toggleClass('loading', isLoading);
 
-            if (isLoading) {
-                $el.addClass('loading');
+            if (!isForInputType) {
+                this.resetSelect2Options($el);
 
-                if (!isForInputType) {
+                if (isLoading) {
                     // add loading icon on the right of the select
                     $el.after('<span class="aui-icon aui-icon-wait">Loading...</span>');
                     this.toggleEnableSelect2($el, false);
@@ -98,12 +98,8 @@ function(
                     $el.append(markup);
 
                     $el.auiSelect2('val', 'loading');
-                }
 
-            } else {
-                $el.removeClass('loading');
-
-                if (!isForInputType) {
+                } else {
                     $el.parent().find('.aui-icon-wait').remove();
                     this.toggleEnableSelect2($el, true);
                 }
