@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 public class DefaultConfluencePagesService implements ConfluencePagesService
 {
     public static final String PAGES_SEARCH_BY_ID_CQL = "id in (%s) and type = page order by lastModified desc";
-    public static final String PAGES_SEARCH_BY_TEXT_CQL = "text ~\"%s\"";
+    public static final String PAGES_SEARCH_BY_TEXT_CQL = "text ~ \"%s\"";
 
     private final CQLSearchService searchService;
     private Map<String, String> requestCache;

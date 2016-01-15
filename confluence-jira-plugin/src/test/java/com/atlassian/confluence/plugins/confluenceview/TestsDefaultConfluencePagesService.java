@@ -2,12 +2,14 @@ package com.atlassian.confluence.plugins.confluenceview;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.atlassian.confluence.api.model.Expansion;
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.api.model.content.History;
+import com.atlassian.confluence.api.model.content.Label;
 import com.atlassian.confluence.api.model.content.Version;
 import com.atlassian.confluence.api.model.content.id.ContentId;
 import com.atlassian.confluence.api.model.link.Link;
@@ -24,11 +26,17 @@ import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequ
 import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
 import com.atlassian.confluence.plugins.conluenceview.services.impl.DefaultConfluencePagesService;
+import com.atlassian.confluence.rest.api.model.RestList;
+import com.atlassian.fugue.ImmutableMaps;
+
+import com.google.common.collect.ImmutableMap;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import jdk.nashorn.internal.ir.Labels;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -39,7 +47,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-public class ConfluencePagesServiceTestDto
+public class TestsDefaultConfluencePagesService
 {
     private static final String CQL = "id in (1,2) and type = page order by lastModified desc";
 
@@ -53,6 +61,8 @@ public class ConfluencePagesServiceTestDto
 
     PageResponse<Content> contents;
     Content content1, content2;
+    private static final int start = 0;
+    private static final int limit = 50;
 
     private static final String TOKEN = "token";
 
@@ -65,10 +75,16 @@ public class ConfluencePagesServiceTestDto
         content1 = Content.builder().id(ContentId.valueOf("1"))
                 .title("page 1")
                 .addLink(new Link(LinkType.WEB_UI, "link 1"))
+                .metadata(new HashMap<String, Object>())
                 .history(History.builder().lastUpdated(Reference.to(Version.builder().when(now).build())).build()).build();
+
+        final HashMap<String, Object> meta = new HashMap<String, Object>();
+        meta.put("labels", new RestList.Builder<Label>().results(Arrays.asList(Label.builder("labels").build()), false).build());
+
         content2 = Content.builder().id(ContentId.valueOf("2"))
                 .title("page 2")
                 .addLink(new Link(LinkType.WEB_UI, "link 2"))
+                .metadata(meta)
                 .history(History.builder().lastUpdated(Reference.to(Version.builder().when(now).build())).build()).build();
 
         contents = new PageResponseImpl.Builder<Content>().add(content1).add(content2).build();
@@ -99,11 +115,9 @@ public class ConfluencePagesServiceTestDto
     {
         List<Long> pageIds = Arrays.asList(1l, 2l);
 
-        final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).withPageIds(pageIds).build();
+        final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).withPageIds(pageIds).withStart(start).withLimit(limit).build();
 
-
-        PageRequest request = new SimplePageRequest(1, 0);
-        when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class))).thenReturn(contents);
+        when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class), isA(Expansion.class))).thenReturn(contents);
 
         when(cache.get(TOKEN)).thenReturn(null);
         final ConfluencePagesDto result = service.search(query);
@@ -117,12 +131,11 @@ public class ConfluencePagesServiceTestDto
     {
         List<Long> pageIds = Arrays.asList(1l, 2l);
 
-        final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).withPageIds(pageIds).build();
+        final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).withPageIds(pageIds).withStart(start).withLimit(limit).build();
 
         when(cache.get(TOKEN)).thenReturn(CQL);
 
-        PageRequest request = new SimplePageRequest(1, 0);
-        when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class))).thenReturn(contents);
+        when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class), isA(Expansion.class))).thenReturn(contents);
 
         ConfluencePagesDto result = service.search(query);
         assertEquals(2, result.getPages().size());
@@ -149,12 +162,28 @@ public class ConfluencePagesServiceTestDto
     @Test
     public void testWithPageIdsEmptyAndCacheTokenInCache()
     {
-        final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).build();
+        final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).withStart(start).withLimit(limit).build();
 
         when(cache.get(TOKEN)).thenReturn(CQL);
 
-        PageRequest request = new SimplePageRequest(1, 0);
-        when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class))).thenReturn(contents);
+        when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class), isA(Expansion.class))).thenReturn(contents);
+
+        ConfluencePagesDto result = service.search(query);
+        assertEquals(2, result.getPages().size());
+
+        Mockito.verify(cache, never()).put(TOKEN, CQL);
+    }
+
+    @Test
+    public void testWithSearchString()
+    {
+        final ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder()
+                .withCacheToken(TOKEN).withStart(start).withLimit(limit).withSearchString("text").build();
+
+        when(cache.get(TOKEN)).thenReturn(CQL);
+
+        String cql = "text ~ \"text\" and id in (1,2) and type = page order by lastModified desc";
+        when(cqlSearchService.searchContent(eq(cql), isA(PageRequest.class), isA(Expansion.class), isA(Expansion.class))).thenReturn(contents);
 
         ConfluencePagesDto result = service.search(query);
         assertEquals(2, result.getPages().size());
