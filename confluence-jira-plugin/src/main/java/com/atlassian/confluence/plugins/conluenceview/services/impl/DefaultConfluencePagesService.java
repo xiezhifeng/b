@@ -31,8 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class DefaultConfluencePagesService implements ConfluencePagesService
 {
-    public static final String PAGES_SEARCH_BY_ID_CQL = "id in (%s) and type = page order by lastModified desc";
-    public static final String PAGES_SEARCH_BY_TEXT_CQL = "text ~ \"%s\"";
+    private static final String PAGES_SEARCH_BY_ID_CQL = "id in (%s) and type = page order by lastModified desc";
+    private static final String PAGES_SEARCH_BY_TEXT_CQL = "text ~ \"%s\"";
 
     private final CQLSearchService searchService;
     private Map<String, String> requestCache;
@@ -109,18 +109,7 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
         }
         else
         {
-            StringBuffer buffer = new StringBuffer("");
-
-            for (Long pageId : pageIds)
-            {
-                buffer.append(pageId + ",");
-            }
-
-            pageIdsStr = buffer.toString();
-            if (pageIdsStr.contains(","))
-            {
-                pageIdsStr = pageIdsStr.substring(0, pageIdsStr.length() - 1);
-            }
+            pageIdsStr = StringUtils.join(pageIds, ",");
 
             cql = String.format(PAGES_SEARCH_BY_ID_CQL, pageIdsStr);
 

@@ -11,11 +11,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class ConfluencePageDto
 {
-    Long pageId;
-    String pageTitle;
-    String pageUrl;
-    Date lastModified;
-    List<String> labels;
+    private Long pageId;
+    private String pageTitle;
+    private String pageUrl;
+    private Date lastModified;
+    private List<String> labels;
 
     public ConfluencePageDto(Long pageId, String pageTitle, String pageUrl, Date lastModified, List<String> labels)
     {

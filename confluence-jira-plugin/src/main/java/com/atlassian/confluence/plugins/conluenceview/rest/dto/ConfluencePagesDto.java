@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class ConfluencePagesDto extends GenericResponseDto
 {
-    Collection<ConfluencePageDto> pages;
+    private Collection<ConfluencePageDto> pages;
 
     private ConfluencePagesDto(Builder builder)
     {

@@ -8,13 +8,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.httpclient.HttpStatus;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement
 /**
  * All other DTO should extend this class so that they will have 2 basic information:
- * - status which indicates the status to this result @see {@link com.atlassian.jira.extra.software.rest.RestStatus}
+ * - status which indicates the status to this result
  * - error message might contain value if status is error
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
 public class GenericResponseDto implements Serializable
 {
     private int status = HttpStatus.SC_OK;
