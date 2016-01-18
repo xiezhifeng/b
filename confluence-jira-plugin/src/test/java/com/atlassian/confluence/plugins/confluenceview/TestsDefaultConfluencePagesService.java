@@ -87,7 +87,7 @@ public class TestsDefaultConfluencePagesService
                 .metadata(meta)
                 .history(History.builder().lastUpdated(Reference.to(Version.builder().when(now).build())).build()).build();
 
-        contents = new PageResponseImpl.Builder<Content>().add(content1).add(content2).build();
+        contents = new PageResponseImpl.Builder().add(content1).add(content2).build();
         service = new DefaultConfluencePagesService(cqlSearchService);
 
         ((DefaultConfluencePagesService)service).setRequestCache(cache);
