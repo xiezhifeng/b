@@ -249,6 +249,20 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.applinks</groupId>
+            <artifactId>applinks-test-common</artifactId>
+            <version>5.0.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-java-api</artifactId>
+            <version>${confluence.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -420,8 +434,11 @@
                             com.atlassian.confluence.pages.thumbnail,
                             com.atlassian.confluence.plugin.descriptor.web.conditions,
                             com.atlassian.confluence.plugins.createcontent.events; version="2.0",
+                            com.atlassian.confluence.api.service.search,
+                            com.atlassian.confluence.api.model.*,
                             com.atlassian.confluence.renderer,
                             com.atlassian.confluence.renderer.radeox.macros,
+                            com.atlassian.confluence.rest.api.model,
                             com.atlassian.confluence.search.service,
                             com.atlassian.confluence.security,
                             com.atlassian.confluence.setup,
@@ -472,6 +489,7 @@
                             javax.transaction,
                             javax.ws.rs;version="1.1",
                             javax.ws.rs.core;version="1.1",
+                            javax.ws.rs.ext;version="1.1",
                             javax.xml.bind.annotation,
                             javax.xml.parsers,
                             net.sf.hibernate,
@@ -507,7 +525,8 @@
                             org.springframework.beans;version="2.5",
                             org.springframework.beans.factory;version="2.5",
                             org.springframework.beans.factory.config,
-                            org.xml.sax
+                            org.xml.sax,
+                            org.joda.time.*
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.confluence.extra.jira,
