@@ -116,7 +116,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jira.integration.version>3.0.2</jira.integration.version>
+        <jira.integration.version>3.0.5</jira.integration.version>
 
         <maven.release.plugin.version>2.5.2</maven.release.plugin.version>
         <javadoc.version>2.8</javadoc.version>
