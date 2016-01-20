@@ -439,6 +439,7 @@
                             com.atlassian.confluence.event.events,
                             com.atlassian.confluence.event.events.content.blogpost,
                             com.atlassian.confluence.event.events.content.page,
+                            com.atlassian.confluence.event.events.space,
                             com.atlassian.confluence.event.events.template,
                             com.atlassian.confluence.extra.jira.api.services,
                             com.atlassian.confluence.json.json,

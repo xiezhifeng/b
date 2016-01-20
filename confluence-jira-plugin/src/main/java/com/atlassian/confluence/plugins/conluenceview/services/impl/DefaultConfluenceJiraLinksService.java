@@ -18,6 +18,10 @@ import com.atlassian.applinks.host.spi.EntityReference;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.applinks.host.spi.InternalHostApplication;
 import com.atlassian.applinks.spi.link.MutatingEntityLinkService;
+import com.atlassian.confluence.event.events.space.SpaceLogoUpdateEvent;
+import com.atlassian.confluence.event.events.space.SpacePermissionsUpdateEvent;
+import com.atlassian.confluence.event.events.space.SpaceRemoveEvent;
+import com.atlassian.confluence.event.events.space.SpaceUpdateEvent;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.LinkedSpaceDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequestException;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluenceJiraLinksService;
@@ -82,6 +86,30 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         }
     }
 
+    @EventListener
+    public void onSpaceLogoUpdateEvent(SpaceLogoUpdateEvent event)
+    {
+        removeCacheThatHasSpace(event.getSpace().getKey());
+    }
+
+    @EventListener
+    public void onSpaceUpdateEvent(SpaceUpdateEvent event)
+    {
+        removeCacheThatHasSpace(event.getSpace().getKey());
+    }
+
+    @EventListener
+    public void onSpacePermissionsUpdateEvent(SpacePermissionsUpdateEvent event)
+    {
+        linkedSpaceMap.clear();
+    }
+
+    @EventListener
+    public void onSpaceRemoveEvent(SpaceRemoveEvent event)
+    {
+        removeCacheThatHasSpace(event.getSpace().getKey());
+    }
+
     @Override
     public String getODApplicationLinkId()
     {
@@ -139,6 +167,8 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
                     .withSpaceIcon(spaceLogo).build());
         }
 
+        linkedSpaceMap.put(cacheKey, spaceDtos);
+
         return spaceDtos;
     }
 
@@ -187,6 +217,38 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
     private String getCacheKey(String jiraUrl, String projectKey)
     {
         return jiraUrl + "/browser/" + projectKey;
+    }
+
+    private void removeCacheThatHasSpace(String spaceKey)
+    {
+        String toBeRemovedKey = null;
+
+        for (Map.Entry<String, List<LinkedSpaceDto>> entry : linkedSpaceMap.entrySet())
+        {
+            final List<LinkedSpaceDto> spaceDtos = entry.getValue();
+            if (spaceDtos != null)
+            {
+                for (LinkedSpaceDto spaceDto : spaceDtos)
+                {
+                    if (spaceDto.getSpaceKey().equals(spaceKey))
+                    {
+                        toBeRemovedKey = entry.getKey();
+                        break;
+                    }
+                }
+            }
+
+            if (toBeRemovedKey != null)
+            {
+                break;
+            }
+        }
+
+        if (toBeRemovedKey != null)
+        {
+            linkedSpaceMap.remove(toBeRemovedKey);
+        }
+
     }
 
     @Override
