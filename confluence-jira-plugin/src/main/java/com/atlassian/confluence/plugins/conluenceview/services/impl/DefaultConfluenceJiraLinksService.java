@@ -156,15 +156,18 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         }
 
         spaceDtos = new ArrayList<LinkedSpaceDto>();
-        final List<Space> spaces = spaceManager.getAllSpaces(SpacesQuery.newQuery().withSpaceKeys(spaceKeys).build());
-        for (Space space : spaces)
+        if (spaceKeys.size() > 0)
         {
-            final String spaceLogo = spaceLogoManager.getLogoDownloadPath(space, user);
-            spaceDtos.add(LinkedSpaceDto.newBuilder()
-                    .withSpaceKey(space.getKey())
-                    .withSpaceName(space.getDisplayTitle())
-                    .withSpaceUrl(space.getUrlPath())
-                    .withSpaceIcon(spaceLogo).build());
+            final List<Space> spaces = spaceManager.getAllSpaces(SpacesQuery.newQuery().withSpaceKeys(spaceKeys).build());
+            for (Space space : spaces)
+            {
+                final String spaceLogo = spaceLogoManager.getLogoDownloadPath(space, user);
+                spaceDtos.add(LinkedSpaceDto.newBuilder()
+                        .withSpaceKey(space.getKey())
+                        .withSpaceName(space.getDisplayTitle())
+                        .withSpaceUrl(space.getUrlPath())
+                        .withSpaceIcon(spaceLogo).build());
+            }
         }
 
         linkedSpaceMap.put(cacheKey, spaceDtos);
