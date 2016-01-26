@@ -123,7 +123,7 @@ function(
         },
 
         init: function() {
-            this._fillServersData().done(function() {
+            return this._fillServersData().done(function() {
                 this.reset();
             }.bind(this));
         },
@@ -318,6 +318,14 @@ function(
             return dfd;
         },
 
+        setServerValue: function(serverId) {
+            var isValid = this.setSelect2Value(this.view.$servers, serverId);
+
+            if (!isValid) {
+                AJS.log('Can not find server id: ' + serverId);
+            }
+        },
+
         /**
          * Load server data and fill in sprint select box.
          * @private
@@ -348,9 +356,9 @@ function(
 
                         // choose a server as selected by default.
                         if (selectedServerId) {
-                            this.setSelect2Value(this.view.$servers, selectedServerId);
+                            this.setServerValue(selectedServerId);
                         } else if (this.primaryServer) {
-                            this.setSelect2Value(this.view.$servers, this.primaryServer.id);
+                            this.setServerValue(this.primaryServer.id);
                         } else {
                             this.selectFirstValueInSelect2(this.view.$servers);
                         }
