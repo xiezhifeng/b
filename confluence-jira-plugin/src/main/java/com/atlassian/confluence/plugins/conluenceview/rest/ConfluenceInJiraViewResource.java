@@ -5,12 +5,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDto;
+import com.atlassian.confluence.plugins.conluenceview.rest.dto.LinkedSpacesDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.params.PagesSearchParam;
+import com.atlassian.confluence.plugins.conluenceview.services.ConfluenceJiraLinksService;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 
@@ -26,12 +28,13 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 public class ConfluenceInJiraViewResource
 {
     private final ConfluencePagesService confluencePagesService;
-    private final HostApplication hostApplication;
+    private final ConfluenceJiraLinksService confluenceJiraLinksService;
 
-    public ConfluenceInJiraViewResource(ConfluencePagesService confluencePagesService, HostApplication hostApplication)
+
+    public ConfluenceInJiraViewResource(ConfluencePagesService confluencePagesService, ConfluenceJiraLinksService confluenceJiraLinksService)
     {
         this.confluencePagesService = confluencePagesService;
-        this.hostApplication = hostApplication;
+        this.confluenceJiraLinksService = confluenceJiraLinksService;
     }
 
     @POST
@@ -50,6 +53,13 @@ public class ConfluenceInJiraViewResource
     @Path("/od-application-link-id")
     public Response getODApplicationId()
     {
-        return Response.ok(hostApplication.getId().get()).build();
+        return Response.ok(confluenceJiraLinksService.getODApplicationLinkId()).build();
+    }
+
+    @GET
+    @Path ("/linked-spaces")
+    public Response getLinkedSpace(@QueryParam ("jiraUrl") String jiraUrl, @QueryParam ("projectKey") String projectKey)
+    {
+        return Response.ok(LinkedSpacesDto.newBuilder().withSpaces(confluenceJiraLinksService.getLinkedSpaces(jiraUrl, projectKey)).build()).build();
     }
 }
