@@ -69,6 +69,64 @@ function(
             this.initServerField();
         },
 
+        setBoardValue: function(boardId, boardName) {
+            this.view.$boards.select2('data', {
+                id: boardId,
+                text: boardName,
+                name: boardName
+            }, true);
+        },
+
+        setSprintValue: function(sprintId) {
+            if (this.dfdSprint) {
+                this.dfdSprint.done(function() {
+                    var isValid = this.setSelect2Value(this.view.$sprints, sprintId);
+
+                    if (!isValid) {
+                        AJS.log('Can not find sprint id: ' + sprintId);
+                    }
+                }.bind(this));
+            }
+        },
+
+        getUserInputData: function() {
+            var userInputData = null;
+
+            if (this.validate()) {
+                // this.formData has all data users input.
+                userInputData = {
+                    serverId: this.formData.get('selectedServer').id,
+                    boardId: this.formData.get('selectedBoard').id,
+                    boardName: this.formData.get('selectedBoard').name,
+                    sprintId: this.formData.get('selectedSprint').id,
+                    sprintName: this.formData.get('selectedSprint').name
+                };
+            }
+
+            return userInputData;
+        },
+
+        /**
+         * Do some validations before submiting the dialog.
+         * @returns {boolean}
+         */
+        validate: function() {
+            var valid = true;
+
+            valid = valid && this.validateRequiredFields(this.view.$servers, AJS.I18n.getText('jira.sprint.validation.server.required'));
+            valid = valid && this.validateRequiredFields(this.view.$boards, AJS.I18n.getText('jira.sprint.validation.board.required'));
+            valid = valid && this.validateRequiredFields(this.view.$sprints, AJS.I18n.getText('jira.sprint.validation.sprint.required'));
+
+            return valid;
+        },
+
+        reset: function() {
+            AbstractPanelView.prototype.reset.apply(this, arguments);
+
+            this.resetSelect2Options(this.view.$boards);
+            this.resetSelect2Options(this.view.$sprints);
+        },
+
         _initSelect2Fields: function() {
             var fillBoardData = _.debounce(this._fillBoardData.bind(this), 500);
 
@@ -90,13 +148,6 @@ function(
                 placeholderText: AJS.I18n.getText('jira.sprint.sprint.placeholder'),
                 isRequired: true
             });
-        },
-
-        reset: function() {
-            AbstractPanelView.prototype.reset.apply(this, arguments);
-
-            this.resetSelect2Options(this.view.$boards);
-            this.resetSelect2Options(this.view.$sprints);
         },
 
         /**
@@ -130,13 +181,7 @@ function(
                     if (this.macroOptions) {
                         var boardId = this.macroOptions.params.boardId;
                         var boardName = this.macroOptions.params.boardName;
-                        boardName = boardName || boardId;
-
-                        this.view.$boards.select2('data', {
-                            id: boardId,
-                            text: boardName,
-                            name: boardName
-                        }, true);
+                        this.setBoardValue(boardId, boardName || boardId);
                     }
                 }
 
@@ -159,14 +204,14 @@ function(
             var boardId = this.formData.get('selectedBoard').id;
 
             var dfd = service.loadSprintsData(serverId, boardId);
-            this.fillDataInSelect2(this.view.$sprints, dfd)
+            this.dfdSprint = this.fillDataInSelect2(this.view.$sprints, dfd)
                 .done(function(sprints) {
                     this.sprints = sprints;
 
                     this.fillDataSelect2(this.view.$sprints, sprints);
 
                     if (this.macroOptions) {
-                        this.setSelect2Value(this.view.$sprints, this.macroOptions.params.sprintId);
+                        this.setSprintValue(this.macroOptions.params.sprintId);
                     }
 
                 }.bind(this));
@@ -191,37 +236,6 @@ function(
             }
 
             this.formData.set('selectedSprint', selectedSprint);
-        },
-
-        getUserInputData: function() {
-            var userInputData = null;
-
-            if (this.validate()) {
-                // this.formData has all data users input.
-                userInputData = {
-                    serverId: this.formData.get('selectedServer').id,
-                    boardId: this.formData.get('selectedBoard').id,
-                    boardName: this.formData.get('selectedBoard').name,
-                    sprintId: this.formData.get('selectedSprint').id,
-                    sprintName: this.formData.get('selectedSprint').name
-                };
-            }
-
-            return userInputData;
-        },
-
-        /**
-         * Do some validations before submiting the dialog.
-         * @returns {boolean}
-         */
-        validate: function() {
-            var valid = true;
-
-            valid = valid && this.validateRequiredFields(this.view.$servers, AJS.I18n.getText('jira.sprint.validation.server.required'));
-            valid = valid && this.validateRequiredFields(this.view.$boards, AJS.I18n.getText('jira.sprint.validation.board.required'));
-            valid = valid && this.validateRequiredFields(this.view.$sprints, AJS.I18n.getText('jira.sprint.validation.sprint.required'));
-
-            return valid;
         }
     });
 
