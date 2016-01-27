@@ -122,7 +122,7 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         final ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         if (user == null)
         {
-            return Collections.emptyList();
+            throw new RuntimeException("User is not authenticated");
         }
 
         if (StringUtils.isBlank(jiraUrl) || StringUtils.isBlank(projectKey))
