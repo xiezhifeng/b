@@ -2,7 +2,6 @@ package com.atlassian.confluence.plugins.conluenceview.services.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import com.atlassian.confluence.api.model.link.LinkType;
 import com.atlassian.confluence.api.model.pagination.PageRequest;
 import com.atlassian.confluence.api.model.pagination.PageResponse;
 import com.atlassian.confluence.api.model.pagination.SimplePageRequest;
+import com.atlassian.confluence.api.model.people.Person;
 import com.atlassian.confluence.api.service.search.CQLSearchService;
 import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePageDto;
@@ -27,8 +27,11 @@ import com.atlassian.confluence.rest.api.model.RestList;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.join;
 
 public class DefaultConfluencePagesService implements ConfluencePagesService
 {
@@ -56,7 +59,7 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
 
         String cql = buildCql(query);
 
-        if (StringUtils.isNotBlank(query.getSearchString()))
+        if (isNotBlank(query.getSearchString()))
         {
             cql = String.format(PAGES_SEARCH_BY_TEXT_CQL, query.getSearchString().trim()) + " and " + cql;
         }
@@ -78,10 +81,13 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
                 builder.withAuthor(content.getHistory().getCreatedBy().getDisplayName());
             }
 
-            builder.withLastModifier(lastUpdatedVersion.getBy().getDisplayName());
+            final Person lastUpdatedBy = lastUpdatedVersion.getBy();
+            if (lastUpdatedBy != null)
+                builder.withLastModifier(lastUpdatedBy.getDisplayName());
 
-            final Date lastUpdated = lastUpdatedVersion.getWhen().toDate();
-            builder.withLastModified(lastUpdated);
+            final DateTime lastUpdatedAt = lastUpdatedVersion.getWhen();
+            if (lastUpdatedAt != null)
+                builder.withLastModified(lastUpdatedAt.toDate());
 
             builder.withPageId(content.getId().asLong());
             builder.withPageTitle(content.getTitle());
@@ -119,9 +125,9 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
 
         final List<Long> pageIds = query.getPageIds();
 
-        if (CollectionUtils.isEmpty(pageIds))
+        if (pageIds == null || pageIds.isEmpty())
         {
-            if (StringUtils.isBlank(cql))
+            if (isBlank(cql))
             {
                 // tell client to send pageIds in next request
                 throw new CacheTokenNotFoundException();
@@ -129,7 +135,7 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
         }
         else
         {
-            pageIdsStr = StringUtils.join(pageIds, ",");
+            pageIdsStr = join(pageIds, ",");
 
             cql = String.format(PAGES_SEARCH_BY_ID_CQL, pageIdsStr);
 
@@ -141,7 +147,7 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
 
     private void validate(final ConfluencePagesQuery query)
     {
-        if (StringUtils.isBlank(query.getCacheToken()))
+        if (isBlank(query.getCacheToken()))
         {
             throw new InvalidRequestException("Request cache token cannot be empty");
         }
