@@ -17,31 +17,27 @@ import com.atlassian.confluence.api.model.link.LinkType;
 import com.atlassian.confluence.api.model.pagination.PageRequest;
 import com.atlassian.confluence.api.model.pagination.PageResponse;
 import com.atlassian.confluence.api.model.pagination.PageResponseImpl;
-import com.atlassian.confluence.api.model.pagination.SimplePageRequest;
+import com.atlassian.confluence.api.model.people.User;
 import com.atlassian.confluence.api.model.reference.Reference;
 import com.atlassian.confluence.api.service.search.CQLSearchService;
+import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.CacheTokenNotFoundException;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequestException;
-import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
 import com.atlassian.confluence.plugins.conluenceview.services.impl.DefaultConfluencePagesService;
 import com.atlassian.confluence.rest.api.model.RestList;
-import com.atlassian.fugue.ImmutableMaps;
-
-import com.google.common.collect.ImmutableMap;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import jdk.nashorn.internal.ir.Labels;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -71,12 +67,14 @@ public class TestsDefaultConfluencePagesService
     {
         initMocks(this);
         final Date now = new Date();
+        User user = mock(User.class);
+        when(user.getDisplayName()).thenReturn("user");
 
         content1 = Content.builder().id(ContentId.valueOf("1"))
                 .title("page 1")
                 .addLink(new Link(LinkType.WEB_UI, "link 1"))
                 .metadata(new HashMap<String, Object>())
-                .history(History.builder().lastUpdated(Reference.to(Version.builder().when(now).build())).build()).build();
+                .history(History.builder().lastUpdated(Reference.to(Version.builder().when(now).by(user).build())).build()).build();
 
         final HashMap<String, Object> meta = new HashMap<String, Object>();
         meta.put("labels", new RestList.Builder<Label>().results(Arrays.asList(Label.builder("labels").build()), false).build());
@@ -85,7 +83,7 @@ public class TestsDefaultConfluencePagesService
                 .title("page 2")
                 .addLink(new Link(LinkType.WEB_UI, "link 2"))
                 .metadata(meta)
-                .history(History.builder().lastUpdated(Reference.to(Version.builder().when(now).build())).build()).build();
+                .history(History.builder().lastUpdated(Reference.to(Version.builder().when(now).by(user).build())).build()).build();
 
         contents = new PageResponseImpl.Builder().add(content1).add(content2).build();
         service = new DefaultConfluencePagesService(cqlSearchService);
