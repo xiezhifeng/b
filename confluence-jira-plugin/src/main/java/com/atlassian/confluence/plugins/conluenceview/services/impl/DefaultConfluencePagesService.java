@@ -11,6 +11,7 @@ import com.atlassian.confluence.api.model.Expansion;
 import com.atlassian.confluence.api.model.Expansions;
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.api.model.content.Label;
+import com.atlassian.confluence.api.model.content.Version;
 import com.atlassian.confluence.api.model.link.LinkType;
 import com.atlassian.confluence.api.model.pagination.PageRequest;
 import com.atlassian.confluence.api.model.pagination.PageResponse;
@@ -68,6 +69,24 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
         final Collection<ConfluencePageDto> pages = new ArrayList<ConfluencePageDto>();
         for (Content content : contents)
         {
+            final ConfluencePageDto.Builder builder = ConfluencePageDto.newBuilder();
+
+            final Version lastUpdatedVersion = content.getHistory().getLastUpdatedRef().get();
+            // if version 1 (has not been edited)
+            if (lastUpdatedVersion.getNumber() == 1)
+            {
+                builder.withAuthor(content.getHistory().getCreatedBy().getDisplayName());
+            }
+
+            builder.withLastModifier(lastUpdatedVersion.getBy().getDisplayName());
+
+            final Date lastUpdated = lastUpdatedVersion.getWhen().toDate();
+            builder.withLastModified(lastUpdated);
+
+            builder.withPageId(content.getId().asLong());
+            builder.withPageTitle(content.getTitle());
+            builder.withPageUrl(content.getLinks().get(LinkType.WEB_UI).getPath());
+
             final Map<String, Object> metadata = content.getMetadata();
             List<String> labelList = new ArrayList<String>();
             if (metadata != null)
@@ -81,8 +100,9 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
                     }
                 }
             }
-            final Date lastUpdated = content.getHistory().getLastUpdatedRef().get().getWhen().toDate();
-            pages.add(new ConfluencePageDto(content.getId().asLong(), content.getTitle(), content.getLinks().get(LinkType.WEB_UI).getPath(), lastUpdated, labelList));
+            builder.withLabels(labelList);
+
+            pages.add(builder.build());
         }
 
         return ConfluencePagesDto.newBuilder().withPages(pages).build();
