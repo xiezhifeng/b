@@ -146,12 +146,9 @@ var RefreshMacro = {
                         new RefreshMacro.CallbackSupport(refresh).errorHandler(reply);
                     }
                 }
-                //CONFDEV-36972 notify to DDR plugin
-                AJS.trigger('confluence.extra.jira:jira-table:completed.success', {id: refreshNewId || -1, data: reply, status: textStatus });
             },
             error: function (xhr, textStatus, errorThrown) {
                 new RefreshMacro.CallbackSupport(refresh).errorHandler(errorThrown);
-                AJS.trigger('confluence.extra.jira:jira-table:completed.error', {id: -1, data: errorThrown, status: textStatus });
             }
         });
     }
@@ -175,9 +172,15 @@ RefreshMacro.CallbackSupport.prototype = {
         var errMsg = AJS.I18n.getText('jiraissues.error.refresh');
         widget.getErrorMessagePanel().html(errMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_FAILED);
+
+        //CONFDEV-36972 notify to DDR plugin
+        AJS.trigger('confluence.extra.jira:jira-table:completed.error', {id: -1, error: err });
     },
     callback: function(newId) {
         RefreshMacro.replaceRefresh(this.refresh.id, newId);
+
+        //CONFDEV-36972 notify to DDR plugin
+        AJS.trigger('confluence.extra.jira:jira-table:completed.success', {id: newId || -1 });
     }
 };
 
