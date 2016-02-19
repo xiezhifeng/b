@@ -1,6 +1,6 @@
 AppLinks = AJS.$.extend(window.AppLinks || {}, {
 	makeRequest: function(options){
-		var context = contextPath || AJS.params.contextPath;
+		var context = contextPath || AJS.contextPath();
 		
 		// only set the app parameter if we know for sure this is form data
 		if (options.processData){
@@ -39,7 +39,7 @@ AppLinks = AJS.$.extend(window.AppLinks || {}, {
 	createProxyGetUrl: function(options){
 		var context = '';
 		if (options.includeContext){
-			context = contextPath || AJS.params.contextPath;
+			context = contextPath || AJS.contextPath();
 		}
 		var url = context + '/plugins/servlet/applinks/proxy';
 		if (options.appId){
