@@ -3,8 +3,6 @@ package com.atlassian.confluence.extra.jira;
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
@@ -47,9 +45,6 @@ public class TestMacroPlaceHolder extends TestCase
 
     @Mock
     private JiraIssuesUrlManager jiraIssuesUrlManager;
-
-    @Mock
-    private CacheManager cacheManager;
 
     @Mock
     private JiraIssuesManager jiraIssuesManager;
@@ -133,8 +128,6 @@ public class TestMacroPlaceHolder extends TestCase
         when(appLinkService.getApplicationLink(any(ApplicationId.class))).thenReturn(applicationLink);
         when(applicationLinkResolver.resolve(any(JiraIssuesMacro.Type.class), anyString(), anyMap())).thenReturn(applicationLink);
         when(jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, "10", null, null)).thenReturn("jiraIssueXmlUrlWithoutPaginationParam");
-        Cache cache = mock(Cache.class);
-        when(cacheManager.getCache(anyString())).thenReturn(cache);
         JiraIssuesManager.Channel channel = mock(JiraIssuesManager.Channel.class);
         when(jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), applicationLink, false, false)).thenReturn(channel);
         when(flexigridResponseGenerator.generate(any(JiraIssuesManager.Channel.class), anyCollection(), anyInt(), anyBoolean(), anyBoolean())).thenReturn("5");

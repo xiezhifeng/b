@@ -1,44 +1,58 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
+import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
+import com.atlassian.confluence.extra.jira.cache.JIMCacheProvider;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.util.concurrent.LazyReference;
+import com.atlassian.vcache.DirectExternalCache;
+import com.atlassian.vcache.JvmCache;
+import com.atlassian.vcache.VCacheFactory;
 
 import java.util.List;
+
+import static com.atlassian.confluence.extra.jira.util.JiraUtil.JIRA_PLUGIN_KEY;
+import static com.atlassian.vcache.VCacheUtils.join;
 
 public class DefaultJiraCacheManager implements JiraCacheManager
 {
 
     public static final String PARAM_CLEAR_CACHE = "clearCache";
 
-    private CacheManager cacheManager;
+    private final DirectExternalCache<CompressingStringCache> cache;
+    private final JvmCache<CacheKey, JiraResponseHandler> instanceCache;
+    private final LazyReference<String> version;
 
-    public DefaultJiraCacheManager(CacheManager cacheManager)
+    public DefaultJiraCacheManager(VCacheFactory vcacheFactory, PluginAccessor pluginAccessor)
     {
-        this.cacheManager = cacheManager;
-    }
-
-    public void setCacheManager(CacheManager cacheManager)
-    {
-        this.cacheManager = cacheManager;
+        this.cache = JIMCacheProvider.getCache(vcacheFactory);
+        this.instanceCache = JIMCacheProvider.getInstanceCache(vcacheFactory);
+        this.version = new LazyReference<String>()
+        {
+            @Override
+            protected String create() throws Exception
+            {
+                return pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion();
+            }
+        };
     }
 
     public void clearJiraIssuesCache(final String url, List<String> columns, final ReadOnlyApplicationLink appLink,
             boolean forceAnonymous, boolean isAnonymous)
     {
-        if (appLink == null) 
+        if (appLink == null)
         {
             return;
         }
-        final Cache cache = cacheManager.getCache(JiraIssuesMacro.class.getName());
         final CacheKey mappedCacheKey = new CacheKey(url, appLink.getId().toString(), columns, false, forceAnonymous,
-                false, true);
+                false, true, version.get());
 
-        if (cache.get(mappedCacheKey) != null)
+        if (join(cache.get(mappedCacheKey.toKey())).isPresent())
         {
-            cache.remove(mappedCacheKey);
+            join(cache.remove(mappedCacheKey.toKey()));
+            instanceCache.remove(mappedCacheKey);
         }
         else
         {
@@ -46,8 +60,9 @@ public class DefaultJiraCacheManager implements JiraCacheManager
             if (userIsMapped == false) // only care unmap cache in case user not logged it
             {
                 CacheKey unmappedCacheKey = new CacheKey(url, appLink.getId().toString(), columns, false,
-                        forceAnonymous, false, false);
-                cache.remove(unmappedCacheKey); // remove cache if there is
+                        forceAnonymous, false, false, version.get());
+                join(cache.remove(unmappedCacheKey.toKey()));
+                instanceCache.remove(unmappedCacheKey);
             }
         }
     }

@@ -4,14 +4,16 @@ import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
 import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
+import com.atlassian.confluence.extra.jira.cache.JIMCacheProvider;
 import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.util.GeneralUtil;
-import com.google.common.collect.Maps;
+import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.util.concurrent.LazyReference;
+import com.atlassian.vcache.DirectExternalCache;
+import com.atlassian.vcache.VCacheFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -23,15 +25,18 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.atlassian.confluence.extra.jira.util.JiraUtil.JIRA_PLUGIN_KEY;
+import static com.atlassian.vcache.VCacheUtils.join;
 
 public class JiraIssuesServlet extends HttpServlet
 {
     private static final Logger log = Logger.getLogger(JiraIssuesServlet.class);
 
-    private CacheManager cacheManager;
+    private VCacheFactory vcacheFactory;
+    private PluginAccessor pluginAccessor;
 
     private JiraIssuesManager jiraIssuesManager;
 
@@ -40,15 +45,28 @@ public class JiraIssuesServlet extends HttpServlet
     private JiraIssuesUrlManager jiraIssuesUrlManager;
     
     private ReadOnlyApplicationLinkService readOnlyApplicationLinkService;
+    private LazyReference<String> version = new LazyReference<String>()
+    {
+        @Override
+        protected String create() throws Exception
+        {
+            return pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion();
+        }
+    };
 
     public void setApplicationLinkService(ReadOnlyApplicationLinkService readOnlyApplicationLinkService)
     {
         this.readOnlyApplicationLinkService = readOnlyApplicationLinkService;
     }
-    
-    public void setCacheManager(CacheManager cacheManager)
+
+    public void setVcacheFactory(VCacheFactory vcacheFactory)
     {
-        this.cacheManager = cacheManager;
+        this.vcacheFactory = vcacheFactory;
+    }
+
+    public void setPluginAccessor(PluginAccessor pluginAccessor)
+    {
+        this.pluginAccessor = pluginAccessor;
     }
 
     public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager)
@@ -117,7 +135,8 @@ public class JiraIssuesServlet extends HttpServlet
 
             // generate issue data out in json format
             String jiraResponse = getResult(
-                    new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, appIdStr, columnsList, showCount, forceAnonymous, flexigrid, true),
+                    new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, appIdStr, columnsList, showCount,
+                            forceAnonymous, flexigrid, true, version.get()),
                     applink,
                     forceAnonymous,
                     useCache,
@@ -230,35 +249,21 @@ public class JiraIssuesServlet extends HttpServlet
         return jiraResponse.replace(appLink.getRpcUrl().toString(), appLink.getDisplayUrl().toString());
     }
 
-    private SimpleStringCache getSubCacheForKey(CacheKey key, boolean flush)
+    private CompressingStringCache getSubCacheForKey(CacheKey key, boolean flush)
     {
-        /* Why am i using the JIRA Issues Macro's FQCN? There's one cache defined for it already. See confluence-coherence-cache-config.xml */
-        final Cache cacheCache = cacheManager.getCache(JiraIssuesMacro.class.getName());
+        final DirectExternalCache<CompressingStringCache> cache = JIMCacheProvider.getCache(vcacheFactory);
 
         if (flush)
         {
             if (log.isDebugEnabled())
                 log.debug("flushing cache for key: "+key);
 
-            cacheCache.remove(key);
+            join(cache.remove(key.toKey()));
         }
 
-        SimpleStringCache subCacheForKey = null;
-        try
-        {
-            subCacheForKey = (SimpleStringCache)cacheCache.get(key);
-        }
-        catch (ClassCastException cce)
-        {
-            log.warn("Unable to get cached data with key " + key + ". The cached data will be purged ('" + cce.getMessage() + ")");
-            cacheCache.remove(key);
-        }
+        CompressingStringCache subCacheForKey =
+            join(cache.get(key.toKey(), () -> new CompressingStringCache(new ConcurrentHashMap())));
 
-        if(subCacheForKey==null)
-        {
-          subCacheForKey = new CompressingStringCache(Collections.synchronizedMap(Maps.newHashMap()));
-          cacheCache.put(key, subCacheForKey);
-        }
         return subCacheForKey;
     }
 }

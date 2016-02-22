@@ -8,7 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -19,9 +19,9 @@ import java.util.zip.GZIPOutputStream;
 public class CompressingStringCache implements SimpleStringCache
 {
     private static final Logger log = Logger.getLogger(JiraIssuesMacro.class);
-    private final Map wrappedCache;
+    private final ConcurrentHashMap wrappedCache;
 
-    public CompressingStringCache(Map wrappedCache)
+    public CompressingStringCache(ConcurrentHashMap wrappedCache)
     {
         this.wrappedCache = wrappedCache;
     }

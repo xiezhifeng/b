@@ -13,15 +13,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.atlassian.bandana.BandanaManager;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
 
 public class TestDefaultJiraIssuesSettingsManager extends TestCase
 {
     @Mock BandanaManager bandanaManager;
-    @Mock private CacheManager cacheManager;
-    @Mock private Cache cache;
 
     private DefaultJiraIssuesSettingsManager defaultJiraIssuesSettingsManager;
 
@@ -32,8 +28,6 @@ public class TestDefaultJiraIssuesSettingsManager extends TestCase
     {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-
-        when(this.cacheManager.getCache(DefaultJiraIssuesSettingsManager.class.getName())).thenReturn(this.cache);
 
         this.defaultJiraIssuesSettingsManager = new DefaultJiraIssuesSettingsManager();
         this.url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
