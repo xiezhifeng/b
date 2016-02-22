@@ -1,39 +1,56 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.confluence.extra.jira.cache.CacheKey;
+import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
+import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.vcache.DirectExternalCache;
+import com.atlassian.vcache.JvmCache;
+import com.atlassian.vcache.PutPolicy;
+import com.atlassian.vcache.VCacheFactory;
+
+import org.mockito.Mock;
+
+import junit.framework.TestCase;
+
+import static com.atlassian.confluence.extra.jira.cache.CacheKeyTestHelper.getPluginVersionExpectations;
+import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getExternalCacheOnCall;
+import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getJvmCacheOnCall;
+import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockExternalCache;
+import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockJvmCache;
+import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockVCacheFactory;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.List;
-
-import com.atlassian.applinks.api.ReadOnlyApplicationLink;
-import junit.framework.TestCase;
-
-import org.mockito.Mock;
-
-import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
-import com.atlassian.confluence.extra.jira.cache.CacheKey;
-
 public class TestJiraCacheManager extends TestCase
 {
-    @Mock private CacheManager cacheManager;
-
-    @Mock private Cache cache;
+    private static final String PLUGIN_VERSION = "6.0.0";
 
     @Mock private ReadOnlyApplicationLink appLink;
+    private PluginAccessor pluginAccessor;
+    private VCacheFactory cacheFactory;
+    private DirectExternalCache<CompressingStringCache> cache;
+    private JvmCache<CacheKey, JiraResponseHandler> instanceCache;
 
     private JiraCacheManager jiraCacheManager;
 
     protected void setUp() throws Exception
     {
         super.setUp();
-        cacheManager = mock(CacheManager.class);
-        cache = mock(Cache.class);
+        pluginAccessor = mock(PluginAccessor.class);
+        getPluginVersionExpectations(pluginAccessor, PLUGIN_VERSION);
+        cacheFactory = mockVCacheFactory();
+        cache = getExternalCacheOnCall(cacheFactory, mockExternalCache(new HashMap<>()));
+        instanceCache = getJvmCacheOnCall(cacheFactory, mockJvmCache(new HashMap<>()));
         appLink = mock(ReadOnlyApplicationLink.class);
-        jiraCacheManager = new DefaultJiraCacheManager(cacheManager);
+        jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor);
     }
 
     public void testClearExistingJiraIssuesCache()
@@ -43,15 +60,15 @@ public class TestJiraCacheManager extends TestCase
         boolean forceAnonymous = false;
         boolean isAnonymous = false;
         ApplicationId appLinkId = new ApplicationId("8835b6b9-5676-3de4-ad59-bbe987416662");
-        CacheKey cacheKey = new CacheKey(url, appLinkId.toString(), columns, false, forceAnonymous, false, true);
+        CacheKey cacheKey = new CacheKey(url, appLinkId.toString(), columns, false, forceAnonymous, false, true, PLUGIN_VERSION);
 
-        when(cacheManager.getCache(JiraIssuesMacro.class.getName())).thenReturn(cache);
         when(appLink.getId()).thenReturn(appLinkId);
-        when(cache.get(cacheKey)).thenReturn(new Object());
+        cache.put(cacheKey.toKey(), new CompressingStringCache(new ConcurrentHashMap()), PutPolicy.PUT_ALWAYS);
 
         jiraCacheManager.clearJiraIssuesCache(url, columns, appLink, forceAnonymous, isAnonymous);
 
-        verify(cache).remove(cacheKey);
+        verify(cache).remove(cacheKey.toKey());
+        verify(instanceCache).remove(cacheKey);
     }
 
     public void testClearJiraIssuesCacheAnonymously()
@@ -61,16 +78,15 @@ public class TestJiraCacheManager extends TestCase
         boolean forceAnonymous = false;
         boolean isAnonymous = true;
         ApplicationId appLinkId = new ApplicationId("8835b6b9-5676-3de4-ad59-bbe987416662");
-        CacheKey mappedCacheKey = new CacheKey(url, appLinkId.toString(), columns, false, forceAnonymous, false, true);
-        CacheKey unmappedCacheKey = new CacheKey(url, appLinkId.toString(), columns, false, forceAnonymous, false, false);
+        CacheKey unmappedCacheKey = new CacheKey(url, appLinkId.toString(), columns, false, forceAnonymous, false,
+                false, PLUGIN_VERSION);
 
-        when(cacheManager.getCache(JiraIssuesMacro.class.getName())).thenReturn(cache);
         when(appLink.getId()).thenReturn(appLinkId);
-        when(cache.get(mappedCacheKey)).thenReturn(null);
+        cache.put(unmappedCacheKey.toKey(), new CompressingStringCache(new ConcurrentHashMap()), PutPolicy.PUT_ALWAYS);
 
         jiraCacheManager.clearJiraIssuesCache(url, columns, appLink, forceAnonymous, isAnonymous);
 
-        verify(cache).remove(unmappedCacheKey);
+        verify(cache).remove(unmappedCacheKey.toKey());
+        verify(instanceCache).remove(unmappedCacheKey);
     }
-
 }

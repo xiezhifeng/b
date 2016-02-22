@@ -1,6 +1,8 @@
 package com.atlassian.confluence.extra.jira.cache;
 
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.google.common.base.Objects;
+import org.elasticsearch.common.base.MoreObjects;
 
 import java.io.Serializable;
 import java.util.List;
@@ -17,8 +19,10 @@ public final class CacheKey implements Serializable
     private final boolean forFlexigrid;
     private final String appId;
     private final boolean mapped;
+    private final String version;
 
-    public CacheKey(String partialUrl, String appId, List<String> columns, boolean showCount, boolean forceAnonymous, boolean forFlexigrid, boolean mapped)
+    public CacheKey(String partialUrl, String appId, List<String> columns, boolean showCount, boolean forceAnonymous,
+            boolean forFlexigrid, boolean mapped, String version)
     {
         this.appId = appId;
         this.partialUrl = partialUrl;
@@ -27,6 +31,7 @@ public final class CacheKey implements Serializable
         this.userName = !forceAnonymous ? AuthenticatedUserThreadLocal.getUsername() : null;
         this.forFlexigrid = forFlexigrid;
         this.mapped = mapped;
+        this.version = version;
     }
     
     public String getPartialUrl()
@@ -54,6 +59,11 @@ public final class CacheKey implements Serializable
         return userName;
     }
 
+    public String getVersion()
+    {
+        return version;
+    }
+
     public String toString()
     {
         return "partialUrl:"+ partialUrl +" columns:"+columns.toString()+" showCount:"+showCount+" userName="+userName+" isMapped="+isMapped();
@@ -70,6 +80,7 @@ public final class CacheKey implements Serializable
         result = prime * result + ((partialUrl == null) ? 0 : partialUrl.hashCode());
         result = prime * result + (showCount ? 1231 : 1237);
         result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+        result = prime * result + ((version == null) ? 0 : version.hashCode());
         return result;
     }
 
@@ -112,7 +123,27 @@ public final class CacheKey implements Serializable
                 return false;
         } else if (!userName.equals(other.userName))
             return false;
+        if (version == null)
+        {
+            if (other.version != null)
+                return false;
+        } else if (!version.equals(other.version))
+            return false;
         return true;
     }
-    
+
+    public String toKey()
+    {
+        return MoreObjects.toStringHelper(this)
+                //.omitNullValues()
+                .addValue(partialUrl)
+                .addValue(columns)
+                .addValue(showCount)
+                .addValue(userName)
+                .addValue(forFlexigrid)
+                .addValue(appId)
+                .addValue(mapped)
+                .addValue(version)
+                .toString();
+    }
 }

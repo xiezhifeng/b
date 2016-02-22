@@ -6,7 +6,10 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,10 +17,12 @@ import javax.servlet.http.HttpServletResponse;
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
-import com.atlassian.cache.memory.MemoryCache;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
+import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
+import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.vcache.DirectExternalCache;
+import com.atlassian.vcache.PutPolicy;
+import com.atlassian.vcache.VCacheFactory;
 
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -25,6 +30,11 @@ import org.mockito.MockitoAnnotations;
 
 import junit.framework.TestCase;
 
+import static com.atlassian.confluence.extra.jira.cache.CacheKeyTestHelper.getPluginVersionExpectations;
+import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getExternalCacheOnCall;
+import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockExternalCache;
+import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockVCacheFactory;
+import static com.atlassian.vcache.VCacheUtils.join;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
@@ -38,7 +48,8 @@ import static org.mockito.Mockito.when;
 
 public class TestJiraIssuesServlet extends TestCase
 {
-    @Mock private CacheManager cacheManager;
+    private static final String PLUGIN_VERSION = "6.0.0";
+    private static final String OLD_PLUGIN_VERSION = "5.0.0";
 
     @Mock private JiraIssuesManager jiraIssuesManager;
 
@@ -54,6 +65,10 @@ public class TestJiraIssuesServlet extends TestCase
 
     @Mock private ReadOnlyApplicationLinkService readOnlyApplicationLinkService;
 
+    @Mock private PluginAccessor pluginAccessor;
+    private VCacheFactory vcacheFactory;
+    private DirectExternalCache<CompressingStringCache> cache;
+
     private JiraIssuesServlet jiraIssuesServlet;
 
     private String url;
@@ -66,6 +81,9 @@ public class TestJiraIssuesServlet extends TestCase
         super.setUp();
 
         MockitoAnnotations.initMocks(this);
+        getPluginVersionExpectations(pluginAccessor, PLUGIN_VERSION);
+        vcacheFactory = mockVCacheFactory();
+        cache = getExternalCacheOnCall(vcacheFactory, mockExternalCache(new HashMap<>()));
 
         url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=1000";
 
@@ -79,8 +97,6 @@ public class TestJiraIssuesServlet extends TestCase
         when(httpServletRequest.getParameter("rp")).thenReturn("10");
         when(httpServletRequest.getParameter("page")).thenReturn("1");
         when(httpServletRequest.getParameter("flexigrid")).thenReturn("true");
-
-        when(cacheManager.getCache(JiraIssuesMacro.class.getName())).thenReturn(new MemoryCache(com.atlassian.confluence.extra.jira.JiraIssuesServlet.class.getName()));
 
         jiraIssuesUrlManager = new DefaultJiraIssuesUrlManager(jiraIssuesColumnManager);
 
@@ -140,8 +156,6 @@ public class TestJiraIssuesServlet extends TestCase
         when(httpServletRequest.getParameter("page")).thenReturn("1").thenReturn("2");
 
         jiraIssuesServlet.doGet(httpServletRequest, httpServletResponse);
-
-
         jiraIssuesServlet.doGet(httpServletRequest, httpServletResponse);
 
         verify(jiraIssuesResponseGenerator, times(2)).generate(
@@ -190,7 +204,6 @@ public class TestJiraIssuesServlet extends TestCase
     public void testCachedResponseDiscardedIfItWasStoredByAnOlderVersionOfThePlugin() throws IOException
     {
         StringWriter firstWriter = new StringWriter();
-        Cache cache = mock(Cache.class);
 
         when(jiraIssuesResponseGenerator.generate(
                 (JiraIssuesManager.Channel) anyObject(),
@@ -201,8 +214,13 @@ public class TestJiraIssuesServlet extends TestCase
         )).thenReturn("foobarbaz");
 
         when(httpServletResponse.getWriter()).thenReturn(new PrintWriter(firstWriter));
-        when(cacheManager.getCache(JiraIssuesMacro.class.getName())).thenReturn(cache);
-        when(cache.get(anyObject())).thenReturn("Not a CacheKey object to generate a ClassCastException");
+        String trimmedUrl = "http://developer.atlassian.com/jira/sr/jira"
+                + ".issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=10";
+        CacheKey oldKey = new CacheKey(trimmedUrl, null, Arrays.asList(columnNames), false, false, true, true,
+                OLD_PLUGIN_VERSION);
+        CacheKey newKey = new CacheKey(trimmedUrl, null, Arrays.asList(columnNames), false, false, true, true,
+                PLUGIN_VERSION);
+        join(cache.put(oldKey.toKey(), new CompressingStringCache(new ConcurrentHashMap()), PutPolicy.PUT_ALWAYS));
 
         jiraIssuesServlet.doGet(httpServletRequest, httpServletResponse);
 
@@ -213,10 +231,10 @@ public class TestJiraIssuesServlet extends TestCase
                 anyBoolean(),
                 anyBoolean());
 
-        ArgumentCaptor<CacheKey> cacheKey = ArgumentCaptor.forClass(CacheKey.class);
-        verify(cache).remove(cacheKey.capture());
+        ArgumentCaptor<String> cacheKey = ArgumentCaptor.forClass(String.class);
+        verify(cache).get(cacheKey.capture(), any(Supplier.class));
 
-        assertEquals("http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=10", cacheKey.getValue().getPartialUrl());
+        assertEquals(newKey.toKey(), cacheKey.getValue());
         assertEquals("foobarbaz", firstWriter.toString());
     }
 
@@ -253,7 +271,8 @@ public class TestJiraIssuesServlet extends TestCase
     {
         private JiraIssuesServlet()
         {
-            setCacheManager(cacheManager);
+            setPluginAccessor(pluginAccessor);
+            setVcacheFactory(vcacheFactory);
             setJiraIssuesManager(jiraIssuesManager);
             setJiraIssuesResponseGenerator(jiraIssuesResponseGenerator);
             setJiraIssuesUrlManager(jiraIssuesUrlManager);

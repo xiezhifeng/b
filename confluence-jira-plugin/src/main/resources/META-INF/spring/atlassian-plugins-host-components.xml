@@ -2,11 +2,11 @@
 
 <beans:beans xmlns:beans="http://www.springframework.org/schema/beans" xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd" default-autowire="autodetect" osgi:default-timeout="30000">
-  <beans:bean id="cacheManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
-    <beans:property name="filter" value="(&amp;(bean-name=cacheManager)(plugins-host=true))"/>
+  <beans:bean id="vcacheFactory" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=vcacheFactory)(plugins-host=true))"/>
     <beans:property name="interfaces">
       <beans:list>
-        <beans:value>com.atlassian.cache.CacheManager</beans:value>
+        <beans:value>com.atlassian.vcache.VCacheFactory</beans:value>
       </beans:list>
     </beans:property>
   </beans:bean>

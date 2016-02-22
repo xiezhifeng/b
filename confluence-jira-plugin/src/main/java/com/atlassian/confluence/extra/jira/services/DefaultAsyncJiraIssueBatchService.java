@@ -1,12 +1,6 @@
 package com.atlassian.confluence.extra.jira.services;
 
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheEntryAdapter;
-import com.atlassian.cache.CacheEntryEvent;
-import com.atlassian.cache.CacheEntryListener;
-import com.atlassian.cache.CacheManager;
-import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
@@ -30,6 +24,7 @@ import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.macro.xhtml.MacroManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
+import com.atlassian.vcache.*;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
@@ -44,24 +39,24 @@ import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
 
 @ParametersAreNonnullByDefault
-public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean, DisposableBean
+public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, DisposableBean
 {
     private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncJiraIssueBatchService.class);
+    private static final String CACHE_NAME = "com.atlassian.confluence.extra.jira.services.DefaultAsyncJiraIssueBatchService";
     private static final int THREAD_POOL_SIZE = Integer.getInteger("confluence.jira.issues.executor.poolsize", 5);
     private static final int EXECUTOR_QUEUE_SIZE = Integer.getInteger("confluence.jira.issues.executor.queuesize", 1000);
-    private static final int CACHE_EXPIRE_AFTER_ACCESS = Integer.getInteger("confluence.extra.jira.cache.async.read.expire", 60);
     private static final int CACHE_EXPIRE_AFTER_WRITE = Integer.getInteger("confluence.extra.jira.cache.async.write.expire", 120);
     private static final int BATCH_SIZE = 25;
     private static final String ISSUE_KEY_TABLE_PREFIX = "issue-table-";
@@ -69,8 +64,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
     private final JiraExceptionHelper jiraExceptionHelper;
-    private Cache<ClientId, JiraResponseData> jiraIssuesCache;
-    private CacheEntryListener<ClientId, JiraResponseData> cacheEntryListener;
+    private final JvmCache<ClientId, JiraResponseData> jiraIssuesCache;
 
     private final ExecutorService jiraIssueExecutor;
     private final JiraIssuesManager jiraIssuesManager;
@@ -79,7 +73,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
                                              JiraExecutorFactory executorFactory,
-                                             JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager,
+                                             JiraExceptionHelper jiraExceptionHelper, VCacheFactory vcacheFactory,
                                              JiraIssuesManager jiraIssuesManager,
                                              ContentEntityManager contentEntityManager,
                                              JiraMacroFinderService jiraMacroFinderService)
@@ -91,15 +85,11 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         this.jiraIssuesManager = jiraIssuesManager;
         this.contentEntityManager = contentEntityManager;
         this.jiraMacroFinderService = jiraMacroFinderService;
-        jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,
-                new CacheSettingsBuilder()
-                        .local()
+        this.jiraIssuesCache = vcacheFactory.getJvmCache(CACHE_NAME,
+                new JvmCacheSettingsBuilder()
+                        .defaultTtl(Duration.ofSeconds(CACHE_EXPIRE_AFTER_WRITE))
                         .maxEntries(500)
-                        .unflushable()
-                        .expireAfterAccess(CACHE_EXPIRE_AFTER_ACCESS, TimeUnit.SECONDS)
-                        .expireAfterWrite(CACHE_EXPIRE_AFTER_WRITE, TimeUnit.SECONDS)
-                        .build()
-        );
+                        .build());
     }
 
     @Override
@@ -162,10 +152,10 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                                final ConversionContext conversionContext)
     {
         // allocate an empty space for response data in the cache
-        JiraResponseData existingJiraReponseData = jiraIssuesCache.get(clientId);
-        if (existingJiraReponseData != null)
+        Optional<JiraResponseData> existingJiraReponseData = jiraIssuesCache.get(clientId);
+        if (existingJiraReponseData.isPresent())
         {
-            existingJiraReponseData.increaseStackCount();
+            existingJiraReponseData.get().increaseStackCount();
             return;
         }
         jiraIssuesCache.put(clientId, new JiraResponseData(serverId, keys.size()));
@@ -195,10 +185,10 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     public void processRequestWithJql(final ClientId clientId, final Map<String, String> macroParams, final ConversionContext conversionContext,
                                       final ReadOnlyApplicationLink appLink) throws MacroExecutionException
     {
-        JiraResponseData existingJiraReponseData = jiraIssuesCache.get(clientId);
-        if (existingJiraReponseData != null)
+        Optional<JiraResponseData> existingJiraReponseData = jiraIssuesCache.get(clientId);
+        if (existingJiraReponseData.isPresent())
         {
-            existingJiraReponseData.increaseStackCount();
+            existingJiraReponseData.get().increaseStackCount();
             return;
         }
         final StreamableMacro jiraIssuesMacro = (StreamableMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
@@ -217,7 +207,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                 MultiMap jiraResultMap = new MultiValueMap();
                 String asyncKey = (Boolean.parseBoolean(macroParams.get("count")) ? ISSUE_KEY_COUNT_PREFIX : ISSUE_KEY_TABLE_PREFIX) + clientId;
                 jiraResultMap.put(asyncKey, streamableMacroFutureTask.renderValue());
-                jiraIssuesCache.get(clientId).add(jiraResultMap);
+                jiraIssuesCache.get(clientId).ifPresent(value -> value.add(jiraResultMap));
                 return jiraResultMap;
             }
         };
@@ -228,15 +218,17 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     @Override
     public JiraResponseData getAsyncJiraResults(ClientId clientId)
     {
-        JiraResponseData jiraResponseData = jiraIssuesCache.get(clientId);
-        if (jiraResponseData != null && jiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
-        {
-            if (jiraResponseData.decreaseStackCount() == 0)
+        Optional<JiraResponseData> jiraResponseData = jiraIssuesCache.get(clientId);
+        jiraResponseData.ifPresent(data -> {
+            if (data.getStatus() == JiraResponseData.Status.COMPLETED)
             {
-                jiraIssuesCache.remove(clientId);
+                if (data.decreaseStackCount() == 0)
+                {
+                    jiraIssuesCache.remove(clientId);
+                }
             }
-        }
-        return jiraResponseData;
+        });
+        return jiraResponseData.orElse(null);
     }
 
     private Callable<Map<String, List<String>>> buildBatchTask(final ClientId clientId,
@@ -277,58 +269,15 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     }
                 }
 
-                JiraResponseData cachedJiraResponseData = jiraIssuesCache.get(clientId);
-                cachedJiraResponseData.add(jiraResultMap);
-
-                //notify all distributed cache when complete
-                if (cachedJiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
-                {
-                    jiraIssuesCache.put(clientId, cachedJiraResponseData);
-                }
-
+                jiraIssuesCache.get(clientId).ifPresent(data -> data.add(jiraResultMap));
                 return jiraResultMap;
             }
         };
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception
-    {
-        jiraIssuesCache.removeAll();
-        cacheEntryListener = new CacheEntryAdapter<ClientId, JiraResponseData>()
-        {
-            @Override
-            public void onAdd(CacheEntryEvent cacheEntryEvent)
-            {
-                logCacheEntry("Add", cacheEntryEvent);
-            }
-
-            @Override
-            public void onEvict(CacheEntryEvent cacheEntryEvent)
-            {
-                logCacheEntry("Evict", cacheEntryEvent);
-            }
-
-            @Override
-            public void onRemove(CacheEntryEvent cacheEntryEvent)
-            {
-                logCacheEntry("Remove", cacheEntryEvent);
-            }
-        };
-        jiraIssuesCache.addListener(cacheEntryListener, false);
-    }
-
-    private void logCacheEntry(String message, CacheEntryEvent cacheEntryEvent)
-    {
-        logger.debug(String.format("Handle '%s' with key = %s", message, cacheEntryEvent.getKey()));
-        logger.debug(String.format("Total keys = %s, All keys = [%s]", jiraIssuesCache.getKeys().size(), StringUtils.join(jiraIssuesCache.getKeys(), ",")));
-    }
-
-    @Override
     public void destroy() throws Exception
     {
         jiraIssueExecutor.shutdown();
-        jiraIssuesCache.removeAll();
-        jiraIssuesCache.removeListener(cacheEntryListener);
     }
 }
