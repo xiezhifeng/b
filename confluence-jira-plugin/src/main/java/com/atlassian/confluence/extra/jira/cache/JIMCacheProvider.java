@@ -26,7 +26,7 @@ public class JIMCacheProvider
      * @param vcacheFactory {@link com.atlassian.vcache.VCacheFactory}
      * @return new <code>DirectExternalCache</code> or existent one (if was already created)
      */
-    public static synchronized DirectExternalCache<CompressingStringCache> getCache(VCacheFactory vcacheFactory)
+    public static synchronized DirectExternalCache<CompressingStringCache> getResponseCache(VCacheFactory vcacheFactory)
     {
         return vcacheFactory.getDirectExternalCache(JIM_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(CompressingStringCache.class),
@@ -39,7 +39,7 @@ public class JIMCacheProvider
      * @param vcacheFactory {@link com.atlassian.vcache.VCacheFactory}
      * @return new <code>JvmCache</code> or existent one (if was already created)
      */
-    public static synchronized JvmCache<CacheKey, JiraResponseHandler> getInstanceCache(VCacheFactory vcacheFactory)
+    public static synchronized JvmCache<CacheKey, JiraResponseHandler> getResponseHandlersCache(VCacheFactory vcacheFactory)
     {
         return vcacheFactory.getJvmCache(JIM_INSTANCE_CACHE_NAME,
                 new JvmCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(5)).build());

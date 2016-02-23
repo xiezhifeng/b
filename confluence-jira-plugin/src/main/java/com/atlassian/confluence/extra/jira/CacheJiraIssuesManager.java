@@ -11,7 +11,8 @@ import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
-import com.atlassian.util.concurrent.LazyReference;
+import com.atlassian.util.concurrent.Lazy;
+import com.atlassian.util.concurrent.Supplier;
 import com.atlassian.vcache.JvmCache;
 import com.atlassian.vcache.VCacheFactory;
 import org.slf4j.Logger;
@@ -28,22 +29,15 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
     private static final Logger log = LoggerFactory.getLogger(CacheJiraIssuesManager.class);
 
     private final JvmCache<CacheKey, JiraResponseHandler> responseCache;
-    private final LazyReference<String> version;
+    private final Supplier<String> version;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
             JiraIssuesUrlManager jiraIssuesUrlManager, HttpRetrievalService httpRetrievalService,
             VCacheFactory vcacheFactory, PluginAccessor pluginAccessor)
     {
         super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService);
-        this.responseCache = JIMCacheProvider.getInstanceCache(vcacheFactory);
-        this.version = new LazyReference<String>()
-        {
-            @Override
-            protected String create() throws Exception
-            {
-                return pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion();
-            }
-        };
+        this.responseCache = JIMCacheProvider.getResponseHandlersCache(vcacheFactory);
+        this.version = Lazy.supplier(() -> pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion());
     }
 
     @Override

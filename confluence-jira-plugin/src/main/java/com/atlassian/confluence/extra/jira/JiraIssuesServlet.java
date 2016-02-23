@@ -11,7 +11,8 @@ import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.plugin.PluginAccessor;
-import com.atlassian.util.concurrent.LazyReference;
+import com.atlassian.util.concurrent.Lazy;
+import com.atlassian.util.concurrent.Supplier;
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.VCacheFactory;
 import org.apache.commons.io.IOUtils;
@@ -45,14 +46,7 @@ public class JiraIssuesServlet extends HttpServlet
     private JiraIssuesUrlManager jiraIssuesUrlManager;
     
     private ReadOnlyApplicationLinkService readOnlyApplicationLinkService;
-    private LazyReference<String> version = new LazyReference<String>()
-    {
-        @Override
-        protected String create() throws Exception
-        {
-            return pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion();
-        }
-    };
+    private Supplier<String> version = Lazy.supplier(() -> pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion());
 
     public void setApplicationLinkService(ReadOnlyApplicationLinkService readOnlyApplicationLinkService)
     {
@@ -251,7 +245,7 @@ public class JiraIssuesServlet extends HttpServlet
 
     private CompressingStringCache getSubCacheForKey(CacheKey key, boolean flush)
     {
-        final DirectExternalCache<CompressingStringCache> cache = JIMCacheProvider.getCache(vcacheFactory);
+        final DirectExternalCache<CompressingStringCache> cache = JIMCacheProvider.getResponseCache(vcacheFactory);
 
         if (flush)
         {
