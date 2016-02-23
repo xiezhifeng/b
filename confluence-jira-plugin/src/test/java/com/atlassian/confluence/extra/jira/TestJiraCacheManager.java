@@ -1,7 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,8 +21,6 @@ import junit.framework.TestCase;
 import static com.atlassian.confluence.extra.jira.cache.CacheKeyTestHelper.getPluginVersionExpectations;
 import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getExternalCacheOnCall;
 import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getJvmCacheOnCall;
-import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockExternalCache;
-import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockJvmCache;
 import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockVCacheFactory;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -47,8 +44,8 @@ public class TestJiraCacheManager extends TestCase
         pluginAccessor = mock(PluginAccessor.class);
         getPluginVersionExpectations(pluginAccessor, PLUGIN_VERSION);
         cacheFactory = mockVCacheFactory();
-        cache = getExternalCacheOnCall(cacheFactory, mockExternalCache(new HashMap<>()));
-        instanceCache = getJvmCacheOnCall(cacheFactory, mockJvmCache(new HashMap<>()));
+        cache = getExternalCacheOnCall(cacheFactory);
+        instanceCache = getJvmCacheOnCall(cacheFactory);
         appLink = mock(ReadOnlyApplicationLink.class);
         jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor);
     }
