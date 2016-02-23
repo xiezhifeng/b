@@ -2,7 +2,6 @@ package com.atlassian.confluence.extra.jira.cache;
 
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.google.common.base.Objects;
-import org.elasticsearch.common.base.MoreObjects;
 
 import java.io.Serializable;
 import java.util.List;
@@ -134,8 +133,7 @@ public final class CacheKey implements Serializable
 
     public String toKey()
     {
-        return MoreObjects.toStringHelper(this)
-                //.omitNullValues()
+        return Objects.toStringHelper(this)
                 .addValue(partialUrl)
                 .addValue(columns)
                 .addValue(showCount)

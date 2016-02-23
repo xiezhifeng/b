@@ -6,7 +6,8 @@ import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
 import com.atlassian.confluence.extra.jira.cache.JIMCacheProvider;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.plugin.PluginAccessor;
-import com.atlassian.util.concurrent.LazyReference;
+import com.atlassian.util.concurrent.Lazy;
+import com.atlassian.util.concurrent.Supplier;
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.JvmCache;
 import com.atlassian.vcache.VCacheFactory;
@@ -23,20 +24,13 @@ public class DefaultJiraCacheManager implements JiraCacheManager
 
     private final DirectExternalCache<CompressingStringCache> cache;
     private final JvmCache<CacheKey, JiraResponseHandler> instanceCache;
-    private final LazyReference<String> version;
+    private final Supplier<String> version;
 
     public DefaultJiraCacheManager(VCacheFactory vcacheFactory, PluginAccessor pluginAccessor)
     {
-        this.cache = JIMCacheProvider.getCache(vcacheFactory);
-        this.instanceCache = JIMCacheProvider.getInstanceCache(vcacheFactory);
-        this.version = new LazyReference<String>()
-        {
-            @Override
-            protected String create() throws Exception
-            {
-                return pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion();
-            }
-        };
+        this.cache = JIMCacheProvider.getResponseCache(vcacheFactory);
+        this.instanceCache = JIMCacheProvider.getResponseHandlersCache(vcacheFactory);
+        this.version = Lazy.supplier(() -> pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion());
     }
 
     public void clearJiraIssuesCache(final String url, List<String> columns, final ReadOnlyApplicationLink appLink,
