@@ -32,7 +32,6 @@ import junit.framework.TestCase;
 
 import static com.atlassian.confluence.extra.jira.cache.CacheKeyTestHelper.getPluginVersionExpectations;
 import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getExternalCacheOnCall;
-import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockExternalCache;
 import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockVCacheFactory;
 import static com.atlassian.vcache.VCacheUtils.join;
 import static org.mockito.Matchers.any;
@@ -83,7 +82,7 @@ public class TestJiraIssuesServlet extends TestCase
         MockitoAnnotations.initMocks(this);
         getPluginVersionExpectations(pluginAccessor, PLUGIN_VERSION);
         vcacheFactory = mockVCacheFactory();
-        cache = getExternalCacheOnCall(vcacheFactory, mockExternalCache(new HashMap<>()));
+        cache = getExternalCacheOnCall(vcacheFactory);
 
         url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=1000";
 
