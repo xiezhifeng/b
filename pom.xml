@@ -106,7 +106,6 @@
         <mockito.version>1.9.5</mockito.version>
         <atlassian-selenium-browsers-auto.version>2.3-m6</atlassian-selenium-browsers-auto.version>
         <atlassian.sal-api.version>3.0.5</atlassian.sal-api.version>
-        <atlassian-vcache-api.version>1.4.0</atlassian-vcache-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
         <amps.version>6.1.2</amps.version>
         <servlet.version>2.4</servlet.version>
