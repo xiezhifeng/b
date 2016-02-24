@@ -3,7 +3,9 @@ package com.atlassian.confluence.extra.jira.cache;
 import com.atlassian.annotations.Internal;
 import com.atlassian.confluence.extra.jira.JiraChannelResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraStringResponseHandler;
-import com.atlassian.vcache.*;
+import com.atlassian.vcache.DirectExternalCache;
+import com.atlassian.vcache.ExternalCacheSettingsBuilder;
+import com.atlassian.vcache.VCacheFactory;
 import com.atlassian.vcache.marshallers.MarshallerFactory;
 
 import java.time.Duration;
@@ -19,7 +21,7 @@ import javax.annotation.concurrent.ThreadSafe;
 public class JIMCacheProvider
 {
     private static final String JIM_CACHE_NAME = "com.atlassian.confluence.extra.jira.JiraIssuesMacro";
-    private static final String JIM_CHANNEL_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".chanel";
+    private static final String JIM_CHANNEL_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".channel";
     private static final String JIM_STRING_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".string";
 
     /**
