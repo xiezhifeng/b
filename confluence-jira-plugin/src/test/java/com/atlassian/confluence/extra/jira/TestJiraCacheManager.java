@@ -10,7 +10,6 @@ import com.atlassian.confluence.extra.jira.cache.CacheKey;
 import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.vcache.DirectExternalCache;
-import com.atlassian.vcache.JvmCache;
 import com.atlassian.vcache.PutPolicy;
 import com.atlassian.vcache.VCacheFactory;
 
@@ -20,9 +19,9 @@ import junit.framework.TestCase;
 
 import static com.atlassian.confluence.extra.jira.cache.CacheKeyTestHelper.getPluginVersionExpectations;
 import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getExternalCacheOnCall;
-import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getJvmCacheOnCall;
 import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockVCacheFactory;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,8 +32,9 @@ public class TestJiraCacheManager extends TestCase
     @Mock private ReadOnlyApplicationLink appLink;
     private PluginAccessor pluginAccessor;
     private VCacheFactory cacheFactory;
-    private DirectExternalCache<CompressingStringCache> cache;
-    private JvmCache<CacheKey, JiraResponseHandler> instanceCache;
+    private DirectExternalCache<CompressingStringCache> responseCache;
+    private DirectExternalCache<JiraChannelResponseHandler> responseChannelCache;
+    private DirectExternalCache<JiraStringResponseHandler> responseStringCache;
 
     private JiraCacheManager jiraCacheManager;
 
@@ -44,8 +44,11 @@ public class TestJiraCacheManager extends TestCase
         pluginAccessor = mock(PluginAccessor.class);
         getPluginVersionExpectations(pluginAccessor, PLUGIN_VERSION);
         cacheFactory = mockVCacheFactory();
-        cache = getExternalCacheOnCall(cacheFactory);
-        instanceCache = getJvmCacheOnCall(cacheFactory);
+        responseCache = getExternalCacheOnCall(cacheFactory, "com.atlassian.confluence.extra.jira.JiraIssuesMacro");
+        responseChannelCache = getExternalCacheOnCall(cacheFactory,
+                "com.atlassian.confluence.extra.jira.JiraIssuesMacro.channel");
+        responseStringCache = getExternalCacheOnCall(cacheFactory,
+                "com.atlassian.confluence.extra.jira.JiraIssuesMacro.string");
         appLink = mock(ReadOnlyApplicationLink.class);
         jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor);
     }
@@ -60,12 +63,11 @@ public class TestJiraCacheManager extends TestCase
         CacheKey cacheKey = new CacheKey(url, appLinkId.toString(), columns, false, forceAnonymous, false, true, PLUGIN_VERSION);
 
         when(appLink.getId()).thenReturn(appLinkId);
-        cache.put(cacheKey.toKey(), new CompressingStringCache(new ConcurrentHashMap()), PutPolicy.PUT_ALWAYS);
+        responseCache.put(cacheKey.toKey(), new CompressingStringCache(new ConcurrentHashMap()), PutPolicy.PUT_ALWAYS);
 
         jiraCacheManager.clearJiraIssuesCache(url, columns, appLink, forceAnonymous, isAnonymous);
 
-        verify(cache).remove(cacheKey.toKey());
-        verify(instanceCache).remove(cacheKey);
+        verify(responseCache).remove(cacheKey.toKey());
     }
 
     public void testClearJiraIssuesCacheAnonymously()
@@ -79,11 +81,10 @@ public class TestJiraCacheManager extends TestCase
                 false, PLUGIN_VERSION);
 
         when(appLink.getId()).thenReturn(appLinkId);
-        cache.put(unmappedCacheKey.toKey(), new CompressingStringCache(new ConcurrentHashMap()), PutPolicy.PUT_ALWAYS);
+        responseCache.put(unmappedCacheKey.toKey(), new CompressingStringCache(new ConcurrentHashMap()), PutPolicy.PUT_ALWAYS);
 
         jiraCacheManager.clearJiraIssuesCache(url, columns, appLink, forceAnonymous, isAnonymous);
 
-        verify(cache).remove(unmappedCacheKey.toKey());
-        verify(instanceCache).remove(unmappedCacheKey);
+        verify(responseCache).remove(unmappedCacheKey.toKey());
     }
 }

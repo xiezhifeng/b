@@ -24,7 +24,10 @@ import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.macro.xhtml.MacroManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.atlassian.vcache.*;
+import com.atlassian.vcache.JvmCache;
+import com.atlassian.vcache.JvmCacheSettingsBuilder;
+import com.atlassian.vcache.VCacheFactory;
+
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;

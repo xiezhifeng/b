@@ -1,14 +1,14 @@
 package com.atlassian.confluence.extra.jira.cache;
 
+import javax.annotation.Nonnull;
+
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.ExternalCacheSettings;
-import com.atlassian.vcache.JvmCache;
-import com.atlassian.vcache.JvmCacheSettings;
 import com.atlassian.vcache.Marshaller;
 import com.atlassian.vcache.VCacheFactory;
 
 import static com.atlassian.confluence.extra.jira.cache.SimpleVCaches.directExternalCache;
-import static com.atlassian.confluence.extra.jira.cache.SimpleVCaches.jvmCache;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -25,7 +25,7 @@ public class VCacheTestHelper
         return mock(VCacheFactory.class);
     }
 
-    public static <T> DirectExternalCache<T> getExternalCacheOnCall(VCacheFactory mockVcacheFactory)
+    public static <T> DirectExternalCache<T> getExternalCacheOnCall(@Nonnull VCacheFactory mockVcacheFactory)
     {
         DirectExternalCache<T> desiredCache = spy(directExternalCache());
         when(mockVcacheFactory.<T>getDirectExternalCache(anyString(), any(Marshaller.class),
@@ -35,12 +35,12 @@ public class VCacheTestHelper
         return desiredCache;
     }
 
-    public static <U, V> JvmCache<U, V> getJvmCacheOnCall(VCacheFactory mockVcacheFactory)
+    public static <T> DirectExternalCache<T> getExternalCacheOnCall(@Nonnull VCacheFactory mockVcacheFactory,
+            @Nonnull String cacheName)
     {
-        JvmCache<U, V> desiredCache = spy(jvmCache());
-
-        when(mockVcacheFactory.<U, V>getJvmCache(anyString(),
-                any(JvmCacheSettings.class)))
+        DirectExternalCache<T> desiredCache = spy(directExternalCache());
+        when(mockVcacheFactory.<T>getDirectExternalCache(eq(cacheName), any(Marshaller.class),
+                any(ExternalCacheSettings.class)))
                 .thenReturn(desiredCache);
 
         return desiredCache;
