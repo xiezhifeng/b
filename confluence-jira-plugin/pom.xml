@@ -127,12 +127,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.vcache</groupId>
-            <artifactId>atlassian-vcache-api</artifactId>
-            <version>${atlassian-vcache-api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
             <version>${jaxen.version}</version>
