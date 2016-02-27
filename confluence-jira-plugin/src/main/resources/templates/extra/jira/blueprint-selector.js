@@ -2,7 +2,7 @@
     if (!Confluence.Blueprint.Selector)
         return;
 
-    var blueprints = new Object();
+    var blueprints = {};
     blueprints['decisions']      = 'com.atlassian.confluence.plugins.confluence-business-blueprints:decisions-blueprint-item';
     blueprints['meeting-notes']  = 'com.atlassian.confluence.plugins.confluence-business-blueprints:meeting-notes-item';
     blueprints['requirements']   = 'com.atlassian.confluence.plugins.confluence-software-blueprints:requirements-item';
