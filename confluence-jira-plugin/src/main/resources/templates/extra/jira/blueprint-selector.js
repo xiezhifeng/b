@@ -2,13 +2,13 @@
     if (!Confluence.Blueprint.Selector)
         return;
 
-    var blueprints = {};
-    blueprints['decisions']      = 'com.atlassian.confluence.plugins.confluence-business-blueprints:decisions-blueprint-item';
-    blueprints['meeting-notes']  = 'com.atlassian.confluence.plugins.confluence-business-blueprints:meeting-notes-item';
-    blueprints['requirements']   = 'com.atlassian.confluence.plugins.confluence-software-blueprints:requirements-item';
-    blueprints['retrospectives'] = 'com.atlassian.confluence.plugins.confluence-software-blueprints:retrospectives-item';
-    blueprints['blank-pages']    = 'com.atlassian.confluence.plugins.confluence-create-content-plugin:create-blank-page';
-
+    var blueprints = {
+        'decisions'      : 'com.atlassian.confluence.plugins.confluence-business-blueprints:decisions-blueprint-item',
+        'meeting-notes'  : 'com.atlassian.confluence.plugins.confluence-business-blueprints:meeting-notes-item',
+        'requirements'   : 'com.atlassian.confluence.plugins.confluence-software-blueprints:requirements-item',
+        'retrospectives' : 'com.atlassian.confluence.plugins.confluence-software-blueprints:retrospectives-item',
+        'blank-pages'    : 'com.atlassian.confluence.plugins.confluence-create-content-plugin:create-blank-page'
+    };
 
     /**
      * The create dialog accepts arbitrary parameters via the init-dialog action which are passed through to
