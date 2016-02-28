@@ -42,7 +42,14 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   </osgi:service>
   <beans:bean id="base64JiraChartImageService" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService"/>
   <beans:bean id="confluenceEventListener" autowire="default" class="com.atlassian.confluence.plugins.jira.ConfluenceEventListener"/>
-  <beans:bean id="jiraRemoteLinkCreator" autowire="default" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
+  <beans:bean id="jiraRemoteLinkCreator" autowire="default" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator">
+    <beans:constructor-arg index="0" ref="readOnlyApplicationLinkService"></beans:constructor-arg>
+    <beans:constructor-arg index="1" ref="hostApplication"></beans:constructor-arg>
+    <beans:constructor-arg index="2" ref="settingsManager"></beans:constructor-arg>
+    <beans:constructor-arg index="3" ref="jiraIssueMacroFinder"></beans:constructor-arg>
+    <beans:constructor-arg index="4" ref="requestFactory"></beans:constructor-arg>
+  </beans:bean>
+
   <beans:bean id="imagePlaceHolderHelper" autowire="default" class="com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper"/>
   <beans:bean id="jiraIssueSortingManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssueSortingManager"/>
   <beans:bean id="jiraMacroPageTemplateEventListener" autowire="default" class="com.atlassian.confluence.plugins.jira.event.JiraMacroPageTemplateEventListener"/>
@@ -53,5 +60,17 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="twodimensional" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.render.TwoDimensionalChart"/>
   <beans:bean class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean" id="jiraChartFactory">
      <beans:property name="serviceLocatorInterface" value="com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory"/>
+  </beans:bean>
+
+  <beans:bean id="confluencePagesService" autowire="default" class="com.atlassian.confluence.plugins.conluenceview.services.impl.DefaultConfluencePagesService"/>
+
+  <beans:bean id="confluenceJiraLinksService" class="com.atlassian.confluence.plugins.conluenceview.services.impl.DefaultConfluenceJiraLinksService">
+    <beans:constructor-arg index="0" ref="entityLinkService"></beans:constructor-arg>
+    <beans:constructor-arg index="1" ref="applinkHostApplication"></beans:constructor-arg>
+    <beans:constructor-arg index="2" ref="hostApplication"></beans:constructor-arg>
+    <beans:constructor-arg index="3" ref="readOnlyApplicationLinkService"></beans:constructor-arg>
+    <beans:constructor-arg index="4" ref="eventPublisher"></beans:constructor-arg>
+    <beans:constructor-arg index="5" ref="spaceManager"></beans:constructor-arg>
+    <beans:constructor-arg index="6" ref="spaceLogoManager"></beans:constructor-arg>
   </beans:bean>
 </beans:beans>

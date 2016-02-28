@@ -1,12 +1,19 @@
-define('confluence/jim/util/analytic', [
-    'ajs',
-    'confluence/analytics-support'
+define('confluence/jim/util/analytics', [
+    'ajs'
 ],
 function(
-    AJS,
-    analyticSupport
+    AJS
 ) {
     'use strict';
+
+    var analyticSupport;
+
+    // support for old version CONF, ex: 5.7
+    if (AJS.Confluence.Analytics) {
+        analyticSupport = AJS.Confluence.Analytics;
+    } else {
+        analyticSupport = require('confluence/analytics-support');
+    }
 
     return {
         sendPasteSprintLinkEvent: function() {

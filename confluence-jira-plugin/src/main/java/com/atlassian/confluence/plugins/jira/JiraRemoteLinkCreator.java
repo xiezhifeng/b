@@ -34,6 +34,8 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import static com.atlassian.confluence.extra.jira.util.JiraConnectorUtils.findApplicationLink;
 import static com.atlassian.sal.api.net.Request.MethodType.POST;
@@ -50,7 +52,11 @@ public class JiraRemoteLinkCreator
     private final JiraMacroFinderService macroFinderService;
     private RequestFactory requestFactory;
 
-    public JiraRemoteLinkCreator(final ReadOnlyApplicationLinkService applicationLinkService, final HostApplication hostApplication, final SettingsManager settingsManager, final JiraMacroFinderService macroFinderService, final RequestFactory requestFactory)
+    public JiraRemoteLinkCreator(final ReadOnlyApplicationLinkService applicationLinkService,
+            final HostApplication hostApplication,
+            final SettingsManager settingsManager,
+            final JiraMacroFinderService macroFinderService,
+            final RequestFactory requestFactory)
     {
         this.applicationLinkService = applicationLinkService;
         this.hostApplication = hostApplication;

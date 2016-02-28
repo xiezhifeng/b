@@ -154,11 +154,11 @@
     </web-resource>
 
     <web-resource key="common" name="Common resource">
-        <resource type="download" name="analytic.js" location="util/analytic.js"/>
+        <resource type="download" name="analytics.js" location="util/analytics.js"/>
         <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
 
-        <dependency>confluence.web.resources:ajs</dependency>
-        <dependency>confluence.web.resources:amd</dependency>
+        <dependency>${atlassian.plugin.key}:amd-support</dependency>
+        <dependency>confluence.web.resources:analytics-support</dependency>
     </web-resource>
 
     <!--Jira Issues in View Mode-->
@@ -167,15 +167,18 @@
             <transformer key="jsI18n"/>
         </transformation>
 
-        <resource type="download" name="jira-issues-fetching-job.js" location="jira/jira-issues-view-mode/fetching-job.js"/>
-        <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
-        <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
         <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
 
-        <dependency>${atlassian.plugin.key}:amd-support</dependency>
         <dependency>${atlassian.plugin.key}:common</dependency>
         <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
-        <dependency>confluence.extra.jira:refresh-resources</dependency>
+    </web-resource>
+
+    <web-resource key="jira-issues-view-mode-async-resource" name="Jira issues async resource in view mode">
+        <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
+        <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
+        <resource type="download" name="amd-confluence-shim.js" location="amd/confluence-shim.js"/>
+        <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
+        <resource type="download" name="jira-issues-fetching-job.js" location="jira/jira-issues-view-mode/fetching-job.js"/>
     </web-resource>
 
     <web-resource key="web-resources" name="Web resources">
@@ -214,19 +217,27 @@
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
 
-        <resource type="download" name="macro-browser-editor-config.js" location="macro-browser/editor/util/config.js"/>
-        <resource type="download" name="macro-browser-editor-helper.js" location="macro-browser/editor/util/helper.js"/>
-        <resource type="download" name="macro-browser-editor-service.js" location="macro-browser/editor/util/service.js"/>
-        <resource type="download" name="macro-browser-editor-select2-mixin.js" location="macro-browser/editor/util/select2-mixin.js"/>
+        <resource type="download" name="template.soy.js" location="macro-browser/editor/dialog/template.soy"/>
 
-        <resource type="download" name="macro-browser-editor-abstract-dialog-view.js" location="macro-browser/editor/dialog/abstract-dialog-view.js"/>
-        <resource type="download" name="macro-browser-editor-abstract-panel-view.js" location="macro-browser/editor/dialog/abstract-panel-view.js"/>
+        <resource type="download" name="config.js" location="macro-browser/editor/util/config.js"/>
+        <resource type="download" name="helper.js" location="macro-browser/editor/util/helper.js"/>
+        <resource type="download" name="service.js" location="macro-browser/editor/util/service.js"/>
+        <resource type="download" name="select2-mixin.js" location="macro-browser/editor/util/select2-mixin.js"/>
+
+        <resource type="download" name="abstract-dialog-view.js" location="macro-browser/editor/dialog/abstract-dialog-view.js"/>
+        <resource type="download" name="abstract-panel-view.js" location="macro-browser/editor/dialog/abstract-panel-view.js"/>
 
         <dependency>confluence.web.resources:amd</dependency>
         <dependency>com.atlassian.auiplugin:aui-select2</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
+        <dependency>${atlassian.plugin.key}:common</dependency>
     </web-resource>
 
     <web-resource key="pdf-export-resources" name="PDF export resources">
@@ -291,9 +302,9 @@
         <context>editor</context>
 
         <dependency>confluence.web.resources:page-editor</dependency>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
-        <dependency>confluence.extra.jira:proxy-js</dependency>  
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency>
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
+        <dependency>confluence.extra.jira:proxy-js</dependency>
         <dependency>confluence.extra.jira:jqlHelper</dependency>  
         <dependency>confluence.extra.jira:jiraAnalytics</dependency>  
         <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
@@ -337,9 +348,10 @@
         <context>dashboard</context>
     </web-resource>
     
-	<resource type="download" name="jira-table.png" location="/jira/jira-table.png">
-	    <param name="content-type" value="image/jpeg"/>
-	</resource>
+    <resource type="download" name="jira-table.png" location="/jira/jira-table.png">
+        <param name="content-type" value="image/jpeg"/>
+    </resource>
+
     <web-resource key="proxy-js">
         <resource type="download" name="proxy.js" location="/jira/proxy.js"/>   
         <dependency>confluence.web.resources:ajs</dependency>  
@@ -458,15 +470,28 @@
             <transformer key="less-transformer"/>
         </transformation>
 
-        <resource type="download" name="macro-browser-editor-jirasprint-main.css" location="macro-browser/editor/jira-sprint-dialog/main.less"/>
-        <resource type="download" name="macro-browser-editor-jirasprint-template.soy.js" location="macro-browser/editor/jira-sprint-dialog/template.soy"/>
+        <resource type="download" name="main.css" location="macro-browser/editor/jira-sprint-dialog/main.less"/>
+        <resource type="download" name="template.soy.js" location="macro-browser/editor/jira-sprint-dialog/template.soy"/>
 
-        <resource type="download" name="macro-browser-editor-jirasprint-dialog-view.js" location="macro-browser/editor/jira-sprint-dialog/dialog-view.js"/>
-        <resource type="download" name="macro-browser-editor-jirasprint-panel-view.js" location="macro-browser/editor/jira-sprint-dialog/sprint-panel-view.js"/>
-        <resource type="download" name="macro-browser-editor-jirasprint-init.js" location="macro-browser/editor/jira-sprint-dialog/init.js"/>
+        <resource type="download" name="dialog-view.js" location="macro-browser/editor/jira-sprint-dialog/dialog-view.js"/>
+        <resource type="download" name="panel-view.js" location="macro-browser/editor/jira-sprint-dialog/panel-view.js"/>
 
         <dependency>confluence.extra.jira:common-macro-browser-editor-resources</dependency>
         <dependency>com.atlassian.confluence.plugins.confluence-macro-browser:macro-browser-js</dependency>
+    </web-resource>
+
+    <!--
+        Because `macro-browser-editor-jirasprint-resource` is used by other plugin (ex: "confluence-software-blueprint")
+        so we will split declaration and execution code in 2 web-resource groups
+    -->
+    <web-resource key="macro-browser-editor-jirasprint-resource-init" name="Jira sprint macro in edit mode resource - Init">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
+        <resource type="download" name="macro-browser-editor-jirasprint-init.js" location="macro-browser/editor/jira-sprint-dialog/init.js"/>
+
+        <dependency>${atlassian.plugin.key}:macro-browser-editor-jirasprint-resource</dependency>
 
         <context>editor</context>
     </web-resource>

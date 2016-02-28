@@ -1,3 +1,4 @@
+
 div.bmDiv {
     color: #000;
     font-size: 14px;
@@ -21,6 +22,7 @@ div.bmDiv {
     border-radius: 3px;
     display: inline-block;
     line-height: 18px; /* CONFDEV-21720 */
+    white-space: normal;
 }
 
 .jira-issue .aui-lozenge {
@@ -54,7 +56,7 @@ div.bmDiv {
     padding-left: 18px; /* 16px icon + 2px padding to match parent padding */
 }
 
-.jira-status{
+.jira-status {
     color: #707070;
     font-size: 12px;
     font-weight: bold;
@@ -98,6 +100,25 @@ div.bmDiv {
 }
 /* END Support Sorting Icon for JIM */
 
+/* Refresh Icon and Spinner for JIM Table */
+.refresh-module-id {
+    position: relative;
+}
+
+.refresh-issues-bottom {
+    margin-top: 5px;
+}
+
+.refresh-issues-bottom .button-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    vertical-align: top;
+}
+
+.refresh-action-group {
+    margin-left: 7px;
+}
 
 .jim-sortable-dark-layout {
     position: absolute; 
@@ -111,6 +132,14 @@ div.bmDiv {
     -moz-opacity: 0.5;
     /* Safari 1.x */
     -khtml-opacity: 0.5;
+
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
 }
 
 .jira-padding-left-10px {

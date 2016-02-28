@@ -241,7 +241,7 @@ public class AbstractJiraTest
 
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelDialogFromMacroBrowser(EditContentPage editPage) throws Exception
     {
-        openDialogFromMacroBrowser(editPage, "embed jira issues");
+        openDialogFromMacroBrowser(editPage, "link to jira issues or sprints");
         return pageBinder.bind(JiraMacroSearchPanelDialog.class);
 
     }
@@ -313,7 +313,7 @@ public class AbstractJiraTest
 
     protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication)
     {
-        openDialogFromMacroBrowser(editPage, "jira chart");
+        openDialogFromMacroBrowser(editPage, "your page as a chart");
         PieChartDialog dialogPieChart = pageBinder.bind(PieChartDialog.class);
 
         if (isAutoAuthentication)

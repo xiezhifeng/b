@@ -20,13 +20,10 @@ function(
 ) {
     'use strict';
 
-    // cache some global vars
-    var AppLinks = window.AppLinks;
-
     var FormDataModel = Backbone.Model.extend({
         defaults: {
             selectedServer: null,
-            isValid: true
+            isValid: false
         },
 
         reset: function() {
@@ -35,6 +32,8 @@ function(
     });
 
     var AbstractPanelView = Backbone.View.extend({
+        template: Confluence.Templates.JiraSprints.Dialog,
+
         initialize: function() {
             // id of panel
             this.panelId = '';
@@ -51,6 +50,7 @@ function(
             this.servers = [];
 
             this.on('reload.data', function() {
+                this.toggleEnablePanel(true);
                 this._fillServersData();
             }, this);
         },
@@ -90,8 +90,6 @@ function(
                 placeholderText: AJS.I18n.getText('jira.server.placeholder'),
                 isRequired: true
             });
-
-            this._fillServersData();
         },
 
         onBeginInitDialog: function() {
@@ -101,6 +99,18 @@ function(
         },
 
         onOpenDialog: function(macroOptions) {
+            // don't need to re-render dialog if switching from other dialogs and form is valid
+            if (macroOptions.isOpenFromOtherDialog &&
+                this.formData.get('isValid')) {
+                return;
+            }
+
+            // open from other dialogs, we need to merge new `macroOptions` with current `macroOptions` of current dialog
+            if (macroOptions.isOpenFromOtherDialog &&
+                this.macroOptions) {
+                _.extend(macroOptions, this.macroOptions);
+            }
+
             this.formData.reset();
 
             if (macroOptions && macroOptions.params && macroOptions.name === this.dialogView.macroId) {
@@ -109,7 +119,11 @@ function(
                 this.macroOptions = null;
             }
 
-            this._fillServersData().done(function() {
+            this.init();
+        },
+
+        init: function() {
+            return this._fillServersData().done(function() {
                 this.reset();
             }.bind(this));
         },
@@ -125,12 +139,18 @@ function(
         },
 
         toggleEnablePanel: function(isEnabled) {
+            var $formControl = this.$('input, area, select');
+
+            // should not disable server select in all cases because we want users to select other server.
+            $formControl = $formControl.not('[name=jira-server]');
+
             if (isEnabled) {
-                this.$('input, area').removeAttr('disabled');
+                $formControl.enable();
             } else {
-                this.$('input, area').attr('disabled', 'disabled');
+                $formControl.disable();
             }
 
+            $formControl.select2('enable', isEnabled);
             this.dialogView.toggleEnableInsertButton(isEnabled);
         },
 
@@ -149,7 +169,13 @@ function(
             }
         },
 
-        handleRequestError: function($el, errorStatus) {
+        /**
+         * Show error message when there is an error in ajax request.
+         * Insert button of dialog will be disabled in case there is an error.
+         * @param $el
+         * @param errorStatus
+         */
+        handleAjaxRequestError: function($el, errorStatus) {
             var errorMessage = AJS.I18n.getText('jira.sprint.validation.cannot.connect');
 
             if (errorStatus === 'timeout') {
@@ -193,30 +219,50 @@ function(
         },
 
         validateServer: function(server) {
-            var _this = this;
-
             var isValid = this.validateJiraServerSupported(server);
 
             if (isValid && server && server.authUrl) {
-                var markup = this.template.errorMessageOauth();
-                this.view.$errorMessage
-                        .removeClass('hidden')
-                        .append(markup);
-
-                this.view.$errorMessage.find('a').click(function(e) {
-                    e.preventDefault();
-
-                    AppLinks.authenticateRemoteCredentials(server.authUrl, function() {
-                        server.authUrl = null;
-                        _this.view.$errorMessage.empty().addClass('hidden');
-                        _this.trigger('reload.data');
-                    });
-                });
-
+                this._renderErrorMessageUnauthentication(server);
                 isValid = false;
             }
 
             return isValid;
+        },
+
+        _renderErrorMessageUnauthentication: function(server) {
+            var _this = this;
+
+            var hasAppLinksUtilResources = (window.AppLinks && window.AppLinks.authenticateRemoteCredentials);
+            var markup = this.template.errorMessageOauth({
+                forceUserToReload: !hasAppLinksUtilResources
+            });
+            this.view.$errorMessage
+                    .removeClass('hidden')
+                    .append(markup);
+
+            this.view.$errorMessage.find('a').click(function(e) {
+                e.preventDefault();
+
+                if (hasAppLinksUtilResources) {
+                    window.AppLinks.authenticateRemoteCredentials(server.authUrl, function() {
+                        server.authUrl = null;
+
+                        // reset data for global variable so that other dialogs don't need to do authentication again.
+                        var findedServer = _.findWhere(window.AJS.Editor.JiraConnector.servers, {id: server.id});
+                        if (findedServer) {
+                            findedServer.authUrl = null;
+                        }
+
+                        _this.view.$errorMessage.empty().addClass('hidden');
+                        _this.trigger('reload.data');
+                    });
+                } else {
+                    // in some special pages, ex: Upload Add-on page,
+                    // somehow we can not load async applinks resources.
+                    // Users must reload page manually after finishing authentication.
+                    window.open(server.authUrl, 'com_atlassian_applinks_authentication');
+                }
+            });
         },
 
         validateRequiredFields: function($el, message) {
@@ -234,19 +280,16 @@ function(
 
         validateJiraServerSupported: function(server) {
             if (helper.isJiraUnSupportedVersion(server)) {
-                var markup = Confluence.Templates.ConfluenceJiraPlugin.showJiraUnsupportedVersion({});
+                var markup = this.template.showJiraUnsupportedVersion({});
 
                 this.view.$errorMessage
                         .html(markup)
                         .removeClass('hidden');
 
-                this.toggleEnablePanel(false);
-
                 return false;
             }
 
             this.view.$errorMessage.empty().addClass('hidden');
-            this.toggleEnablePanel(true);
 
             return true;
         },
@@ -265,13 +308,22 @@ function(
             dfd.done(function() {
                 this.toggleSelect2Loading($select, false);
                 this.view.$errorMessage.empty().addClass('hidden');
+                this.dialogView.toggleEnableInsertButton(true);
             }.bind(this));
 
             dfd.fail(function(xhr, errorStatus) {
-                this.handleRequestError($select, errorStatus);
+                this.handleAjaxRequestError($select, errorStatus);
             }.bind(this));
 
             return dfd;
+        },
+
+        setServerValue: function(serverId) {
+            var isValid = this.setSelect2Value(this.view.$servers, serverId);
+
+            if (!isValid) {
+                AJS.log('Can not find server id: ' + serverId);
+            }
         },
 
         /**
@@ -304,9 +356,9 @@ function(
 
                         // choose a server as selected by default.
                         if (selectedServerId) {
-                            this.setSelect2Value(this.view.$servers, selectedServerId);
+                            this.setServerValue(selectedServerId);
                         } else if (this.primaryServer) {
-                            this.setSelect2Value(this.view.$servers, this.primaryServer.id);
+                            this.setServerValue(this.primaryServer.id);
                         } else {
                             this.selectFirstValueInSelect2(this.view.$servers);
                         }
@@ -324,10 +376,15 @@ function(
 
             this.formData.set('isValid', this.validateServer(selectedServer));
 
-            if (this.formData.get('isValid')) {
-                this.dialogView.toggleEnableInsertButton(true);
-            } else {
-                this.dialogView.toggleEnableInsertButton(false);
+            var isValid = this.formData.get('isValid');
+
+            // if there is any error regarding to server,
+            // we will disable all form controls, ex: input, select, Insert button dialog...
+            this.toggleEnablePanel(isValid);
+
+            // should not cache any data if there is any error regarding to server
+            if (!isValid) {
+                service.resetCachingData();
             }
         },
 

@@ -1,6 +1,7 @@
 require([
     'jquery',
     'ajs',
+    'underscore',
     'confluence/jim/macro-browser/editor/jirasprint/sprint-panel-view',
     'confluence/jim/macro-browser/editor/jirasprint/dialog-view',
     'confluence/jim/macro-browser/editor/util/config'
@@ -8,6 +9,7 @@ require([
 function(
     $,
     AJS,
+    _,
     JiraSprintPanelView,
     JiraSprintDialogView,
     config
@@ -42,10 +44,12 @@ function(
     });
 
     // support other dialogs can send trigger to open jira-sprint dialog
-    AJS.bind('jim.jira.sprint.open', function() {
-        jiraSprintDialogView.open({
+    AJS.bind('jim.jira.sprint.open', function(e, options) {
+        var ops = _.extend({
             name: config.macroIdSprint
-        });
+        }, options);
+
+        jiraSprintDialogView.open(ops);
     });
 
     AJS.MacroBrowser.setMacroJsOverride(config.macroIdSprint, {
