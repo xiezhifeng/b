@@ -16,14 +16,23 @@ public class ConfluencePageDto
     private String pageUrl;
     private Date lastModified;
     private List<String> labels;
+    private String author;
+    private String lastModifier;
 
-    public ConfluencePageDto(Long pageId, String pageTitle, String pageUrl, Date lastModified, List<String> labels)
+    private ConfluencePageDto(Builder builder)
     {
-        this.pageId = pageId;
-        this.pageTitle = pageTitle;
-        this.pageUrl = pageUrl;
-        this.lastModified = lastModified;
-        this.labels = labels;
+        author = builder.author;
+        pageId = builder.pageId;
+        pageTitle = builder.pageTitle;
+        pageUrl = builder.pageUrl;
+        lastModified = builder.lastModified;
+        labels = builder.labels;
+        lastModifier = builder.lastModifier;
+    }
+
+    public static Builder newBuilder()
+    {
+        return new Builder();
     }
 
     public Long getPageId()
@@ -49,5 +58,77 @@ public class ConfluencePageDto
     public List<String> getLabels()
     {
         return labels;
+    }
+
+    public String getAuthor()
+    {
+        return author;
+    }
+
+    public String getLastModifier()
+    {
+        return lastModifier;
+    }
+
+    public static final class Builder
+    {
+        private String author;
+        private Long pageId;
+        private String pageTitle;
+        private String pageUrl;
+        private Date lastModified;
+        private List<String> labels;
+        private String lastModifier;
+
+        private Builder()
+        {
+        }
+
+        public Builder withAuthor(String val)
+        {
+            author = val;
+            return this;
+        }
+
+        public Builder withPageId(Long val)
+        {
+            pageId = val;
+            return this;
+        }
+
+        public Builder withPageTitle(String val)
+        {
+            pageTitle = val;
+            return this;
+        }
+
+        public Builder withPageUrl(String val)
+        {
+            pageUrl = val;
+            return this;
+        }
+
+        public Builder withLastModified(Date val)
+        {
+            lastModified = val;
+            return this;
+        }
+
+        public Builder withLabels(List<String> val)
+        {
+            labels = val;
+            return this;
+        }
+
+        public Builder withLastModifier(String val)
+        {
+            lastModifier = val;
+            return this;
+        }
+
+        public ConfluencePageDto build()
+        {
+            return new ConfluencePageDto(this);
+        }
     }
 }
