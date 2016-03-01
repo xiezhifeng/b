@@ -7,6 +7,7 @@ public class ConfluencePagesQuery extends PagingQuery
     List<Long> pageIds;
     String cacheToken;
     String searchString;
+    String spaceKey;
 
     private ConfluencePagesQuery(Builder builder)
     {
@@ -14,6 +15,7 @@ public class ConfluencePagesQuery extends PagingQuery
         cacheToken = builder.cacheToken;
         pageIds = builder.pageIds;
         this.searchString = builder.searchString;
+        this.spaceKey = builder.spaceKey;
     }
 
     public static Builder newBuilder()
@@ -36,11 +38,16 @@ public class ConfluencePagesQuery extends PagingQuery
         return searchString;
     }
 
+    public String getSpaceKey() {
+        return spaceKey;
+    }
+
     public static final class Builder extends PagingQuery.Builder
     {
         private String cacheToken;
         private List<Long> pageIds;
         private String searchString;
+        private String spaceKey;
 
         private Builder()
         {
@@ -61,6 +68,11 @@ public class ConfluencePagesQuery extends PagingQuery
         public Builder withSearchString(String searchString)
         {
             this.searchString = searchString;
+            return this;
+        }
+
+        public Builder withSpaceKey(String spaceKey) {
+            this.spaceKey = spaceKey;
             return this;
         }
 

@@ -2,6 +2,14 @@
     if (!Confluence.Blueprint.Selector)
         return;
 
+    var blueprints = {
+        'decisions'      : 'com.atlassian.confluence.plugins.confluence-business-blueprints:decisions-blueprint-item',
+        'meeting-notes'  : 'com.atlassian.confluence.plugins.confluence-business-blueprints:meeting-notes-item',
+        'requirements'   : 'com.atlassian.confluence.plugins.confluence-software-blueprints:requirements-item',
+        'retrospectives' : 'com.atlassian.confluence.plugins.confluence-software-blueprints:retrospectives-item',
+        'blank-pages'    : 'com.atlassian.confluence.plugins.confluence-create-content-plugin:create-blank-page'
+    };
+
     /**
      * The create dialog accepts arbitrary parameters via the init-dialog action which are passed through to
      * the context property of a BlueprintPageCreateEvent. We handle some of these parameters for content creation
@@ -23,5 +31,10 @@
         // Creating a page after a sprint has been completed - time for a retrospective!
         if (params.sprintId && params.agileMode === "report")
             return "com.atlassian.confluence.plugins.confluence-software-blueprints:retrospectives-item";
+
+        // blueprintShortKey will be passed from JIRA side
+        params.blueprintShortKey = params.blueprintShortKey || "";
+        // be able to select blueprint as requested
+        return blueprints[params.blueprintShortKey];
     });
 })();

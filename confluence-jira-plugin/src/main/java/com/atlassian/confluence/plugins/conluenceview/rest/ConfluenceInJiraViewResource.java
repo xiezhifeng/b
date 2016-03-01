@@ -1,13 +1,5 @@
 package com.atlassian.confluence.plugins.conluenceview.rest;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-
 import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.LinkedSpacesDto;
@@ -15,6 +7,15 @@ import com.atlassian.confluence.plugins.conluenceview.rest.params.PagesSearchPar
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluenceJiraLinksService;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -39,12 +40,24 @@ public class ConfluenceInJiraViewResource
 
     @POST
     @Path ("/pages/search")
-    public Response getPages(PagesSearchParam param)
+    public Response getPagesByIds(PagesSearchParam param)
     {
-        ConfluencePagesDto result = confluencePagesService.search(ConfluencePagesQuery.newBuilder()
+        ConfluencePagesDto result = confluencePagesService.getPagesByIds(ConfluencePagesQuery.newBuilder()
                 .withCacheToken(param.getCacheToken()).withPageIds(param.getPageIds())
                 .withSearchString(param.getSearchString())
                 .withLimit(param.getLimit()).withStart(param.getStart()).build());
+
+        return Response.ok(result).build();
+    }
+
+    @GET
+    @Path ("/{spaceKey}/pages")
+    public Response getPagesInSpace(@PathParam("spaceKey") String spaceKey,
+                                    @QueryParam("start") int start, @QueryParam("limit") int limit)
+    {
+        ConfluencePagesDto result = confluencePagesService.getPagesInSpace(ConfluencePagesQuery.newBuilder()
+                .withSpaceKey(spaceKey)
+                .withLimit(limit).withStart(start).build());
 
         return Response.ok(result).build();
     }

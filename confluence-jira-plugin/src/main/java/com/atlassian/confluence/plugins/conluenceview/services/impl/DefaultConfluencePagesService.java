@@ -50,18 +50,29 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
         this.requestCache = requestCache;
     }
 
-    public ConfluencePagesDto search(final ConfluencePagesQuery query)
+    public ConfluencePagesDto getPagesInSpace(final ConfluencePagesQuery query) {
+        String cql = "type = page and space = " + query.getSpaceKey() + " order by lastModified desc";
+
+        return getPages(cql, query.getStart(), query.getLimit());
+    }
+
+    public ConfluencePagesDto getPagesByIds(final ConfluencePagesQuery query)
     {
         validate(query);
 
-        String cql = buildCql(query);
+        String cql = buildCql(query.getCacheToken(), query.getPageIds());
 
         if (StringUtils.isNotBlank(query.getSearchString()))
         {
             cql = String.format(PAGES_SEARCH_BY_TEXT_CQL, query.getSearchString().trim()) + " and " + cql;
         }
 
-        PageRequest request = new SimplePageRequest(query.getStart(), query.getLimit());
+        return getPages(cql, query.getStart(), query.getLimit());
+    }
+
+    private ConfluencePagesDto getPages(String cql, int start, int limit) {
+        PageRequest request = new SimplePageRequest(start, limit);
+
         final PageResponse<Content> contents = searchService.searchContent(cql, request,
                 new Expansion("history", new Expansions().prepend("lastUpdated")),
                 new Expansion("metadata", new Expansions().prepend("labels")));
@@ -108,18 +119,20 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
         return ConfluencePagesDto.newBuilder().withPages(pages).build();
     }
 
-    private String buildCql(ConfluencePagesQuery query)
+    /**
+     * Build cql from pageIds and put to cache to reuse
+     * @param token cache token
+     * @param pageIds list of page ids
+     * @return cql
+     */
+    private String buildCql(String token, List<Long> pageIds)
     {
         String pageIdsStr = "";
-
-        String token = query.getCacheToken();
 
         // get cql from cache by token
         String cql = requestCache.get(token);
 
-        final List<Long> pageIds = query.getPageIds();
-
-        if (CollectionUtils.isEmpty(pageIds))
+        if (pageIds == null || pageIds.isEmpty())
         {
             if (StringUtils.isBlank(cql))
             {
