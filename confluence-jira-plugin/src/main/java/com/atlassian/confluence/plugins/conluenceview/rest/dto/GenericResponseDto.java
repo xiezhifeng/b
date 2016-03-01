@@ -44,7 +44,7 @@ public class GenericResponseDto implements Serializable
 
     public static class Builder
     {
-        protected int status;
+        protected int status = HttpStatus.SC_OK;
 
         protected String errorMessage;
 
