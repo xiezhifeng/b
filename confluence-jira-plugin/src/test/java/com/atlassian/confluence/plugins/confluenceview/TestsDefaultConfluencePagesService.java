@@ -98,7 +98,7 @@ public class TestsDefaultConfluencePagesService
         {
             ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().build();
 
-            service.search(query);
+            service.getPagesByIds(query);
             assertTrue("This line of code is not expected to be executed", false);
         }
         catch (Exception e)
@@ -118,7 +118,7 @@ public class TestsDefaultConfluencePagesService
         when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class), isA(Expansion.class))).thenReturn(contents);
 
         when(cache.get(TOKEN)).thenReturn(null);
-        final ConfluencePagesDto result = service.search(query);
+        final ConfluencePagesDto result = service.getPagesByIds(query);
         assertEquals(2, result.getPages().size());
         // verify that request ids is cached
         Mockito.verify(cache, times(1)).put(TOKEN, CQL);
@@ -135,7 +135,7 @@ public class TestsDefaultConfluencePagesService
 
         when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class), isA(Expansion.class))).thenReturn(contents);
 
-        ConfluencePagesDto result = service.search(query);
+        ConfluencePagesDto result = service.getPagesByIds(query);
         assertEquals(2, result.getPages().size());
 
         Mockito.verify(cache, times(1)).put(TOKEN, CQL);
@@ -148,7 +148,7 @@ public class TestsDefaultConfluencePagesService
         {
             ConfluencePagesQuery query = ConfluencePagesQuery.newBuilder().withCacheToken(TOKEN).build();
             when(cache.get(TOKEN)).thenReturn(null);
-            service.search(query);
+            service.getPagesByIds(query);
             assertTrue("This line of code is not expected to be executed", false);
         }
         catch (Exception e)
@@ -166,7 +166,7 @@ public class TestsDefaultConfluencePagesService
 
         when(cqlSearchService.searchContent(eq(CQL), isA(PageRequest.class), isA(Expansion.class), isA(Expansion.class))).thenReturn(contents);
 
-        ConfluencePagesDto result = service.search(query);
+        ConfluencePagesDto result = service.getPagesByIds(query);
         assertEquals(2, result.getPages().size());
 
         Mockito.verify(cache, never()).put(TOKEN, CQL);
@@ -183,7 +183,7 @@ public class TestsDefaultConfluencePagesService
         String cql = "text ~ \"text\" and id in (1,2) and type = page order by lastModified desc";
         when(cqlSearchService.searchContent(eq(cql), isA(PageRequest.class), isA(Expansion.class), isA(Expansion.class))).thenReturn(contents);
 
-        ConfluencePagesDto result = service.search(query);
+        ConfluencePagesDto result = service.getPagesByIds(query);
         assertEquals(2, result.getPages().size());
 
         Mockito.verify(cache, never()).put(TOKEN, CQL);

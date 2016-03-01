@@ -5,5 +5,8 @@ import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDt
 
 public interface ConfluencePagesService
 {
-    ConfluencePagesDto search(ConfluencePagesQuery query);
+    ConfluencePagesDto getPagesInSpace(final ConfluencePagesQuery query);
+
+    ConfluencePagesDto getPagesByIds(ConfluencePagesQuery query);
+
 }
