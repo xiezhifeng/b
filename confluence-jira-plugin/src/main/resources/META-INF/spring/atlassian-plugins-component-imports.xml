@@ -27,6 +27,16 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:value>com.atlassian.applinks.api.ReadOnlyApplicationLinkService</beans:value>
     </osgi:interfaces>
   </osgi:reference>
+  <osgi:reference id="entityLinkService">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.applinks.spi.link.MutatingEntityLinkService</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+  <osgi:reference id="applinkHostApplication">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.applinks.host.spi.InternalHostApplication</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
   <osgi:reference id="hostApplication">
     <osgi:interfaces>
       <beans:value>com.atlassian.applinks.host.spi.HostApplication</beans:value>
@@ -67,5 +77,23 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
     <osgi:interfaces>
       <beans:value>com.atlassian.sal.api.features.DarkFeatureManager</beans:value>
     </osgi:interfaces>
+  </osgi:reference>
+
+  <osgi:reference id="searchService">
+      <osgi:interfaces>
+          <beans:value>com.atlassian.confluence.api.service.search.CQLSearchService</beans:value>
+      </osgi:interfaces>
+  </osgi:reference>
+
+  <osgi:reference id="spaceManager">
+      <osgi:interfaces>
+          <beans:value>com.atlassian.confluence.spaces.SpaceManager</beans:value>
+      </osgi:interfaces>
+  </osgi:reference>
+
+  <osgi:reference id="spaceLogoManager">
+      <osgi:interfaces>
+          <beans:value>com.atlassian.confluence.spaces.SpaceLogoManager</beans:value>
+      </osgi:interfaces>
   </osgi:reference>
 </beans:beans>

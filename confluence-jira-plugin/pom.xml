@@ -249,6 +249,20 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.applinks</groupId>
+            <artifactId>applinks-test-common</artifactId>
+            <version>5.0.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-java-api</artifactId>
+            <version>${confluence.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -393,6 +407,9 @@
                             com.atlassian.applinks.api.event,
                             com.atlassian.applinks.host.spi,
                             com.atlassian.applinks.spi.auth,
+                            com.atlassian.applinks.spi.link,
+                            com.atlassian.applinks.application.jira,
+                            com.atlassian.applinks.application.confluence,
                             com.atlassian.bandana,
                             com.atlassian.cache,
                             com.atlassian.config,
@@ -408,6 +425,7 @@
                             com.atlassian.confluence.event.events,
                             com.atlassian.confluence.event.events.content.blogpost,
                             com.atlassian.confluence.event.events.content.page,
+                            com.atlassian.confluence.event.events.space,
                             com.atlassian.confluence.event.events.template,
                             com.atlassian.confluence.extra.jira.api.services,
                             com.atlassian.confluence.json.json,
@@ -420,8 +438,11 @@
                             com.atlassian.confluence.pages.thumbnail,
                             com.atlassian.confluence.plugin.descriptor.web.conditions,
                             com.atlassian.confluence.plugins.createcontent.events; version="2.0",
+                            com.atlassian.confluence.api.service.search,
+                            com.atlassian.confluence.api.model.*,
                             com.atlassian.confluence.renderer,
                             com.atlassian.confluence.renderer.radeox.macros,
+                            com.atlassian.confluence.rest.api.model,
                             com.atlassian.confluence.search.service,
                             com.atlassian.confluence.security,
                             com.atlassian.confluence.setup,
@@ -435,6 +456,7 @@
                             com.atlassian.confluence.util.velocity,
                             com.atlassian.confluence.web,
                             com.atlassian.confluence.xhtml.api,
+                            com.atlassian.confluence.spaces,
                             com.atlassian.event,
                             com.atlassian.event.api,
                             com.atlassian.webresource.api.assembler,
@@ -472,6 +494,7 @@
                             javax.transaction,
                             javax.ws.rs;version="1.1",
                             javax.ws.rs.core;version="1.1",
+                            javax.ws.rs.ext;version="1.1",
                             javax.xml.bind.annotation,
                             javax.xml.parsers,
                             net.sf.hibernate,
@@ -507,7 +530,8 @@
                             org.springframework.beans;version="2.5",
                             org.springframework.beans.factory;version="2.5",
                             org.springframework.beans.factory.config,
-                            org.xml.sax
+                            org.xml.sax,
+                            org.joda.time.*
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.confluence.extra.jira,

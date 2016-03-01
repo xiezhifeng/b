@@ -42,9 +42,30 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="base64JiraChartImageService" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService"/>
   <beans:bean id="confluenceEventListener" autowire="default" class="com.atlassian.confluence.plugins.jira.ConfluenceEventListener"/>
 
-  <beans:bean id="jiraRemoteSprintLinkManager" autowire="default" class="com.atlassian.confluence.plugins.jira.links.JiraRemoteSprintLinkManager"/>
-  <beans:bean id="jiraRemoteEpicLinkManager" autowire="default" class="com.atlassian.confluence.plugins.jira.links.JiraRemoteEpicLinkManager"/>
-  <beans:bean id="jiraRemoteIssueLinkManager" autowire="default" class="com.atlassian.confluence.plugins.jira.links.JiraRemoteIssueLinkManager"/>
+  <beans:bean id="jiraRemoteSprintLinkManager" class="com.atlassian.confluence.plugins.jira.links.JiraRemoteSprintLinkManager">
+    <beans:constructor-arg index="0" ref="readOnlyApplicationLinkService"></beans:constructor-arg>
+    <beans:constructor-arg index="1" ref="hostApplication"></beans:constructor-arg>
+    <beans:constructor-arg index="2" ref="settingsManager"></beans:constructor-arg>
+    <beans:constructor-arg index="3" ref="jiraIssueMacroFinder"></beans:constructor-arg>
+    <beans:constructor-arg index="4" ref="requestFactory"></beans:constructor-arg>
+  </beans:bean>
+
+  <beans:bean id="jiraRemoteIssueLinkManager" class="com.atlassian.confluence.plugins.jira.links.JiraRemoteIssueLinkManager">
+    <beans:constructor-arg index="0" ref="readOnlyApplicationLinkService"></beans:constructor-arg>
+    <beans:constructor-arg index="1" ref="hostApplication"></beans:constructor-arg>
+    <beans:constructor-arg index="2" ref="settingsManager"></beans:constructor-arg>
+    <beans:constructor-arg index="3" ref="jiraIssueMacroFinder"></beans:constructor-arg>
+    <beans:constructor-arg index="4" ref="requestFactory"></beans:constructor-arg>
+    <beans:constructor-arg index="5" ref="jiraExecutorFactory"></beans:constructor-arg>
+  </beans:bean>
+
+  <beans:bean id="jiraRemoteEpicLinkManager" class="com.atlassian.confluence.plugins.jira.links.JiraRemoteEpicLinkManager">
+    <beans:constructor-arg index="0" ref="readOnlyApplicationLinkService"></beans:constructor-arg>
+    <beans:constructor-arg index="1" ref="hostApplication"></beans:constructor-arg>
+    <beans:constructor-arg index="2" ref="settingsManager"></beans:constructor-arg>
+    <beans:constructor-arg index="3" ref="jiraIssueMacroFinder"></beans:constructor-arg>
+    <beans:constructor-arg index="4" ref="requestFactory"></beans:constructor-arg>
+  </beans:bean>
 
   <beans:bean id="imagePlaceHolderHelper" autowire="default" class="com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper"/>
   <beans:bean id="jiraIssueSortingManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssueSortingManager"/>
@@ -56,5 +77,17 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="twodimensional" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.render.TwoDimensionalChart"/>
   <beans:bean class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean" id="jiraChartFactory">
      <beans:property name="serviceLocatorInterface" value="com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory"/>
+  </beans:bean>
+
+  <beans:bean id="confluencePagesService" autowire="default" class="com.atlassian.confluence.plugins.conluenceview.services.impl.DefaultConfluencePagesService"/>
+
+  <beans:bean id="confluenceJiraLinksService" class="com.atlassian.confluence.plugins.conluenceview.services.impl.DefaultConfluenceJiraLinksService">
+    <beans:constructor-arg index="0" ref="entityLinkService"></beans:constructor-arg>
+    <beans:constructor-arg index="1" ref="applinkHostApplication"></beans:constructor-arg>
+    <beans:constructor-arg index="2" ref="hostApplication"></beans:constructor-arg>
+    <beans:constructor-arg index="3" ref="readOnlyApplicationLinkService"></beans:constructor-arg>
+    <beans:constructor-arg index="4" ref="eventPublisher"></beans:constructor-arg>
+    <beans:constructor-arg index="5" ref="spaceManager"></beans:constructor-arg>
+    <beans:constructor-arg index="6" ref="spaceLogoManager"></beans:constructor-arg>
   </beans:bean>
 </beans:beans>
