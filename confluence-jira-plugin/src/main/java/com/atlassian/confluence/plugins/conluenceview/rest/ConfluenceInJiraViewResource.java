@@ -1,5 +1,8 @@
 package com.atlassian.confluence.plugins.conluenceview.rest;
 
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
+import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.LinkedSpacesDto;
@@ -30,12 +33,14 @@ public class ConfluenceInJiraViewResource
 {
     private final ConfluencePagesService confluencePagesService;
     private final ConfluenceJiraLinksService confluenceJiraLinksService;
+    private final ReadOnlyApplicationLinkService readOnlyApplicationLinkService;
 
 
-    public ConfluenceInJiraViewResource(ConfluencePagesService confluencePagesService, ConfluenceJiraLinksService confluenceJiraLinksService)
+    public ConfluenceInJiraViewResource(ConfluencePagesService confluencePagesService, ConfluenceJiraLinksService confluenceJiraLinksService, ReadOnlyApplicationLinkService readOnlyApplicationLinkService)
     {
         this.confluencePagesService = confluencePagesService;
         this.confluenceJiraLinksService = confluenceJiraLinksService;
+        this.readOnlyApplicationLinkService = readOnlyApplicationLinkService;
     }
 
     @POST
@@ -67,6 +72,21 @@ public class ConfluenceInJiraViewResource
     public Response getODApplicationId()
     {
         return Response.ok(confluenceJiraLinksService.getODApplicationLinkId()).build();
+    }
+
+    @GET
+    @Path("/jira-applink-id")
+    public Response getJIRAApplinkId(@QueryParam("jiraUrl") String jiraUrl)
+    {
+        String appLinkId = "";
+
+        Iterable<ReadOnlyApplicationLink> appLinks = readOnlyApplicationLinkService.getApplicationLinks(JiraApplicationType.class);
+        for (ReadOnlyApplicationLink appLink : appLinks) {
+            if (jiraUrl.startsWith(appLink.getRpcUrl().toString()) || jiraUrl.startsWith(appLink.getDisplayUrl().toString())) {
+                appLinkId = appLink.getId().toString();
+            }
+        }
+        return Response.ok(appLinkId).build();
     }
 
     @GET
