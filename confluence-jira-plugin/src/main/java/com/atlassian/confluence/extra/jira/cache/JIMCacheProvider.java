@@ -10,6 +10,7 @@ import com.atlassian.vcache.marshallers.MarshallerFactory;
 
 import java.time.Duration;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.Objects.requireNonNull;
@@ -32,7 +33,7 @@ public class JIMCacheProvider
      * @param vcacheFactory {@link com.atlassian.vcache.VCacheFactory}
      * @return new <code>DirectExternalCache</code> or existent one (if was already created)
      */
-    public static DirectExternalCache<CompressingStringCache> getResponseCache(VCacheFactory vcacheFactory)
+    public static DirectExternalCache<CompressingStringCache> getResponseCache(@Nonnull VCacheFactory vcacheFactory)
     {
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(CompressingStringCache.class),
@@ -45,7 +46,7 @@ public class JIMCacheProvider
      * @param vcacheFactory {@link com.atlassian.vcache.VCacheFactory}
      * @return new <code>DirectExternalCache</code> or existent one (if was already created)
      */
-    public static DirectExternalCache<JiraChannelResponseHandler> getChannelResponseHandlersCache(VCacheFactory
+    public static DirectExternalCache<JiraChannelResponseHandler> getChannelResponseHandlersCache(@Nonnull VCacheFactory
             vcacheFactory)
     {
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
@@ -59,7 +60,7 @@ public class JIMCacheProvider
      * @param vcacheFactory {@link com.atlassian.vcache.VCacheFactory}
      * @return new <code>DirectExternalCache</code> or existent one (if was already created)
      */
-    public static DirectExternalCache<JiraStringResponseHandler> getStringResponseHandlersCache(VCacheFactory
+    public static DirectExternalCache<JiraStringResponseHandler> getStringResponseHandlersCache(@Nonnull VCacheFactory
             vcacheFactory)
     {
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
