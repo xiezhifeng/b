@@ -51,7 +51,7 @@ public class DefaultConfluencePagesService implements ConfluencePagesService
     }
 
     public ConfluencePagesDto getPagesInSpace(final ConfluencePagesQuery query) {
-        String cql = "type = page and space = " + query.getSpaceKey() + " order by lastModified desc";
+        String cql = "type = page and space = '" + query.getSpaceKey() + "' order by lastModified desc";
 
         return getPages(cql, query.getStart(), query.getLimit());
     }
