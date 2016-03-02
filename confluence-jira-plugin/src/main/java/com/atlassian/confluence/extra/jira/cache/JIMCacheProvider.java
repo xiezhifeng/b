@@ -12,6 +12,8 @@ import java.time.Duration;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Cache provider class  provides helper methods to get different caches in a thread-safe way (to avoid race
  * conditions on cache creation).
@@ -32,7 +34,7 @@ public class JIMCacheProvider
      */
     public static DirectExternalCache<CompressingStringCache> getResponseCache(VCacheFactory vcacheFactory)
     {
-        return vcacheFactory.getDirectExternalCache(JIM_CACHE_NAME,
+        return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(CompressingStringCache.class),
                 new ExternalCacheSettingsBuilder().build());
     }
@@ -46,7 +48,7 @@ public class JIMCacheProvider
     public static DirectExternalCache<JiraChannelResponseHandler> getChannelResponseHandlersCache(VCacheFactory
             vcacheFactory)
     {
-        return vcacheFactory.getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
+        return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
                 new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(5)).build());
     }
@@ -60,7 +62,7 @@ public class JIMCacheProvider
     public static DirectExternalCache<JiraStringResponseHandler> getStringResponseHandlersCache(VCacheFactory
             vcacheFactory)
     {
-        return vcacheFactory.getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
+        return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(JiraStringResponseHandler.class),
                 new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(5)).build());
     }
