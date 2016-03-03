@@ -28,9 +28,12 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static com.atlassian.confluence.extra.jira.util.JiraUtil.JIRA_PLUGIN_KEY;
-import static com.atlassian.vcache.VCacheUtils.join;
+import static com.atlassian.vcache.VCacheUtils.fold;
+import static java.util.Objects.requireNonNull;
 
 public class JiraIssuesServlet extends HttpServlet
 {
@@ -55,12 +58,12 @@ public class JiraIssuesServlet extends HttpServlet
 
     public void setVcacheFactory(VCacheFactory vcacheFactory)
     {
-        this.vcacheFactory = vcacheFactory;
+        this.vcacheFactory = requireNonNull(vcacheFactory);
     }
 
     public void setPluginAccessor(PluginAccessor pluginAccessor)
     {
-        this.pluginAccessor = pluginAccessor;
+        this.pluginAccessor = requireNonNull(pluginAccessor);
     }
 
     public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager)
@@ -252,11 +255,13 @@ public class JiraIssuesServlet extends HttpServlet
             if (log.isDebugEnabled())
                 log.debug("flushing cache for key: "+key);
 
-            join(cache.remove(key.toKey()));
+            fold(cache.remove(key.toKey()), (b, t) -> true);
         }
 
         CompressingStringCache subCacheForKey =
-            join(cache.get(key.toKey(), () -> new CompressingStringCache(new ConcurrentHashMap())));
+            fold(cache.get(key.toKey(), () -> new CompressingStringCache(new ConcurrentHashMap())),
+                    (compressingStringCache, throwable) -> throwable != null ?
+                            new CompressingStringCache(new ConcurrentHashMap()) : compressingStringCache);
 
         return subCacheForKey;
     }
