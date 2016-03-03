@@ -1,5 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.util.List;
+
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
 import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
@@ -11,10 +13,8 @@ import com.atlassian.util.concurrent.Supplier;
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.VCacheFactory;
 
-import java.util.List;
-
 import static com.atlassian.confluence.extra.jira.util.JiraUtil.JIRA_PLUGIN_KEY;
-import static com.atlassian.vcache.VCacheUtils.join;
+import static com.atlassian.vcache.VCacheUtils.fold;
 
 public class DefaultJiraCacheManager implements JiraCacheManager
 {
@@ -54,18 +54,21 @@ public class DefaultJiraCacheManager implements JiraCacheManager
     private static <T> void clean(CacheKey mappedKey, CacheKey unmappedKey, boolean isAnonymous,
             DirectExternalCache<T> cache)
     {
-        if (join(cache.get(mappedKey.toKey())).isPresent())
-        {
-            join(cache.remove(mappedKey.toKey()));
-        }
-        else
-        {
-            boolean userIsMapped = isAnonymous == false && AuthenticatedUserThreadLocal.getUsername() != null;
-            if (userIsMapped == false) // only care unmap cache in case user not logged it
+        fold(cache.get(mappedKey.toKey()), t ->
             {
-                join(cache.remove(unmappedKey.toKey()));
-            }
-        }
+                if (t.isPresent())
+                {
+                    fold(cache.remove(mappedKey.toKey()), (bool, throwable) -> true);
+                }
+                else
+                {
+                    boolean userIsMapped = isAnonymous == false && AuthenticatedUserThreadLocal.getUsername() != null;
+                    if (!userIsMapped) // only care unmap cache in case user not logged it
+                    {
+                        fold(cache.remove(unmappedKey.toKey()), (bool, throwable) -> true);
+                    }
+                }
+                return true;
+            }, throwable -> null);
     }
-
 }

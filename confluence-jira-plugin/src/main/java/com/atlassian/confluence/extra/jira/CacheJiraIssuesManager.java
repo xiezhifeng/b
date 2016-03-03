@@ -1,5 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
@@ -14,18 +20,14 @@ import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.util.concurrent.Lazy;
 import com.atlassian.util.concurrent.Supplier;
 import com.atlassian.vcache.DirectExternalCache;
-import com.atlassian.vcache.JvmCache;
 import com.atlassian.vcache.PutPolicy;
 import com.atlassian.vcache.VCacheFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-
 import static com.atlassian.confluence.extra.jira.util.JiraUtil.JIRA_PLUGIN_KEY;
-import static com.atlassian.vcache.VCacheUtils.join;
+import static com.atlassian.vcache.VCacheUtils.fold;
 
 public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 {
@@ -104,24 +106,26 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
     private static <T extends JiraResponseHandler> T tryCache(CacheKey mappedCacheKey,
         CacheKey unmappedCacheKey, boolean userIsMapped, DirectExternalCache<T> cache)
     {
-        return join(cache.get(mappedCacheKey.toKey())).orElseGet(() -> {
+        return fold(cache.get(mappedCacheKey.toKey()), t -> t.orElseGet(() -> {
             if (!userIsMapped)
             {
-                return join(cache.get(unmappedCacheKey.toKey())).orElse(null);
+                return fold(cache.get(unmappedCacheKey.toKey()), r -> r.orElse(null), throwable -> null);
             }
             return null;
-        });
+        }), throwable -> null);
     }
 
     private void populateCache(CacheKey cacheKey, JiraResponseHandler responseHandler)
     {
         if (responseHandler instanceof JiraChannelResponseHandler)
         {
-            join(responseChannelHandlerCache.put(cacheKey.toKey(), (JiraChannelResponseHandler) responseHandler, PutPolicy.ADD_ONLY));
+            fold(responseChannelHandlerCache.put(cacheKey.toKey(), (JiraChannelResponseHandler) responseHandler,
+                            PutPolicy.ADD_ONLY), (aBoolean, throwable) -> true);
         }
         else if (responseHandler instanceof JiraStringResponseHandler)
         {
-            join(responseStringHandlerCache.put(cacheKey.toKey(), (JiraStringResponseHandler) responseHandler, PutPolicy.ADD_ONLY));
+            fold(responseStringHandlerCache.put(cacheKey.toKey(), (JiraStringResponseHandler) responseHandler,
+                    PutPolicy.ADD_ONLY), (aBoolean, throwable) -> true);
         }
         else
         {
