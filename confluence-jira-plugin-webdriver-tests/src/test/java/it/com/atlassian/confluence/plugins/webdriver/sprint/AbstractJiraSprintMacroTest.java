@@ -10,9 +10,11 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 
 import static it.com.atlassian.confluence.plugins.webdriver.model.SprintStatus.*;
 
+@Ignore("CONFDEV-41527")
 public class AbstractJiraSprintMacroTest extends AbstractJiraTest
 {
     protected static final BoardModel SCRUM_BOARD_1 = new ScrumBoardModel("Scrum Board 1");

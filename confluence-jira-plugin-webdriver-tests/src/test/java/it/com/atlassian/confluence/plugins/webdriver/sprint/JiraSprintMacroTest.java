@@ -4,6 +4,7 @@ import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorCon
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.sprint.JiraSprintMacroPage;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import static it.com.atlassian.confluence.plugins.webdriver.model.SprintStatus.*
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+@Ignore("CONFDEV-41527")
 public class JiraSprintMacroTest extends AbstractJiraSprintMacroTest
 {
     @Test
