@@ -14,6 +14,7 @@ import com.atlassian.applinks.host.spi.InternalHostApplication;
 import com.atlassian.applinks.spi.link.MutatingEntityLinkService;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
+import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.confluence.event.events.space.SpaceLogoUpdateEvent;
 import com.atlassian.confluence.event.events.space.SpacePermissionsUpdateEvent;
 import com.atlassian.confluence.event.events.space.SpaceRemoveEvent;
@@ -29,16 +30,17 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.DisposableBean;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.DisposableBean;
 
 public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksService, DisposableBean
 {
+    private static final int CACHE_EXPIRE_TIME = 10; // 10 minutes
     private final MutatingEntityLinkService entityLinkService;
     private final InternalHostApplication applinkHostApplication;
     private final HostApplication hostApplication;
@@ -47,6 +49,7 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
     private final SpaceManager spaceManager;
     private final SpaceLogoManager spaceLogoManager;
     private final CacheManager cacheManager;
+    private Cache<String, List<LinkedSpaceDto>> cache;
 
     public DefaultConfluenceJiraLinksService(MutatingEntityLinkService entityLinkService, InternalHostApplication applinkHostApplication,
                                              HostApplication hostApplication, ReadOnlyApplicationLinkService appLinkService, EventPublisher eventPublisher, SpaceManager spaceManager, SpaceLogoManager spaceLogoManager, CacheManager cacheManager)
@@ -260,7 +263,13 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         eventPublisher.unregister(this);
     }
 
-    private Cache<String, List<LinkedSpaceDto>> getCache() {
-        return cacheManager.getCache(LinkedSpaceDto.class.getName());
+    private Cache<String, List<LinkedSpaceDto>> getCache()
+    {
+        if (this.cache == null)
+        {
+            this.cache = cacheManager.getCache(LinkedSpaceDto.class.getName(), null, new CacheSettingsBuilder().expireAfterWrite(CACHE_EXPIRE_TIME, TimeUnit.MINUTES).build());
+        }
+
+        return this.cache;
     }
 }
