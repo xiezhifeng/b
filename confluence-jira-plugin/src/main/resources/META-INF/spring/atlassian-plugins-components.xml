@@ -89,5 +89,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
     <beans:constructor-arg index="4" ref="eventPublisher"></beans:constructor-arg>
     <beans:constructor-arg index="5" ref="spaceManager"></beans:constructor-arg>
     <beans:constructor-arg index="6" ref="spaceLogoManager"></beans:constructor-arg>
+    <beans:constructor-arg index="7" ref="cacheManager"></beans:constructor-arg>
   </beans:bean>
 </beans:beans>

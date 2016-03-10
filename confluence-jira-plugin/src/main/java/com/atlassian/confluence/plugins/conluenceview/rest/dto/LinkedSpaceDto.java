@@ -3,10 +3,11 @@ package com.atlassian.confluence.plugins.conluenceview.rest.dto;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 @XmlAccessorType (XmlAccessType.FIELD)
 @XmlRootElement
-public class LinkedSpaceDto
+public class LinkedSpaceDto implements Serializable
 {
     String spaceKey;
     String spaceName;
