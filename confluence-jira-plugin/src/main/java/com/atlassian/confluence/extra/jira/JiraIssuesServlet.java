@@ -1,10 +1,21 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
+import com.atlassian.confluence.extra.jira.cache.CacheLoggingUtils;
 import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
 import com.atlassian.confluence.extra.jira.cache.JIMCacheProvider;
 import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
@@ -15,21 +26,12 @@ import com.atlassian.util.concurrent.Lazy;
 import com.atlassian.util.concurrent.Supplier;
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.VCacheFactory;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.atlassian.confluence.extra.jira.util.JiraUtil.JIRA_PLUGIN_KEY;
 import static com.atlassian.vcache.VCacheUtils.fold;
@@ -37,7 +39,7 @@ import static java.util.Objects.requireNonNull;
 
 public class JiraIssuesServlet extends HttpServlet
 {
-    private static final Logger log = Logger.getLogger(JiraIssuesServlet.class);
+    private static final Logger log = LoggerFactory.getLogger(JiraIssuesServlet.class);
 
     private VCacheFactory vcacheFactory;
     private PluginAccessor pluginAccessor;
@@ -255,13 +257,19 @@ public class JiraIssuesServlet extends HttpServlet
             if (log.isDebugEnabled())
                 log.debug("flushing cache for key: "+key);
 
-            fold(cache.remove(key.toKey()), (b, t) -> true);
+            fold(cache.remove(key.toKey()), (result, error) -> {
+                CacheLoggingUtils.log(log, error, true);
+                return null;
+            });
         }
 
         CompressingStringCache subCacheForKey =
             fold(cache.get(key.toKey(), () -> new CompressingStringCache(new ConcurrentHashMap())),
-                    (compressingStringCache, throwable) -> throwable != null ?
-                            new CompressingStringCache(new ConcurrentHashMap()) : compressingStringCache);
+                    (compressingStringCache, throwable) -> {
+                        CacheLoggingUtils.log(log, throwable, false);
+                        return throwable != null ?
+                                new CompressingStringCache(new ConcurrentHashMap()) : compressingStringCache;
+                    });
 
         return subCacheForKey;
     }

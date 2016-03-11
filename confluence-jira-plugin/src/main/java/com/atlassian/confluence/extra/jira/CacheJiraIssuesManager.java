@@ -2,15 +2,13 @@ package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
+import com.atlassian.confluence.extra.jira.cache.CacheLoggingUtils;
 import com.atlassian.confluence.extra.jira.cache.JIMCacheProvider;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
@@ -109,10 +107,16 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         return fold(cache.get(mappedCacheKey.toKey()), t -> t.orElseGet(() -> {
             if (!userIsMapped)
             {
-                return fold(cache.get(unmappedCacheKey.toKey()), r -> r.orElse(null), throwable -> null);
+                return fold(cache.get(unmappedCacheKey.toKey()), r -> r.orElse(null), throwable -> {
+                    CacheLoggingUtils.log(log, throwable, false);
+                    return null;
+                });
             }
             return null;
-        }), throwable -> null);
+        }), throwable -> {
+            CacheLoggingUtils.log(log, throwable, false);
+            return null;
+        });
     }
 
     private void populateCache(CacheKey cacheKey, JiraResponseHandler responseHandler)
@@ -120,12 +124,18 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         if (responseHandler instanceof JiraChannelResponseHandler)
         {
             fold(responseChannelHandlerCache.put(cacheKey.toKey(), (JiraChannelResponseHandler) responseHandler,
-                            PutPolicy.ADD_ONLY), (aBoolean, throwable) -> true);
+                            PutPolicy.ADD_ONLY), (result, error) -> {
+                CacheLoggingUtils.log(log, error, false);
+                return result;
+            });
         }
         else if (responseHandler instanceof JiraStringResponseHandler)
         {
             fold(responseStringHandlerCache.put(cacheKey.toKey(), (JiraStringResponseHandler) responseHandler,
-                    PutPolicy.ADD_ONLY), (aBoolean, throwable) -> true);
+                    PutPolicy.ADD_ONLY), (result, error) -> {
+                CacheLoggingUtils.log(log, error, false);
+                return result;
+            });
         }
         else
         {
