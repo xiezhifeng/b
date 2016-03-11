@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
+import com.atlassian.confluence.extra.jira.cache.CacheLoggingUtils;
 import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
 import com.atlassian.confluence.extra.jira.cache.JIMCacheProvider;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -13,12 +14,16 @@ import com.atlassian.util.concurrent.Supplier;
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.VCacheFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static com.atlassian.confluence.extra.jira.util.JiraUtil.JIRA_PLUGIN_KEY;
 import static com.atlassian.vcache.VCacheUtils.fold;
 
 public class DefaultJiraCacheManager implements JiraCacheManager
 {
 
+    private static final Logger log = LoggerFactory.getLogger(DefaultJiraCacheManager.class);
     public static final String PARAM_CLEAR_CACHE = "clearCache";
 
     private final DirectExternalCache<CompressingStringCache> responseCache;
@@ -58,17 +63,26 @@ public class DefaultJiraCacheManager implements JiraCacheManager
             {
                 if (t.isPresent())
                 {
-                    fold(cache.remove(mappedKey.toKey()), (bool, throwable) -> true);
+                    fold(cache.remove(mappedKey.toKey()), (result, throwable) -> {
+                        CacheLoggingUtils.log(log, throwable, true);
+                        return null;
+                    });
                 }
                 else
                 {
                     boolean userIsMapped = isAnonymous == false && AuthenticatedUserThreadLocal.getUsername() != null;
                     if (!userIsMapped) // only care unmap cache in case user not logged it
                     {
-                        fold(cache.remove(unmappedKey.toKey()), (bool, throwable) -> true);
+                        fold(cache.remove(unmappedKey.toKey()), (result, throwable) -> {
+                            CacheLoggingUtils.log(log, throwable, true);
+                            return null;
+                        });
                     }
                 }
                 return true;
-            }, throwable -> null);
+            }, throwable -> {
+                CacheLoggingUtils.log(log, throwable, false);
+                return null;
+            });
     }
 }
