@@ -1,11 +1,5 @@
 package com.atlassian.confluence.plugins.conluenceview.services.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.atlassian.applinks.api.EntityLink;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
@@ -18,6 +12,14 @@ import com.atlassian.applinks.host.spi.EntityReference;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.applinks.host.spi.InternalHostApplication;
 import com.atlassian.applinks.spi.link.MutatingEntityLinkService;
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.CacheManager;
+import com.atlassian.cache.CacheSettingsBuilder;
+import com.atlassian.confluence.api.model.Expansion;
+import com.atlassian.confluence.api.model.content.Space;
+import com.atlassian.confluence.api.model.pagination.PageResponse;
+import com.atlassian.confluence.api.model.pagination.SimplePageRequest;
+import com.atlassian.confluence.api.service.content.SpaceService;
 import com.atlassian.confluence.event.events.space.SpaceLogoUpdateEvent;
 import com.atlassian.confluence.event.events.space.SpacePermissionsUpdateEvent;
 import com.atlassian.confluence.event.events.space.SpaceRemoveEvent;
@@ -25,42 +27,44 @@ import com.atlassian.confluence.event.events.space.SpaceUpdateEvent;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.LinkedSpaceDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequestException;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluenceJiraLinksService;
-import com.atlassian.confluence.spaces.Space;
-import com.atlassian.confluence.spaces.SpaceLogoManager;
-import com.atlassian.confluence.spaces.SpaceManager;
-import com.atlassian.confluence.spaces.SpacesQuery;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
 
 public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksService, DisposableBean
 {
+    private static final int MAX_SPACES = 100;
+
+    private static final int CACHE_EXPIRE_TIME = 10; // 10 minutes
     private final MutatingEntityLinkService entityLinkService;
     private final InternalHostApplication applinkHostApplication;
     private final HostApplication hostApplication;
     private final ReadOnlyApplicationLinkService appLinkService;
-    private final Map<String, List<LinkedSpaceDto>> linkedSpaceMap;
     private final EventPublisher eventPublisher;
-    private final SpaceManager spaceManager;
-    private final SpaceLogoManager spaceLogoManager;
+    private final SpaceService spaceService;
+    private final CacheManager cacheManager;
+    private Cache<String, List<LinkedSpaceDto>> cache;
 
     public DefaultConfluenceJiraLinksService(MutatingEntityLinkService entityLinkService, InternalHostApplication applinkHostApplication,
-            HostApplication hostApplication, ReadOnlyApplicationLinkService appLinkService, EventPublisher eventPublisher, SpaceManager spaceManager, SpaceLogoManager spaceLogoManager)
+             HostApplication hostApplication, ReadOnlyApplicationLinkService appLinkService,
+             EventPublisher eventPublisher, SpaceService spaceService, CacheManager cacheManager)
     {
         this.entityLinkService = entityLinkService;
         this.applinkHostApplication = applinkHostApplication;
         this.hostApplication = hostApplication;
         this.appLinkService = appLinkService;
         this.eventPublisher = eventPublisher;
-        this.spaceManager = spaceManager;
-        this.spaceLogoManager = spaceLogoManager;
+        this.spaceService = spaceService;
+        this.cacheManager = cacheManager;
         eventPublisher.register(this);
-
-        linkedSpaceMap = new ConcurrentHashMap<String, List<LinkedSpaceDto>>();
     }
 
     @EventListener
@@ -69,7 +73,7 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         final EntityLink entityLink = event.getEntityLink();
         if ((entityLink.getType().getClass() == JiraProjectEntityTypeImpl.class))
         {
-            linkedSpaceMap.remove(getCacheKey(entityLink.getApplicationLink().getDisplayUrl().toString(), entityLink.getKey()));
+            getCache().remove(getCacheKey(entityLink.getApplicationLink().getDisplayUrl().toString(), entityLink.getKey()));
         }
     }
 
@@ -81,7 +85,7 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
             final ReadOnlyApplicationLink appLink = appLinkService.getApplicationLink(event.getApplicationId());
             if (appLink != null)
             {
-                linkedSpaceMap.remove(getCacheKey(appLink.getDisplayUrl().toString(), event.getEntityKey()));
+                getCache().remove(getCacheKey(appLink.getDisplayUrl().toString(), event.getEntityKey()));
             }
         }
     }
@@ -101,7 +105,7 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
     @EventListener
     public void onSpacePermissionsUpdateEvent(SpacePermissionsUpdateEvent event)
     {
-        linkedSpaceMap.clear();
+        getCache().removeAll();
     }
 
     @EventListener
@@ -132,7 +136,7 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
 
         String cacheKey = getCacheKey(jiraUrl, projectKey);
 
-        List<LinkedSpaceDto> spaceDtos = linkedSpaceMap.get(cacheKey);
+        List<LinkedSpaceDto> spaceDtos = getCache().get(cacheKey);
         if (spaceDtos != null)
         {
             return spaceDtos;
@@ -158,19 +162,19 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         spaceDtos = new ArrayList<LinkedSpaceDto>();
         if (spaceKeys.size() > 0)
         {
-            final List<Space> spaces = spaceManager.getAllSpaces(SpacesQuery.newQuery().withSpaceKeys(spaceKeys).build());
+            PageResponse<com.atlassian.confluence.api.model.content.Space> spaces = spaceService.find(new Expansion("icon")).withKeys(spaceKeys.toArray(new String[]{})).fetchMany(new SimplePageRequest(0, MAX_SPACES));
+
             for (Space space : spaces)
             {
-                final String spaceLogo = spaceLogoManager.getLogoDownloadPath(space, user);
                 spaceDtos.add(LinkedSpaceDto.newBuilder()
                         .withSpaceKey(space.getKey())
-                        .withSpaceName(space.getDisplayTitle())
-                        .withSpaceUrl(space.getUrlPath())
-                        .withSpaceIcon(spaceLogo).build());
+                        .withSpaceName(space.getName())
+                        .withSpaceUrl("/display/" + space.getKey())
+                        .withSpaceIcon(space.getIconRef().get().getPath()).build());
             }
         }
 
-        linkedSpaceMap.put(cacheKey, spaceDtos);
+        getCache().put(cacheKey, spaceDtos);
 
         return spaceDtos;
     }
@@ -226,16 +230,17 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
     {
         String toBeRemovedKey = null;
 
-        for (Map.Entry<String, List<LinkedSpaceDto>> entry : linkedSpaceMap.entrySet())
-        {
-            final List<LinkedSpaceDto> spaceDtos = entry.getValue();
+        Collection<String> keys = getCache().getKeys();
+        for (String key : keys) {
+            final List<LinkedSpaceDto> spaceDtos = getCache().get(key);
+
             if (spaceDtos != null)
             {
                 for (LinkedSpaceDto spaceDto : spaceDtos)
                 {
                     if (spaceDto.getSpaceKey().equals(spaceKey))
                     {
-                        toBeRemovedKey = entry.getKey();
+                        toBeRemovedKey = key;
                         break;
                     }
                 }
@@ -249,7 +254,7 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
 
         if (toBeRemovedKey != null)
         {
-            linkedSpaceMap.remove(toBeRemovedKey);
+            getCache().remove(toBeRemovedKey);
         }
 
     }
@@ -258,5 +263,15 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
     public void destroy() throws Exception
     {
         eventPublisher.unregister(this);
+    }
+
+    private Cache<String, List<LinkedSpaceDto>> getCache()
+    {
+        if (this.cache == null)
+        {
+            this.cache = cacheManager.getCache(LinkedSpaceDto.class.getName(), null, new CacheSettingsBuilder().expireAfterWrite(CACHE_EXPIRE_TIME, TimeUnit.MINUTES).build());
+        }
+
+        return this.cache;
     }
 }

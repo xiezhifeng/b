@@ -91,6 +91,12 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       </osgi:interfaces>
   </osgi:reference>
 
+  <osgi:reference id="spaceService">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.api.service.content.SpaceService</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+
   <osgi:reference id="spaceLogoManager">
       <osgi:interfaces>
           <beans:value>com.atlassian.confluence.spaces.SpaceLogoManager</beans:value>
