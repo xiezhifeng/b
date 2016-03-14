@@ -439,6 +439,7 @@
                             com.atlassian.confluence.plugin.descriptor.web.conditions,
                             com.atlassian.confluence.plugins.createcontent.events; version="2.0",
                             com.atlassian.confluence.api.service.search,
+                            com.atlassian.confluence.api.service.content,
                             com.atlassian.confluence.api.model.*,
                             com.atlassian.confluence.renderer,
                             com.atlassian.confluence.renderer.radeox.macros,

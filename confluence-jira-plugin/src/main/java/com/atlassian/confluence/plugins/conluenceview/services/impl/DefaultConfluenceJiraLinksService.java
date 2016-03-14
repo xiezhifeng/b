@@ -15,6 +15,11 @@ import com.atlassian.applinks.spi.link.MutatingEntityLinkService;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.CacheSettingsBuilder;
+import com.atlassian.confluence.api.model.Expansion;
+import com.atlassian.confluence.api.model.content.Space;
+import com.atlassian.confluence.api.model.pagination.PageResponse;
+import com.atlassian.confluence.api.model.pagination.SimplePageRequest;
+import com.atlassian.confluence.api.service.content.SpaceService;
 import com.atlassian.confluence.event.events.space.SpaceLogoUpdateEvent;
 import com.atlassian.confluence.event.events.space.SpacePermissionsUpdateEvent;
 import com.atlassian.confluence.event.events.space.SpaceRemoveEvent;
@@ -22,10 +27,6 @@ import com.atlassian.confluence.event.events.space.SpaceUpdateEvent;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.LinkedSpaceDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequestException;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluenceJiraLinksService;
-import com.atlassian.confluence.spaces.Space;
-import com.atlassian.confluence.spaces.SpaceLogoManager;
-import com.atlassian.confluence.spaces.SpaceManager;
-import com.atlassian.confluence.spaces.SpacesQuery;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.event.api.EventListener;
@@ -40,27 +41,28 @@ import org.springframework.beans.factory.DisposableBean;
 
 public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksService, DisposableBean
 {
+    private static final int MAX_SPACES = 100;
+
     private static final int CACHE_EXPIRE_TIME = 10; // 10 minutes
     private final MutatingEntityLinkService entityLinkService;
     private final InternalHostApplication applinkHostApplication;
     private final HostApplication hostApplication;
     private final ReadOnlyApplicationLinkService appLinkService;
     private final EventPublisher eventPublisher;
-    private final SpaceManager spaceManager;
-    private final SpaceLogoManager spaceLogoManager;
+    private final SpaceService spaceService;
     private final CacheManager cacheManager;
     private Cache<String, List<LinkedSpaceDto>> cache;
 
     public DefaultConfluenceJiraLinksService(MutatingEntityLinkService entityLinkService, InternalHostApplication applinkHostApplication,
-                                             HostApplication hostApplication, ReadOnlyApplicationLinkService appLinkService, EventPublisher eventPublisher, SpaceManager spaceManager, SpaceLogoManager spaceLogoManager, CacheManager cacheManager)
+             HostApplication hostApplication, ReadOnlyApplicationLinkService appLinkService,
+             EventPublisher eventPublisher, SpaceService spaceService, CacheManager cacheManager)
     {
         this.entityLinkService = entityLinkService;
         this.applinkHostApplication = applinkHostApplication;
         this.hostApplication = hostApplication;
         this.appLinkService = appLinkService;
         this.eventPublisher = eventPublisher;
-        this.spaceManager = spaceManager;
-        this.spaceLogoManager = spaceLogoManager;
+        this.spaceService = spaceService;
         this.cacheManager = cacheManager;
         eventPublisher.register(this);
     }
@@ -160,15 +162,15 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         spaceDtos = new ArrayList<LinkedSpaceDto>();
         if (spaceKeys.size() > 0)
         {
-            final List<Space> spaces = spaceManager.getAllSpaces(SpacesQuery.newQuery().withSpaceKeys(spaceKeys).build());
+            PageResponse<com.atlassian.confluence.api.model.content.Space> spaces = spaceService.find(new Expansion("icon")).withKeys(spaceKeys.toArray(new String[]{})).fetchMany(new SimplePageRequest(0, MAX_SPACES));
+
             for (Space space : spaces)
             {
-                final String spaceLogo = spaceLogoManager.getLogoDownloadPath(space, user);
                 spaceDtos.add(LinkedSpaceDto.newBuilder()
                         .withSpaceKey(space.getKey())
-                        .withSpaceName(space.getDisplayTitle())
-                        .withSpaceUrl(space.getUrlPath())
-                        .withSpaceIcon(spaceLogo).build());
+                        .withSpaceName(space.getName())
+                        .withSpaceUrl("/display/" + space.getKey())
+                        .withSpaceIcon(space.getIconRef().get().getPath()).build());
             }
         }
 
