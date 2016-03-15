@@ -134,6 +134,30 @@
         <context>editor</context>
     </web-resource>
 
+    <!--Common resources-->
+    <web-resource key="amd-support" name="AMD support resource">
+        <resource type="download" name="amd-confluence-shim.js" location="amd/confluence-shim.js"/>
+        <resource type="download" name="amd-module-exporter.js" location="amd/amd-exporter.js"/>
+
+        <dependency>confluence.web.resources:ajs</dependency>
+        <dependency>confluence.web.resources:amd</dependency>
+    </web-resource>
+
+    <web-resource key="common" name="Common resource">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
+        <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
+        <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
+        <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
+
+        <dependency>${atlassian.plugin.key}:amd-support</dependency>
+        <dependency>confluence.web.resources:analytics-support</dependency>
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency>
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
+    </web-resource>
+
     <!--Jira Issues in View Mode-->
     <web-resource key="jira-issues-view-mode-resources" name="Jira issues in view mode resources">
         <transformation extension="js">
@@ -147,20 +171,23 @@
     <web-resource key="jira-issues-view-mode-async-resource" name="Jira issues async resource in view mode">
         <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
         <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
-        <resource type="download" name="amd-confluence-shim.js" location="amd/confluence-shim.js"/>
-        <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
         <resource type="download" name="jira-issues-fetching-job.js" location="jira/jira-issues-view-mode/fetching-job.js"/>
-        <dependency>confluence.web.resources:amd</dependency>
+
+        <dependency>${atlassian.plugin.key}:amd-support</dependency>
+        <dependency>${atlassian.plugin.key}:common</dependency>
     </web-resource>
 
     <web-resource key="web-resources" name="Web resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
+
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
-        <dependency>confluence.extra.jira:jira-issues-view-mode-resources</dependency>
-        <dependency>confluence.extra.jira:common-resources</dependency>
+
+        <dependency>${atlassian.plugin.key}:jira-issues-view-mode-resources</dependency>
+        <dependency>${atlassian.plugin.key}:common</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
+
         <context>atl.general</context>
         <context>preview</context>
     </web-resource>
@@ -173,16 +200,6 @@
         <resource type="download" name="flexigrid.js" location="resources/flexigrid/flexigrid.js"/>
         <resource type="download" name="flexigrid.css" location="resources/flexigrid/css/flexigrid/flexigrid.css"/>
         <resource type="download" name="flexigrid-custom.css" location="templates/extra/jira/flexigrid-custom.css"/>
-    </web-resource>
-
-    <web-resource key="common-resources" name="Common resources">
-        <transformation extension="js">
-            <transformer key="jsI18n"/>
-        </transformation>
-        <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
-        <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
     </web-resource>
 
     <web-resource key="pdf-export-resources" name="PDF export resources">
