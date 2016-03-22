@@ -12,9 +12,6 @@ import com.atlassian.applinks.host.spi.EntityReference;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.applinks.host.spi.InternalHostApplication;
 import com.atlassian.applinks.spi.link.MutatingEntityLinkService;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
-import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.confluence.api.model.Expansion;
 import com.atlassian.confluence.api.model.content.Space;
 import com.atlassian.confluence.api.model.pagination.PageResponse;
@@ -31,16 +28,33 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
+
+import com.atlassian.util.concurrent.Lazy;
+import com.atlassian.util.concurrent.Supplier;
+import com.atlassian.vcache.ExternalCacheSettingsBuilder;
+import com.atlassian.vcache.PutPolicy;
+import com.atlassian.vcache.StableReadExternalCache;
+import com.atlassian.vcache.VCacheFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
+
+import static com.atlassian.vcache.VCacheUtils.fold;
+import static com.atlassian.vcache.marshallers.MarshallerFactory.serializableMarshaller;
+import static java.util.function.Function.identity;
 
 public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksService, DisposableBean
 {
+    private static final Logger log = LoggerFactory.getLogger(DefaultConfluenceJiraLinksService.class);
+
     private static final int MAX_SPACES = 100;
 
     private static final int CACHE_EXPIRE_TIME = 10; // 10 minutes
@@ -50,12 +64,11 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
     private final ReadOnlyApplicationLinkService appLinkService;
     private final EventPublisher eventPublisher;
     private final SpaceService spaceService;
-    private final CacheManager cacheManager;
-    private Cache<String, List<LinkedSpaceDto>> cache;
+    private final Supplier<StableReadExternalCache<List<LinkedSpaceDto>>> cacheRef;
 
     public DefaultConfluenceJiraLinksService(MutatingEntityLinkService entityLinkService, InternalHostApplication applinkHostApplication,
              HostApplication hostApplication, ReadOnlyApplicationLinkService appLinkService,
-             EventPublisher eventPublisher, SpaceService spaceService, CacheManager cacheManager)
+             EventPublisher eventPublisher, SpaceService spaceService, VCacheFactory cacheFactory)
     {
         this.entityLinkService = entityLinkService;
         this.applinkHostApplication = applinkHostApplication;
@@ -63,8 +76,17 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         this.appLinkService = appLinkService;
         this.eventPublisher = eventPublisher;
         this.spaceService = spaceService;
-        this.cacheManager = cacheManager;
+        this.cacheRef = Lazy.supplier(() -> createCache(cacheFactory));
         eventPublisher.register(this);
+    }
+
+    private static StableReadExternalCache<List<LinkedSpaceDto>> createCache(VCacheFactory cacheFactory) {
+        return (StableReadExternalCache) cacheFactory.getStableReadExternalCache(
+                LinkedSpaceDto.class.getName(),
+                serializableMarshaller(ArrayList.class),
+                new ExternalCacheSettingsBuilder()
+                        .defaultTtl(Duration.of(CACHE_EXPIRE_TIME, ChronoUnit.MINUTES))
+                        .build());
     }
 
     @EventListener
@@ -73,7 +95,7 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         final EntityLink entityLink = event.getEntityLink();
         if ((entityLink.getType().getClass() == JiraProjectEntityTypeImpl.class))
         {
-            getCache().remove(getCacheKey(entityLink.getApplicationLink().getDisplayUrl().toString(), entityLink.getKey()));
+            removeFromCache(getCacheKey(entityLink.getApplicationLink().getDisplayUrl().toString(), entityLink.getKey()));
         }
     }
 
@@ -85,7 +107,7 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
             final ReadOnlyApplicationLink appLink = appLinkService.getApplicationLink(event.getApplicationId());
             if (appLink != null)
             {
-                getCache().remove(getCacheKey(appLink.getDisplayUrl().toString(), event.getEntityKey()));
+                removeFromCache(getCacheKey(appLink.getDisplayUrl().toString(), event.getEntityKey()));
             }
         }
     }
@@ -93,25 +115,25 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
     @EventListener
     public void onSpaceLogoUpdateEvent(SpaceLogoUpdateEvent event)
     {
-        removeCacheThatHasSpace(event.getSpace().getKey());
+        clearCache();
     }
 
     @EventListener
     public void onSpaceUpdateEvent(SpaceUpdateEvent event)
     {
-        removeCacheThatHasSpace(event.getSpace().getKey());
+        clearCache();
     }
 
     @EventListener
     public void onSpacePermissionsUpdateEvent(SpacePermissionsUpdateEvent event)
     {
-        getCache().removeAll();
+        clearCache();
     }
 
     @EventListener
     public void onSpaceRemoveEvent(SpaceRemoveEvent event)
     {
-        removeCacheThatHasSpace(event.getSpace().getKey());
+        clearCache();
     }
 
     @Override
@@ -136,7 +158,13 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
 
         String cacheKey = getCacheKey(jiraUrl, projectKey);
 
-        List<LinkedSpaceDto> spaceDtos = getCache().get(cacheKey);
+        List<LinkedSpaceDto> spaceDtos = fold(
+                getCache().get(cacheKey),
+                identity(),
+                t -> {
+                    log.warn("Failed to retrieve value for key '{}': {}", cacheKey, t.getMessage(), t);
+                    return Optional.empty();
+                }).orElse(null);
         if (spaceDtos != null)
         {
             return spaceDtos;
@@ -148,7 +176,7 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
             return Collections.emptyList();
         }
 
-        List<String> spaceKeys = new ArrayList<String>();
+        List<String> spaceKeys = new ArrayList<>();
 
         final Iterable<EntityReference> localEntities = applinkHostApplication.getLocalEntities();
         for (EntityReference localEntity : localEntities)
@@ -159,10 +187,13 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
             }
         }
 
-        spaceDtos = new ArrayList<LinkedSpaceDto>();
+        spaceDtos = new ArrayList<>();
         if (spaceKeys.size() > 0)
         {
-            PageResponse<com.atlassian.confluence.api.model.content.Space> spaces = spaceService.find(new Expansion("icon")).withKeys(spaceKeys.toArray(new String[]{})).fetchMany(new SimplePageRequest(0, MAX_SPACES));
+            PageResponse<com.atlassian.confluence.api.model.content.Space> spaces = spaceService.find(
+                    new Expansion("icon"))
+                    .withKeys(spaceKeys.toArray(new String[spaceKeys.size()]))
+                    .fetchMany(new SimplePageRequest(0, MAX_SPACES));
 
             for (Space space : spaces)
             {
@@ -174,7 +205,12 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
             }
         }
 
-        getCache().put(cacheKey, spaceDtos);
+        fold(getCache().put(cacheKey, spaceDtos, PutPolicy.PUT_ALWAYS),
+                identity(),
+                t -> {
+                    log.warn("Failed to put for key '{}': {}", cacheKey, t.getMessage(), t);
+                    return false;
+                });
 
         return spaceDtos;
     }
@@ -226,37 +262,18 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         return jiraUrl + "/browser/" + projectKey;
     }
 
-    private void removeCacheThatHasSpace(String spaceKey)
-    {
-        String toBeRemovedKey = null;
+    private void clearCache() {
+        fold(getCache().removeAll(), identity(), t -> {
+            log.warn("Failed to clear cache: {}", t.getMessage(), t);
+            return null;
+        });
+    }
 
-        Collection<String> keys = getCache().getKeys();
-        for (String key : keys) {
-            final List<LinkedSpaceDto> spaceDtos = getCache().get(key);
-
-            if (spaceDtos != null)
-            {
-                for (LinkedSpaceDto spaceDto : spaceDtos)
-                {
-                    if (spaceDto.getSpaceKey().equals(spaceKey))
-                    {
-                        toBeRemovedKey = key;
-                        break;
-                    }
-                }
-            }
-
-            if (toBeRemovedKey != null)
-            {
-                break;
-            }
-        }
-
-        if (toBeRemovedKey != null)
-        {
-            getCache().remove(toBeRemovedKey);
-        }
-
+    private void removeFromCache(String cacheKey) {
+        fold(getCache().remove(cacheKey), identity(), t -> {
+            log.warn("Failed to remove key '{}' from cache: {}", cacheKey, t.getMessage(), t);
+            return null;
+        });
     }
 
     @Override
@@ -265,13 +282,8 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         eventPublisher.unregister(this);
     }
 
-    private Cache<String, List<LinkedSpaceDto>> getCache()
+    private StableReadExternalCache<List<LinkedSpaceDto>> getCache()
     {
-        if (this.cache == null)
-        {
-            this.cache = cacheManager.getCache(LinkedSpaceDto.class.getName(), null, new CacheSettingsBuilder().expireAfterWrite(CACHE_EXPIRE_TIME, TimeUnit.MINUTES).build());
-        }
-
-        return this.cache;
+        return cacheRef.get();
     }
 }
