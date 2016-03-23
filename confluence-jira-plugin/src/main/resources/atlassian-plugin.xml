@@ -147,10 +147,13 @@
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
+        <transformation extension="less">
+            <transformer key="less-transformer"/>
+        </transformation>
 
         <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
-        <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
-        <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
+        <resource type="download" name="common.css" location="util/common.less"/>
+        <resource type="download" name="common.js" location="util/common.js"/>
 
         <dependency>${atlassian.plugin.key}:amd-support</dependency>
         <dependency>confluence.web.resources:analytics-support</dependency>
