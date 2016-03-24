@@ -118,13 +118,13 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         if(StringUtils.isNumeric(totalIssuesParamValue))
         {
             int totalIssues = Integer.parseInt(totalIssuesParamValue);
-            if(totalIssues > 1)
-            {
-                return getText("jiraissues.static.issues.word", totalIssuesParamValue);
-            }
-            else if(totalIssues >= 0)
+            if(totalIssues == 1)
             {
                 return getText("jiraissues.static.issue.word", totalIssuesParamValue);
+            }
+            else
+            {
+                return getText("jiraissues.static.issues.word", totalIssuesParamValue);
             }
         }
         return getText("jiraissues.static.issues.word", "X");
