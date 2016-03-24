@@ -398,10 +398,10 @@ jQuery(document).ready(function () {
             },
             success: function (issueCount) {
                 var resultLink = $jiraissuesCountSpan.find(".result");
-                if(issueCount > 1)
-                    resultLink.text(AJS.format(AJS.I18n.getText("jiraissues.issues.word"), issueCount));
-                else
+                if(issueCount == 1)
                     resultLink.text(AJS.format(AJS.I18n.getText("jiraissues.issue.word"), issueCount));
+                else
+                    resultLink.text(AJS.format(AJS.I18n.getText("jiraissues.issues.word"), issueCount));
                 resultLink.removeClass("hidden");
                 jQuery(".calculating, .error, .data", $jiraissuesCountSpan).remove();
             },
