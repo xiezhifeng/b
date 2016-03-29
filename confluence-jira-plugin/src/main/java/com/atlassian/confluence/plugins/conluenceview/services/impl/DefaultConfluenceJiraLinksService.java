@@ -20,15 +20,13 @@ import com.atlassian.confluence.plugins.conluenceview.rest.exception.InvalidRequ
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluenceJiraLinksService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.event.api.EventPublisher;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.DisposableBean;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksService, DisposableBean
+public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksService
 {
     private static final int MAX_SPACES = 100;
 
@@ -36,20 +34,17 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
     private final InternalHostApplication applinkHostApplication;
     private final HostApplication hostApplication;
     private final ReadOnlyApplicationLinkService appLinkService;
-    private final EventPublisher eventPublisher;
     private final SpaceService spaceService;
 
     public DefaultConfluenceJiraLinksService(MutatingEntityLinkService entityLinkService, InternalHostApplication applinkHostApplication,
              HostApplication hostApplication, ReadOnlyApplicationLinkService appLinkService,
-             EventPublisher eventPublisher, SpaceService spaceService)
+             SpaceService spaceService)
     {
         this.entityLinkService = entityLinkService;
         this.applinkHostApplication = applinkHostApplication;
         this.hostApplication = hostApplication;
         this.appLinkService = appLinkService;
-        this.eventPublisher = eventPublisher;
         this.spaceService = spaceService;
-        eventPublisher.register(this);
     }
 
     @Override
@@ -150,11 +145,5 @@ public class DefaultConfluenceJiraLinksService implements ConfluenceJiraLinksSer
         }
 
         return null;
-    }
-
-    @Override
-    public void destroy() throws Exception
-    {
-        eventPublisher.unregister(this);
     }
 }
