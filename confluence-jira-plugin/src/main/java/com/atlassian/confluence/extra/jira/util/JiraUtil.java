@@ -38,9 +38,11 @@ public class JiraUtil
 {
     private static final Logger log = Logger.getLogger(JiraUtil.class);
 
+    public static final String JIRA_PLUGIN_KEY = "confluence.extra.jira";
+
     public static final int DEFAULT_NUMBER_OF_ISSUES = 20;
     public static final int MAXIMUM_ISSUES = 1000;
-    
+
     public static final int PARAM_POSITION_1 = 1;
     public static final int PARAM_POSITION_2 = 2;
     public static final int PARAM_POSITION_4 = 4;

@@ -1,55 +1,88 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ReadOnlyApplicationLink;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
-import com.atlassian.confluence.extra.jira.cache.CacheKey;
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
-
 import java.util.List;
+
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.confluence.extra.jira.cache.CacheKey;
+import com.atlassian.confluence.extra.jira.cache.CacheLoggingUtils;
+import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
+import com.atlassian.confluence.extra.jira.cache.JIMCacheProvider;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.util.concurrent.Lazy;
+import com.atlassian.util.concurrent.Supplier;
+import com.atlassian.vcache.DirectExternalCache;
+import com.atlassian.vcache.VCacheFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.atlassian.confluence.extra.jira.util.JiraUtil.JIRA_PLUGIN_KEY;
+import static com.atlassian.vcache.VCacheUtils.fold;
 
 public class DefaultJiraCacheManager implements JiraCacheManager
 {
 
+    private static final Logger log = LoggerFactory.getLogger(DefaultJiraCacheManager.class);
     public static final String PARAM_CLEAR_CACHE = "clearCache";
 
-    private CacheManager cacheManager;
+    private final DirectExternalCache<CompressingStringCache> responseCache;
+    private final DirectExternalCache<JiraChannelResponseHandler> channelResponseCache;
+    private final DirectExternalCache<JiraStringResponseHandler> stringResponseCache;
+    private final Supplier<String> version;
 
-    public DefaultJiraCacheManager(CacheManager cacheManager)
+    public DefaultJiraCacheManager(VCacheFactory vcacheFactory, PluginAccessor pluginAccessor)
     {
-        this.cacheManager = cacheManager;
-    }
-
-    public void setCacheManager(CacheManager cacheManager)
-    {
-        this.cacheManager = cacheManager;
+        this.responseCache = JIMCacheProvider.getResponseCache(vcacheFactory);
+        this.channelResponseCache = JIMCacheProvider.getChannelResponseHandlersCache(vcacheFactory);
+        this.stringResponseCache = JIMCacheProvider.getStringResponseHandlersCache(vcacheFactory);
+        this.version = Lazy.supplier(() -> pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion());
     }
 
     public void clearJiraIssuesCache(final String url, List<String> columns, final ReadOnlyApplicationLink appLink,
             boolean forceAnonymous, boolean isAnonymous)
     {
-        if (appLink == null) 
+        if (appLink == null)
         {
             return;
         }
-        final Cache cache = cacheManager.getCache(JiraIssuesMacro.class.getName());
         final CacheKey mappedCacheKey = new CacheKey(url, appLink.getId().toString(), columns, false, forceAnonymous,
-                false, true);
+                false, true, version.get());
+        final CacheKey unmappedCacheKey = new CacheKey(url, appLink.getId().toString(), columns, false,
+                forceAnonymous, false, false, version.get());
 
-        if (cache.get(mappedCacheKey) != null)
-        {
-            cache.remove(mappedCacheKey);
-        }
-        else
-        {
-            boolean userIsMapped = isAnonymous == false && AuthenticatedUserThreadLocal.getUsername() != null;
-            if (userIsMapped == false) // only care unmap cache in case user not logged it
-            {
-                CacheKey unmappedCacheKey = new CacheKey(url, appLink.getId().toString(), columns, false,
-                        forceAnonymous, false, false);
-                cache.remove(unmappedCacheKey); // remove cache if there is
-            }
-        }
+        clean(mappedCacheKey, unmappedCacheKey, isAnonymous, responseCache);
+        clean(mappedCacheKey, unmappedCacheKey, isAnonymous, channelResponseCache);
+        clean(mappedCacheKey, unmappedCacheKey, isAnonymous, stringResponseCache);
     }
 
+    private static <T> void clean(CacheKey mappedKey, CacheKey unmappedKey, boolean isAnonymous,
+            DirectExternalCache<T> cache)
+    {
+        fold(cache.get(mappedKey.toKey()), t ->
+            {
+                if (t.isPresent())
+                {
+                    fold(cache.remove(mappedKey.toKey()), (result, throwable) -> {
+                        CacheLoggingUtils.log(log, throwable, true);
+                        return null;
+                    });
+                }
+                else
+                {
+                    boolean userIsMapped = isAnonymous == false && AuthenticatedUserThreadLocal.getUsername() != null;
+                    if (!userIsMapped) // only care unmap cache in case user not logged it
+                    {
+                        fold(cache.remove(unmappedKey.toKey()), (result, throwable) -> {
+                            CacheLoggingUtils.log(log, throwable, true);
+                            return null;
+                        });
+                    }
+                }
+                return true;
+            }, throwable -> {
+                CacheLoggingUtils.log(log, throwable, false);
+                return null;
+            });
+    }
 }

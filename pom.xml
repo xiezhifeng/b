@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin-parent</artifactId>
-    <version>5.7.25-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
 
     <organization>
         <name>Atlassian</name>
@@ -77,7 +77,7 @@
         </plugins>
     </build>
     <properties>
-        <confluence.version>5.9.4</confluence.version>
+        <confluence.version>6.0.0-OD-2016.11.1-1091</confluence.version>
         <confluence.data.version>${confluence.version}</confluence.data.version>
         <junit.version>4.11</junit.version>
 
@@ -88,7 +88,7 @@
         <jira.version>6.3.9</jira.version>
         <jira.data.version>6.5-OD-03-002</jira.data.version>
 
-        <jdkLevel>1.6</jdkLevel>
+        <jdkLevel>1.8</jdkLevel>
         <jvmArgs>-Xmx1024m -XX:MaxPermSize=512m</jvmArgs>
 
         <http.port>1990</http.port>
@@ -105,9 +105,7 @@
         <jaxen.version>1.1.1</jaxen.version>
         <mockito.version>1.9.5</mockito.version>
         <atlassian-selenium-browsers-auto.version>2.3-m6</atlassian-selenium-browsers-auto.version>
-        <atlassian.sal-api.version>2.10.4</atlassian.sal-api.version>
-        <atlassian-cache-api.version>2.4.2</atlassian-cache-api.version>
-        <atlassian-cache-memory.version>0.1</atlassian-cache-memory.version>
+        <atlassian.sal-api.version>3.0.5</atlassian.sal-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
         <amps.version>6.1.2</amps.version>
         <servlet.version>2.4</servlet.version>

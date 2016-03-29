@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.7.25-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -92,6 +92,14 @@
                     <groupId>jdom</groupId>
                     <artifactId>jdom</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.atlassian.cache</groupId>
+                    <artifactId>atlassian-cache-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.atlassian.cache</groupId>
+                    <artifactId>atlassian-cache-memory</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -116,19 +124,6 @@
             <groupId>com.atlassian.upm</groupId>
             <artifactId>testing</artifactId>
             <version>2.18.4</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- for some reason maven resolves this one with scope test -->
-        <dependency>
-            <groupId>com.atlassian.cache</groupId>
-            <artifactId>atlassian-cache-api</artifactId>
-            <version>${atlassian-cache-api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.cache</groupId>
-            <artifactId>atlassian-cache-memory</artifactId>
-            <version>${atlassian-cache-memory.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -425,7 +420,8 @@
                             com.atlassian.applinks.application.jira,
                             com.atlassian.applinks.application.confluence,
                             com.atlassian.bandana,
-                            com.atlassian.cache,
+                            com.atlassian.vcache,
+                            com.atlassian.vcache.marshallers,
                             com.atlassian.config,
                             com.atlassian.config.bootstrap,
                             com.atlassian.config.db,

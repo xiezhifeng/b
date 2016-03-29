@@ -8,16 +8,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  */
 public class TestJiraIssuesCacheCompression extends TestCase
 {
+    private static final String PLUGIN_VERSION = "6.0.0";
+
     List columns;
-    Map cache = new HashMap();
+    ConcurrentHashMap cache = new ConcurrentHashMap();
     String appId = "jira";
 
     public TestJiraIssuesCacheCompression()
@@ -29,7 +30,7 @@ public class TestJiraIssuesCacheCompression extends TestCase
 
     public void testJiraIssuesMacroCompression() throws IOException
     {
-        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false, true);
+        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false, true, PLUGIN_VERSION);
         
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);
         String content = "this is a test";
@@ -40,7 +41,7 @@ public class TestJiraIssuesCacheCompression extends TestCase
     public void testJiraIssuesMacroBigCompression() throws IOException
     {
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);
-        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false, true);
+        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false, true, PLUGIN_VERSION);
         StringBuffer buf = new StringBuffer();
         String str = "this is a test";
         buf.append(str);
@@ -54,7 +55,7 @@ public class TestJiraIssuesCacheCompression extends TestCase
 
     public void testJiraIssuesMacroMultibyteEncoding() throws IOException
     {
-        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false, true);
+        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false, true, PLUGIN_VERSION);
 
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);
         
