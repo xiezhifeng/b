@@ -4,7 +4,7 @@
         $i18n.getText("jiraissues.static.issue.counting")
     #else
         <a class="issue-link" href="$clickableUrl">
-            #if($count == "0" || $count == "1")
+            #if($count == "1")
                 $i18n.getText("jiraissues.static.issue.word","$count")
             #else
                 $i18n.getText("jiraissues.static.issues.word","$count")
