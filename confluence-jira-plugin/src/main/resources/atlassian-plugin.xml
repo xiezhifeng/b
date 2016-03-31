@@ -147,12 +147,9 @@
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
-        <transformation extension="less">
-            <transformer key="less-transformer"/>
-        </transformation>
 
         <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
-        <resource type="download" name="common.css" location="util/common.less"/>
+        <resource type="download" name="common.css" location="util/common.css"/>
         <resource type="download" name="common.js" location="util/common.js"/>
 
         <dependency>${atlassian.plugin.key}:amd-support</dependency>
@@ -206,7 +203,7 @@
     </web-resource>
 
     <web-resource key="pdf-export-resources" name="PDF export resources">
-        <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
+        <resource type="download" name="common.css" location="util/common.css"/>
         <resource type="download" name="pdf-export.css" location="templates/extra/jira/pdf-export.css"/>
 
         <context>pdf-export</context>
