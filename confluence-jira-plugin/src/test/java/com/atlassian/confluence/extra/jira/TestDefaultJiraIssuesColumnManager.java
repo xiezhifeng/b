@@ -1,6 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,11 +15,16 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import junit.framework.TestCase;
 
+import org.apache.commons.collections.ListUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -138,9 +145,9 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         for (String columnName : MULTIVALUE_BUILTIN_COLUMN_NAMES)
             assertTrue(defaultJiraIssuesColumnManager.isBuiltInColumnMultivalue(StringUtils.upperCase(columnName)));
     }
-    /*
+    /**
     * test method getColumnInfo() when the parameter appLink is null
-    * */
+    **/
     public void testColumnInfoRetrievalWithoutAppLink()
     {
         Map<String, String> params = new HashMap<String, String>();
@@ -166,9 +173,9 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         assertEquals(expectedInfo, defaultJiraIssuesColumnManager.getColumnInfo(params, Collections.<String, JiraColumnInfo>emptyMap(), null));
     }
 
-    /*
+    /**
     * test method getColumnsInfoFromJira() when the parameter appLink is null, an empty map should be returned
-    * */
+    **/
     public void testColumnsInfoRetrievalFromJiraWithoutAppLink()
     {
         assertEquals(defaultJiraIssuesColumnManager.getColumnsInfoFromJira(null), Collections.<String, JiraColumnInfo>emptyMap());
@@ -180,5 +187,32 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         {
             super(jiraIssuesSettingsManager, localeManager,i18nBeanFactory, jiraConnectorManager);
         }
+    }
+
+    /**
+     * test method getColumnsInfoFromJira() when valid JSON from JIRA is passed
+     */
+    public void testGetColumnsInfoFromJiraWithValidJson() throws Exception
+    {
+        ReadOnlyApplicationLink applink = mock(ReadOnlyApplicationLink.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        ApplicationLinkRequestFactory applicationLinkRequestFactory = mock(ApplicationLinkRequestFactory.class);
+        String json = StringUtils.join(IOUtils.readLines(this.getClass().getClassLoader().getResourceAsStream("JiraColumnInfo.json")).toArray());
+        when(applink.createAuthenticatedRequestFactory()).thenReturn(applicationLinkRequestFactory);
+        when(applicationLinkRequestFactory.createRequest(any(),anyString())).thenReturn(applicationLinkRequest);
+        when(applicationLinkRequest.execute()).thenReturn(json);
+        Map<String, JiraColumnInfo> columns = defaultJiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+
+        JiraColumnInfo url = columns.get("customfield_10100");
+        assertEquals("URL",url.getTitle());
+        assertTrue(url.isUrlColumn());
+
+        JiraColumnInfo issueType = columns.get("issuetype");
+        assertEquals("Issue Type",issueType.getTitle());
+        assertFalse(issueType.isUrlColumn());
+
+        JiraColumnInfo epicName = columns.get("customfield_10005");
+        assertEquals("Epic Name",epicName.getTitle());
+        assertFalse(epicName.isUrlColumn());
     }
 }

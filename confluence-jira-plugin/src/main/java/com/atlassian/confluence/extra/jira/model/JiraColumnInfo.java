@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 public class JiraColumnInfo
@@ -11,6 +12,30 @@ public class JiraColumnInfo
     private static final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList("key", "type", "priority", "status", "created", "updated", "due");
     private static final String CLASS_NO_WRAP = "columns nowrap";
     private static final String CLASS_WRAP = "columns";
+    private static final String URL_CUSTOM_FIELD_TYPE = "com.atlassian.jira.plugin.system.customfieldtypes:url";
+
+    public static class Schema
+    {
+        @SerializedName("type")
+        private String type;
+
+        @SerializedName("custom")
+        private String custom;
+
+        @SerializedName("customId")
+        private int customid;
+
+        public Schema()
+        {
+        }
+
+        public Schema(String type, String custom, int customid)
+        {
+            this.type = type;
+            this.custom = custom;
+            this.customid = customid;
+        }
+    }
 
     @SerializedName("name")
     private String title;
@@ -28,6 +53,9 @@ public class JiraColumnInfo
 
     @SerializedName("navigable")
     private boolean navigable;
+
+    @SerializedName("schema")
+    private Schema schema;
     
     public String getRssKey()
     {
@@ -77,7 +105,14 @@ public class JiraColumnInfo
         this(rssKey, title, clauseNames);
         this.sortable = sortable;
     }
-    
+
+    public JiraColumnInfo(String rssKey, String title, List<String> clauseNames, boolean sortable, Schema schema)
+    {
+        this(rssKey, title, clauseNames);
+        this.sortable = sortable;
+        this.schema = schema;
+    }
+
     public String getTitle()
     {
         return title;
@@ -87,6 +122,8 @@ public class JiraColumnInfo
     {
         return this.rssKey;
     }
+
+    public Schema getSchema() { return this.schema; }
 
     public String getHtmlClassName()
     {
@@ -150,5 +187,10 @@ public class JiraColumnInfo
     public boolean isNavigable()
     {
         return this.navigable;
+    }
+
+    public boolean isUrlColumn()
+    {
+        return schema != null && URL_CUSTOM_FIELD_TYPE.equals(schema.custom);
     }
 }

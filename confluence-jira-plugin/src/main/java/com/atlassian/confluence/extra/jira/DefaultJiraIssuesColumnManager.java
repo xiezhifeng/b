@@ -155,6 +155,9 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
             JiraColumnInfo jiraColumnInfo = getJiraColumnInfo(getColumnMapping(columnName, XML_COLUMN_KEYS_MAPPING), columns);
 
             List<String> clauseNames = Arrays.asList(key);
+
+            JiraColumnInfo.Schema schema = null;
+
             boolean isSortable = false;
 
             if(jiraColumnInfo != null)
@@ -170,8 +173,9 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
                     // Based on field is a clause name and a navigable to determine whether column is sortable. Otherwise based on support sorting columns.
                     isSortable = (jiraColumnInfo.isCustom() && jiraColumnInfo.isNavigable()) || JiraIssuesColumnManager.SUPPORT_SORTABLE_COLUMN_NAMES.contains(key);
                 }
+                schema = jiraColumnInfo.getSchema();
             }
-            info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), clauseNames, isSortable));
+            info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), clauseNames, isSortable, schema));
         }
         return info;
     }
