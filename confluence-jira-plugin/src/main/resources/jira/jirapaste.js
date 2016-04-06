@@ -18,25 +18,52 @@
             jqlRegEx : /jqlQuery\=([^&]+)/,
             jqlRegExAlternateFormat: /jql\=([^&]+)/,
 
-            pasteHandler : function(uri, node, done) {
+            /**
+             * Find a matched server from a url.
+             * @param {string} url
+             * @param {Function} done
+             * @returns {object} matched server object
+             * @private
+             */
+            _getMatchedServerFromLink: function(url, done) {
+                var matchedServer = null;
                 var servers = AJS.Editor.JiraConnector.servers;
-                var jiraAnalytics = AJS.Editor.JiraAnalytics;
-                var pasteEventProperties = {};
-                var matchedServer;
+
                 if (!servers) {
                     done();
-                    return;
+                    return null;
                 }
 
                 for (var i in servers) {
-                    var server = servers[i];
-                    if (uri.source.indexOf(server.url) == 0) {
-                        matchedServer = server;
-                        break;
+                    if (servers.hasOwnProperty(i)) {
+                        var server = servers[i];
+
+                        // CONF-39419: add '/' into server url to make sure we are strictly comparing full base url.
+                        var serverUrlWithContextPath = server.url;
+                        var lastChar = server.url[server.url.length - 1];
+                        if (lastChar !== '/') {
+                            serverUrlWithContextPath += '/';
+                        }
+
+                        if (url.indexOf(serverUrlWithContextPath) === 0) {
+                            matchedServer = server;
+                            break;
+                        }
                     }
                 }
+
+                return matchedServer;
+            },
+
+            pasteHandler : function(uri, node, done) {
+                var context = AJS.Editor.JiraConnector.Paste;
+                var jiraAnalytics = AJS.Editor.JiraAnalytics;
+                var pasteEventProperties = {};
+                var matchedServer = context._getMatchedServerFromLink(uri.source, done);
+
                 // see if we had a hit
-                var macro;
+                var macro = null;
+
                 if (matchedServer) {
                     
                     var jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.source)
