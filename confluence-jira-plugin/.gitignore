@@ -1,6 +1,11 @@
+/bower_components
+/node_modules
 /target
 /executable
 /*.iml
 /.settings/
 /.classpath
 /.project
+
+coverage/
+TESTS-*.xml

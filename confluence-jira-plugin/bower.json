@@ -1,0 +1,18 @@
+{
+  "name": "@atlassian/confluence-jira-plugin",
+  "version": "1.0.0",
+  "authors": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "jquery": "1.7.2",
+    "underscore": "1.5.2",
+    "backbone": "1.0.0"
+  },
+  "dependencies": {}
+}
