@@ -82,10 +82,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="confluencePagesService" autowire="default" class="com.atlassian.confluence.plugins.conluenceview.services.impl.DefaultConfluencePagesService"/>
 
   <beans:bean id="confluenceJiraLinksService" class="com.atlassian.confluence.plugins.conluenceview.services.impl.DefaultConfluenceJiraLinksService">
-    <beans:constructor-arg index="0" ref="entityLinkService"></beans:constructor-arg>
-    <beans:constructor-arg index="1" ref="applinkHostApplication"></beans:constructor-arg>
-    <beans:constructor-arg index="2" ref="hostApplication"></beans:constructor-arg>
-    <beans:constructor-arg index="3" ref="readOnlyApplicationLinkService"></beans:constructor-arg>
-    <beans:constructor-arg index="4" ref="spaceService"></beans:constructor-arg>
+    <beans:constructor-arg index="0" ref="hostApplication"></beans:constructor-arg>
   </beans:bean>
 </beans:beans>

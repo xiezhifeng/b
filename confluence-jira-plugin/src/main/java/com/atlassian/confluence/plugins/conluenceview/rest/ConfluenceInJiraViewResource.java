@@ -1,16 +1,11 @@
 package com.atlassian.confluence.plugins.conluenceview.rest;
 
-import com.atlassian.applinks.api.ReadOnlyApplicationLink;
-import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
-import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.confluence.plugins.conluenceview.query.ConfluencePagesQuery;
 import com.atlassian.confluence.plugins.conluenceview.rest.dto.ConfluencePagesDto;
-import com.atlassian.confluence.plugins.conluenceview.rest.dto.LinkedSpacesDto;
 import com.atlassian.confluence.plugins.conluenceview.rest.params.PagesSearchParam;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluenceJiraLinksService;
 import com.atlassian.confluence.plugins.conluenceview.services.ConfluencePagesService;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -33,14 +28,12 @@ public class ConfluenceInJiraViewResource
 {
     private final ConfluencePagesService confluencePagesService;
     private final ConfluenceJiraLinksService confluenceJiraLinksService;
-    private final ReadOnlyApplicationLinkService readOnlyApplicationLinkService;
 
 
-    public ConfluenceInJiraViewResource(ConfluencePagesService confluencePagesService, ConfluenceJiraLinksService confluenceJiraLinksService, ReadOnlyApplicationLinkService readOnlyApplicationLinkService)
+    public ConfluenceInJiraViewResource(ConfluencePagesService confluencePagesService, ConfluenceJiraLinksService confluenceJiraLinksService)
     {
         this.confluencePagesService = confluencePagesService;
         this.confluenceJiraLinksService = confluenceJiraLinksService;
-        this.readOnlyApplicationLinkService = readOnlyApplicationLinkService;
     }
 
     @POST
@@ -72,27 +65,5 @@ public class ConfluenceInJiraViewResource
     public Response getODApplicationId()
     {
         return Response.ok(confluenceJiraLinksService.getODApplicationLinkId()).build();
-    }
-
-    @GET
-    @Path("/jira-applink-id")
-    public Response getJIRAApplinkId(@QueryParam("jiraUrl") String jiraUrl)
-    {
-        String appLinkId = "";
-
-        Iterable<ReadOnlyApplicationLink> appLinks = readOnlyApplicationLinkService.getApplicationLinks(JiraApplicationType.class);
-        for (ReadOnlyApplicationLink appLink : appLinks) {
-            if (jiraUrl.startsWith(appLink.getRpcUrl().toString()) || jiraUrl.startsWith(appLink.getDisplayUrl().toString())) {
-                appLinkId = appLink.getId().toString();
-            }
-        }
-        return Response.ok(appLinkId).build();
-    }
-
-    @GET
-    @Path ("/linked-spaces")
-    public Response getLinkedSpace(@QueryParam ("jiraUrl") String jiraUrl, @QueryParam ("projectKey") String projectKey)
-    {
-        return Response.ok(LinkedSpacesDto.newBuilder().withSpaces(confluenceJiraLinksService.getLinkedSpaces(jiraUrl, projectKey)).build()).build();
     }
 }
