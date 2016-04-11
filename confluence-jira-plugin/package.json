@@ -1,0 +1,32 @@
+{
+  "name": "@atlassian/confluence-jira-plugin",
+  "version": "0.0.1",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.org/atlassian/confluence-jira-plugin"
+  },
+  "scripts": {
+    "start": "npm outdated",
+    "test": "npm outdated && karma start",
+    "postinstall": "bower install",
+    "tdd": "npm outdated && karma start --auto-watch --no-single-run --browsers Chrome"
+  },
+  "devDependencies": {
+    "bower": "1.7.9",
+    "karma": "0.13.22",
+    "karma-chrome-launcher": "0.2.3",
+    "karma-coverage": "0.5.5",
+    "karma-junit-reporter": "0.4.1",
+    "karma-phantomjs-launcher": "1.0.0",
+    "karma-qunit": "0.1.9",
+    "karma-requirejs": "0.2.6",
+    "karma-script-launcher": "0.2.0",
+    "karma-sinon": "1.0.4",
+    "phantomjs-prebuilt": "2.1.7",
+    "qunitjs": "1.23.0",
+    "requirejs": "2.2.0",
+    "requirejs-text": "2.0.12",
+    "sinon": "1.17.3"
+  }
+}

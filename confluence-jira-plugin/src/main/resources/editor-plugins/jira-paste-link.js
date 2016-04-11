@@ -1,6 +1,11 @@
-(function() {
-    AJS.bind("init.rte", function() {
-        AJS.Editor.JiraConnector.Paste = {
+define('confluence/jim/editor-plugins/jira-paste-link', [
+    'ajs',
+], function(
+    AJS
+) {
+    'use strict';
+
+    var jiraPasteLink = {
             // match almost any ASCII character and allow for issue URLS with query parameters or anchors (e.g. ? or #)
             // (http://confluence.atlassian.com/display/JIRA044/Configuring+Project+Keys specifies that project keys must be ASCII)
             // These aren't full-proof Regex given the flexibility allowed in configuration of project keys but it will
@@ -18,41 +23,67 @@
             jqlRegEx : /jqlQuery\=([^&]+)/,
             jqlRegExAlternateFormat: /jql\=([^&]+)/,
 
-            pasteHandler : function(uri, node, done) {
-                var servers = AJS.Editor.JiraConnector.servers;
-                var jiraAnalytics = AJS.Editor.JiraAnalytics;
-                var pasteEventProperties = {};
-                var matchedServer;
-                if (!servers) {
-                    done();
-                    return;
-                }
+            /**
+             * Find a matched server from a url.
+             * @param {string} url
+             * @param {Function} done
+             * @returns {object} matched server object
+             * @private
+             */
+            _getMatchedServerFromLink: function(url, servers) {
+                var matchedServer = null;
 
                 for (var i in servers) {
-                    var server = servers[i];
-                    if (uri.source.indexOf(server.url) == 0) {
-                        matchedServer = server;
-                        break;
+                    if (servers.hasOwnProperty(i)) {
+                        var server = servers[i];
+
+                        // CONF-39419: add '/' into server url to make sure we are strictly comparing full base url.
+                        var serverUrlWithContextPath = server.url;
+                        var lastChar = server.url[server.url.length - 1];
+                        if (lastChar !== '/') {
+                            serverUrlWithContextPath += '/';
+                        }
+
+                        if (url.indexOf(serverUrlWithContextPath) === 0) {
+                            matchedServer = server;
+                            break;
+                        }
                     }
                 }
+
+                return matchedServer;
+            },
+
+            pasteHandler : function(uri, node, done) {
+                var servers = AJS.Editor.JiraConnector.servers;
+                if (!servers) {
+                    done();
+                    return null;
+                }
+
+                var jiraAnalytics = AJS.Editor.JiraAnalytics;
+                var pasteEventProperties = {};
+                var matchedServer = jiraPasteLink._getMatchedServerFromLink(uri.source, servers);
+
                 // see if we had a hit
-                var macro;
+                var macro = null;
+
                 if (matchedServer) {
                     
-                    var jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.source)
-                                || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.source);
+                    var jql = jiraPasteLink.jqlRegEx.exec(uri.source)
+                                || jiraPasteLink.jqlRegExAlternateFormat.exec(uri.source);
                     
                     var personalFilter = AJS.JQLHelper.isFilterUrl(uri.source);
                     
-                    var singleKey = AJS.Editor.JiraConnector.Paste.issueKeyOnlyRegEx.exec(uri.source)
-                    || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source);
+                    var singleKey = jiraPasteLink.issueKeyOnlyRegEx.exec(uri.source)
+                    || jiraPasteLink.issueKeyWithinRegex.exec(uri.source);
                     if (singleKey) {
                         singleKey = singleKey[2];
                         if (jiraAnalytics) {
                             pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
                         }
                     } else {
-                        singleKey = AJS.Editor.JiraConnector.Paste.singleTicketXMLEx.exec(uri.source);
+                        singleKey = jiraPasteLink.singleTicketXMLEx.exec(uri.source);
                         if (singleKey) {
                             singleKey = singleKey[1];
                             if (jiraAnalytics) {
@@ -97,7 +128,7 @@
                     }
                 }
                 if (macro) {
-                    tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);
+                    window.tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);
                     if (jiraAnalytics) {
                         jiraAnalytics.triggerPasteEvent(pasteEventProperties);
                     }
@@ -106,6 +137,6 @@
                 }
             }
         };
-        tinymce.plugins.Autoconvert.autoConvert.addHandler(AJS.Editor.JiraConnector.Paste.pasteHandler);
-    });
-})();
+
+    return jiraPasteLink;
+});
