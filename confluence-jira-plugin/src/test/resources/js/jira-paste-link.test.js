@@ -7,6 +7,23 @@ define([
 
     module('test jira-paste-link module', {
         beforeEach: function() {
+            this.servers = [
+                {
+                    id: 1,
+                    name: 'server 1',
+                    url: 'https://jira-dev.com:123/jira1'
+                },
+                {
+                    id: 2,
+                    name: 'server 2',
+                    url: 'https://jira-dev.com:456/jira'
+                },
+                {
+                    id: 3,
+                    name: 'server 3',
+                    url: 'https://jira-dev.com:789/jira123'
+                },
+            ];
         },
 
         afterEach: function() {
@@ -44,53 +61,15 @@ define([
     });
 
     test('Test "_getMatchedServerFromLink" method should get correct server object, with non-overlap server url', function() {
-        var servers = [
-            {
-                id: 1,
-                name: 'server 1',
-                url: 'https://jira-dev.com:123/jira1'
-            },
-            {
-                id: 2,
-                name: 'server 2',
-                url: 'https://jira-dev.com:456/jira'
-            },
-            {
-                id: 3,
-                name: 'server 1',
-                url: 'https://jira-dev.com:789/jira123'
-            },
-
-        ];
-
         var url = 'https://jira-dev.com:456/jira/issue/1';
-        var matchServer = jiraPasteLink._getMatchedServerFromLink(url, servers);
+        var matchServer = jiraPasteLink._getMatchedServerFromLink(url, this.servers);
 
         ok(matchServer.id === 2);
     });
 
     test('Test "_getMatchedServerFromLink" method should return null if there is no match server', function() {
-        var servers = [
-            {
-                id: 1,
-                name: 'server 1',
-                url: 'https://jira-dev.com:123/jira1'
-            },
-            {
-                id: 2,
-                name: 'server 2',
-                url: 'https://jira-dev.com:456/jira'
-            },
-            {
-                id: 3,
-                name: 'server 1',
-                url: 'https://jira-dev.com:789/jira123'
-            },
-
-        ];
-
         var url = 'https://jira-dev.com:456/jira1/issue/1';
-        var matchServer = jiraPasteLink._getMatchedServerFromLink(url, servers);
+        var matchServer = jiraPasteLink._getMatchedServerFromLink(url, this.servers);
 
         ok(matchServer === null);
     });
