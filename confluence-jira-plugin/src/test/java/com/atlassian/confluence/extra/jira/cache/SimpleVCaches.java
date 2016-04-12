@@ -57,6 +57,10 @@ public class SimpleVCaches {
             throw new UnsupportedOperationException();
         }
 
+        public CompletionStage<IdentifiedValue<V>> getIdentified(String s, Supplier<V> supplier) {
+            throw new UnsupportedOperationException();
+        }
+
         @Nonnull
         @Override
         public CompletionStage<Map<String, Optional<IdentifiedValue<V>>>> getBulkIdentified(final Iterable<String> keys) {
