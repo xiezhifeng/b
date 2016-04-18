@@ -91,16 +91,26 @@ public class ConfluenceEventListener implements DisposableBean
     @EventListener
     public void updateJiraRemoteLinks(BlogPostUpdateEvent event)
     {
-        if (event.getBlogPost().isCurrent())
+        /*
+            Update events are published for referrer pages when the links in their body
+            content are refactored. In such cases the original blog post on the event
+            can be null, and there's no need to check whether JIRA macros have changed.
+         */
+        if (event.getBlogPost().isCurrent() && event.getOriginalBlogPost() != null)
         {
-            updateJiraRemoteLinks(event.getBlogPost(), event.getOriginalBlogPost());
+            updateJiraRemoteLinks(event.getOriginalBlogPost(), event.getBlogPost());
         }
     }
 
     @EventListener
     public void updateJiraRemoteLinks(PageUpdateEvent event)
     {
-        if (event.getPage().isCurrent())
+        /*
+            Update events are published for referrer pages when the links in their body
+            content are refactored. In such cases the original page on the event can
+            be null, and there's no need to check whether JIRA macros have changed.
+         */
+        if (event.getPage().isCurrent() && event.getOriginalPage() != null)
         {
             updateJiraRemoteLinks(event.getOriginalPage(), event.getPage());
         }
