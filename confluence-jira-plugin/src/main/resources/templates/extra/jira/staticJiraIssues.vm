@@ -174,7 +174,7 @@
                                                 #end
                                             </a>#if( $velocityCount < $issueKeys.size() ), #end
                                         #end
-                                    #elseif ( $col.equals('description') )
+                                    #elseif ( $col.equals('description') || $col.equals('environment'))
                                         #if ($isSourceApplink)
                                             #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
                                             $descriptionHtml
