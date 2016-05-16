@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.openqa.selenium.By;
 
 import java.io.IOException;
 
@@ -291,5 +292,20 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         assertEquals("Component is not correct", "Component 1", component);
         fixVersion = jiraIssuesPage.getValueInTable(5, 2);
         assertEquals("Fix Version is not correct", "1.1", fixVersion);
+    }
+
+    @Test
+    public void testUrlColumnFormattingForTableMode() throws Exception
+    {
+        final EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_URL_TEST_COLUMN, "key IN (UCTP-1, UCTP-2) order by key asc");
+        editContentPage.save();
+        final JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
+        final PageElement validUrl = jiraIssuesPage.getElementInTable(3,1).find(By.tagName("a"));
+        final PageElement emptyUrl = jiraIssuesPage.getElementInTable(3,2).find(By.tagName("a"));
+
+        assertEquals("Valid URL string exists but was not displayed in the page","https://www.youtube.com/watch?v=dQw4w9WgXcQ", validUrl.getText());
+        assertEquals("Valid URL string exists but was not surrounded with valid <a> tag","https://www.youtube.com/watch?v=dQw4w9WgXcQ",validUrl.getAttribute("href"));
+        assertEquals("Empty URL string exists but text was somehow displayed. Magic?","", emptyUrl.getText());
+        assertEquals("Empty URL string exists and was incorrectly surrounded with an <a> tag","",emptyUrl.getAttribute("href"));
     }
 }

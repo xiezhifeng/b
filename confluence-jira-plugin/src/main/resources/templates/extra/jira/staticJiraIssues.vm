@@ -1,7 +1,7 @@
 #* @vtlvariable name="xmlXformer" type="com.atlassian.confluence.extra.jira.JiraIssuesXmlTransformer" *#
 #* @vtlvariable name="generalUtil" type="com.atlassian.confluence.util.GeneralUtil" *#
 #* @vtlvariable name="jiraIssuesColumnManager" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager" *#
-#* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
+#* @vtlvariable name="jiraColumnInfo" type="com.atlassian.confluence.extra.jira.model.JiraColumnInfo" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
 #if($pdfExport)
     <style type="text/css">
@@ -190,6 +190,9 @@
                                         #end
                                     #elseif ( $jiraIssuesColumnManager.isColumnBuiltIn($col.key) )
                                         $generalUtil.htmlEncode($!xmlXformer.valueForFieldDateFormatted($item, $col.key, $dateFormat, $userLocale))
+                                    #elseif ( $col.isUrlColumn() )
+                                        #set ($url = $!xmlXformer.valueForField($item, $col.key).getValue())
+                                        <a href="$url">$url</a>
                                     #else
                                         #if ($isSourceApplink)
                                             #set ($valueHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key, $dateFormat, $userLocale))
