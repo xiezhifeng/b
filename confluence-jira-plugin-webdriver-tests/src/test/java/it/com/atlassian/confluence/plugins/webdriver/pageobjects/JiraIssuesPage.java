@@ -159,9 +159,9 @@ public class JiraIssuesPage extends ViewPage
 
     public PageElement getElementInTable(int column, int row)
     {
-        int tableRowOffset = 2; //one row for header, and one row is kept by confluence above header with empty data
+        final int tableRowOffset = 2; //one row for header, and one row is kept by confluence above header with empty data
         waitUntilTrue("JIRA issues table is not visible", issuesTable.timed().isPresent());
-        String xpathSelector = String.format("//table[@class='aui']/tbody/tr[%s]/td[%s]", row + tableRowOffset, column);
+        final String xpathSelector = String.format("//table[@class='aui']/tbody/tr[%s]/td[%s]", row + tableRowOffset, column);
         return main.find(By.xpath(xpathSelector));
     }
 }

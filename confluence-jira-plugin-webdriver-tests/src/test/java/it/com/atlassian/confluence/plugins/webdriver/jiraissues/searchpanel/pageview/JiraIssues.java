@@ -295,17 +295,17 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testUrlCustomFieldsForTableMode() throws Exception
+    public void testUrlColumnFormattingForTableMode() throws Exception
     {
-        EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_URL_TEST_COLUMN, "key IN (UCTP-1, UCTP-2) order by key asc");
+        final EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_URL_TEST_COLUMN, "key IN (UCTP-1, UCTP-2) order by key asc");
         editContentPage.save();
-        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        PageElement validUrl = jiraIssuesPage.getElementInTable(3,1).find(By.tagName("a"));
-        PageElement emptyUrl = jiraIssuesPage.getElementInTable(3,2).find(By.tagName("a"));
+        final JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
+        final PageElement validUrl = jiraIssuesPage.getElementInTable(3,1).find(By.tagName("a"));
+        final PageElement emptyUrl = jiraIssuesPage.getElementInTable(3,2).find(By.tagName("a"));
 
-        assertEquals("https://www.youtube.com/watch?v=dQw4w9WgXcQ", validUrl.getText());
-        assertEquals("https://www.youtube.com/watch?v=dQw4w9WgXcQ",validUrl.getAttribute("href"));
-        assertEquals("", emptyUrl.getText());
-        assertEquals("",emptyUrl.getAttribute("href"));
+        assertEquals("Valid URL string exists but was not displayed in the page","https://www.youtube.com/watch?v=dQw4w9WgXcQ", validUrl.getText());
+        assertEquals("Valid URL string exists but was not surrounded with valid <a> tag","https://www.youtube.com/watch?v=dQw4w9WgXcQ",validUrl.getAttribute("href"));
+        assertEquals("Empty URL string exists but text was somehow displayed. Magic?","", emptyUrl.getText());
+        assertEquals("Empty URL string exists and was incorrectly surrounded with an <a> tag","",emptyUrl.getAttribute("href"));
     }
 }

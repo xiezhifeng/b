@@ -194,25 +194,25 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
      */
     public void testGetColumnsInfoFromJiraWithValidJson() throws Exception
     {
-        ReadOnlyApplicationLink applink = mock(ReadOnlyApplicationLink.class);
-        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
-        ApplicationLinkRequestFactory applicationLinkRequestFactory = mock(ApplicationLinkRequestFactory.class);
-        String json = StringUtils.join(IOUtils.readLines(this.getClass().getClassLoader().getResourceAsStream("JiraColumnInfo.json")).toArray());
+        final ReadOnlyApplicationLink applink = mock(ReadOnlyApplicationLink.class);
+        final ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        final ApplicationLinkRequestFactory applicationLinkRequestFactory = mock(ApplicationLinkRequestFactory.class);
+        final String json = StringUtils.join(IOUtils.readLines(this.getClass().getClassLoader().getResourceAsStream("JiraColumnInfo.json")).toArray());
         when(applink.createAuthenticatedRequestFactory()).thenReturn(applicationLinkRequestFactory);
         when(applicationLinkRequestFactory.createRequest(any(),anyString())).thenReturn(applicationLinkRequest);
         when(applicationLinkRequest.execute()).thenReturn(json);
-        Map<String, JiraColumnInfo> columns = defaultJiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+        final Map<String, JiraColumnInfo> columns = defaultJiraIssuesColumnManager.getColumnsInfoFromJira(applink);
 
         JiraColumnInfo url = columns.get("customfield_10100");
-        assertEquals("URL",url.getTitle());
-        assertTrue(url.isUrlColumn());
+        assertEquals("URL type column does not have URL title in JSON","URL",url.getTitle());
+        assertTrue("URL type column does not have URL column type",url.isUrlColumn());
 
         JiraColumnInfo issueType = columns.get("issuetype");
-        assertEquals("Issue Type",issueType.getTitle());
-        assertFalse(issueType.isUrlColumn());
+        assertEquals("Issue Type column does not have Issue Type title in JSON","Issue Type",issueType.getTitle());
+        assertFalse("Issue Type column has URL column type",issueType.isUrlColumn());
 
         JiraColumnInfo epicName = columns.get("customfield_10005");
-        assertEquals("Epic Name",epicName.getTitle());
-        assertFalse(epicName.isUrlColumn());
+        assertEquals("Epic Name type column does not have Epic Name type title in JSON","Epic Name",epicName.getTitle());
+        assertFalse("Epic Name type column has URL column type",epicName.isUrlColumn());
     }
 }
