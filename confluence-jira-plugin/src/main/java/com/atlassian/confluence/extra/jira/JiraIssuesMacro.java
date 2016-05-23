@@ -1,6 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
 
+import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
@@ -17,12 +18,15 @@ import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchServi
 import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.helper.Epic;
+import com.atlassian.confluence.extra.jira.helper.FieldInfo;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.model.ClientId;
+import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
@@ -50,7 +54,14 @@ import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.sal.api.features.DarkFeatureManager;
+import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -59,6 +70,7 @@ import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -66,6 +78,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -713,6 +726,82 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 + encodedQuery + "&returnMax=true";
     }
 
+    private String executeRest(String restUrl, ReadOnlyApplicationLink appLink)
+    {
+        String json = "";
+        try {
+            ApplicationLinkRequest fieldRequest = JiraConnectorUtils.getApplicationLinkRequest(appLink,
+                    Request.MethodType.GET, restUrl);
+            fieldRequest.addHeader("Content-Type", MediaType.APPLICATION_JSON);
+            json = fieldRequest.execute();
+        } catch (CredentialsRequiredException e) {
+            e.printStackTrace();
+        } catch (ResponseException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    private void getEpicData(Map<String, Object> contextMap, ReadOnlyApplicationLink appLink, JiraIssuesManager.Channel channel) {
+        final Map<String, Epic> epics = new HashMap<>();
+        String json;
+        JsonArray array;
+        Gson gson = new Gson();
+        JsonParser parser = new JsonParser();
+
+        // Custom field number for Epic Links are not standard across instances
+        json = executeRest("rest/api/2/field", appLink);
+        java.lang.reflect.Type listType = new TypeToken<List<FieldInfo>>(){}.getType();
+        List<FieldInfo> fields = gson.fromJson(json, listType);
+        String epicLinkCustomField = "", epicNameCustomField = "", epicColourCustomField = "";
+        String epicStatusCustomField = "";
+
+        for(FieldInfo f : fields){
+            switch(f.name.toLowerCase()){
+                case "epic link": epicLinkCustomField = f.id; break;
+                case "epic name": epicNameCustomField = f.id;break;
+                case "epic color": epicColourCustomField = f.id; break;
+                case "epic status": epicStatusCustomField = f.id; break;
+            }
+            if(!epicLinkCustomField.isEmpty() && !epicNameCustomField.isEmpty() &&
+                    !epicColourCustomField.isEmpty() && !epicStatusCustomField.isEmpty()){
+                break;
+            }
+        }
+
+        // Instance may not have configured their task types the same way as is done
+        // in Jira Software. We can't handle this situation.
+        if (epicLinkCustomField.isEmpty()) {
+            return;
+        }
+
+        // Get the epic information for each of the issues in the table
+        Map<String, String> foundEpicKeys = new HashMap<>();
+        for (Element issue : ((List<Element>)channel.getChannelElement().getChildren("item"))) {
+            // Get the Epic Link (i.e. Issue Key of the Epic)
+            json = executeRest("/rest/api/2/issue/" + issue.getChild("key").getValue(), appLink);
+
+            JsonElement epicKeyEl = parser.parse(json).getAsJsonObject().get("fields").getAsJsonObject().get(epicLinkCustomField);
+            String epicKey;
+            if(epicKeyEl == null || epicKeyEl.isJsonNull()){  // Issue is not linked to epic
+                continue;
+            } else {
+                epicKey = epicKeyEl.getAsJsonPrimitive().getAsString();
+            }
+
+            // From the issue key of epic, get the name of the epic
+            if (!foundEpicKeys.keySet().contains(epicKey)) {
+                json = executeRest("/rest/api/2/issue/" + epicKey, appLink);
+                String epicName = parser.parse(json).getAsJsonObject().get("fields").getAsJsonObject().get(epicNameCustomField).getAsJsonPrimitive().getAsString();
+                foundEpicKeys.put(epicKey, epicName);
+            }
+
+            Epic e = new Epic(epicKey, foundEpicKeys.get(epicKey));
+            epics.put(issue.getChild("key").getValue(), e);
+        }
+        contextMap.put("epics", epics);
+    }
+
     /**
      * Create context map for rendering issues in HTML.
      *
@@ -756,6 +845,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                         forceAnonymous, useCache);
                 setupContextMapForStaticTable(contextMap, channel, appLink);
+                if(columnNames.contains("epic link") || columnNames.contains("epic name")){
+                    getEpicData(contextMap, appLink, channel);
+                }
             }
             else
             {
@@ -767,6 +859,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 // Placeholder mode for table
                 contextMap.put("trustedConnection", false);
             }
+
         }
         catch (CredentialsRequiredException e)
         {

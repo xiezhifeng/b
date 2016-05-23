@@ -181,6 +181,12 @@
                                         #else
                                             $generalUtil.htmlEncode($!xmlXformer.valueForField($item, $col.key).getValue())
                                         #end
+                                    #elseif ( $col.equals('epic link') && $!item.getChild('type').getValue() != 'Epic')
+                                        <a href="$jiraServerUrl/browse/$!epics.get($!item.getChild('key').getValue()).getKey()">$!epics.get($!item.getChild('key').getValue()).getKey()</a>
+                                    #elseif ( $col.equals('epic link') )
+                                        <a href="$jiraServerUrl/browse/$!item.getChild('key').getValue()">$!item.getChild('key').getValue()</a>
+                                    #elseif ( $col.equals('epic name') && $!item.getChild('type').getValue() != 'Epic')
+                                        <a href="$jiraServerUrl/browse/$!epics.get($!item.getChild('key').getValue()).getKey()">$!epics.get($!item.getChild('key').getValue()).getName()</a>
                                     #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
                                         #if ($isSourceApplink)
                                             #set ($multiValuesHtml = $!xmlXformer.collapseMultiple( $item, $col.key ).getValue())
