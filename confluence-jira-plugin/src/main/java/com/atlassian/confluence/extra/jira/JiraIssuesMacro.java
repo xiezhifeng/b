@@ -753,18 +753,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         json = executeRest("rest/api/2/field", appLink);
         java.lang.reflect.Type listType = new TypeToken<List<FieldInfo>>(){}.getType();
         List<FieldInfo> fields = gson.fromJson(json, listType);
-        String epicLinkCustomField = "", epicNameCustomField = "", epicColourCustomField = "";
-        String epicStatusCustomField = "";
+        String epicLinkCustomField = "", epicNameCustomField = "";
 
         for(FieldInfo f : fields){
             switch(f.name.toLowerCase()){
                 case "epic link": epicLinkCustomField = f.id; break;
                 case "epic name": epicNameCustomField = f.id;break;
-                case "epic color": epicColourCustomField = f.id; break;
-                case "epic status": epicStatusCustomField = f.id; break;
+
             }
-            if(!epicLinkCustomField.isEmpty() && !epicNameCustomField.isEmpty() &&
-                    !epicColourCustomField.isEmpty() && !epicStatusCustomField.isEmpty()){
+            if(!epicLinkCustomField.isEmpty() && !epicNameCustomField.isEmpty()){
                 break;
             }
         }
