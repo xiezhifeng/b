@@ -89,6 +89,8 @@ import java.util.Map;
 public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlaceholder, ResourceAware
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraIssuesMacro.class);
+    private static final Gson gson = new Gson();
+    private static final JsonParser parser = new JsonParser();
 
     /**
      * Default constructor to get all necessary beans injected
@@ -735,50 +737,64 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             fieldRequest.addHeader("Content-Type", MediaType.APPLICATION_JSON);
             json = fieldRequest.execute();
         } catch (CredentialsRequiredException e) {
-            e.printStackTrace();
+            LOGGER.error("CredentialsRequiredException", e);
         } catch (ResponseException e) {
-            e.printStackTrace();
+            LOGGER.error("ResponseExceptionException", e);
         }
         return json;
     }
 
-    private void getEpicData(Map<String, Object> contextMap, ReadOnlyApplicationLink appLink, JiraIssuesManager.Channel channel) {
+    private void populateTableEpicData(Map<String, Object> contextMap, ReadOnlyApplicationLink appLink, JiraIssuesManager.Channel channel) {
         final Map<String, Epic> epics = new HashMap<>();
         String json;
-        JsonArray array;
-        Gson gson = new Gson();
-        JsonParser parser = new JsonParser();
 
         // Custom field number for Epic Links are not standard across instances
         json = executeRest("rest/api/2/field", appLink);
+
+        if(json.isEmpty()){
+            contextMap.put("epics", epics);
+            return;
+        }
+
         java.lang.reflect.Type listType = new TypeToken<List<FieldInfo>>(){}.getType();
         List<FieldInfo> fields = gson.fromJson(json, listType);
-        String epicLinkCustomField = "", epicNameCustomField = "";
+        String epicLinkCustomFieldId = "";
+        String epicNameCustomFieldId = "";
 
-        for(FieldInfo f : fields){
-            switch(f.name.toLowerCase()){
-                case "epic link": epicLinkCustomField = f.id; break;
-                case "epic name": epicNameCustomField = f.id;break;
-
+        for(FieldInfo field : fields){
+            switch(field.name.toLowerCase()){
+                case "epic link":
+                    epicLinkCustomFieldId = field.id;
+                    break;
+                case "epic name":
+                    epicNameCustomFieldId = field.id;
             }
-            if(!epicLinkCustomField.isEmpty() && !epicNameCustomField.isEmpty()){
+            if(!epicLinkCustomFieldId.isEmpty() && !epicNameCustomFieldId.isEmpty()){
                 break;
             }
         }
 
         // Instance may not have configured their task types the same way as is done
         // in Jira Software. We can't handle this situation.
-        if (epicLinkCustomField.isEmpty()) {
+        if (epicLinkCustomFieldId.isEmpty()) {
             return;
         }
 
         // Get the epic information for each of the issues in the table
+        getEpicNameAndLink(channel, appLink, epicLinkCustomFieldId, epicNameCustomFieldId, epics);
+
+        contextMap.put("epics", epics);
+    }
+
+    private void getEpicNameAndLink(JiraIssuesManager.Channel channel, ReadOnlyApplicationLink appLink, String epicLinkCustomFieldId,
+                                    String epicNameCustomFieldId, Map<String, Epic> epics) {
+        String json;
         Map<String, String> foundEpicKeys = new HashMap<>();
         for (Element issue : ((List<Element>)channel.getChannelElement().getChildren("item"))) {
             // Get the Epic Link (i.e. Issue Key of the Epic)
             json = executeRest("/rest/api/2/issue/" + issue.getChild("key").getValue(), appLink);
 
-            JsonElement epicKeyEl = parser.parse(json).getAsJsonObject().get("fields").getAsJsonObject().get(epicLinkCustomField);
+            JsonElement epicKeyEl = parser.parse(json).getAsJsonObject().get("fields").getAsJsonObject().get(epicLinkCustomFieldId);
             String epicKey;
             if(epicKeyEl == null || epicKeyEl.isJsonNull()){  // Issue is not linked to epic
                 continue;
@@ -789,14 +805,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             // From the issue key of epic, get the name of the epic
             if (!foundEpicKeys.keySet().contains(epicKey)) {
                 json = executeRest("/rest/api/2/issue/" + epicKey, appLink);
-                String epicName = parser.parse(json).getAsJsonObject().get("fields").getAsJsonObject().get(epicNameCustomField).getAsJsonPrimitive().getAsString();
+                String epicName = parser.parse(json).getAsJsonObject().get("fields").getAsJsonObject().get(epicNameCustomFieldId).getAsJsonPrimitive().getAsString();
                 foundEpicKeys.put(epicKey, epicName);
             }
 
             Epic e = new Epic(epicKey, foundEpicKeys.get(epicKey));
             epics.put(issue.getChild("key").getValue(), e);
         }
-        contextMap.put("epics", epics);
     }
 
     /**
@@ -843,7 +858,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                         forceAnonymous, useCache);
                 setupContextMapForStaticTable(contextMap, channel, appLink);
                 if(columnNames.contains("epic link") || columnNames.contains("epic name")){
-                    getEpicData(contextMap, appLink, channel);
+                    populateTableEpicData(contextMap, appLink, channel);
                 }
             }
             else
