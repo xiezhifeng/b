@@ -1,9 +1,9 @@
 package com.atlassian.confluence.extra.jira.helper;
 
-public class Epic {
+final public class Epic {
 
-    private String key;
-    private String name;
+    final private String key;
+    final private String name;
 
     public Epic(String key, String name){
         this.key = key;

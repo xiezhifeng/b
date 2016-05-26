@@ -57,10 +57,7 @@ import com.atlassian.sal.api.features.DarkFeatureManager;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -745,14 +742,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     private void populateTableEpicData(Map<String, Object> contextMap, ReadOnlyApplicationLink appLink, JiraIssuesManager.Channel channel) {
-        final Map<String, Epic> epics = new HashMap<>();
-        String json;
+        final String json;
 
         // Custom field number for Epic Links are not standard across instances
         json = executeRest("rest/api/2/field", appLink);
 
         if(json.isEmpty()){
-            contextMap.put("epics", epics);
+            contextMap.put("epics", new HashMap<>());
             return;
         }
 
@@ -777,41 +773,62 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // Instance may not have configured their task types the same way as is done
         // in Jira Software. We can't handle this situation.
         if (epicLinkCustomFieldId.isEmpty()) {
+            contextMap.put("epics", new HashMap<String, Epic>());
             return;
         }
 
         // Get the epic information for each of the issues in the table
-        getEpicNameAndLink(channel, appLink, epicLinkCustomFieldId, epicNameCustomFieldId, epics);
+        Map<String, Epic> epics = getEpicNameAndLink(channel, appLink, epicLinkCustomFieldId, epicNameCustomFieldId);
 
         contextMap.put("epics", epics);
     }
 
-    private void getEpicNameAndLink(JiraIssuesManager.Channel channel, ReadOnlyApplicationLink appLink, String epicLinkCustomFieldId,
-                                    String epicNameCustomFieldId, Map<String, Epic> epics) {
+    private Map<String, Epic> getEpicNameAndLink(JiraIssuesManager.Channel channel, ReadOnlyApplicationLink appLink, String epicLinkCustomFieldId,
+                                    String epicNameCustomFieldId) {
         String json;
+        Map<String, Epic> epics = new HashMap<>();
         Map<String, String> foundEpicKeys = new HashMap<>();
         for (Element issue : ((List<Element>)channel.getChannelElement().getChildren("item"))) {
             // Get the Epic Link (i.e. Issue Key of the Epic)
             json = executeRest("/rest/api/2/issue/" + issue.getChild("key").getValue(), appLink);
 
-            JsonElement epicKeyEl = parser.parse(json).getAsJsonObject().get("fields").getAsJsonObject().get(epicLinkCustomFieldId);
-            String epicKey;
-            if(epicKeyEl == null || epicKeyEl.isJsonNull()){  // Issue is not linked to epic
+            String epicKey = parseCustomField(json, epicLinkCustomFieldId);
+            if(epicKey.isEmpty()){
                 continue;
-            } else {
-                epicKey = epicKeyEl.getAsJsonPrimitive().getAsString();
             }
 
             // From the issue key of epic, get the name of the epic
-            if (!foundEpicKeys.keySet().contains(epicKey)) {
+            if (!foundEpicKeys.containsKey(epicKey)) {
                 json = executeRest("/rest/api/2/issue/" + epicKey, appLink);
-                String epicName = parser.parse(json).getAsJsonObject().get("fields").getAsJsonObject().get(epicNameCustomFieldId).getAsJsonPrimitive().getAsString();
+                String epicName = parseCustomField(json, epicNameCustomFieldId);
                 foundEpicKeys.put(epicKey, epicName);
             }
 
-            Epic e = new Epic(epicKey, foundEpicKeys.get(epicKey));
-            epics.put(issue.getChild("key").getValue(), e);
+            Epic epic = new Epic(epicKey, foundEpicKeys.get(epicKey));
+            epics.put(issue.getChild("key").getValue(), epic);
         }
+        return epics;
+    }
+
+    private String parseCustomField(String json, String customFieldId){
+        if(json == null){
+            return "";
+        }
+        JsonElement jsonElement = parser.parse(json);
+
+        if(jsonElement == null || !jsonElement.isJsonObject()){
+            return "";
+        }
+        JsonElement fields = jsonElement.getAsJsonObject().get("fields");
+
+        if(fields == null || !fields.isJsonObject()) {
+            return "";
+        }
+        JsonElement jsonEpicName = fields.getAsJsonObject().get(customFieldId);
+        if(jsonEpicName == null || !jsonEpicName.isJsonPrimitive()){
+            return "";
+        }
+        return jsonEpicName.getAsJsonPrimitive().getAsString();
     }
 
     /**
