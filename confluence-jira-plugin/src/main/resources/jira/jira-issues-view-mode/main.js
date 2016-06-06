@@ -28,7 +28,7 @@ require([
     });
 
     //This a hack at rendering Inline Comments asynchronously
-    $(document).bind("ic-jim-async-supported", function() {
+    AJS.bind("ic-jim-async-supported", function() {
         var $jiraIssuesEls = $('.wiki-content [data-jira-key][data-client-id]');
         if ($jiraIssuesEls.length == 0) {
             return false;
