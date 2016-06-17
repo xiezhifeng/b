@@ -78,7 +78,13 @@ public class JiraIssueSortableHelper
             {
                 if (StringUtils.isNotBlank(key))
                 {
-                    columnNames.add(key);
+                    if(key.equalsIgnoreCase("Epic Name") || key.equalsIgnoreCase("Epic Link")) {
+                        if (!columnNames.contains("Epic Link")) {
+                            columnNames.add("Epic Link");
+                        }
+                    } else {
+                        columnNames.add(key);
+                    }
                 }
             }
 

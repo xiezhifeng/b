@@ -4,10 +4,14 @@ final public class Epic {
 
     final private String key;
     final private String name;
+    final private String colour;
+    final private String status;
 
-    public Epic(String key, String name){
+    public Epic(String key, String name, String colour, String status){
         this.key = key;
         this.name = name;
+        this.colour = colour;
+        this.status = status;
     }
 
     public String getKey(){
@@ -17,4 +21,8 @@ final public class Epic {
     public String getName(){
         return name;
     }
+
+    public String getColour() { return colour; }
+
+    public String getStatus() { return status; }
 }
