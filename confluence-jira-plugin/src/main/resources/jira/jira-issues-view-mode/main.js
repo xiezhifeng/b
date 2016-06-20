@@ -27,12 +27,8 @@ require([
         });
     };
 
-    AJS.toInit(function() {
-        initAsyncProcessPlaceHolder();
-    });
+    AJS.toInit(initAsyncProcessPlaceHolder);
 
     //This a hack at rendering Inline Comments asynchronously
-    AJS.bind("ic-jim-async-supported", function() {
-        initAsyncProcessPlaceHolder();
-    });
+    AJS.bind("ic-jim-async-supported", initAsyncProcessPlaceHolder);
 });
