@@ -10,12 +10,15 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputDevi
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
+import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
+import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.helper.Epic;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
@@ -72,6 +75,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -940,7 +944,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                         forceAnonymous, useCache);
                 setupContextMapForStaticTable(contextMap, channel, appLink);
-                if(columnNames.contains("epic link") || columnNames.contains("epic name")){
+                if(columnNames.contains("epic link") || columnNames.contains("epic name") || columnNames.contains("epic color") || columnNames.contains("epic status")){
                     populateTableEpicData(contextMap, appLink, channel, columnNames);
                 }
             }
