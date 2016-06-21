@@ -181,6 +181,68 @@
                                         #else
                                             $generalUtil.htmlEncode($!xmlXformer.valueForField($item, $col.key).getValue())
                                         #end
+                                    #elseif ( $col.equals('epic link') && $!item.getChild('type').getValue() != 'Epic' && $epics.keySet().contains($!item.getChild('key').getValue()) )
+                                        <a class="aui-lozenge $!epics.get($!item.getChild('key').getValue()).getColour()"
+                                           href="$jiraServerUrl/browse/$!epics.get($!item.getChild('key').getValue()).getKey()">$!epics.get($!item.getChild('key').getValue()).getName()</a>
+                                    #elseif ( $col.equals('epic link') && $!item.getChild('type').getValue() == 'Epic' )
+                                        <a class="aui-lozenge $!epics.get($!item.getChild('key').getValue()).getColour()"
+                                           href="$jiraServerUrl/browse/$!item.getChild('key').getValue()">$!item.getChild('key').getValue()</a>
+                                    #elseif ( $col.equals('epic color') && $epics.get($!item.getChild('key').getValue()).getColour())
+                                        #set ($colourLabel = $!epics.get($!item.getChild('key').getValue()).getColour())
+                                        #if($colourLabel == 'ghx-label-1')
+                                            #set($colourName = 'Brown')
+                                        #elseif($colourLabel == 'ghx-label-2')
+                                            #set($colourName = 'Cheeto Orange')
+                                        #elseif($colourLabel == 'ghx-label-3')
+                                            #set($colourName = 'Light Brown')
+                                        #elseif($colourLabel == 'ghx-label-4')
+                                            #set($colourName = 'Blue')
+                                        #elseif($colourLabel == 'ghx-label-5')
+                                            #set($colourName = 'Slate')
+                                        #elseif($colourLabel == 'ghx-label-6')
+                                            #set($colourName = 'Green')
+                                        #elseif($colourLabel == 'ghx-label-7')
+                                            #set($colourName = 'Mauve')
+                                        #elseif($colourLabel == 'ghx-label-8')
+                                            #set($colourName = 'Purple')
+                                        #elseif($colourLabel == 'ghx-label-9')
+                                            #set($colourName = 'Bright Pink')
+                                        #elseif($colourLabel == 'ghx-label-10')
+                                            #set($colourName = 'Bright Blue')
+                                        #elseif($colourLabel == 'ghx-label-11')
+                                            #set($colourName = 'Light Blue')
+                                        #elseif($colourLabel == 'ghx-label-12' || $colourLabel == 'ghx-label-0')
+                                            #set($colourName = 'Medium Gray')
+                                        #elseif($colourLabel == 'ghx-label-13')
+                                            #set($colourName = 'Mid Green')
+                                        #elseif($colourLabel == 'ghx-label-14')
+                                            #set($colourName = 'Pink')
+                                        #else
+                                            #set($colourName = 'INVALID')
+                                        #end
+
+                                        #if($colourName != 'INVALID')
+                                            <span class="aui-lozenge $colourLabel aui-lozenge-box"><pre> </pre></span>
+                                            <span>$colourName</span>
+                                        #end
+
+                                    #elseif ( $col.equals('epic status') && $epics.get($!item.getChild('key').getValue()).getStatus() )
+                                        #if($!epics.get($!item.getChild('key').getValue()).getStatus() == "To Do")
+                                            #set($epicStatusColour = "jira-issue-status-lozenge-blue-gray")
+                                        #elseif($!epics.get($!item.getChild('key').getValue()).getStatus() == "Done")
+                                            #set($epicStatusColour = "jira-issue-status-lozenge-green")
+                                        #elseif($!epics.get($!item.getChild('key').getValue()).getStatus() == "In Progress")
+                                            #set($epicStatusColour = "jira-issue-status-lozenge-yellow")
+                                        #else
+                                            #set($epicStatusColour = 'INVALID')
+                                        #end
+
+                                        #if($epicStatusColour != 'INVALID')
+                                            <a class="aui-lozenge $epicStatusColour"
+                                               href="$jiraServerUrl/browse/$!epics.get($!item.getChild('key').getValue()).getKey()">
+                                                $!epics.get($!item.getChild('key').getValue()).getStatus()
+                                            </a>
+                                        #end
                                     #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
                                         #if ($isSourceApplink)
                                             #set ($multiValuesHtml = $!xmlXformer.collapseMultiple( $item, $col.key ).getValue())
