@@ -159,13 +159,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String COLUMNS = "columns";
 
     private static final String COLUMN_EPIC_LINK = "Epic Link";
-    private static final String COLUMN_EPIC_NAME = "Epic Link";
-    private static final String COLUMN_EPIC_COLOUR = "Epic Link";
-    private static final String COLUMN_EPIC_STATUS = "Epic Link";
+    private static final String COLUMN_EPIC_NAME = "Epic Name";
+    private static final String COLUMN_EPIC_COLOUR = "Epic Color";
+    private static final String COLUMN_EPIC_STATUS = "Epic Status";
     private static final String COLUMN_EPIC_LINK_LOWER = "epic link";
-    private static final String COLUMN_EPIC_NAME_LOWER = "epic link";
-    private static final String COLUMN_EPIC_COLOUR_LOWER = "epic link";
-    private static final String COLUMN_EPIC_STATUS_LOWER = "epic link";
+    private static final String COLUMN_EPIC_NAME_LOWER = "epic name";
+    private static final String COLUMN_EPIC_COLOUR_LOWER = "epic color";
+    private static final String COLUMN_EPIC_STATUS_LOWER = "epic status";
 
     private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
     private static final String RENDER_MODE_PARAM = "renderMode";
