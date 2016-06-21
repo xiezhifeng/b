@@ -9,7 +9,7 @@ require([
 
     var WEB_JIM_RESOURCE = "wr!confluence.extra.jira:jira-issues-view-mode-async-resource";
 
-    $(document).ready(function() {
+    var initAsyncProcessPlaceHolder = function () {
         var $jiraIssuesEls = $('.wiki-content [data-jira-key][data-client-id]');
         if ($jiraIssuesEls.length == 0) {
             return false;
@@ -25,5 +25,10 @@ require([
                 });
             });
         });
-    });
+    };
+
+    AJS.toInit(initAsyncProcessPlaceHolder);
+
+    //This a hack at rendering Inline Comments asynchronously
+    AJS.bind("ic-jim-async-supported", initAsyncProcessPlaceHolder);
 });
