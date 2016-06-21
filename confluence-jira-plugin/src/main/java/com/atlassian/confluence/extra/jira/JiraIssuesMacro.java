@@ -58,6 +58,7 @@ import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonParser;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -156,6 +157,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String SERVER = "server";
     public static final String ISSUE_TYPE = "issueType";
     public static final String COLUMNS = "columns";
+
+    private static final String COLUMN_EPIC_LINK = "Epic Link";
+    private static final String COLUMN_EPIC_NAME = "Epic Link";
+    private static final String COLUMN_EPIC_COLOUR = "Epic Link";
+    private static final String COLUMN_EPIC_STATUS = "Epic Link";
+    private static final String COLUMN_EPIC_LINK_LOWER = "epic link";
+    private static final String COLUMN_EPIC_NAME_LOWER = "epic link";
+    private static final String COLUMN_EPIC_COLOUR_LOWER = "epic link";
+    private static final String COLUMN_EPIC_STATUS_LOWER = "epic link";
 
     private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
     private static final String RENDER_MODE_PARAM = "renderMode";
@@ -743,9 +753,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void populateTableEpicData(Map<String, Object> contextMap, ReadOnlyApplicationLink appLink, JiraIssuesManager.Channel channel,
                                        List<String> columnNames) {
-        boolean needEpicName = columnNames.contains("epic link");
-        boolean needEpicColour = columnNames.contains("epic color") || columnNames.contains("epic link");
-        boolean needEpicStatus = columnNames.contains("epic status");
+        boolean needEpicName = columnNames.contains(COLUMN_EPIC_LINK_LOWER);
+        boolean needEpicColour = columnNames.contains(COLUMN_EPIC_COLOUR_LOWER) || columnNames.contains(COLUMN_EPIC_LINK_LOWER);
+        boolean needEpicStatus = columnNames.contains(COLUMN_EPIC_STATUS_LOWER);
         if(!needEpicName && !needEpicColour && !needEpicStatus){
             return;
         }
@@ -759,13 +769,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         for(String column : columns.keySet()){
             JiraColumnInfo columnInfo = columns.get(column);
             switch(columnInfo.getTitle()){
-                case "Epic Name":
+                case COLUMN_EPIC_NAME:
                     epicNameCustomFieldId = column;
                     break;
-                case "Epic Color":
+                case COLUMN_EPIC_COLOUR:
                     epicColourCustomFieldId = column;
                     break;
-                case "Epic Status":
+                case COLUMN_EPIC_STATUS:
                     epicStatusCustomFieldId = column;
             }
 
@@ -804,7 +814,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
             if(!issue.getChild("type").getValue().equals("Epic")){
                 for (Element element: (List<Element>) issue.getChild("customfields").getChildren()) {
-                    if (element.getValue().contains("Epic Link")) {
+                    if (element.getValue().contains(COLUMN_EPIC_LINK)) {
                         epicKey = element.getValue().trim().replaceAll("Epic", "").replaceAll("Link", "").trim();
                         break;
                     }
@@ -829,11 +839,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 // From the issue key of epic, get the name of the epic
                 if (!foundEpicKeys.keySet().contains(epicKey)) {
                     for(Element element : ((List<Element>) issue.getChild("customfields").getChildren())){
-                        if(element.getValue().contains("Epic Name")){
+                        if(element.getValue().contains(COLUMN_EPIC_NAME)){
                             epicName = element.getValue().trim().replaceAll("Epic", "").replaceAll("Name", "").trim();
-                        } else if(element.getValue().contains("Epic Color")){
+                        } else if(element.getValue().contains(COLUMN_EPIC_COLOUR)){
                             epicColour = element.getValue().trim().replaceAll("Epic", "").replaceAll("Color", "").trim();
-                        } else if(element.getValue().contains("Epic Status")){
+                        } else if(element.getValue().contains(COLUMN_EPIC_STATUS)){
                             epicStatus = element.getValue().trim().replaceAll("Epic", "").replaceAll("Status", "").trim();
                         }
 
@@ -853,20 +863,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     private String parseStatusField(String json, String customFieldId){
-        if(json == null){
-            return "";
-        }
-        JsonElement jsonElement = parser.parse(json);
-
-        if(jsonElement == null || !jsonElement.isJsonObject()){
-            return "";
-        }
-        JsonElement fields = jsonElement.getAsJsonObject().get("fields");
-
-        if(fields == null || !fields.isJsonObject()) {
-            return "";
-        }
-        JsonElement jsonEpicField = fields.getAsJsonObject().get(customFieldId);
+        JsonElement jsonEpicField = verifyJSON(json).getAsJsonObject().get(customFieldId);
         if(jsonEpicField != null && jsonEpicField.isJsonPrimitive()){
             return jsonEpicField.getAsJsonPrimitive().getAsString();
         } else if (jsonEpicField == null || !jsonEpicField.isJsonObject()) {
@@ -881,24 +878,28 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     private String parseCustomField(String json, String customFieldId){
-        if(json == null){
+        JsonElement jsonEpicField = verifyJSON(json).getAsJsonObject().get(customFieldId);
+        if(jsonEpicField == null || !jsonEpicField.isJsonPrimitive()){
             return "";
+        }
+        return jsonEpicField.getAsJsonPrimitive().getAsString();
+    }
+
+    private JsonElement verifyJSON(String json) {
+        if(json == null){
+            return new JsonNull();
         }
         JsonElement jsonElement = parser.parse(json);
 
         if(jsonElement == null || !jsonElement.isJsonObject()){
-            return "";
+            return new JsonNull();
         }
         JsonElement fields = jsonElement.getAsJsonObject().get("fields");
 
         if(fields == null || !fields.isJsonObject()) {
-            return "";
+            return new JsonNull();
         }
-        JsonElement jsonEpicName = fields.getAsJsonObject().get(customFieldId);
-        if(jsonEpicName == null || !jsonEpicName.isJsonPrimitive()){
-            return "";
-        }
-        return jsonEpicName.getAsJsonPrimitive().getAsString();
+        return fields;
     }
 
     /**
@@ -958,7 +959,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 // Placeholder mode for table
                 contextMap.put("trustedConnection", false);
             }
-
         }
         catch (CredentialsRequiredException e)
         {
