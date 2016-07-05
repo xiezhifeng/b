@@ -753,9 +753,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void populateTableEpicData(Map<String, Object> contextMap, ReadOnlyApplicationLink appLink, JiraIssuesManager.Channel channel,
                                        List<String> columnNames) {
-        boolean needEpicName = columnNames.contains(COLUMN_EPIC_LINK_LOWER);
-        boolean needEpicColour = columnNames.contains(COLUMN_EPIC_COLOUR_LOWER) || columnNames.contains(COLUMN_EPIC_LINK_LOWER);
-        boolean needEpicStatus = columnNames.contains(COLUMN_EPIC_STATUS_LOWER);
+        boolean needEpicName = columnNames.contains(COLUMN_EPIC_LINK_LOWER) || columnNames.contains(COLUMN_EPIC_LINK);
+        boolean needEpicColour = columnNames.contains(COLUMN_EPIC_COLOUR_LOWER) || columnNames.contains(COLUMN_EPIC_LINK_LOWER) ||
+                                 columnNames.contains(COLUMN_EPIC_COLOUR) || columnNames.contains(COLUMN_EPIC_LINK);
+        boolean needEpicStatus = columnNames.contains(COLUMN_EPIC_STATUS_LOWER)|| columnNames.contains(COLUMN_EPIC_STATUS);
         if(!needEpicName && !needEpicColour && !needEpicStatus){
             return;
         }
@@ -812,7 +813,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             // Get the Epic Link (i.e. Issue Key of the Epic)
             String epicKey = "";
 
-            if(!issue.getChild("type").getValue().equals("Epic")){
+            if(issue.getChild("type") != null && !issue.getChild("type").getValue().equals("Epic")){
                 for (Element element: (List<Element>) issue.getChild("customfields").getChildren()) {
                     if (element.getValue().contains(COLUMN_EPIC_LINK)) {
                         epicKey = element.getValue().trim().replaceAll("Epic", "").replaceAll("Link", "").trim();
