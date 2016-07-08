@@ -5,7 +5,7 @@
         init : function(ed) {
             ed.addCommand('mceJiralink', AJS.Editor.JiraConnector.hotKey);
             ed.onPostRender.add(function(ed){
-                var serversAjax = AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', async:true}).done(function(response) {
+                var serversAjax = AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers'}).done(function(response) {
                     AJS.Editor.JiraConnector.servers = response;
                 });
                 AJS.$('#jiralink').click(function(e) {
