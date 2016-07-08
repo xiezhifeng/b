@@ -195,18 +195,18 @@ AJS.Editor.JiraConnector = (function($) {
     };
 
    var checkExistAppLinkConfig = function() {
-       var serversAjax;
+       var deferred = $.Deferred();
        //call again get list server after admin click config applink
         if (AJS.Editor.JiraConnector.clickConfigApplink) {
-            serversAjax = AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers'}).done(function(response) {
+            AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers'}).done(function(response) {
                 AJS.Editor.JiraConnector.servers = response;
-                serversAjax.resolve(checkAppLinkConfigAfterAjax());
+                deferred.resolve(checkAppLinkConfigAfterAjax());
             });
         } else {
-            serversAjax = $.Deferred().resolve(checkAppLinkConfigAfterAjax());
+            deferred.resolve(checkAppLinkConfigAfterAjax());
         }
 
-       return serversAjax.promise();
+       return deferred.promise();
     };
 
     var checkAppLinkConfigAfterAjax = function() {
@@ -214,7 +214,7 @@ AJS.Editor.JiraConnector = (function($) {
         if (typeof(AJS.Editor.JiraConnector.servers) == 'undefined' || AJS.Editor.JiraConnector.servers.length == 0) {
             //show warning popup with permission of login's user
             AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
-            return serversAjax.resolveWith(false);
+            return false;
         }
         AJS.Editor.JiraConnector.clickConfigApplink = false;
         // call refresh for applink select control
