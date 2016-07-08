@@ -195,21 +195,12 @@ AJS.Editor.JiraConnector = (function($) {
     };
 
    var checkExistAppLinkConfig = function() {
-       var deferred = $.Deferred();
-       //call again get list server after admin click config applink
+        //call again get list server after admin click config applink
         if (AJS.Editor.JiraConnector.clickConfigApplink) {
-            AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers'}).done(function(response) {
+            AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', async:false}).done(function(response) {
                 AJS.Editor.JiraConnector.servers = response;
-                deferred.resolve(checkAppLinkConfigAfterAjax());
             });
-        } else {
-            deferred.resolve(checkAppLinkConfigAfterAjax());
         }
-
-       return deferred.promise();
-    };
-
-    var checkAppLinkConfigAfterAjax = function() {
         //check exist config applink
         if (typeof(AJS.Editor.JiraConnector.servers) == 'undefined' || AJS.Editor.JiraConnector.servers.length == 0) {
             //show warning popup with permission of login's user
@@ -272,35 +263,33 @@ AJS.Editor.JiraConnector = (function($) {
         open: function(source, isPopulateSummaryText) {
         // this open() method is intended to be called by the macro's code, not by the editor's macro browser
             //check exist applink config
-            var existingAppLinkConfig = checkExistAppLinkConfig();
-            existingAppLinkConfig.done(function(appLinkConfigExits) {
-                if(!appLinkConfigExits) {
-                    return;
-                }
-                // Store the current selection and scroll position, and get the selected text.
-                AJS.Editor.Adapter.storeCurrentSelectionState();
-                openDialogSource = source;
-                if (AJS.Editor.JiraAnalytics && openDialogSource) {
-                    if (openDialogSource === AJS.Editor.JiraConnector.source.instructionalText) {
-                        panelTriggerWithLabel();
-                    } else {
-                        labels = null;
-                        AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({source: openDialogSource});
-                    }
-                }
+            if (!checkExistAppLinkConfig()) {
+                return;
+            }
 
-                var macroBrowser = tinymce.confluence.macrobrowser,
-                    node = macroBrowser.getCurrentNode();
-                if (macroBrowser.isMacroTag(node) && 'jira' == $(node).attr('data-macro-name')) {
-                    macroBrowser.editMacro(node);
-                    // editMacro will call the opener function, which is the edit() function below
-                    // in the edit() function, we should avoid calling the open() method
-                    // also see the comment below
-                    // Otherwise, we will face a deadlock problem
-                    return;
+            // Store the current selection and scroll position, and get the selected text.
+            AJS.Editor.Adapter.storeCurrentSelectionState();
+            openDialogSource = source;
+            if (AJS.Editor.JiraAnalytics && openDialogSource) {
+                if (openDialogSource === AJS.Editor.JiraConnector.source.instructionalText) {
+                    panelTriggerWithLabel();
+                } else {
+                    labels = null;
+                    AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({source: openDialogSource});
                 }
-                AJS.Editor.JiraConnector.openCleanDialog(isPopulateSummaryText);
-            });
+            }
+
+            var macroBrowser = tinymce.confluence.macrobrowser,
+            node = macroBrowser.getCurrentNode();
+            if (macroBrowser.isMacroTag(node) && 'jira' == $(node).attr('data-macro-name')) {
+                macroBrowser.editMacro(node);
+                // editMacro will call the opener function, which is the edit() function below
+                // in the edit() function, we should avoid calling the open() method
+                // also see the comment below
+                // Otherwise, we will face a deadlock problem
+                return;
+            }
+            AJS.Editor.JiraConnector.openCleanDialog(isPopulateSummaryText);
         },
         openCleanDialog: function(isPopulateSummaryText) {
             var summaryText = isPopulateSummaryText && tinyMCE.activeEditor.selection && tinyMCE.activeEditor.selection.getContent({format : 'text'});
@@ -310,111 +299,108 @@ AJS.Editor.JiraConnector = (function($) {
         },
         edit: function(macro){
             //check status exist macro and remove all applink.
-            checkExistAppLinkConfig().done(function(appLinkConfigExists){
-                if (!appLinkConfigExists()) {
-                    return;
+            if (!checkExistAppLinkConfig()) {
+                return;
+            }
+            //check for show custom dialog when click in other macro
+            if (typeof(macro.params) == 'undefined') {
+                // WARNING: we must not call AJS.Editor.JiraConnector.open() here
+                AJS.Editor.JiraConnector.openCleanDialog(false);
+                return;
+            }
+
+            //reset source when edit
+            openDialogSource = EMPTY_VALUE;
+            labels = EMPTY_VALUE;
+
+            var getJQLJiraIssues = function(obj) {
+                if(obj.hasOwnProperty('jqlQuery')) {
+                    return obj['jqlQuery'];
                 }
 
-                //check for show custom dialog when click in other macro
-                if (typeof(macro.params) == 'undefined') {
-                    // WARNING: we must not call AJS.Editor.JiraConnector.open() here
-                    AJS.Editor.JiraConnector.openCleanDialog(false);
-                    return;
+                var positiveIntegerRegex = /^([0-9]\d*)$/;
+                var arrayParams = ["count","columns","title","renderMode","cache","width","height","server","serverId","anonymous","baseurl", "showSummary"];
+                for (var prop in obj) {
+                    if($.inArray(prop, arrayParams) == -1 && obj.hasOwnProperty(prop)) {
+                        if(positiveIntegerRegex.test(prop)) {
+                            return obj[prop];
+                        }
+                        return prop += ' = ' + obj[prop];
+                    }
                 }
 
-                //reset source when edit
-                openDialogSource = EMPTY_VALUE;
-                labels = EMPTY_VALUE;
+                return "";
+            };
 
-                var getJQLJiraIssues = function(obj) {
-                    if(obj.hasOwnProperty('jqlQuery')) {
-                        return obj['jqlQuery'];
-                    }
-
-                    var positiveIntegerRegex = /^([0-9]\d*)$/;
-                    var arrayParams = ["count","columns","title","renderMode","cache","width","height","server","serverId","anonymous","baseurl", "showSummary"];
-                    for (var prop in obj) {
-                        if($.inArray(prop, arrayParams) == -1 && obj.hasOwnProperty(prop)) {
-                            if(positiveIntegerRegex.test(prop)) {
-                                return obj[prop];
-                            }
-                            return prop += ' = ' + obj[prop];
-                        }
-                    }
-
-                    return "";
-                };
-
-                var getParamsJiraIssues = function(macro) {
-                    var params = {};
-                    if(macro.params['url']) {
-                        params['searchStr'] = macro.params['url'];
-                        return params;
-                    }
-
-                    params['maximumIssues'] = macro.params['maximumIssues'];
-
-                    //macro param is JQL | Key
-                    var jqlStr = macro.defaultParameterValue || getJQLJiraIssues(macro.params);
-                    if (typeof (jqlStr) == 'undefined') {
-                        params['searchStr'] = EMPTY_VALUE;
-                    } else {
-                        params['searchStr'] = jqlStr;
-                    }
-                    //macro param is server
-                    if (typeof(macro.params['server']) != 'undefined') {
-                        params['serverName'] = macro.params['server'];
-                    } else {
-                        //get server primary
-                        for (var i = 0; i < AJS.Editor.JiraConnector.servers.length; i++) {
-                            if(AJS.Editor.JiraConnector.servers[i].selected) {
-                                params['serverName'] = AJS.Editor.JiraConnector.servers[i].name;
-                                break;
-                            }
-                        }
-                    }
+            var getParamsJiraIssues = function(macro) {
+                var params = {};
+                if(macro.params['url']) {
+                    params['searchStr'] = macro.params['url'];
                     return params;
-                } ;
+                }
 
-                // parse params from macro data
-                var parseParamsFromMacro = function(macro) {
-                    var params = getParamsJiraIssues(macro);
+                params['maximumIssues'] = macro.params['maximumIssues'];
 
-                    var count = macro.params['count'];
-                    if (typeof count === "undefined") {
-                        count = "false";
-                    }
-                    params['count'] = count;
-
-                    var columns = macro.params['columns'];
-                    if (typeof(columns) != 'undefined') {
-                        if (columns.length) {
-                            params['columns'] = columns;
+                //macro param is JQL | Key
+                var jqlStr = macro.defaultParameterValue || getJQLJiraIssues(macro.params);
+                if (typeof (jqlStr) == 'undefined') {
+                    params['searchStr'] = EMPTY_VALUE;
+                } else {
+                    params['searchStr'] = jqlStr;
+                }
+                //macro param is server
+                if (typeof(macro.params['server']) != 'undefined') {
+                    params['serverName'] = macro.params['server'];
+                } else {
+                    //get server primary
+                    for (var i = 0; i < AJS.Editor.JiraConnector.servers.length; i++) {
+                        if(AJS.Editor.JiraConnector.servers[i].selected) {
+                            params['serverName'] = AJS.Editor.JiraConnector.servers[i].name;
+                            break;
                         }
                     }
-                    return params;
+                }
+                return params;
+            } ;
+
+            // parse params from macro data
+            var parseParamsFromMacro = function(macro) {
+                var params = getParamsJiraIssues(macro);
+
+                var count = macro.params['count'];
+                if (typeof count === "undefined") {
+                    count = "false";
+                }
+                params['count'] = count;
+
+                var columns = macro.params['columns'];
+                if (typeof(columns) != 'undefined') {
+                    if (columns.length) {
+                        params['columns'] = columns;
+                    }
+                }
+                return params;
+            };
+
+            var macroParams = parseParamsFromMacro(macro);
+
+            if (macro && !AJS.Editor.inRichTextMode()) { // select and replace the current macro markup
+                $("#markupTextarea").selectionRange(macro.startIndex, macro.startIndex + macro.markup.length);
+            }
+            openJiraDialog();
+            if (macroParams.searchStr) {
+                popup.gotoPanel(0);
+                var searchPanel = AJS.Editor.JiraConnector.Panels[0];
+                // assign macro params to search
+                searchPanel.setMacroParams(macroParams);
+                var searchParams = {
+                    searchValue: macroParams['searchStr'],
+                    serverName: macroParams['serverName'],
+                    isJqlQuery: macro.params.hasOwnProperty("jqlQuery"),
+                    isAutoSearch: true
                 };
-
-                var macroParams = parseParamsFromMacro(macro);
-
-                if (macro && !AJS.Editor.inRichTextMode()) { // select and replace the current macro markup
-                    $("#markupTextarea").selectionRange(macro.startIndex, macro.startIndex + macro.markup.length);
-                }
-                openJiraDialog();
-                if (macroParams.searchStr) {
-                    popup.gotoPanel(0);
-                    var searchPanel = AJS.Editor.JiraConnector.Panels[0];
-                    // assign macro params to search
-                    searchPanel.setMacroParams(macroParams);
-                    var searchParams = {
-                        searchValue: macroParams['searchStr'],
-                        serverName: macroParams['serverName'],
-                        isJqlQuery: macro.params.hasOwnProperty("jqlQuery"),
-                        isAutoSearch: true
-                    };
-                    searchPanel.doSearch(searchParams);
-                }
-            });
+                searchPanel.doSearch(searchParams);
+            }
         },
 
         source: source
