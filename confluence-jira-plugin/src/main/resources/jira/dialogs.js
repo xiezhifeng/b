@@ -223,7 +223,7 @@ AJS.Editor.JiraConnector = (function($) {
             AJS.Editor.JiraConnector.refreshAppLink = false;
         }
         return true;
-    }
+    };
 
     return {
         warningPopup : function(isAdministrator){
