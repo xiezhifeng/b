@@ -114,8 +114,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         panel.html('<div class="create-issue-container"></div>');
         this.container = AJS.$('div.create-issue-container');
         var container = this.container;
-        var servers = AJS.Editor.JiraConnector.servers;
-        this.selectedServer = servers[0];
+        AJS.Editor.JiraConnector.serversAjax.done(function(){
+            var servers = AJS.Editor.JiraConnector.servers;
+            this.selectedServer = servers[0];
+        });
 
         this.jipForm = new jiraIntegration.JiraCreateIssueForm({
             container: '.create-issue-container',
@@ -213,37 +215,39 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         }
 
         this.startLoading();
-        AJS.$.ajax({
-            type : "POST",
-            contentType : "application/json",
-            url : JIRA_REST_URL + "?applicationId=" + this.selectedServer.id,
-            data : this.convertFormToJSON($form),
-            success: function(data) {
-                var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
-                if (!key) {
-                    if (!_.isEmpty(data.errors[0].elementErrors.errorMessages)) {
-                        var formErrors = data.errors[0].elementErrors.errorMessages;
-                        var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: formErrors, serverUrl: currentServer.displayUrl});
-                        thiz.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
-                    }
+        AJS.Editor.JiraConnector.serversAjax.done(function() {
+            AJS.$.ajax({
+                type : "POST",
+                contentType : "application/json",
+                url : JIRA_REST_URL + "?applicationId=" + this.selectedServer.id,
+                data : this.convertFormToJSON($form),
+                success: function(data) {
+                    var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
+                    if (!key) {
+                        if (!_.isEmpty(data.errors[0].elementErrors.errorMessages)) {
+                            var formErrors = data.errors[0].elementErrors.errorMessages;
+                            var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: formErrors, serverUrl: currentServer.displayUrl});
+                            thiz.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
+                        }
 
-                    var fieldErrors = data.errors[0].elementErrors.errors;
+                        var fieldErrors = data.errors[0].elementErrors.errors;
 
-                    _.each(fieldErrors, function(errorMessage, errorKey) {
-                        var errorElement = aui.form.fieldError({
-                            message: errorMessage
+                        _.each(fieldErrors, function(errorMessage, errorKey) {
+                            var errorElement = aui.form.fieldError({
+                                message: errorMessage
+                            });
+                            AJS.$(AJS.format('.field-group [name={0}]', errorKey), $form).after(errorElement);
                         });
-                        AJS.$(AJS.format('.field-group [name={0}]', errorKey), $form).after(errorElement);
-                    });
-                } else {
-                    thiz.insertIssueLink(key, currentServer.displayUrl + '/browse/' + key);
-                    thiz.resetIssue();
+                    } else {
+                        thiz.insertIssueLink(key, currentServer.displayUrl + '/browse/' + key);
+                        thiz.resetIssue();
+                    }
+                    thiz.endLoading();
+                },
+                error: function(xhr, status) {
+                    thiz.ajaxAuthCheck(xhr);
                 }
-                thiz.endLoading();
-            },
-            error: function(xhr, status) {
-                thiz.ajaxAuthCheck(xhr);
-            }
+            });
         });
     },
     onselect: function() {

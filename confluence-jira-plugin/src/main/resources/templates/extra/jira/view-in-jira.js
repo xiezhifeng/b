@@ -5,7 +5,10 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
         return;
 
     panel.registerButtonHandler('view-in-jira', function(event, macroElement) {
-        if (AJS.Editor.JiraConnector.servers) {
+        AJS.Editor.JiraConnector.serversAjax.done(function() {
+            if (!AJS.Editor.JiraConnector.servers) {
+                return;
+            }
             var servers = AJS.Editor.JiraConnector.servers;
             //var macroHtml = AJS.Rte.getEditor().serializer.serialize(AJS.$(macroElement).clone()[0]);
             var $macroNode = AJS.$(macroElement);
@@ -14,15 +17,15 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
 
             var defaultParam = $macroNode.attr("data-macro-default-parameter");
             var macroParametersString = $macroNode.attr("data-macro-parameters") || "";
-            var parameters =  Confluence.MacroParameterSerializer.deserialize(macroParametersString);
+            var parameters = Confluence.MacroParameterSerializer.deserialize(macroParametersString);
 
             //var macro = AJS.$.secureEvalJSON(macroData);
             var jql_operators = /=|!=|~|>|<|!~| is | in /i;
 
-            var parseUglyMacro = function(macroTxt){
+            var parseUglyMacro = function (macroTxt) {
                 //get first macro parameter and assume its a jql query
                 var bar = macroTxt.indexOf("|");
-                if (bar >= 0){
+                if (bar >= 0) {
                     return macroTxt.substring(0, bar);
                 }
                 return macroTxt;
@@ -33,12 +36,12 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
 
             var isJQL = searchStr.match(jql_operators);
             var server = null;
-            for (var i = 0; i < servers.length; i++){
-                if ((serverId && servers[i].id == serverId)){
+            for (var i = 0; i < servers.length; i++) {
+                if ((serverId && servers[i].id == serverId)) {
                     server = servers[i];
                     break;
                 }
-                if ((serverName && servers[i].name == serverName) || (!serverName && servers[i].selected)){
+                if ((serverName && servers[i].name == serverName) || (!serverName && servers[i].selected)) {
                     server = servers[i];
                     break;
                 }
@@ -56,6 +59,6 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
                 else
                     window.open(baseURL + '/secure/IssueNavigator.jspa?reset=true&jqlQuery=' + encodeURIComponent(searchStr), windowName);
             }
-        }
+        });
     });
 });

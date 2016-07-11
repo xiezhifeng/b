@@ -183,24 +183,26 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         },
         
         applinkServerSelect: function(container, onchange){
-            var servers = AJS.Editor.JiraConnector.servers;
-            AJS.$(servers).each(function(){
-                var option = '<option ';
-                if (this.selected){
-                    selectedServer = this;
-                    option += 'selected="selected"';
-                }
-                option += 'value="' + this.id + '"></option>';
-                option = AJS.$(option);
-                option.text(this.name);
-                AJS.$(container).append(option);
-                option.data('jiraapplink', this);
+            AJS.Editor.JiraConnector.serversAjax.done(function() {
+                var servers = AJS.Editor.JiraConnector.servers;
+                AJS.$(servers).each(function(){
+                    var option = '<option ';
+                    if (this.selected){
+                        selectedServer = this;
+                        option += 'selected="selected"';
+                    }
+                    option += 'value="' + this.id + '"></option>';
+                    option = AJS.$(option);
+                    option.text(this.name);
+                    AJS.$(container).append(option);
+                    option.data('jiraapplink', this);
 
-            });
-            AJS.$(container).change(function(e){
-                var option = AJS.$('option:selected', container);
-                var server = option.data('jiraapplink');
-                onchange(server);
+                });
+                AJS.$(container).change(function(e){
+                    var option = AJS.$('option:selected', container);
+                    var server = option.data('jiraapplink');
+                    onchange(server);
+                });
             });
         },
         showSpinner: function (element, radius, centerWidth, centerHeight){

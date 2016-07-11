@@ -73,21 +73,23 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
 
                 if (serverName && serverName != this.selectedServer.name) {
-                    var servers = AJS.Editor.JiraConnector.servers;
-                    var isServerExist = false;
-                    for (var i = 0; i < servers.length; i++) {
-                        if (servers[i].name == serverName) {
-                            AJS.$('option[value="' + servers[i].id + '"]', container).attr('selected', 'selected');
-                            AJS.$('select', container).change();
-                            isServerExist = true;
-                            break;
+                    AJS.Editor.JiraConnector.serversAjax.done(function() {
+                        var servers = AJS.Editor.JiraConnector.servers;
+                        var isServerExist = false;
+                        for (var i = 0; i < servers.length; i++) {
+                            if (servers[i].name == serverName) {
+                                AJS.$('option[value="' + servers[i].id + '"]', container).attr('selected', 'selected');
+                                AJS.$('select', container).change();
+                                isServerExist = true;
+                                break;
+                            }
                         }
-                    }
 
-                    if (!isServerExist) {
-                        showNoServerMessage(AJS.Meta.get("is-admin"));
-                        return;
-                    }
+                        if (!isServerExist) {
+                            showNoServerMessage(AJS.Meta.get("is-admin"));
+                            return;
+                        }
+                    });
                 }
 
                 if (this.currentXhr && this.currentXhr.readyState != 4) {
@@ -151,37 +153,42 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 };
 
                 if(AJS.JQLHelper.isFilterUrl(queryTxt)) {
-                    var url = decodeURIComponent(queryTxt);
-                    var serverIndex = AJS.JQLHelper.findServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
-                    if( serverIndex != -1) {
-                        var appLinkId = AJS.Editor.JiraConnector.servers[serverIndex].id;
-                        AJS.$('option[value="' + appLinkId + '"]', container).attr('selected', 'selected');
-                        AJS.$('select', container).change();
+                    AJS.Editor.JiraConnector.serversAjax.done(function(){
+                        var url = decodeURIComponent(queryTxt);
+                        var serverIndex = AJS.JQLHelper.findServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                        if( serverIndex != -1) {
+                            var appLinkId = AJS.Editor.JiraConnector.servers[serverIndex].id;
+                            AJS.$('option[value="' + appLinkId + '"]', container).attr('selected', 'selected');
+                            AJS.$('select', container).change();
 
-                        var filterJql = AJS.JQLHelper.getFilterFromFilterUrl(url);
-                        if (filterJql) {
-                            AJS.$('input', container).val(filterJql);
-                            performQuery(filterJql);
+                            var filterJql = AJS.JQLHelper.getFilterFromFilterUrl(url);
+                            if (filterJql) {
+                                AJS.$('input', container).val(filterJql);
+                                performQuery(filterJql);
+                            }
+                            else {
+                                clearPanel();
+                                thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
+                            }
                         }
                         else {
                             clearPanel();
-                            thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
+                            thiz.disableInsert();
+                            showNoServerMessage(AJS.Meta.get("is-admin"));
                         }
-                    }
-                    else {
-                        clearPanel();
-                        thiz.disableInsert();
-                        showNoServerMessage(AJS.Meta.get("is-admin"));
-                    }
+                    });
+                    
                 }
                 // url/url xml
                 else if(AJS.JQLHelper.isIssueUrlOrXmlUrl(queryTxt)) {
-                    var url = decodeURIComponent(queryTxt); 
-                    var jiraParams = AJS.JQLHelper.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
-                    if(processJiraParams(jiraParams)) {
-                        AJS.$('input', container).val(jiraParams["jqlQuery"]);
-                        performQuery(jiraParams["jqlQuery"], false, null);
-                    }
+                    AJS.Editor.JiraConnector.serversAjax.done(function() {
+                        var url = decodeURIComponent(queryTxt);
+                        var jiraParams = AJS.JQLHelper.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                        if (processJiraParams(jiraParams)) {
+                            AJS.$('input', container).val(jiraParams["jqlQuery"]);
+                            performQuery(jiraParams["jqlQuery"], false, null);
+                        }
+                    });
                 }
                 else {
                     if (queryTxt.match(thiz.jql_operators)) {
@@ -204,7 +211,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             this.doSearch = doSearch;
             thiz.addSearchForm();
 
-            var processJiraParams = function(jiraParams) {
+            var processJiraParams = AJS.Editor.JiraConnector.serversAjax.done(function(jiraParams) {
                 var jql;
                 if(jiraParams["serverIndex"] != -1) {
                     AJS.$('option[value="' + AJS.Editor.JiraConnector.servers[jiraParams["serverIndex"]].id + '"]', container).attr('selected', 'selected');
@@ -223,7 +230,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     showNoServerMessage(AJS.Meta.get("is-admin"));
                 }
                 return jql;
-            };
+            });
             thiz.processJiraParams = processJiraParams;
 
             var showNoServerMessage = function(isAdmin) {
@@ -265,26 +272,28 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         addSearchForm: function() {
             var thiz = this;
             thiz.container.empty();
-            var servers = AJS.Editor.JiraConnector.servers;
-            thiz.selectedServer = servers[0];
-            var isMultiServer = false;
-            if (servers.length > 1) {
-                isMultiServer = true;
-            }
-            //get searchform from soy template
-            var searchFormSoy = Confluence.Templates.ConfluenceJiraPlugin.searchForm({'isMultiServer':isMultiServer});
-            var searchForm = AJS.$(searchFormSoy).appendTo(thiz.container);
+            AJS.Editor.JiraConnector.serversAjax.done(function() {
+                var servers = AJS.Editor.JiraConnector.servers;
+                thiz.selectedServer = servers[0];
+                var isMultiServer = false;
+                if (servers.length > 1) {
+                    isMultiServer = true;
+                }
+                //get searchform from soy template
+                var searchFormSoy = Confluence.Templates.ConfluenceJiraPlugin.searchForm({'isMultiServer': isMultiServer});
+                var searchForm = AJS.$(searchFormSoy).appendTo(thiz.container);
 
-            if (servers.length > 1) {
-                var serverSelect = AJS.$('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
-                thiz.applinkServerSelect(serverSelect, thiz.authCheck);
-            }
-            thiz.authCheck(thiz.selectedServer);
-            
-            AJS.$('button', thiz.container).click(function() {
-                thiz.doSearch();
+                if (servers.length > 1) {
+                    var serverSelect = AJS.$('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
+                    thiz.applinkServerSelect(serverSelect, thiz.authCheck);
+                }
+                thiz.authCheck(thiz.selectedServer);
+
+                AJS.$('button', thiz.container).click(function () {
+                    thiz.doSearch();
+                });
+                thiz.setActionOnEnter(AJS.$('input.text', thiz.container), thiz.doSearch);
             });
-            thiz.setActionOnEnter(AJS.$('input.text', thiz.container), thiz.doSearch);
         },
 
         bindPasteEvent: function() {
@@ -298,12 +307,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     }
                     else if(AJS.JQLHelper.isIssueUrlOrXmlUrl(textSearch)) {
                         var url = decodeURIComponent(textSearch);
-                        var jiraParams = AJS.JQLHelper.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
-                        if(thiz.processJiraParams(jiraParams)) {
-                            AJS.$(element).val(jiraParams["jqlQuery"]);
-                            //for auto search when paste url
-                            thiz.doSearch();
-                        }
+                        AJS.Editor.JiraConnector.serversAjax.done(function() {
+                            var jiraParams = AJS.JQLHelper.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                            if (thiz.processJiraParams(jiraParams)) {
+                                AJS.$(element).val(jiraParams["jqlQuery"]);
+                                //for auto search when paste url
+                                thiz.doSearch();
+                            }
+                        });
                     }
                 }, 100);
             });

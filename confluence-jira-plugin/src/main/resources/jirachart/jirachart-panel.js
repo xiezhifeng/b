@@ -7,16 +7,18 @@ AJS.Editor.JiraChart.Panel.prototype = {
      */
     init: function(panel) {
         var chartType = this.chartType;
-        var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
-            'isMultiServer' : AJS.Editor.JiraConnector.servers.length > 1,
-            'chartType' : chartType
+        AJS.Editor.JiraConnector.serversAjax.done(function() {
+            var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
+                'isMultiServer': AJS.Editor.JiraConnector.servers.length > 1,
+                'chartType': chartType
+            });
+            panel.html(contentJiraChart);
+            this.container = AJS.$(this.containerId);
+            AJS.Editor.JiraChart.clearChartContent(this.container);
+            AJS.Editor.JiraChart.loadServers(this.container);
+            this.bindingChartElements();
+            this.bindingActions();
         });
-        panel.html(contentJiraChart);
-        this.container = AJS.$(this.containerId);
-        AJS.Editor.JiraChart.clearChartContent(this.container);
-        AJS.Editor.JiraChart.loadServers(this.container);
-        this.bindingChartElements();
-        this.bindingActions();
     },
 
     /**

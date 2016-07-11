@@ -6,26 +6,28 @@ AJS.Editor.JiraConnector.Panel.Recent.prototype = AJS.$.extend(AJS.Editor.JiraCo
             return AJS.I18n.getText("insert.jira.issue.recent");
         },
         init: function(panel){
-            var servers = AJS.Editor.JiraConnector.servers;
-            panel.html('<div id="my-recent-issues" ' + (servers.length > 1 ? 'class="multi-server" ' : '') + '></div>');
-            var thiz = this;
-            this.selectedServer = servers[0];
-            if (servers.length > 1){
-                var serverForm = AJS.$('<div class="jira-server-select"><form action="#" method="post" class="aui">' + 
-                             '<div class="field-group"><label>Server</label>' + 
-                             '<select class="select" ></select>' + 
-                             '</div>' +
-                             '</form></div>').appendTo('div#my-recent-issues');
-                
-               
-                this.applinkServerSelect(AJS.$('.select', serverForm), function(server){
-                  thiz.selectedServer = server;
-                  thiz.onselect();
-                });
-            }
-            panel.onselect = function(){
-                thiz.onselect();
-            };
+            AJS.Editor.JiraConnector.serversAjax.done(function(){
+                var servers = AJS.Editor.JiraConnector.servers;
+                panel.html('<div id="my-recent-issues" ' + (servers.length > 1 ? 'class="multi-server" ' : '') + '></div>');
+                var thiz = this;
+                this.selectedServer = servers[0];
+                if (servers.length > 1){
+                    var serverForm = AJS.$('<div class="jira-server-select"><form action="#" method="post" class="aui">' +
+                        '<div class="field-group"><label>Server</label>' +
+                        '<select class="select" ></select>' +
+                        '</div>' +
+                        '</form></div>').appendTo('div#my-recent-issues');
+
+
+                    this.applinkServerSelect(AJS.$('.select', serverForm), function(server){
+                        thiz.selectedServer = server;
+                        thiz.onselect();
+                    });
+                }
+                panel.onselect = function(){
+                    thiz.onselect();
+                };
+            });
         },
         insertLink: function(){
             this.insertSelected();

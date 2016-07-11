@@ -114,17 +114,19 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var loadServers = function(container) {
-        if (AJS.Editor.JiraConnector.servers.length > 0) {
-            AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect(container.find('#jira-chart-servers'),
-                function(server) {
-                    clearChartContent(container);
-                    if (validateServerSupportedChart(container)) {
-                        checkOau(container,server);
-                        enableChartDialog(container);
+        AJS.Editor.JiraConnector.serversAjax.done(function() {
+            if (AJS.Editor.JiraConnector.servers.length > 0) {
+                AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect(container.find('#jira-chart-servers'),
+                    function (server) {
+                        clearChartContent(container);
+                        if (validateServerSupportedChart(container)) {
+                            checkOau(container, server);
+                            enableChartDialog(container);
+                        }
                     }
-                }
-            );
-        }
+                );
+            }
+        });
     };
 
     var chartTypeExists = function(chartType) {

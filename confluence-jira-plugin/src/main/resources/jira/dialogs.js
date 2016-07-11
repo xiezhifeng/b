@@ -5,11 +5,11 @@
         init : function(ed) {
             ed.addCommand('mceJiralink', AJS.Editor.JiraConnector.hotKey);
             ed.onPostRender.add(function(ed){
-                var serversAjax = AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers'}).done(function(response) {
+                AJS.Editor.JiraConnector.serversAjax = AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers'}).done(function(response) {
                     AJS.Editor.JiraConnector.servers = response;
                 });
                 AJS.$('#jiralink').click(function(e) {
-                    serversAjax.done( function() {
+                    AJS.Editor.JiraConnector.serversAjax.done(function() {
                         AJS.Editor.JiraConnector.open(AJS.Editor.JiraConnector.source.editorDropdownLink, true);
                         return AJS.stopEvent(e);
                     });
@@ -138,7 +138,7 @@ AJS.Editor.JiraConnector = (function($) {
             popup.gotoPanel(0);
 
             // prefetch server columns for autocompletion feature
-            if (AJS.Editor.JiraConnector.servers) {
+            AJS.Editor.JiraConnector.serversAjax.done(function(){
                 for ( var i = 0; i < AJS.Editor.JiraConnector.servers.length; i++) {
                     var server = AJS.Editor.JiraConnector.servers[i];
                     AppLinks.makeRequest({
@@ -149,7 +149,9 @@ AJS.Editor.JiraConnector = (function($) {
                         serverIndex : i,
                         success: function(data) {
                             if (data && data.length) {
-                                AJS.Editor.JiraConnector.servers[this.serverIndex].columns = data;
+                                AJS.Editor.JiraConnector.serversAjax.done(function(){
+                                    AJS.Editor.JiraConnector.servers[this.serverIndex].columns = data;
+                                });
                             }
                         },
                         error: function() {
@@ -157,7 +159,7 @@ AJS.Editor.JiraConnector = (function($) {
                         }
                     });
                 }
-            }
+            });
 
             $('#jira-connector ul.dialog-page-menu').append(Confluence.Templates.ConfluenceJiraPlugin.addCrossMacroLink({'id': 'open-jira-chart-dialog', 'label' : AJS.I18n.getText("confluence.extra.jira.jirachart.label")}));
 
@@ -195,25 +197,30 @@ AJS.Editor.JiraConnector = (function($) {
     };
 
    var checkExistAppLinkConfig = function() {
+        if(typeof(AJS.Editor.JiraConnector.serversAjax) === 'undefined'){
+            AJS.Editor.JiraConnector.serversAjax = $.Deferred().resovle();
+        }
         //call again get list server after admin click config applink
         if (AJS.Editor.JiraConnector.clickConfigApplink) {
-            AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', async:false}).done(function(response) {
+            AJS.Editor.JiraConnector.serversAjax = AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers'}).done(function(response) {
                 AJS.Editor.JiraConnector.servers = response;
             });
         }
-        //check exist config applink
-        if (typeof(AJS.Editor.JiraConnector.servers) == 'undefined' || AJS.Editor.JiraConnector.servers.length == 0) {
-            //show warning popup with permission of login's user
-            AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
-            return false;
-        }
-        AJS.Editor.JiraConnector.clickConfigApplink = false;
-        // call refresh for applink select control
-        if(AJS.Editor.JiraConnector.refreshAppLink) {
-            AJS.Editor.JiraConnector.refreshAppLink.call();
-            AJS.Editor.JiraConnector.refreshAppLink = false;
-        }
-        return true;
+       AJS.Editor.JiraConnector.serversAjax.done(function(){
+           //check exist config applink
+           if (typeof(AJS.Editor.JiraConnector.servers) === 'undefined' || AJS.Editor.JiraConnector.servers.length == 0) {
+               //show warning popup with permission of login's user
+               AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
+               return false;
+           }
+           AJS.Editor.JiraConnector.clickConfigApplink = false;
+           // call refresh for applink select control
+           if(AJS.Editor.JiraConnector.refreshAppLink) {
+               AJS.Editor.JiraConnector.refreshAppLink.call();
+               AJS.Editor.JiraConnector.refreshAppLink = false;
+           }
+           return true;
+       });
     };
 
     return {
@@ -352,13 +359,15 @@ AJS.Editor.JiraConnector = (function($) {
                 if (typeof(macro.params['server']) != 'undefined') {
                     params['serverName'] = macro.params['server'];
                 } else {
-                    //get server primary
-                    for (var i = 0; i < AJS.Editor.JiraConnector.servers.length; i++) {
-                        if(AJS.Editor.JiraConnector.servers[i].selected) {
-                            params['serverName'] = AJS.Editor.JiraConnector.servers[i].name;
-                            break;
+                    AJS.Editor.JiraConnector.serversAjax.done(function(){
+                        //get server primary
+                        for (var i = 0; i < AJS.Editor.JiraConnector.servers.length; i++) {
+                            if(AJS.Editor.JiraConnector.servers[i].selected) {
+                                params['serverName'] = AJS.Editor.JiraConnector.servers[i].name;
+                                break;
+                            }
                         }
-                    }
+                    });
                 }
                 return params;
             } ;
