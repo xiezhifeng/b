@@ -874,7 +874,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         if(jsonEpicStatus == null || !jsonEpicStatus.isJsonPrimitive()) {
             return "";
         }
-        return jsonEpicStatus.getAsJsonPrimitive().getAsString();
+        return jsonEpicStatus.getAsJsonPrimitive().getAsString().trim();
 
     }
 
@@ -883,7 +883,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         if(jsonEpicField == null || !jsonEpicField.isJsonPrimitive()){
             return "";
         }
-        return jsonEpicField.getAsJsonPrimitive().getAsString();
+        return jsonEpicField.getAsJsonPrimitive().getAsString().trim();
     }
 
     private JsonElement verifyJSON(String json) {
