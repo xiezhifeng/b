@@ -158,15 +158,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String ISSUE_TYPE = "issueType";
     public static final String COLUMNS = "columns";
 
-    private static final String COLUMN_EPIC_LINK = "Epic Link";
-    private static final String COLUMN_EPIC_NAME = "Epic Name";
-    private static final String COLUMN_EPIC_COLOUR = "Epic Color";
-    private static final String COLUMN_EPIC_STATUS = "Epic Status";
-    private static final String COLUMN_EPIC_LINK_LOWER = "epic link";
-    private static final String COLUMN_EPIC_NAME_LOWER = "epic name";
-    private static final String COLUMN_EPIC_COLOUR_LOWER = "epic color";
-    private static final String COLUMN_EPIC_STATUS_LOWER = "epic status";
-
     private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
     private static final String RENDER_MODE_PARAM = "renderMode";
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
@@ -178,6 +169,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String ANONYMOUS = "anonymous";
     private static final String WIDTH = "width";
     private static final String HEIGHT = "height";
+
+    private final I18NBean i18nBean = this.i18NBeanFactory.getI18NBean();
+    private final String COLUMN_EPIC_LINK = i18nBean.getText("jiraissue.epics.link.upper");
+    private final String COLUMN_EPIC_NAME = i18nBean.getText("jiraissue.epics.name.upper");
+    private final String COLUMN_EPIC_COLOUR = i18nBean.getText("jiraissue.epics.colour.upper");
+    private final String COLUMN_EPIC_STATUS = i18nBean.getText("jiraissue.epics.status.upper");
+    private final String COLUMN_EPIC_LINK_LOWER = i18nBean.getText("jiraissue.epics.link.lower");
+    private final String COLUMN_EPIC_COLOUR_LOWER = i18nBean.getText("jiraissue.epics.colour.lower");
+    private final String COLUMN_EPIC_STATUS_LOWER = i18nBean.getText("jiraissue.epics.status.lower");
 
     @VisibleForTesting
     static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
@@ -769,15 +769,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Map<String, JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnsInfoFromJira(appLink);
         for(String column : columns.keySet()){
             JiraColumnInfo columnInfo = columns.get(column);
-            switch(columnInfo.getTitle()){
-                case COLUMN_EPIC_NAME:
-                    epicNameCustomFieldId = column;
-                    break;
-                case COLUMN_EPIC_COLOUR:
-                    epicColourCustomFieldId = column;
-                    break;
-                case COLUMN_EPIC_STATUS:
-                    epicStatusCustomFieldId = column;
+            if(columnInfo.getTitle().equals(COLUMN_EPIC_NAME)) {
+                epicNameCustomFieldId = column;
+            } else if (columnInfo.getTitle().equals(COLUMN_EPIC_COLOUR)) {
+                epicColourCustomFieldId = column;
+            } else if (columnInfo.getTitle().equals(COLUMN_EPIC_STATUS)){
+                epicStatusCustomFieldId = column;
             }
 
             if((!needEpicName || !epicNameCustomFieldId.isEmpty()) && (!needEpicStatus || !epicStatusCustomFieldId.isEmpty())
@@ -803,12 +800,19 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private Map<String, Epic> getEpicInformation(JiraIssuesManager.Channel channel, ReadOnlyApplicationLink appLink,
                                                  String epicNameCustomFieldId, String epicColourCustomFieldId, String epicStatusCustomFieldId) {
+        I18NBean i18nBean =  this.i18NBeanFactory.getI18NBean();
+        String COLUMN_EPIC_LINK = i18nBean.getText("jiraissue.epics.link.upper");
+        String COLUMN_EPIC_NAME = i18nBean.getText("jiraissue.epics.name.upper");
+        String COLUMN_EPIC_COLOUR = i18nBean.getText("jiraissue.epics.colour.upper");
+        String COLUMN_EPIC_STATUS = i18nBean.getText("jiraissue.epics.status.upper");
+
         String json;
         String epicName = "";
         String epicColour = "";
         String epicStatus = "";
         Map<String, Epic> epics = new HashMap<>();
         Map<String, Epic> foundEpicKeys = new HashMap<>();
+
         for (Element issue : ((List<Element>)channel.getChannelElement().getChildren("item"))) {
             // Get the Epic Link (i.e. Issue Key of the Epic)
             String epicKey = "";
