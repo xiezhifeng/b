@@ -26,6 +26,8 @@ public class JIMCacheProvider
     private static final String JIM_CACHE_NAME = "com.atlassian.confluence.extra.jira.JiraIssuesMacro";
     private static final String JIM_CHANNEL_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".channel";
     private static final String JIM_STRING_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".string";
+    private static final int JIM_CACHE_TIME =
+            Integer.parseInt(System.getProperty("confluence.jim.cache.time", "5"));
 
     /**
      * Creates new or returns an existent cache
@@ -49,9 +51,15 @@ public class JIMCacheProvider
     public static DirectExternalCache<JiraChannelResponseHandler> getChannelResponseHandlersCache(@Nonnull VCacheFactory
             vcacheFactory)
     {
+        if (JIM_CACHE_TIME <= 0) {
+            return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
+                    MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
+                    new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofSeconds(1)).build());
+        }
+
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
-                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(5)).build());
+                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(JIM_CACHE_TIME)).build());
     }
 
     /**
@@ -63,8 +71,14 @@ public class JIMCacheProvider
     public static DirectExternalCache<JiraStringResponseHandler> getStringResponseHandlersCache(@Nonnull VCacheFactory
             vcacheFactory)
     {
+        if (JIM_CACHE_TIME <= 0) {
+            return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
+                    MarshallerFactory.serializableMarshaller(JiraStringResponseHandler.class),
+                    new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofSeconds(1)).build());
+        }
+
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(JiraStringResponseHandler.class),
-                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(5)).build());
+                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(JIM_CACHE_TIME)).build());
     }
 }
