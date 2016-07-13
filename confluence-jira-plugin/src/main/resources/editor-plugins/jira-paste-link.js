@@ -55,86 +55,21 @@ define('confluence/jim/editor-plugins/jira-paste-link', [
             },
 
             pasteHandler : function(uri, node, done) {
-                var servers = AJS.Editor.JiraConnector.servers;
-                if (!servers) {
-                    done();
-                    return null;
-                }
+                var isLinkedInLink = uri.source && uri.source.indexOf('https://www.linkedin.com') == 0;
 
-                var jiraAnalytics = AJS.Editor.JiraAnalytics;
-                var pasteEventProperties = {};
-                var matchedServer = jiraPasteLink._getMatchedServerFromLink(uri.source, servers);
+                if (isLinkedInLink) {
+                    $.ajax({
+                        crossDomain: true,
+                        url: uri.source,
+                        success: function(data) {
+                            console.log(/<title>(.*)<\/title>/.exec(data));
 
-                // see if we had a hit
-                var macro = null;
-
-                if (matchedServer) {
-                    
-                    var jql = jiraPasteLink.jqlRegEx.exec(uri.source)
-                                || jiraPasteLink.jqlRegExAlternateFormat.exec(uri.source);
-                    
-                    var personalFilter = AJS.JQLHelper.isFilterUrl(uri.source);
-                    
-                    var singleKey = jiraPasteLink.issueKeyOnlyRegEx.exec(uri.source)
-                    || jiraPasteLink.issueKeyWithinRegex.exec(uri.source);
-                    if (singleKey) {
-                        singleKey = singleKey[2];
-                        if (jiraAnalytics) {
-                            pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
                         }
-                    } else {
-                        singleKey = jiraPasteLink.singleTicketXMLEx.exec(uri.source);
-                        if (singleKey) {
-                            singleKey = singleKey[1];
-                            if (jiraAnalytics) {
-                                pasteEventProperties.type = jiraAnalytics.linkTypes.xml;
-                            }
-                        }
-                    }
-                    
-                    if (jql) {
-                        pasteEventProperties.is_single_issue = false;
-                        pasteEventProperties.type = AJS.JQLHelper.checkQueryType(uri.source);
-                        macro = {
-                                 name : 'jira',
-                                 params : {
-                                     server : matchedServer.name,
-                                     serverId : matchedServer.id,
-                                     jqlQuery : decodeURIComponent(jql[1].replace(/\+/g, '%20'))
-                                 }
-                        };
-                    } else if (personalFilter) {
-                        var url = uri.source;
-                        pasteEventProperties.is_single_issue = false;
-                        pasteEventProperties.type = AJS.JQLHelper.checkQueryType(url);
-                        macro = {
-                                name : 'jira',
-                                params : {
-                                    server : matchedServer.name,
-                                    serverId : matchedServer.id,
-                                    jqlQuery : AJS.JQLHelper.getFilterFromFilterUrl(url)
-                                }
-                       };
-                    } else if (singleKey) {
-                        pasteEventProperties.is_single_issue = true;
-                        macro = {
-                                 name : 'jira',
-                                 params : {
-                                     server : matchedServer.name,
-                                     serverId : matchedServer.id,
-                                     key : singleKey
-                                 }
-                        };
-                    }
+                    });
+
                 }
-                if (macro) {
-                    window.tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);
-                    if (jiraAnalytics) {
-                        jiraAnalytics.triggerPasteEvent(pasteEventProperties);
-                    }
-                } else {
-                    done();
-                }
+
+                done();
             }
         };
 
