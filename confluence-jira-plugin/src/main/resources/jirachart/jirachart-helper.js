@@ -103,15 +103,23 @@ AJS.Editor.JiraChart.Helper = (function($) {
                     },
                     error: function(data) {
                         if (data) {
-                            statTypesIndex[selectedServer.id] = JSON.parse(data.responseText);
-                            statTypeData = JSON.parse(data.responseText);
+                            try {
+                                statTypesIndex[selectedServer.id] = JSON.parse(data.responseText);
+                                statTypeData = JSON.parse(data.responseText);
+                            } catch (e) {
+                                // Do nothing
+                            }
                         }
                         AJS.log("Jira Chart Macro: unable to retrieve statTypes from AppLink: " + selectedServer.id);
                     }
                 }).fail(function(data){
                     if (data) {
-                        statTypesIndex[selectedServer.id] = JSON.parse(data.responseText);
-                        statTypeData = JSON.parse(data.responseText);
+                        try {
+                            statTypesIndex[selectedServer.id] = JSON.parse(data.responseText);
+                            statTypeData = JSON.parse(data.responseText);
+                        } catch (e) {
+                            // Do nothing
+                        }
                     }
                 });
             }
