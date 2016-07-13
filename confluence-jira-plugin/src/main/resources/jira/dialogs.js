@@ -11,8 +11,8 @@
                 AJS.$('#jiralink').click(function(e) {
                     serversAjax.done( function() {
                         AJS.Editor.JiraConnector.open(AJS.Editor.JiraConnector.source.editorDropdownLink, true);
-                        return AJS.stopEvent(e);
                     });
+                    return AJS.stopEvent(e);
                 });
                 AJS.$('#insert-menu .macro-jiralink').show();
                 ed.addShortcut('ctrl+shift+j', '', 'mceJiralink');
