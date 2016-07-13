@@ -5,7 +5,10 @@ import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.sal.api.net.ResponseException;
+import org.apache.commons.lang3.SystemUtils;
 import org.jdom.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
 
 import java.io.ByteArrayInputStream;
@@ -142,6 +145,7 @@ public interface JiraIssuesManager
 
     class ByteStreamBasedSupplier implements Supplier<Element>, Serializable
     {
+        private static final Logger LOGGER = LoggerFactory.getLogger(ByteStreamBasedSupplier.class);
         final byte[] compressedBytes;
 
         public ByteStreamBasedSupplier(byte[] bytes)
@@ -165,6 +169,11 @@ public interface JiraIssuesManager
 
         static byte[] compress(byte[] bytes)
         {
+            if (SystemUtils.IS_OS_SOLARIS || SystemUtils.IS_OS_SUN_OS) {
+                LOGGER.debug("Sun Solaris or Sun OS will be ignored Snappy-java compression");
+                return bytes;
+            }
+
             try
             {
                 return Snappy.compress(bytes);
@@ -177,6 +186,11 @@ public interface JiraIssuesManager
 
         static byte[] uncompress(byte[] bytes)
         {
+            if (SystemUtils.IS_OS_SOLARIS || SystemUtils.IS_OS_SUN_OS) {
+                LOGGER.debug("Sun Solaris or Sun OS will be ignored Snappy-java decompression");
+                return bytes;
+            }
+
             try
             {
                 return Snappy.uncompress(bytes);
