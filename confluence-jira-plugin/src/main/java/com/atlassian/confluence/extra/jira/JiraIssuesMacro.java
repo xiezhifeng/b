@@ -77,9 +77,15 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -112,7 +118,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                            AsyncJiraIssueBatchService asyncJiraIssueBatchService,
                            DarkFeatureManager darkFeatureManager)
     {
-        this.i18NBeanFactory = i18NBeanFactory;
+        this.i18NBeanFactory = checkNotNull(i18NBeanFactory);
         this.jiraIssuesManager = jiraIssuesManager;
         this.settingsManager = settingsManager;
         this.jiraIssuesColumnManager = jiraIssuesColumnManager;
@@ -125,7 +131,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.formatSettingsManager = formatSettingsManager;
         this.jiraIssueSortingManager = jiraIssueSortingManager;
         this.jiraExceptionHelper = jiraExceptionHelper;
-        this.localeManager = localeManager;
+        this.localeManager = checkNotNull(localeManager);
         this.asyncJiraIssueBatchService = asyncJiraIssueBatchService;
         this.darkFeatureManager = darkFeatureManager;
     }
@@ -170,14 +176,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String WIDTH = "width";
     private static final String HEIGHT = "height";
 
-    private final I18NBean i18nBean = this.i18NBeanFactory.getI18NBean();
-    private final String COLUMN_EPIC_LINK = i18nBean.getText("jiraissue.epics.link.upper");
-    private final String COLUMN_EPIC_NAME = i18nBean.getText("jiraissue.epics.name.upper");
-    private final String COLUMN_EPIC_COLOUR = i18nBean.getText("jiraissue.epics.colour.upper");
-    private final String COLUMN_EPIC_STATUS = i18nBean.getText("jiraissue.epics.status.upper");
-    private final String COLUMN_EPIC_LINK_LOWER = i18nBean.getText("jiraissue.epics.link.lower");
-    private final String COLUMN_EPIC_COLOUR_LOWER = i18nBean.getText("jiraissue.epics.colour.lower");
-    private final String COLUMN_EPIC_STATUS_LOWER = i18nBean.getText("jiraissue.epics.status.lower");
+    private HashMap<String, HashSet<String>> i18nColumnNames= new HashMap<>();
 
     @VisibleForTesting
     static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
@@ -251,6 +250,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     String getText(String i18n, List substitutions)
     {
         return getI18NBean().getText(i18n, substitutions);
+    }
+
+    public String getEpicLinkColumnName() {
+        return getI18NBean().getText("jiraissue.column.epics.link.lower");
     }
 
     @Override
@@ -356,7 +359,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         params.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
 
-        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, COLUMNS, JiraUtil.PARAM_POSITION_1));
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, COLUMNS, JiraUtil.PARAM_POSITION_1), this);
         List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns, applink);
         contextMap.put(COLUMNS, columns);
         String cacheParameter = JiraUtil.getParamValue(params, CACHE, JiraUtil.PARAM_POSITION_2);
@@ -751,12 +754,105 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return json;
     }
 
+    private boolean matchColumnNameFromString(String keyForColumnNameToMatch, String column, boolean reverseMatch ) {
+        Set<String> columnNamesToMatch = i18nColumnNames.get(keyForColumnNameToMatch);
+        for (Iterator iterator = columnNamesToMatch.iterator(); iterator.hasNext();){
+            String columnName = (String) iterator.next();
+
+            if (column.contains(columnName) && (!reverseMatch || reverseMatch == columnName.contains(column))){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean matchColumnNameFromString(String keyForColumnNameToMatch, String column) {
+        return matchColumnNameFromString(keyForColumnNameToMatch, column, false);
+    }
+
+
+    public boolean matchColumnNameFromList(String keyForColumnNameToMatch, List<String> columnNames, boolean reverseMatch) {
+        for (Iterator iterator = columnNames.iterator(); iterator.hasNext();){
+            String column = (String) iterator.next();
+            if (matchColumnNameFromString(keyForColumnNameToMatch, column, reverseMatch))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean matchColumnNameFromList(String keyForColumnNameToMatch, List<String> columnNames) {
+        return matchColumnNameFromList(keyForColumnNameToMatch, columnNames, false);
+    }
+
+    private void setI18nColumnNames(Map<String, Object> contextMap) {
+        I18NBean i18nBean =  getI18NBean();
+
+        HashSet<String> columnEpicLink = new LinkedHashSet<>();
+        columnEpicLink.add(i18nBean.getText("jiraissue.column.epics.link.upper"));
+        columnEpicLink.add(i18nBean.getText("jiraissue.column.epics.link.lower"));
+        columnEpicLink.add(i18nBean.getText("Epic Link"));
+        columnEpicLink.add(i18nBean.getText("epic link"));
+        i18nColumnNames.put("epic link", columnEpicLink);
+
+        HashSet<String> columnEpicName = new LinkedHashSet<>();
+        columnEpicName.add(i18nBean.getText("jiraissue.column.epics.name.upper"));
+        columnEpicName.add(i18nBean.getText("jiraissue.column.epics.name.lower"));
+        columnEpicName.add(i18nBean.getText("Epic Name"));
+        columnEpicName.add(i18nBean.getText("epic name"));
+        i18nColumnNames.put("epic name", columnEpicName);
+
+        HashSet<String> columnEpicColour = new LinkedHashSet<>();
+        columnEpicColour.add(i18nBean.getText("jiraissue.column.epics.colour.upper"));
+        columnEpicColour.add(i18nBean.getText("jiraissue.column.epics.colour.lower"));
+        columnEpicColour.add(i18nBean.getText("Epic Colour"));
+        columnEpicColour.add(i18nBean.getText("Epic Color"));
+        columnEpicColour.add(i18nBean.getText("epic colour"));
+        columnEpicColour.add(i18nBean.getText("epic color"));
+        i18nColumnNames.put("epic colour", columnEpicColour);
+
+        HashSet<String> columnEpicStatus = new LinkedHashSet<>();
+        columnEpicStatus.add(i18nBean.getText("jiraissue.column.epics.status.upper"));
+        columnEpicStatus.add(i18nBean.getText("jiraissue.column.epics.status.lower"));
+        columnEpicStatus.add(i18nBean.getText("Epic Status"));
+        columnEpicStatus.add(i18nBean.getText("epic status"));
+        i18nColumnNames.put("epic status", columnEpicStatus);
+
+        HashSet<String> columnType = new LinkedHashSet<>();
+        columnType.add(i18nBean.getText("jiraissue.column.type"));
+        i18nColumnNames.put("type", columnType);
+        HashSet<String> columnKey = new LinkedHashSet<>();
+        columnKey.add(i18nBean.getText("jiraissue.column.key"));
+        i18nColumnNames.put("key", columnKey);
+        HashSet<String> columnSummary = new LinkedHashSet<>();
+        columnSummary.add(i18nBean.getText("jiraissue.column.summary"));
+        i18nColumnNames.put("summary", columnSummary);
+        HashSet<String> columnPriority = new LinkedHashSet<>();
+        columnPriority.add(i18nBean.getText("jiraissue.column.priority"));
+        i18nColumnNames.put("priority", columnPriority);
+        HashSet<String> columnStatus = new LinkedHashSet<>();
+        columnStatus.add(i18nBean.getText("jiraissue.column.status"));
+        i18nColumnNames.put("status", columnStatus);
+        HashSet<String> columnResolution = new LinkedHashSet<>();
+        columnResolution.add(i18nBean.getText("jiraissue.column.resolution"));
+        i18nColumnNames.put("resolution", columnResolution);
+        HashSet<String> columnIssuelinks = new LinkedHashSet<>();
+        columnIssuelinks.add(i18nBean.getText("jiraissue.column.issuelinks"));
+        i18nColumnNames.put("issuelinks", columnIssuelinks);
+        HashSet<String> columnDescription = new LinkedHashSet<>();
+        columnDescription.add(i18nBean.getText("jiraissue.column.description"));
+        i18nColumnNames.put("description", columnDescription);
+        HashSet<String> columnEnvironment = new LinkedHashSet<>();
+        columnEnvironment.add(i18nBean.getText("jiraissue.column.environment"));
+        i18nColumnNames.put("environment", columnEnvironment);
+
+        contextMap.put("i18nColumnNames", i18nColumnNames);
+    }
+
     private void populateTableEpicData(Map<String, Object> contextMap, ReadOnlyApplicationLink appLink, JiraIssuesManager.Channel channel,
                                        List<String> columnNames) {
-        boolean needEpicName = columnNames.contains(COLUMN_EPIC_LINK_LOWER) || columnNames.contains(COLUMN_EPIC_LINK);
-        boolean needEpicColour = columnNames.contains(COLUMN_EPIC_COLOUR_LOWER) || columnNames.contains(COLUMN_EPIC_LINK_LOWER) ||
-                                 columnNames.contains(COLUMN_EPIC_COLOUR) || columnNames.contains(COLUMN_EPIC_LINK);
-        boolean needEpicStatus = columnNames.contains(COLUMN_EPIC_STATUS_LOWER)|| columnNames.contains(COLUMN_EPIC_STATUS);
+        boolean needEpicName = matchColumnNameFromList("epic link", columnNames);
+        boolean needEpicColour = matchColumnNameFromList("epic link", columnNames) || matchColumnNameFromList("epic colour", columnNames);
+        boolean needEpicStatus = matchColumnNameFromList("epic status", columnNames);
         if(!needEpicName && !needEpicColour && !needEpicStatus){
             return;
         }
@@ -769,11 +865,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Map<String, JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnsInfoFromJira(appLink);
         for(String column : columns.keySet()){
             JiraColumnInfo columnInfo = columns.get(column);
-            if(columnInfo.getTitle().equals(COLUMN_EPIC_NAME)) {
+            if(i18nColumnNames.get("epic name").contains(columnInfo.getTitle())) {
                 epicNameCustomFieldId = column;
-            } else if (columnInfo.getTitle().equals(COLUMN_EPIC_COLOUR)) {
+            } else if (i18nColumnNames.get("epic colour").contains(columnInfo.getTitle())) {
                 epicColourCustomFieldId = column;
-            } else if (columnInfo.getTitle().equals(COLUMN_EPIC_STATUS)){
+            } else if (i18nColumnNames.get("epic status").contains(columnInfo.getTitle())){
                 epicStatusCustomFieldId = column;
             }
 
@@ -800,12 +896,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private Map<String, Epic> getEpicInformation(JiraIssuesManager.Channel channel, ReadOnlyApplicationLink appLink,
                                                  String epicNameCustomFieldId, String epicColourCustomFieldId, String epicStatusCustomFieldId) {
-        I18NBean i18nBean =  this.i18NBeanFactory.getI18NBean();
-        String COLUMN_EPIC_LINK = i18nBean.getText("jiraissue.epics.link.upper");
-        String COLUMN_EPIC_NAME = i18nBean.getText("jiraissue.epics.name.upper");
-        String COLUMN_EPIC_COLOUR = i18nBean.getText("jiraissue.epics.colour.upper");
-        String COLUMN_EPIC_STATUS = i18nBean.getText("jiraissue.epics.status.upper");
-
         String json;
         String epicName = "";
         String epicColour = "";
@@ -817,10 +907,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             // Get the Epic Link (i.e. Issue Key of the Epic)
             String epicKey = "";
 
-            if(issue.getChild("type") != null && !issue.getChild("type").getValue().equals("Epic")){
+            if(issue.getChild("type") == null || (issue.getChild("type") != null && !issue.getChild("type").getValue().equals("Epic"))){
                 for (Element element: (List<Element>) issue.getChild("customfields").getChildren()) {
-                    if (element.getValue().contains(COLUMN_EPIC_LINK)) {
-                        epicKey = element.getValue().trim().replaceAll("Epic", "").replaceAll("Link", "").trim();
+                    if(matchColumnNameFromString("epic link", element.getValue(), true)){
+                        epicKey = extractFieldValue(element.getValue());
                         break;
                     }
                 }
@@ -844,12 +934,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 // From the issue key of epic, get the name of the epic
                 if (!foundEpicKeys.keySet().contains(epicKey)) {
                     for(Element element : ((List<Element>) issue.getChild("customfields").getChildren())){
-                        if(element.getValue().contains(COLUMN_EPIC_NAME)){
-                            epicName = element.getValue().trim().replaceAll("Epic", "").replaceAll("Name", "").trim();
-                        } else if(element.getValue().contains(COLUMN_EPIC_COLOUR)){
-                            epicColour = element.getValue().trim().replaceAll("Epic", "").replaceAll("Color", "").trim();
-                        } else if(element.getValue().contains(COLUMN_EPIC_STATUS)){
-                            epicStatus = element.getValue().trim().replaceAll("Epic", "").replaceAll("Status", "").trim();
+                        if(matchColumnNameFromString("epic name", element.getValue())){
+                            epicName = extractFieldValue(element.getValue());
+                        } else if(matchColumnNameFromString("epic colour", element.getValue())){
+                            epicColour = extractFieldValue(element.getValue());
+                        } else if(matchColumnNameFromString("epic status", element.getValue())){
+                            epicStatus = extractFieldValue(element.getValue());
                         }
 
                         if (!epicName.isEmpty() && !epicColour.isEmpty() && !epicStatus.isEmpty()) {
@@ -865,6 +955,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             epics.put(issue.getChild("key").getValue(), foundEpicKeys.get(epicKey));
         }
         return epics;
+    }
+
+    private String extractFieldValue(String field) {
+        return field.trim().replaceAll(".*\n.*\n *", "");
     }
 
     private String parseStatusField(String json, String customFieldId){
@@ -950,7 +1044,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                         forceAnonymous, useCache);
                 setupContextMapForStaticTable(contextMap, channel, appLink);
-                if(columnNames.contains("epic link") || columnNames.contains("epic name") || columnNames.contains("epic color") || columnNames.contains("epic status")){
+                if(matchColumnNameFromList("epic link", columnNames) || matchColumnNameFromList("epic name", columnNames) ||
+                    matchColumnNameFromList("epic colour", columnNames) || matchColumnNameFromList("epic status", columnNames)){
                     populateTableEpicData(contextMap, appLink, channel, columnNames);
                 }
             }
@@ -1241,8 +1336,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             contextMap = MacroUtils.defaultVelocityContext();
             JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
             contextMap.put(ISSUE_TYPE, issuesType);
-
-            List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(parameters, COLUMNS, JiraUtil.PARAM_POSITION_1));
+            setI18nColumnNames(contextMap);
+            List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(parameters, COLUMNS, JiraUtil.PARAM_POSITION_1), this);
             // it will be overided by below code. At here, we need default column first for exception case.
             contextMap.put(COLUMNS, columnNames);
 

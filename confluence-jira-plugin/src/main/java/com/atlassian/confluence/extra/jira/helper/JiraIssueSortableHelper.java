@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira.helper;
 
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
@@ -63,24 +64,24 @@ public class JiraIssueSortableHelper
 
     /**
      * Gets column names base on column parameter from JIM.
-     * @param columnsParameter columns parameter frim JIM
+     * @param columnsParameter columns parameter from JIM
      * @return a list of column names
      */
-    public static List<String> getColumnNames(String columnsParameter)
+    public static List<String> getColumnNames(String columnsParameter, JiraIssuesMacro jiraIssuesMacro)
     {
         List<String> columnNames = DEFAULT_RSS_FIELDS;
 
         if (StringUtils.isNotBlank(columnsParameter))
         {
-            columnNames = new ArrayList<String>();
+            columnNames = new ArrayList<>();
             List<String> keys = Arrays.asList(StringUtils.split(columnsParameter, ",;"));
             for (String key : keys)
             {
                 if (StringUtils.isNotBlank(key))
                 {
-                    if(key.equalsIgnoreCase("Epic Name") || key.equalsIgnoreCase("Epic Link")) {
-                        if (!columnNames.contains("Epic Link")) {
-                            columnNames.add("Epic Link");
+                    if(jiraIssuesMacro != null && (jiraIssuesMacro.matchColumnNameFromString("epic name", key) || jiraIssuesMacro.matchColumnNameFromString("epic link", key))) {
+                        if (!jiraIssuesMacro.matchColumnNameFromList("epic link", columnNames)) {
+                            columnNames.add(jiraIssuesMacro.getEpicLinkColumnName());
                         }
                     } else {
                         columnNames.add(key);

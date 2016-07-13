@@ -156,7 +156,7 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         params.put("url", "http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TST+AND+reporter+%3D+mhrynczak");
         params.put(": = | RAW | = :", "url=http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TST+AND+reporter+%3D+mhrynczak");
         List<JiraColumnInfo> expectedInfo = new ArrayList<JiraColumnInfo>();
-        List<String> columnNames = JiraIssueSortableHelper.getColumnNames("");
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames("", null);
         // expected columnNames = "type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due"
         assertEquals(columnNames, Arrays.asList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due"));
         expectedInfo.add(new JiraColumnInfo("type", "T", Arrays.asList("type"), true));
