@@ -4,6 +4,8 @@ import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import jdk.nashorn.internal.ir.annotations.Immutable;
 
 import java.util.*;
 
@@ -126,4 +128,6 @@ public interface JiraIssuesColumnManager
      * @return key has mapped.
      */
     String getColumnMapping(String columnKey, Map<String, String> map);
+
+    ImmutableMap<String, ImmutableSet<String>> getI18nColumnNames();
 }

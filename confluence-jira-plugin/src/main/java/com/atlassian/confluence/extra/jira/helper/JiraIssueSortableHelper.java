@@ -1,9 +1,12 @@
 package com.atlassian.confluence.extra.jira.helper;
 
+import com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
@@ -67,7 +70,7 @@ public class JiraIssueSortableHelper
      * @param columnsParameter columns parameter from JIM
      * @return a list of column names
      */
-    public static List<String> getColumnNames(String columnsParameter, JiraIssuesMacro jiraIssuesMacro)
+    public static List<String> getColumnNames(String columnsParameter, ImmutableMap<String, ImmutableSet<String>> i18nColumnNames)
     {
         List<String> columnNames = DEFAULT_RSS_FIELDS;
 
@@ -79,9 +82,11 @@ public class JiraIssueSortableHelper
             {
                 if (StringUtils.isNotBlank(key))
                 {
-                    if(jiraIssuesMacro != null && (jiraIssuesMacro.matchColumnNameFromString("epic name", key) || jiraIssuesMacro.matchColumnNameFromString("epic link", key))) {
-                        if (!jiraIssuesMacro.matchColumnNameFromList("epic link", columnNames)) {
-                            columnNames.add(jiraIssuesMacro.getEpicLinkColumnName());
+                    if(DefaultJiraIssuesColumnManager.matchColumnNameFromString("epic name", key, i18nColumnNames) ||
+                            DefaultJiraIssuesColumnManager.matchColumnNameFromString("epic link", key, i18nColumnNames)) {
+                        if (!DefaultJiraIssuesColumnManager.matchColumnNameFromList("epic link", columnNames, i18nColumnNames)) {
+                            // Should only be one item in this set.
+                            columnNames.add(i18nColumnNames.get("epic link display").iterator().next());
                         }
                     } else {
                         columnNames.add(key);
