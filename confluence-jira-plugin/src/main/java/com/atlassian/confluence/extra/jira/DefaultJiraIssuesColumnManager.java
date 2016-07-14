@@ -160,7 +160,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     @Override
     public List<JiraColumnInfo> getColumnInfo(final Map<String, String> params, final Map<String, JiraColumnInfo> columns, final ReadOnlyApplicationLink applink)
     {
-        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1),ImmutableMap.of());
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1), getI18nColumnNames());
         List<JiraColumnInfo> info = new ArrayList<>();
         JiraServerBean jiraServer = jiraConnectorManager.getJiraServer(applink);
         boolean isJiraSupported = JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer);
