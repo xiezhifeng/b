@@ -23,7 +23,6 @@ import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import junit.framework.TestCase;
 
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.mockito.Mock;
@@ -78,6 +77,7 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         defaultJiraIssuesColumnManager = new DefaultJiraIssuesColumnManager();
         when(i18nBeanFactory.getI18NBean()).thenReturn(i18NBean);
         when(i18nBeanFactory.getI18NBean(any(Locale.class))).thenReturn(i18NBean);
+        when(i18nBeanFactory.getI18NBean().getText(any(String.class))).thenReturn("COLUMN NAME");
 
         url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
     }
