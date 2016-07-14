@@ -72,34 +72,30 @@ public class JiraIssueSortableHelper
      */
     public static List<String> getColumnNames(String columnsParameter, ImmutableMap<String, ImmutableSet<String>> i18nColumnNames)
     {
-        List<String> columnNames = DEFAULT_RSS_FIELDS;
+        if (StringUtils.isBlank(columnsParameter)) {
+            return DEFAULT_RSS_FIELDS;
+        }
 
-        if (StringUtils.isNotBlank(columnsParameter))
+        final List<String> columnNames = new ArrayList<>();
+        final List<String> keys = Arrays.asList(StringUtils.split(columnsParameter, ",;"));
+
+        for (String key : keys)
         {
-            columnNames = new ArrayList<>();
-            List<String> keys = Arrays.asList(StringUtils.split(columnsParameter, ",;"));
-            for (String key : keys)
+            if (StringUtils.isNotBlank(key))
             {
-                if (StringUtils.isNotBlank(key))
-                {
-                    if(DefaultJiraIssuesColumnManager.matchColumnNameFromString("epic name", key, i18nColumnNames) ||
-                            DefaultJiraIssuesColumnManager.matchColumnNameFromString("epic link", key, i18nColumnNames)) {
-                        if (!DefaultJiraIssuesColumnManager.matchColumnNameFromList("epic link", columnNames, i18nColumnNames)) {
-                            // Should only be one item in this set.
-                            columnNames.add(i18nColumnNames.get("epic link display").iterator().next());
-                        }
-                    } else {
-                        columnNames.add(key);
+                if(DefaultJiraIssuesColumnManager.matchColumnNameFromString("epic name", key, i18nColumnNames) ||
+                        DefaultJiraIssuesColumnManager.matchColumnNameFromString("epic link", key, i18nColumnNames)) {
+                    if (!DefaultJiraIssuesColumnManager.matchColumnNameFromList("epic link", columnNames, i18nColumnNames)) {
+                        // Should only be one item in this set.
+                        columnNames.add(i18nColumnNames.get("epic link display").iterator().next());
                     }
+                } else {
+                    columnNames.add(key);
                 }
             }
-
-            if (columnNames.isEmpty())
-            {
-                columnNames = DEFAULT_RSS_FIELDS;
-            }
         }
-        return columnNames;
+
+        return columnNames.isEmpty() ? DEFAULT_RSS_FIELDS : columnNames;
     }
 
     public static boolean isJiraSupportedOrder(JiraServerBean jiraServer)
