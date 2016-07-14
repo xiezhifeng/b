@@ -1,7 +1,6 @@
 package com.atlassian.confluence.extra.jira.helper;
 
 import com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager;
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
@@ -83,11 +82,11 @@ public class JiraIssueSortableHelper
         {
             if (StringUtils.isNotBlank(key))
             {
-                if(DefaultJiraIssuesColumnManager.matchColumnNameFromString("epic name", key, i18nColumnNames) ||
-                        DefaultJiraIssuesColumnManager.matchColumnNameFromString("epic link", key, i18nColumnNames)) {
-                    if (!DefaultJiraIssuesColumnManager.matchColumnNameFromList("epic link", columnNames, i18nColumnNames)) {
+                if(DefaultJiraIssuesColumnManager.matchColumnNameFromString(DefaultJiraIssuesColumnManager.COLUMN_EPIC_NAME, key, i18nColumnNames) ||
+                        DefaultJiraIssuesColumnManager.matchColumnNameFromString(DefaultJiraIssuesColumnManager.COLUMN_EPIC_LINK, key, i18nColumnNames)) {
+                    if (!DefaultJiraIssuesColumnManager.matchColumnNameFromList(DefaultJiraIssuesColumnManager.COLUMN_EPIC_LINK, columnNames, i18nColumnNames)) {
                         // Should only be one item in this set.
-                        columnNames.add(i18nColumnNames.get("epic link display").iterator().next());
+                        columnNames.add(i18nColumnNames.get(DefaultJiraIssuesColumnManager.COLUMN_EPIC_LINK_DISPLAY).iterator().next());
                     }
                 } else {
                     columnNames.add(key);

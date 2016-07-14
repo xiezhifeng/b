@@ -249,13 +249,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return getI18NBean().getText(i18n);
     }
 
-    String getText(String i18n, List substitutions)
-    {
-        return getI18NBean().getText(i18n, substitutions);
-    }
-
-
-
     @Override
     public TokenType getTokenType(Map parameters, String body,
             RenderContext context)
@@ -754,8 +747,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         return json;
     }
-
-
 
     private void populateTableEpicData(Map<String, Object> contextMap, ReadOnlyApplicationLink appLink, JiraIssuesManager.Channel channel,
                                        List<String> columnNames, ImmutableMap<String, ImmutableSet<String>> i18nColumnNames) {
