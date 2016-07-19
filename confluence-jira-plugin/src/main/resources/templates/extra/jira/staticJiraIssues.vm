@@ -129,17 +129,17 @@
                             #set( $jiraIssueLink = $item.getChild('link').getValue() + "?src=confmacro")
                                 #foreach( $col in $columns )
                                     <td #if( !$col.shouldWrap() )nowrap="true"#end class="jira-macro-table-underline-pdfexport" #if($email) style="padding:5px !important;vertical-align: top;"#end>
-                                    #if( $i18nColumnNames.get('type').contains($col) && $item.getChild('type').getValue())
+                                    #if( $i18nColumnNames.get('type').contains($col.toString()) && $item.getChild('type').getValue())
                                         <a href="$jiraIssueLink"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$generalUtil.htmlEncode($!item.getChild($col.key).getValue())" class="icon" /></a>
-                                    #elseif( $i18nColumnNames.get('key').contains($col) )
+                                    #elseif( $i18nColumnNames.get('key').contains($col.toString()) )
                                         <a href="$jiraIssueLink">$!item.getChild($col.key).getValue()</a>
-                                    #elseif( $i18nColumnNames.get('summary').contains($col) )
+                                    #elseif( $i18nColumnNames.get('summary').contains($col.toString()) )
                                         <a href="$jiraIssueLink">
                                             $generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())
                                         </a>
-                                    #elseif( $i18nColumnNames.get('priority').contains($col) && $item.getChild('priority').getValue())
+                                    #elseif( $i18nColumnNames.get('priority').contains($col.toString()) && $item.getChild('priority').getValue())
                                         <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$generalUtil.htmlEncode($!item.getChild($col.key).getValue())" class="icon" />
-                                    #elseif( $i18nColumnNames.get('status').contains($col) && $item.getChild('status').getValue())
+                                    #elseif( $i18nColumnNames.get('status').contains($col.toString()) && $item.getChild('status').getValue())
                                          <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
                                         #if($item.getChild('statusCategory'))
                                             #if($item.getChild('statusCategory').getAttribute("colorName").getValue() == "blue-gray")
@@ -161,9 +161,9 @@
                                         #else
                                             <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" class="icon" />$generalUtil.htmlEncode($!item.getChild($col.key).getValue())
                                         #end
-                                    #elseif( $i18nColumnNames.get('resolution').contains($col) )
+                                    #elseif( $i18nColumnNames.get('resolution').contains($col.toString()) )
                                         $generalUtil.htmlEncode($!item.getChild($col.key).getValue())
-                                    #elseif( $i18nColumnNames.get('issuelinks').contains($col) )
+                                    #elseif( $i18nColumnNames.get('issuelinks').contains($col.toString()) )
                                         #set ($issueKeys = $!xmlXformer.getIssueKeyValues($!item.getChild($col.key)))
                                         #foreach( $issueKey in $issueKeys )
                                             <a href="$jiraServerUrl/browse/$issueKey?src=confmacro">
@@ -174,20 +174,20 @@
                                                 #end
                                             </a>#if( $velocityCount < $issueKeys.size() ), #end
                                         #end
-                                    #elseif ( $i18nColumnNames.get('description').contains($col) || $i18nColumnNames.get('environment').contains($col))
+                                    #elseif ( $i18nColumnNames.get('description').contains($col.toString()) || $i18nColumnNames.get('environment').contains($col.toString()))
                                         #if ($isSourceApplink)
                                             #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
                                             $descriptionHtml
                                         #else
                                             $generalUtil.htmlEncode($!xmlXformer.valueForField($item, $col.key).getValue())
                                         #end
-                                    #elseif ( $i18nColumnNames.get('epic link').contains($col) && $!item.getChild('type').getValue() != 'Epic' && $epics.keySet().contains($!item.getChild('key').getValue()) )
-                                        <a class="aui-lozenge $!epics.get($!item.getChild('key').getValue()).getColour()"
+                                    #elseif ( $i18nColumnNames.get('epic link').contains($col.toString()) && $!item.getChild('type').getValue() != 'Epic' && $epics.keySet().contains($!item.getChild('key').getValue()) )
+                                        <a class="aui-lozenge $epics.get($item.getChild('key').getValue()).getColour()"
                                            href="$jiraServerUrl/browse/$!epics.get($!item.getChild('key').getValue()).getKey()">$!epics.get($!item.getChild('key').getValue()).getName()</a>
-                                    #elseif ( $i18nColumnNames.get('epic link').contains($col) && $!item.getChild('type').getValue() == 'Epic' )
-                                        <a class="aui-lozenge $!epics.get($!item.getChild('key').getValue()).getColour()"
-                                           href="$jiraServerUrl/browse/$!item.getChild('key').getValue()">$!item.getChild('key').getValue()</a>
-                                    #elseif ( $i18nColumnNames.get('epic colour').contains($col) && $epics.get($!item.getChild('key').getValue()).getColour())
+                                    #elseif ( $i18nColumnNames.get('epic link').contains($col.toString()) && $!item.getChild('type').getValue() == 'Epic' )
+                                        <a class="aui-lozenge $epics.get($item.getChild('key').getValue()).getColour()"
+                                           href="$jiraServerUrl/browse/$item.getChild('key').getValue()">$item.getChild('key').getValue()</a>
+                                    #elseif ( $i18nColumnNames.get('epic colour').contains($col.toString()) && $epics.get($!item.getChild('key').getValue()).getColour())
                                         #set ($colourLabel = $!epics.get($!item.getChild('key').getValue()).getColour())
                                         #if($colourLabel == 'ghx-label-1')
                                             #set($colourName = 'Brown')
@@ -226,7 +226,7 @@
                                             <span>$colourName</span>
                                         #end
 
-                                    #elseif ( $i18nColumnNames.get('epic status').contains($col) && $epics.get($!item.getChild('key').getValue()).getStatus() )
+                                    #elseif ( $i18nColumnNames.get('epic status').contains($col.toString()) && $epics.get($!item.getChild('key').getValue()).getStatus() )
                                         #if($!epics.get($!item.getChild('key').getValue()).getStatus() == "To Do")
                                             #set($epicStatusColour = "jira-issue-status-lozenge-blue-gray")
                                         #elseif($!epics.get($!item.getChild('key').getValue()).getStatus() == "Done")

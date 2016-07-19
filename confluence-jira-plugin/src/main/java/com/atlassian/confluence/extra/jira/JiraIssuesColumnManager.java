@@ -129,5 +129,9 @@ public interface JiraIssuesColumnManager
      */
     String getColumnMapping(String columnKey, Map<String, String> map);
 
+    /**
+     * Returns a map of translations for the columns which are handled as edge cases (in the staticJiraIssues.vm)
+     * @return
+     */
     ImmutableMap<String, ImmutableSet<String>> getI18nColumnNames();
 }

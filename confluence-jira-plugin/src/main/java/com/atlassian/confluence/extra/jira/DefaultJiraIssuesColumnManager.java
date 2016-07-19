@@ -31,6 +31,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     private static final String REST_URL_FIELD_INFO = "/rest/api/2/field";
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
 
+    // If you change these, also change in the staticJiraIssues.vm
     public static final String COLUMN_EPIC_LINK = "epic link";
     public static final String COLUMN_EPIC_LINK_DISPLAY = "epic link display";
     public static final String COLUMN_EPIC_NAME = "epic name";
@@ -249,13 +250,13 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         Set<String> columnNamesToMatch = i18nColumnNames.get(keyForColumnNameToMatch);
         for (String columnName : columnNamesToMatch){
             if (oneWayMatch) {
-                if(columnName.contains(column)){
-                    return true;
-                } else if (column.equals(columnName)){
+                if(column.contains(columnName)) {
                     return true;
                 }
-            } else if(columnName.contains(column)){
+            } else {
+                if (column.equals(columnName)){
                     return true;
+                }
             }
         }
         return false;
@@ -308,7 +309,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
         // issue/CONF-31534 Used to get rid of Epic Name column. See JiraIssueSortableHelper
         ImmutableSet.Builder<String> columnEpicLinkDisplay = ImmutableSet.builder();
-        columnEpicLink.add(i18nBean.getText("jiraissue.column.epics.link.lower"));
+        columnEpicLinkDisplay.add(i18nBean.getText("jiraissue.column.epics.link.lower"));
         i18nColumnNamesBuilder.put(COLUMN_EPIC_LINK_DISPLAY, columnEpicLinkDisplay.build());
 
         ImmutableSet.Builder<String> columnEpicName = ImmutableSet.builder();
