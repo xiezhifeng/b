@@ -296,7 +296,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
      * Some of these (ex. Summary) cannot be altered in Jira currently, but have included them here incase that changes.
      * @return
      */
-    public ImmutableMap getI18nColumnNames() {
+    public ImmutableMap<String, ImmutableSet<String>> getI18nColumnNames() {
         I18NBean i18nBean =  getI18NBean();
         ImmutableMap.Builder<String, ImmutableSet<String>> i18nColumnNamesBuilder = ImmutableMap.builder();
 
