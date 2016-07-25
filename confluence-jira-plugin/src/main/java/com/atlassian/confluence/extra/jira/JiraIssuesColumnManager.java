@@ -5,7 +5,6 @@ import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import jdk.nashorn.internal.ir.annotations.Immutable;
 
 import java.util.*;
 

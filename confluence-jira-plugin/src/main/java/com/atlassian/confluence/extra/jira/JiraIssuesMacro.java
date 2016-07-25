@@ -864,9 +864,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     /**
-     * Takes the string reterned from the JSON parsing, with the name of the field and extra whitespace, and returns
+     * Takes the string returned from the JSON parsing, with the name of the field and extra whitespace, and returns
      * just the value string.
-     * Ex. "    Epic      Link   \n    :    \n      PROJ-1     " returns "PROJ-1"
+     * Ex. " \n   Epic      Link   \n      \n      PROJ-1     " returns "PROJ-1"
      * @param field
      * @return
      */
