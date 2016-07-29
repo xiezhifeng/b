@@ -15,6 +15,8 @@ import com.atlassian.sal.api.net.Request.MethodType;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +30,22 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 {
     private static final String REST_URL_FIELD_INFO = "/rest/api/2/field";
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
+
+    // If you change these, also change in the staticJiraIssues.vm
+    public static final String COLUMN_EPIC_LINK = "epic link";
+    public static final String COLUMN_EPIC_LINK_DISPLAY = "epic link display";
+    public static final String COLUMN_EPIC_NAME = "epic name";
+    public static final String COLUMN_EPIC_STATUS = "epic status";
+    public static final String COLUMN_EPIC_COLOUR = "epic colour";
+    public static final String COLUMN_TYPE = "type";
+    public static final String COLUMN_KEY = "key";
+    public static final String COLUMN_SUMMARY = "summary";
+    public static final String COLUMN_PRIORITY = "priority";
+    public static final String COLUMN_STATUS = "status";
+    public static final String COLUMN_RESOLUTION = "resolution";
+    public static final String COLUMN_ISSUE_LINKS = "issuelinks";
+    public static final String COLUMN_DESCRIPTION = "description";
+    public static final String COLUMN_ENVIRONMENT = "environment";
 
     private LoadingCache<ReadOnlyApplicationLink, Map<String, JiraColumnInfo>> jiraColumnsCache;
 
@@ -143,8 +161,8 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     @Override
     public List<JiraColumnInfo> getColumnInfo(final Map<String, String> params, final Map<String, JiraColumnInfo> columns, final ReadOnlyApplicationLink applink)
     {
-        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
-        List<JiraColumnInfo> info = new ArrayList<JiraColumnInfo>();
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1), getI18nColumnNames());
+        List<JiraColumnInfo> info = new ArrayList<>();
         JiraServerBean jiraServer = jiraConnectorManager.getJiraServer(applink);
         boolean isJiraSupported = JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer);
 
@@ -216,5 +234,135 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     {
         String key = map.get(columnKey);
         return StringUtils.isNotBlank(key) ? key : columnKey;
+    }
+
+    /**
+     * Checks a column name derived from applink request is equal to the column name translated by i18n.
+     *
+     * @param keyForColumnNameToMatch A key which references an i18n translation of column names. This acts as a
+     *                                static column name after the initialisation function has run.
+     * @param column The name of the column returned by the Applink request.
+     * @param oneWayMatch Instead of checking that column equals keyForColumnNameToMatch, checking that
+     *                    keyForColumnNameToMatch contains column only.
+     * @return
+     */
+    public static boolean matchColumnNameFromString(String keyForColumnNameToMatch, String column, ImmutableMap<String, ImmutableSet<String>> i18nColumnNames, boolean oneWayMatch) {
+        Set<String> columnNamesToMatch = i18nColumnNames.get(keyForColumnNameToMatch);
+        for (String columnName : columnNamesToMatch){
+            if (oneWayMatch) {
+                if(column.contains(columnName)) {
+                    return true;
+                }
+            } else {
+                if (column.equals(columnName)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks a column name derived from applink request is equal to the column name translated by i18n.
+     *
+     * @param keyForColumnNameToMatch A key which references an i18n translation of column names. This acts as a
+     *                                static column name after the initialisation function has run.
+     * @param column The name of the column returned by the Applink request.
+     * @return
+     */
+    public static boolean matchColumnNameFromString(String keyForColumnNameToMatch, String column, ImmutableMap<String, ImmutableSet<String>> i18nColumnNames) {
+        return matchColumnNameFromString(keyForColumnNameToMatch, column, i18nColumnNames, false);
+    }
+
+    /**
+     * Checks to see if a list of column names contains a particular column, which is retrieved from i18n.
+     *
+     * @param keyForColumnNameToMatch A key which references an i18n translation of column names. This acts as a
+     *                                static column name after the initialisation function has run.
+     * @param columnNames The name of the column returned by the Applink request.
+     * @return
+     */
+    public static boolean matchColumnNameFromList(String keyForColumnNameToMatch, List<String> columnNames, ImmutableMap<String, ImmutableSet<String>> i18nColumnNames) {
+        for (String column : columnNames){
+            if (matchColumnNameFromString(keyForColumnNameToMatch, column, i18nColumnNames)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gets the tranlations for the Jira Issues columns which are specially handled and returns a map of them.
+     * Some of these (ex. Summary) cannot be altered in Jira currently, but have included them here incase that changes.
+     * @return
+     */
+    public ImmutableMap<String, ImmutableSet<String>> getI18nColumnNames() {
+        I18NBean i18nBean =  getI18NBean();
+        ImmutableMap.Builder<String, ImmutableSet<String>> i18nColumnNamesBuilder = ImmutableMap.builder();
+
+        ImmutableSet.Builder<String> columnEpicLink = ImmutableSet.builder();
+        columnEpicLink.add(i18nBean.getText("jiraissue.column.epics.link.upper"));
+        columnEpicLink.add(i18nBean.getText("jiraissue.column.epics.link.lower"));
+        columnEpicLink.add("Epic Link");
+        columnEpicLink.add("epic link");
+        i18nColumnNamesBuilder.put(COLUMN_EPIC_LINK, columnEpicLink.build());
+
+        // issue/CONF-31534 Used to get rid of Epic Name column. See JiraIssueSortableHelper
+        ImmutableSet.Builder<String> columnEpicLinkDisplay = ImmutableSet.builder();
+        columnEpicLinkDisplay.add(i18nBean.getText("jiraissue.column.epics.link.lower"));
+        i18nColumnNamesBuilder.put(COLUMN_EPIC_LINK_DISPLAY, columnEpicLinkDisplay.build());
+
+        ImmutableSet.Builder<String> columnEpicName = ImmutableSet.builder();
+        columnEpicName.add(i18nBean.getText("jiraissue.column.epics.name.upper"));
+        columnEpicName.add(i18nBean.getText("jiraissue.column.epics.name.lower"));
+        columnEpicName.add("Epic Name");
+        columnEpicName.add("epic name");
+        i18nColumnNamesBuilder.put(COLUMN_EPIC_NAME, columnEpicName.build());
+
+        ImmutableSet.Builder<String> columnEpicColour = ImmutableSet.builder();
+        columnEpicColour.add(i18nBean.getText("jiraissue.column.epics.colour.upper"));
+        columnEpicColour.add(i18nBean.getText("jiraissue.column.epics.colour.lower"));
+        columnEpicColour.add("Epic Colour");
+        columnEpicColour.add("Epic Color");
+        columnEpicColour.add("epic colour");
+        columnEpicColour.add("epic color");
+        i18nColumnNamesBuilder.put(COLUMN_EPIC_COLOUR, columnEpicColour.build());
+
+        ImmutableSet.Builder<String> columnEpicStatus = ImmutableSet.builder();
+        columnEpicStatus.add(i18nBean.getText("jiraissue.column.epics.status.upper"));
+        columnEpicStatus.add(i18nBean.getText("jiraissue.column.epics.status.lower"));
+        columnEpicStatus.add("Epic Status");
+        columnEpicStatus.add("epic status");
+        i18nColumnNamesBuilder.put(COLUMN_EPIC_STATUS, columnEpicStatus.build());
+
+        ImmutableSet.Builder<String> columnType = ImmutableSet.builder();
+        columnType.add(i18nBean.getText("jiraissue.column.type"));
+        i18nColumnNamesBuilder.put(COLUMN_TYPE, columnType.build());
+        ImmutableSet.Builder<String> columnKey = ImmutableSet.builder();
+        columnKey.add(i18nBean.getText("jiraissue.column.key"));
+        i18nColumnNamesBuilder.put(COLUMN_KEY, columnKey.build());
+        ImmutableSet.Builder<String> columnSummary = ImmutableSet.builder();
+        columnSummary.add(i18nBean.getText("jiraissue.column.summary"));
+        i18nColumnNamesBuilder.put(COLUMN_SUMMARY, columnSummary.build());
+        ImmutableSet.Builder<String> columnPriority = ImmutableSet.builder();
+        columnPriority.add(i18nBean.getText("jiraissue.column.priority"));
+        i18nColumnNamesBuilder.put(COLUMN_PRIORITY, columnPriority.build());
+        ImmutableSet.Builder<String> columnStatus = ImmutableSet.builder();
+        columnStatus.add(i18nBean.getText("jiraissue.column.status"));
+        i18nColumnNamesBuilder.put(COLUMN_STATUS, columnStatus.build());
+        ImmutableSet.Builder<String> columnResolution = ImmutableSet.builder();
+        columnResolution.add(i18nBean.getText("jiraissue.column.resolution"));
+        i18nColumnNamesBuilder.put(COLUMN_RESOLUTION, columnResolution.build());
+        ImmutableSet.Builder<String> columnIssuelinks = ImmutableSet.builder();
+        columnIssuelinks.add(i18nBean.getText("jiraissue.column.issuelinks"));
+        i18nColumnNamesBuilder.put(COLUMN_ISSUE_LINKS, columnIssuelinks.build());
+        ImmutableSet.Builder<String> columnDescription = ImmutableSet.builder();
+        columnDescription.add(i18nBean.getText("jiraissue.column.description"));
+        i18nColumnNamesBuilder.put(COLUMN_DESCRIPTION, columnDescription.build());
+        ImmutableSet.Builder<String> columnEnvironment = ImmutableSet.builder();
+        columnEnvironment.add(i18nBean.getText("jiraissue.column.environment"));
+        i18nColumnNamesBuilder.put(COLUMN_ENVIRONMENT, columnEnvironment.build());
+
+        return i18nColumnNamesBuilder.build();
     }
 }

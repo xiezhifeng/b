@@ -73,8 +73,11 @@ import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.user.User;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -316,10 +319,13 @@ public class TestJiraIssuesMacro extends TestCase
         columns.put("summary", new JiraColumnInfo("summary", "Summary", Boolean.TRUE));
 
         mockRestApi(appLink);
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createDefaultConversionContext(false));
+
+        ImmutableMap<String, ImmutableSet<String>> mocki18nColumnNames = mockGetI18nColumnNames();
+
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createDefaultConversionContext(false), mocki18nColumnNames);
         verify(jiraCacheManager, times(0)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ReadOnlyApplicationLink.class), anyBoolean(), anyBoolean());
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createDefaultConversionContext(true));
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createDefaultConversionContext(true), mocki18nColumnNames);
         verify(jiraCacheManager, times(1)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ReadOnlyApplicationLink.class), anyBoolean(), anyBoolean());
     }
 
@@ -386,7 +392,8 @@ public class TestJiraIssuesMacro extends TestCase
         Map<String, JiraColumnInfo> columns = new HashMap<String, JiraColumnInfo>();
         columns.put("type", new JiraColumnInfo("type", "Type", Boolean.TRUE));
         columns.put("summary", new JiraColumnInfo("summary", "Summary", Boolean.TRUE));
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, conversionContext);
+        ImmutableMap<String, ImmutableSet<String>> mocki18nColumnNames = mockGetI18nColumnNames();
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, conversionContext, mocki18nColumnNames);
         // comment back in to debug the assert equals on the two maps
         /*
         Set<String> keySet = expectedContextMap.keySet();
@@ -446,7 +453,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, appLink, false, false)).thenReturn(
                 new MockChannel(params.get("url")));
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, conversionContext);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, conversionContext, mocki18nColumnNames);
 
         cleanMaps(expectedContextMap,macroVelocityContext);
 
@@ -514,8 +521,10 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("returnMax", "true");
         expectedContextMap.put("generalUtil", generalUtil);
 
+        ImmutableMap<String, ImmutableSet<String>> mocki18nColumnNames = mockGetI18nColumnNames();
+
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false, SINGLE, createDefaultConversionContext(false));
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false, SINGLE, createDefaultConversionContext(false), mocki18nColumnNames);
 
         assertEquals(expectedContextMap, macroVelocityContext);
     }
@@ -564,8 +573,10 @@ public class TestJiraIssuesMacro extends TestCase
         when(jiraIssuesManager.retrieveXMLAsChannel(requestURL, Arrays.asList(columns), appLink, false, true))
                 .thenReturn(new MockSingleChannel(requestURL));
 
+        ImmutableMap<String, ImmutableSet<String>> mocki18nColumnNames = mockGetI18nColumnNames();
+
         //Create with staticMode = false
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, true, false, SINGLE, createDefaultConversionContext(false));
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, true, false, SINGLE, createDefaultConversionContext(false), mocki18nColumnNames);
 
         assertEquals(expectedContextMap, macroVelocityContext);
     }
@@ -736,7 +747,9 @@ public class TestJiraIssuesMacro extends TestCase
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
         mockRestApi(appLink);
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, TABLE, createDefaultConversionContext(false));
+        ImmutableMap<String, ImmutableSet<String>> mocki18nColumnNames = mockGetI18nColumnNames();
+
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, TABLE, createDefaultConversionContext(false), mocki18nColumnNames);
     }
 
     /**
@@ -792,7 +805,9 @@ public class TestJiraIssuesMacro extends TestCase
 
         mockRestApi(appLink);
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, TABLE, createDefaultConversionContext(false));
+        ImmutableMap<String, ImmutableSet<String>> mocki18nColumnNames = mockGetI18nColumnNames();
+
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, TABLE, createDefaultConversionContext(false), mocki18nColumnNames);
 
         //verify(httpRequest).setAuthenticator(isA(TrustedTokenAuthenticator.class));
     }
@@ -946,7 +961,9 @@ public class TestJiraIssuesMacro extends TestCase
         String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
         when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createDefaultConversionContext(false));
+        ImmutableMap<String, ImmutableSet<String>> mocki18nColumnNames = mockGetI18nColumnNames();
+
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createDefaultConversionContext(false), mocki18nColumnNames);
         Element element = ((Collection<Element>) macroVelocityContext.get("entries")).iterator().next();
         Assert.assertTrue(element.getChildText("resolved").contains("3 Dec 2015"));
 
@@ -994,6 +1011,67 @@ public class TestJiraIssuesMacro extends TestCase
     {
         URL url = getClass().getClassLoader().getResource(name);
         return url.openStream();
+    }
+
+    public static ImmutableMap mockGetI18nColumnNames() {
+        ImmutableMap.Builder<String, ImmutableSet<String>> i18nColumnNamesBuilder = ImmutableMap.builder();
+
+        ImmutableSet.Builder<String> columnEpicLink = ImmutableSet.builder();
+        columnEpicLink.add("Epic Link");
+        columnEpicLink.add("epic link");
+        i18nColumnNamesBuilder.put("epic link", columnEpicLink.build());
+
+        // issue/CONF-31534 Used to get rid of Epic Name column. See JiraIssueSortableHelper
+        ImmutableSet.Builder<String> columnEpicLinkDisplay = ImmutableSet.builder();
+        columnEpicLink.add("epic link");
+        i18nColumnNamesBuilder.put("epic link display", columnEpicLinkDisplay.build());
+
+        ImmutableSet.Builder<String> columnEpicName = ImmutableSet.builder();
+        columnEpicName.add("Epic Name");
+        columnEpicName.add("epic name");
+        i18nColumnNamesBuilder.put("epic name", columnEpicName.build());
+
+        ImmutableSet.Builder<String> columnEpicColour = ImmutableSet.builder();
+        columnEpicColour.add("Epic Colour");
+        columnEpicColour.add("Epic Color");
+        columnEpicColour.add("epic colour");
+        columnEpicColour.add("epic color");
+        i18nColumnNamesBuilder.put("epic colour", columnEpicColour.build());
+
+        ImmutableSet.Builder<String> columnEpicStatus = ImmutableSet.builder();
+        columnEpicStatus.add("Epic Status");
+        columnEpicStatus.add("epic status");
+        i18nColumnNamesBuilder.put("epic status", columnEpicStatus.build());
+
+        ImmutableSet.Builder<String> columnType = ImmutableSet.builder();
+        columnType.add("type");
+        i18nColumnNamesBuilder.put("type", columnType.build());
+        ImmutableSet.Builder<String> columnKey = ImmutableSet.builder();
+        columnKey.add("key");
+        i18nColumnNamesBuilder.put("key", columnKey.build());
+        ImmutableSet.Builder<String> columnSummary = ImmutableSet.builder();
+        columnSummary.add("summary");
+        i18nColumnNamesBuilder.put("summary", columnSummary.build());
+        ImmutableSet.Builder<String> columnPriority = ImmutableSet.builder();
+        columnPriority.add("priority");
+        i18nColumnNamesBuilder.put("priority", columnPriority.build());
+        ImmutableSet.Builder<String> columnStatus = ImmutableSet.builder();
+        columnStatus.add("status");
+        i18nColumnNamesBuilder.put("status", columnStatus.build());
+        ImmutableSet.Builder<String> columnResolution = ImmutableSet.builder();
+        columnResolution.add("resolution");
+        i18nColumnNamesBuilder.put("resolution", columnResolution.build());
+        ImmutableSet.Builder<String> columnIssuelinks = ImmutableSet.builder();
+        columnIssuelinks.add("issue links");
+        i18nColumnNamesBuilder.put("issuelinks", columnIssuelinks.build());
+        ImmutableSet.Builder<String> columnDescription = ImmutableSet.builder();
+        columnDescription.add("description");
+        i18nColumnNamesBuilder.put("description", columnDescription.build());
+        ImmutableSet.Builder<String> columnEnvironment = ImmutableSet.builder();
+        columnEnvironment.add("environment");
+        i18nColumnNamesBuilder.put("environment", columnEnvironment.build());
+
+        return i18nColumnNamesBuilder.build();
     }
 
     private class MockDefaultJiraIssueBatchService extends DefaultJiraIssueBatchService
