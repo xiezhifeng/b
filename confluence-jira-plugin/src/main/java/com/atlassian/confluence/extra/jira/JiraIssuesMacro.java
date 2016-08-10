@@ -62,9 +62,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonParser;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
 import org.slf4j.Logger;
@@ -82,13 +81,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
-import static com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager.matchColumnNameFromList;
-import static com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager.matchColumnNameFromString;
 import static com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager.COLUMN_EPIC_COLOUR;
 import static com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager.COLUMN_EPIC_LINK;
-import static com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager.COLUMN_EPIC_STATUS;
 import static com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager.COLUMN_EPIC_NAME;
+import static com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager.COLUMN_EPIC_STATUS;
+import static com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager.matchColumnNameFromList;
+import static com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager.matchColumnNameFromString;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -99,6 +99,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraIssuesMacro.class);
     private static final Gson gson = new Gson();
     private static final JsonParser parser = new JsonParser();
+    private static final Random RANDOM = new Random();
 
     /**
      * Default constructor to get all necessary beans injected
@@ -254,7 +255,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             RenderContext context)
     {
         String tokenTypeString = (String) parameters.get(TOKEN_TYPE_PARAM);
-        if (org.apache.commons.lang.StringUtils.isBlank(tokenTypeString))
+        if (org.apache.commons.lang3.StringUtils.isBlank(tokenTypeString))
         {
             return TokenType.INLINE_BLOCK;
         }
@@ -1338,7 +1339,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private int getNextRefreshId()
     {
-        return RandomUtils.nextInt();
+        return RANDOM.nextInt();
     }
 
     private boolean getBooleanProperty(Object value)

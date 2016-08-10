@@ -3,8 +3,8 @@ package com.atlassian.confluence.extra.jira;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
@@ -12,7 +12,12 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerator
 {   
@@ -133,7 +138,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
                 String value = null != child ? child.getValue() : "";
                 if (!columnName.equalsIgnoreCase("created") && !columnName.equalsIgnoreCase("updated") && !columnName.equalsIgnoreCase("due"))
                 {
-                	value = StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(value));
+                	value = StringEscapeUtils.escapeEcmaScript(StringEscapeUtils.escapeHtml4(value));
                 }
 
                 if (columnName.equalsIgnoreCase("type"))
@@ -166,7 +171,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
                         description = GeneralUtil.htmlEncode(description);
                     }
                     // Then we escape it for the json response
-                    jsonIssueElementBuilder.append("'").append(StringEscapeUtils.escapeJavaScript(description)).append("'");
+                    jsonIssueElementBuilder.append("'").append(StringEscapeUtils.escapeEcmaScript(description)).append("'");
                 }
                 else if (jiraIssuesColumnManager.isColumnBuiltIn(columnName))
                 {
@@ -230,9 +235,9 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
     {
         if (!fromAppLink)
         {
-            fieldValueText = StringEscapeUtils.escapeHtml(fieldValueText); 
+            fieldValueText = StringEscapeUtils.escapeHtml4(fieldValueText);
         }
-        jsonIssueElementBuilder.append("'").append(StringEscapeUtils.escapeJavaScript(fieldValueText)).append("'");
+        jsonIssueElementBuilder.append("'").append(StringEscapeUtils.escapeEcmaScript(fieldValueText)).append("'");
     }
 
     private void appendDueDate(String value, StringBuilder jsonIssueElementBuilder, boolean fromApplink) throws ParseException
@@ -298,7 +303,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
     private void appendMultivalueBuiltinColumn(Element itemElement, String columnName, StringBuilder jsonIssueElementBuilder)
     {
         jsonIssueElementBuilder.append("'");
-        String fieldValue = StringEscapeUtils.escapeJavaScript(xmlXformer.collapseMultiple(itemElement, columnName).getValue());
+        String fieldValue = StringEscapeUtils.escapeEcmaScript(xmlXformer.collapseMultiple(itemElement, columnName).getValue());
         jsonIssueElementBuilder.append(GeneralUtil.htmlEncode(fieldValue));
         jsonIssueElementBuilder.append("'");
     }
@@ -338,7 +343,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         String trustedMessage = trustedStatusToMessage(jiraResponseChannel.getTrustedConnectionStatus());
         if (StringUtils.isNotBlank(trustedMessage))
         {
-            trustedMessage = jiraResponseJsonBuilder.append("'").append(StringEscapeUtils.escapeJavaScript(trustedMessage)).append("'").toString();
+            trustedMessage = jiraResponseJsonBuilder.append("'").append(StringEscapeUtils.escapeEcmaScript(trustedMessage)).append("'").toString();
             jiraResponseJsonBuilder.setLength(0);
         }
 
@@ -373,9 +378,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         }
         catch (Exception e)
         {
-            IOException ioe = new IOException("Unable to generate JSON output");
-            ioe.initCause(e);
-            throw ioe;
+            throw new IOException("Unable to generate JSON output", e);
         }
     }
 
