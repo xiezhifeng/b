@@ -24,7 +24,7 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
