@@ -255,7 +255,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             RenderContext context)
     {
         String tokenTypeString = (String) parameters.get(TOKEN_TYPE_PARAM);
-        if (org.apache.commons.lang3.StringUtils.isBlank(tokenTypeString))
+        if (StringUtils.isBlank(tokenTypeString))
         {
             return TokenType.INLINE_BLOCK;
         }
