@@ -87,7 +87,7 @@ public class ClientId
         List<String> params = Lists.newArrayList(jiraIssuesType.toString(), serverId, pageId, userId);
         if (StringUtils.isNotEmpty(jqlQuery))
         {
-            params.add(Base64.encodeBase64String(jqlQuery.getBytes()));
+            params.add(new String(Base64.encodeBase64(jqlQuery.getBytes())));
         }
         return StringUtils.join(params, SEPARATOR);
     }

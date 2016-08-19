@@ -418,4 +418,7 @@
         <url-pattern>/rest/mobile/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </servlet-filter>
+
+    <xwork name="Confluence Jira Plugin Actions" key="jim-xwork">
+    </xwork>
 </atlassian-plugin>
