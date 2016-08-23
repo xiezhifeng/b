@@ -11,7 +11,7 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="jiraIssuesColumnManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager"/>
   <beans:bean id="jiraIssuesUrlManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesUrlManager"/>
   <beans:bean id="confluenceJiraPluginSettingManager" class="com.atlassian.confluence.extra.jira.DefaultConfluenceJiraPluginSettingManager">
-    <beans:constructor-arg index="0" ref="pluginSettingsFactory"></beans:constructor-arg>
+    <beans:constructor-arg ref="pluginSettingsFactory"/>
   </beans:bean>
   <beans:bean id="jiraIssuesManager" class="com.atlassian.confluence.extra.jira.CacheJiraIssuesManager">
       <beans:constructor-arg index="0" ref="jiraIssuesColumnManager"></beans:constructor-arg>
@@ -20,6 +20,7 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:constructor-arg index="3" ref="vcacheFactory"></beans:constructor-arg>
       <beans:constructor-arg index="4" ref="pluginAccessor"></beans:constructor-arg>
       <beans:constructor-arg index="5" ref="confluenceJiraPluginSettingManager"></beans:constructor-arg>
+      <beans:constructor-arg index="6" ref="eventPublisher"></beans:constructor-arg>
   </beans:bean>
   <osgi:service id="jiraIssuesManager_osgiService" ref="jiraIssuesManager">
     <osgi:interfaces>

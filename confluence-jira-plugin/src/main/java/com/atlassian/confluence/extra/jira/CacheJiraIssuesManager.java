@@ -12,9 +12,12 @@ import com.atlassian.confluence.extra.jira.cache.CacheLoggingUtils;
 import com.atlassian.confluence.extra.jira.cache.JIMCacheProvider;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.event.api.EventListener;
+import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.tenancy.api.event.TenantArrivedEvent;
 import com.atlassian.util.concurrent.Lazy;
 import com.atlassian.util.concurrent.Supplier;
 import com.atlassian.vcache.DirectExternalCache;
@@ -23,31 +26,34 @@ import com.atlassian.vcache.VCacheFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 
 import static com.atlassian.confluence.extra.jira.util.JiraUtil.JIRA_PLUGIN_KEY;
 import static com.atlassian.vcache.VCacheUtils.fold;
 
-public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
+public class CacheJiraIssuesManager extends DefaultJiraIssuesManager implements InitializingBean, DisposableBean
 {
 
     private static final Logger log = LoggerFactory.getLogger(CacheJiraIssuesManager.class);
 
-    private final DirectExternalCache<JiraChannelResponseHandler> responseChannelHandlerCache;
-    private final DirectExternalCache<JiraStringResponseHandler> responseStringHandlerCache;
+    private DirectExternalCache<JiraChannelResponseHandler> responseChannelHandlerCache;
+    private DirectExternalCache<JiraStringResponseHandler> responseStringHandlerCache;
     private final Supplier<String> version;
-    private final ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
+    private ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
+    private final EventPublisher eventPublisher;
+    private final VCacheFactory vcacheFactory;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
             JiraIssuesUrlManager jiraIssuesUrlManager, HttpRetrievalService httpRetrievalService,
             VCacheFactory vcacheFactory, PluginAccessor pluginAccessor,
-            ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager)
+            ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager,
+            EventPublisher eventPublisher)
     {
         super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService);
         this.confluenceJiraPluginSettingManager = confluenceJiraPluginSettingManager;
-        this.responseChannelHandlerCache = JIMCacheProvider.getChannelResponseHandlersCache(vcacheFactory,
-                this.confluenceJiraPluginSettingManager.getTimeOfCacheInMinutes());
-        this.responseStringHandlerCache = JIMCacheProvider.getStringResponseHandlersCache(vcacheFactory,
-                this.confluenceJiraPluginSettingManager.getTimeOfCacheInMinutes());
+        this.eventPublisher = eventPublisher;
+        this.vcacheFactory = vcacheFactory;
         this.version = Lazy.supplier(() -> pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion());
     }
 
@@ -149,4 +155,24 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         }
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception
+    {
+        this.eventPublisher.register(this);
+    }
+
+    @Override
+    public void destroy() throws Exception
+    {
+        this.eventPublisher.unregister(this);
+    }
+
+    @EventListener
+    public void onTenantArrived(TenantArrivedEvent event)
+    {
+        this.responseChannelHandlerCache = JIMCacheProvider.getChannelResponseHandlersCache(this.vcacheFactory,
+                this.confluenceJiraPluginSettingManager.getTimeOfCacheInMinutes());
+        this.responseStringHandlerCache = JIMCacheProvider.getStringResponseHandlersCache(this.vcacheFactory,
+                this.confluenceJiraPluginSettingManager.getTimeOfCacheInMinutes());
+    }
 }
