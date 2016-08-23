@@ -1,0 +1,73 @@
+<html>
+<head>
+    <title>$i18n.getText('calendar3.admin.title')</title>
+</head>
+<body>
+<content tag="selectedWebItem">teamcalendars-license</content>
+
+    #set ($selectedTab = "global")
+<div class="aui-tabs horizontal-tabs" id="teamcalendars-admin-tabs">
+    #parse("com/atlassian/confluence/extra/calendar3/admin-tabs.vm")
+
+    <div class="tabs-pane active-pane" id="tab-content">
+        #if ( $settingsUpdated )
+            <div class="admin-setting-messages">
+                <div class="aui-message closeable shadowed success">
+                    <p class="title">
+                        <span class="aui-icon icon-success"></span>
+                        <strong>$i18n.getText('calendar3.admin.settings.updated')</strong>
+                    </p>
+                </div>
+            </div>
+        #end
+        <p class="global-setting-description">$i18n.getText('calendar3.admin.global.description')</p>
+        <form id="global-settings-form" action="setGlobalSettings.action" method="POST" class="aui long-label">
+            #form_xsrfToken()
+            <fieldset>
+                <div class="field-group">
+                    <label for="startofweek">$i18n.getText('calendar3.admin.set.startofweek.label')</label>
+                    <select id="startofweek" class="select dropdown" type="dropdown" name="startOfWeek">
+                        <option #if($startOfWeek.equals('default')) selected="selected" #end value="default">$i18n.getText('calendar3.admin.set.startofweek.default')</option>
+                        #foreach($day in $daysOfTheWeek.keySet())
+                            <option #if($startOfWeek.equals($day)) selected="selected" #end value="$day">$daysOfTheWeek.get($day)</option>
+                        #end
+                    </select>
+                    <div class="description description-textbox">$i18n.getText('calendar3.admin.set.startofweek.description')</div>
+                    <div class="checkbox">
+                        <input id="displayweeknumber" class="checkbox" type="checkbox" name="displayWeekNumber" value="true" #if ( $displayWeekNumber ) checked="checked" #end/>
+                        <label for="displayweeknumber">$i18n.getText('calendar3.admin.enable.displayweeknumber.label')</label>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label for="timeformat">$i18n.getText('calendar3.admin.set.timeformat.label')</label>
+                    <select id="timeformat" class="select dropdown" type="dropdown" name="displayTimeFormat">
+                        <option #if($timeFormat.equals('displayTimeFormat12')) selected="selected" #end value="displayTimeFormat12">$i18n.getText('calendar3.admin.set.timeformat.displayTimeFormat12')</option>
+                        <option #if($timeFormat.equals('displayTimeFormat24')) selected="selected" #end value="displayTimeFormat24">$i18n.getText('calendar3.admin.set.timeformat.displayTimeFormat24')</option>
+                    </select>
+                    <div class="description description-textbox">$i18n.getText('calendar3.admin.enable.timeformat.description')</div>
+                </div>
+                <div class="field-group">
+                    <label for="disableprivateurls">$i18n.getText('calendar3.admin.set.disableprivateurls.label')</label>
+                    #if ( $confluenceCloud )
+                        <div class="checkbox">
+                            <input id="enablesiteadmins" class="checkbox" type="checkbox" name="siteAdminsEnabled" value="true" #if ( $siteAdminsEnabled ) checked="checked" #end/>
+                            <label for="enablesiteadmins">$i18n.getText('calendar3.admin.enable.siteadmins.label')</label>
+                        </div>
+                    #end
+                    <div class="checkbox">
+                        <input id="disableprivateurls" class="checkbox" type="checkbox" name="disablePrivateUrls" value="true" #if ( $privateUrlsDisabled ) checked="checked" #end/>
+                        <label for="disableprivateurls">$i18n.getText('calendar3.admin.disable.privateurls.label')</label>
+                    </div>
+                    <div class="description description-textbox">$i18n.getText('calendar3.admin.disable.privateurls.description')</div>
+                </div>
+            </fieldset>
+            <div class="buttons-container">
+                <div class="buttons">
+                    <input class="submit button" type="submit" value="$i18n.getText('save.name')">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
