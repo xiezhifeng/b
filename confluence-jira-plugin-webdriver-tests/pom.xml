@@ -58,6 +58,12 @@
         </dependency>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-webdriver-pageobjects</artifactId>
+            <version>4.1.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence-stateless-test-runner</artifactId>
             <version>${confluence-stateless-test-runner.version}</version>
             <scope>test</scope>
