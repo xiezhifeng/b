@@ -8,6 +8,7 @@ public class CacheSettingsAction extends ConfluenceActionSupport
     private static final String DEFAULT_CACHE_IN_MINUTES = "5";
     private ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
     private String timeOfCacheInMinutes;
+    private boolean settingsUpdated;
 
     public String setCacheSettings()
     {
@@ -37,4 +38,11 @@ public class CacheSettingsAction extends ConfluenceActionSupport
         this.timeOfCacheInMinutes = timeOfCacheInMinutes;
     }
 
+    public boolean isSettingsUpdated() {
+        return settingsUpdated;
+    }
+
+    public void setSettingsUpdated(boolean settingsUpdated) {
+        this.settingsUpdated = settingsUpdated;
+    }
 }

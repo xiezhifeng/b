@@ -427,6 +427,12 @@
                 <interceptor-ref name="validatingStack"/>
                 <result name="success" type="velocity">/com/atlassian/confluence/extra/jira/xwork/cache-settings.vm</result>
             </action>
+            <action name="setCacheSettings"
+                    class="com.atlassian.confluence.extra.jira.xwork.CacheSettingsAction" method="setCacheSettings">
+                <param name="RequireSecurityToken">true</param>
+                <interceptor-ref name="validatingStack"/>
+                <result name="success" type="redirect">/admin/jim/cachesettings.action?settingsUpdated=true</result>
+            </action>
         </package>
     </xwork>
 </atlassian-plugin>

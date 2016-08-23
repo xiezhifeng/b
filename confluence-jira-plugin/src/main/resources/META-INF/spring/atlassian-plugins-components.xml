@@ -88,4 +88,9 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
     <beans:constructor-arg index="3" ref="readOnlyApplicationLinkService"></beans:constructor-arg>
     <beans:constructor-arg index="4" ref="spaceService"></beans:constructor-arg>
   </beans:bean>
+
+  <beans:bean id="confluenceJiraPluginSettingManager" class="com.atlassian.confluence.extra.jira.DefaultConfluenceJiraPluginSettingManager">
+    <beans:constructor-arg index="0" ref="pluginSettingsFactory"></beans:constructor-arg>
+  </beans:bean>
+
 </beans:beans>

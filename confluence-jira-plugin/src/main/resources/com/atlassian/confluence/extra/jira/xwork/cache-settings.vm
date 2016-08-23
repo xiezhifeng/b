@@ -15,12 +15,12 @@
             </div>
         #end
         <p class="cache-settings-description">$i18n.getText('confluence.jiraissue.admin.global.description')</p>
-        <form id="cache-settings-form" action="cachesettings.action" method="POST" class="aui long-label">
+        <form id="cache-settings-form" action="setCacheSettings.action" method="POST" class="aui long-label">
             #form_xsrfToken()
             <fieldset>
                 <div class="field-group">
-                    <label for="cacheTimeout">$i18n.getText('confluence.jiraissue.admin.set.cachetime.label')</label>
-                    <input type="text" name="cacheTimeout" id="cacheTimeout" value="5" class="text  short-field ">
+                    <label for="timeOfCacheInMinutes">$i18n.getText('confluence.jiraissue.admin.set.cachetime.label')</label>
+                    <input type="text" name="timeOfCacheInMinutes" id="timeOfCacheInMinutes" value="$timeOfCacheInMinutes" class="text  short-field ">
                 </div>
             </fieldset>
             <div class="buttons-container">
