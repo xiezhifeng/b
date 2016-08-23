@@ -16,7 +16,7 @@ import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;

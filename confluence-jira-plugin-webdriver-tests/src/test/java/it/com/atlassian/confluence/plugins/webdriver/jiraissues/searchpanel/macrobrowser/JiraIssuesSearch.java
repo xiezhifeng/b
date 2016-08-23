@@ -1,21 +1,20 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
 import com.atlassian.confluence.it.TestProperties;
-import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
-
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper.createJiraFilter;
 import static it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper.deleteJiraFilter;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

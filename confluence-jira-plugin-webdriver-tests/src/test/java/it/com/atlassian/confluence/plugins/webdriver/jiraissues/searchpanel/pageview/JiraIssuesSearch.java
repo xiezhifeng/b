@@ -1,15 +1,11 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
-import java.io.IOException;
-
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
-import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.core.StringContains;
-import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

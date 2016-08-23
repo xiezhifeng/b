@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>6.0.7-SNAPSHOT</version>
+        <version>6.0.11-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -100,6 +100,14 @@
                     <groupId>com.atlassian.cache</groupId>
                     <artifactId>atlassian-cache-memory</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.atlassian.gzipfilter</groupId>
+                    <artifactId>atlassian-gzipfilter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -119,12 +127,6 @@
             <artifactId>analytics-api</artifactId>
             <version>3.3</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.upm</groupId>
-            <artifactId>testing</artifactId>
-            <version>2.18.4</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>
@@ -242,6 +244,13 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
             <scope>test</scope>
         </dependency>
 
@@ -476,7 +485,6 @@
                             com.atlassian.integration.jira,
                             com.atlassian.integration.jira.applinks,
 
-                            com.atlassian.gzipfilter.org.apache.commons.lang,
                             com.atlassian.plugin,
                             com.atlassian.plugin.osgi.bridge.external,
                             com.atlassian.plugin.predicate,
@@ -525,8 +533,6 @@
                             org.apache.commons.httpclient,
                             org.apache.commons.httpclient.util,
                             org.apache.commons.io;version="1.0",
-                            org.apache.commons.lang;version="2.6",
-                            org.apache.commons.lang.math;version="2.6",
                             org.apache.commons.lang3;version="3.1",
                             org.apache.commons.lang3.concurrent;version="3.1",
                             org.apache.log4j,

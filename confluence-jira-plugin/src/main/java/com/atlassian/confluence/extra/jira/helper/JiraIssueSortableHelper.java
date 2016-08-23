@@ -1,10 +1,13 @@
 package com.atlassian.confluence.extra.jira.helper;
 
+import com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,37 +66,35 @@ public class JiraIssueSortableHelper
 
     /**
      * Gets column names base on column parameter from JIM.
-     * @param columnsParameter columns parameter frim JIM
+     * @param columnsParameter columns parameter from JIM
      * @return a list of column names
      */
-    public static List<String> getColumnNames(String columnsParameter)
+    public static List<String> getColumnNames(String columnsParameter, ImmutableMap<String, ImmutableSet<String>> i18nColumnNames)
     {
-        List<String> columnNames = DEFAULT_RSS_FIELDS;
+        if (StringUtils.isBlank(columnsParameter)) {
+            return DEFAULT_RSS_FIELDS;
+        }
 
-        if (StringUtils.isNotBlank(columnsParameter))
+        final List<String> columnNames = new ArrayList<>();
+        final List<String> keys = Arrays.asList(StringUtils.split(columnsParameter, ",;"));
+
+        for (String key : keys)
         {
-            columnNames = new ArrayList<String>();
-            List<String> keys = Arrays.asList(StringUtils.split(columnsParameter, ",;"));
-            for (String key : keys)
+            if (StringUtils.isNotBlank(key))
             {
-                if (StringUtils.isNotBlank(key))
-                {
-                    if(key.equalsIgnoreCase("Epic Name") || key.equalsIgnoreCase("Epic Link")) {
-                        if (!columnNames.contains("Epic Link")) {
-                            columnNames.add("Epic Link");
-                        }
-                    } else {
-                        columnNames.add(key);
+                if(DefaultJiraIssuesColumnManager.matchColumnNameFromString(DefaultJiraIssuesColumnManager.COLUMN_EPIC_NAME, key, i18nColumnNames) ||
+                        DefaultJiraIssuesColumnManager.matchColumnNameFromString(DefaultJiraIssuesColumnManager.COLUMN_EPIC_LINK, key, i18nColumnNames)) {
+                    if (!DefaultJiraIssuesColumnManager.matchColumnNameFromList(DefaultJiraIssuesColumnManager.COLUMN_EPIC_LINK, columnNames, i18nColumnNames)) {
+                        // Should only be one item in this set.
+                        columnNames.add(i18nColumnNames.get(DefaultJiraIssuesColumnManager.COLUMN_EPIC_LINK_DISPLAY).iterator().next());
                     }
+                } else {
+                    columnNames.add(key);
                 }
             }
-
-            if (columnNames.isEmpty())
-            {
-                columnNames = DEFAULT_RSS_FIELDS;
-            }
         }
-        return columnNames;
+
+        return columnNames.isEmpty() ? DEFAULT_RSS_FIELDS : columnNames;
     }
 
     public static boolean isJiraSupportedOrder(JiraServerBean jiraServer)

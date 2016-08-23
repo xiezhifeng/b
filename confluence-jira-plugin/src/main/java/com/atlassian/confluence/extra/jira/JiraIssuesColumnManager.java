@@ -4,6 +4,7 @@ import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.*;
 
@@ -126,4 +127,10 @@ public interface JiraIssuesColumnManager
      * @return key has mapped.
      */
     String getColumnMapping(String columnKey, Map<String, String> map);
+
+    /**
+     * Returns a map of translations for the columns which are handled as edge cases (in the staticJiraIssues.vm)
+     * @return
+     */
+    ImmutableMap<String, ImmutableSet<String>> getI18nColumnNames();
 }

@@ -11,7 +11,7 @@ import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.google.common.collect.Sets;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;

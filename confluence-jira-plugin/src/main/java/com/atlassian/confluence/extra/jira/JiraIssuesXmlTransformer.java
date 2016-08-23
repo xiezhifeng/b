@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.util.GeneralUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
 

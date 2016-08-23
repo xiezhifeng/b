@@ -23,9 +23,8 @@ import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import junit.framework.TestCase;
 
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -78,6 +77,7 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         defaultJiraIssuesColumnManager = new DefaultJiraIssuesColumnManager();
         when(i18nBeanFactory.getI18NBean()).thenReturn(i18NBean);
         when(i18nBeanFactory.getI18NBean(any(Locale.class))).thenReturn(i18NBean);
+        when(i18nBeanFactory.getI18NBean().getText(any(String.class))).thenReturn("COLUMN NAME");
 
         url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
     }
@@ -156,7 +156,7 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         params.put("url", "http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TST+AND+reporter+%3D+mhrynczak");
         params.put(": = | RAW | = :", "url=http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TST+AND+reporter+%3D+mhrynczak");
         List<JiraColumnInfo> expectedInfo = new ArrayList<JiraColumnInfo>();
-        List<String> columnNames = JiraIssueSortableHelper.getColumnNames("");
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames("", null);
         // expected columnNames = "type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due"
         assertEquals(columnNames, Arrays.asList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due"));
         expectedInfo.add(new JiraColumnInfo("type", "T", Arrays.asList("type"), true));

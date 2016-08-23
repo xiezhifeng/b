@@ -18,6 +18,8 @@ import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.renderer.RenderContextOutputType;
 
 import com.atlassian.sal.api.features.DarkFeatureManager;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -159,6 +161,7 @@ public class TestJiraIssuesMacroEmailRender
         when(conversionContext.getOutputDeviceType()).thenReturn(RenderContextOutputType.EMAIL);
         when(applicationLink.getRpcUrl()).thenReturn(URI.create("http://test/"));
         when(applicationLink.getDisplayUrl()).thenReturn(URI.create("http://test/"));
+        final ImmutableMap<String, ImmutableSet<String>> mockI18nColumnNames;
 
         //when:
         jiraIssuesMacroTestHarness.createContextMapFromParams(
@@ -170,7 +173,8 @@ public class TestJiraIssuesMacroEmailRender
                 true,
                 false,
                 JiraIssuesMacro.JiraIssuesType.SINGLE,
-                conversionContext
+                conversionContext,
+                TestJiraIssuesMacro.mockGetI18nColumnNames()
         );
 
         //test:

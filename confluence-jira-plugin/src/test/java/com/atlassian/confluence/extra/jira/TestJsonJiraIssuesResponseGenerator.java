@@ -6,7 +6,7 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
