@@ -425,7 +425,7 @@
             <action name="cachesettings"
                     class="com.atlassian.confluence.extra.jira.xwork.CacheSettingsAction">
                 <interceptor-ref name="validatingStack"/>
-                <result name="success" type="velocity">/com/atlassian/confluence/extra/jira/cache-settings.vm</result>
+                <result name="success" type="velocity">/com/atlassian/confluence/extra/jira/xwork/cache-settings.vm</result>
             </action>
         </package>
     </xwork>
