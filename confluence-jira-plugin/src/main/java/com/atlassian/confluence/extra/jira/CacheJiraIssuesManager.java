@@ -35,14 +35,19 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
     private final DirectExternalCache<JiraChannelResponseHandler> responseChannelHandlerCache;
     private final DirectExternalCache<JiraStringResponseHandler> responseStringHandlerCache;
     private final Supplier<String> version;
+    private final ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
             JiraIssuesUrlManager jiraIssuesUrlManager, HttpRetrievalService httpRetrievalService,
-            VCacheFactory vcacheFactory, PluginAccessor pluginAccessor)
+            VCacheFactory vcacheFactory, PluginAccessor pluginAccessor,
+            ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager)
     {
         super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService);
-        this.responseChannelHandlerCache = JIMCacheProvider.getChannelResponseHandlersCache(vcacheFactory);
-        this.responseStringHandlerCache = JIMCacheProvider.getStringResponseHandlersCache(vcacheFactory);
+        this.confluenceJiraPluginSettingManager = confluenceJiraPluginSettingManager;
+        this.responseChannelHandlerCache = JIMCacheProvider.getChannelResponseHandlersCache(vcacheFactory,
+                this.confluenceJiraPluginSettingManager.getTimeOfCacheInMinutes());
+        this.responseStringHandlerCache = JIMCacheProvider.getStringResponseHandlersCache(vcacheFactory,
+                this.confluenceJiraPluginSettingManager.getTimeOfCacheInMinutes());
         this.version = Lazy.supplier(() -> pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion());
     }
 

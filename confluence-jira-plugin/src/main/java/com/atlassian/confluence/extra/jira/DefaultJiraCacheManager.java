@@ -30,12 +30,17 @@ public class DefaultJiraCacheManager implements JiraCacheManager
     private final DirectExternalCache<JiraChannelResponseHandler> channelResponseCache;
     private final DirectExternalCache<JiraStringResponseHandler> stringResponseCache;
     private final Supplier<String> version;
+    private final ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
 
-    public DefaultJiraCacheManager(VCacheFactory vcacheFactory, PluginAccessor pluginAccessor)
+    public DefaultJiraCacheManager(VCacheFactory vcacheFactory, PluginAccessor pluginAccessor,
+                ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager)
     {
         this.responseCache = JIMCacheProvider.getResponseCache(vcacheFactory);
-        this.channelResponseCache = JIMCacheProvider.getChannelResponseHandlersCache(vcacheFactory);
-        this.stringResponseCache = JIMCacheProvider.getStringResponseHandlersCache(vcacheFactory);
+        this.confluenceJiraPluginSettingManager = confluenceJiraPluginSettingManager;
+        this.channelResponseCache = JIMCacheProvider.getChannelResponseHandlersCache(vcacheFactory,
+                this.confluenceJiraPluginSettingManager.getTimeOfCacheInMinutes());
+        this.stringResponseCache = JIMCacheProvider.getStringResponseHandlersCache(vcacheFactory,
+                this.confluenceJiraPluginSettingManager.getTimeOfCacheInMinutes());
         this.version = Lazy.supplier(() -> pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion());
     }
 

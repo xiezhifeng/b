@@ -10,7 +10,17 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="jiratrustwarnings" autowire="default" class="com.atlassian.confluence.extra.jira.JiraTrustWarningsComponent"/>
   <beans:bean id="jiraIssuesColumnManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager"/>
   <beans:bean id="jiraIssuesUrlManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesUrlManager"/>
-  <beans:bean id="jiraIssuesManager" autowire="default" class="com.atlassian.confluence.extra.jira.CacheJiraIssuesManager"/>
+  <beans:bean id="confluenceJiraPluginSettingManager" class="com.atlassian.confluence.extra.jira.DefaultConfluenceJiraPluginSettingManager">
+    <beans:constructor-arg index="0" ref="pluginSettingsFactory"></beans:constructor-arg>
+  </beans:bean>
+  <beans:bean id="jiraIssuesManager" class="com.atlassian.confluence.extra.jira.CacheJiraIssuesManager">
+      <beans:constructor-arg index="0" ref="jiraIssuesColumnManager"></beans:constructor-arg>
+      <beans:constructor-arg index="1" ref="jiraIssuesUrlManager"></beans:constructor-arg>
+      <beans:constructor-arg index="2" ref="httpRetrievalService"></beans:constructor-arg>
+      <beans:constructor-arg index="3" ref="vcacheFactory"></beans:constructor-arg>
+      <beans:constructor-arg index="4" ref="pluginAccessor"></beans:constructor-arg>
+      <beans:constructor-arg index="5" ref="confluenceJiraPluginSettingManager"></beans:constructor-arg>
+  </beans:bean>
   <osgi:service id="jiraIssuesManager_osgiService" ref="jiraIssuesManager">
     <osgi:interfaces>
       <beans:value>com.atlassian.confluence.extra.jira.JiraIssuesManager</beans:value>
@@ -88,9 +98,4 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
     <beans:constructor-arg index="3" ref="readOnlyApplicationLinkService"></beans:constructor-arg>
     <beans:constructor-arg index="4" ref="spaceService"></beans:constructor-arg>
   </beans:bean>
-
-  <beans:bean id="confluenceJiraPluginSettingManager" class="com.atlassian.confluence.extra.jira.DefaultConfluenceJiraPluginSettingManager">
-    <beans:constructor-arg index="0" ref="pluginSettingsFactory"></beans:constructor-arg>
-  </beans:bean>
-
 </beans:beans>

@@ -46,12 +46,19 @@ public class JIMCacheProvider
      * Creates new or returns an existent cache
      *
      * @param vcacheFactory {@link com.atlassian.vcache.VCacheFactory}
+     * @param cacheTimeInMinutes cache time setting
      * @return new <code>DirectExternalCache</code> or existent one (if was already created)
      */
     public static DirectExternalCache<JiraChannelResponseHandler> getChannelResponseHandlersCache(@Nonnull VCacheFactory
-            vcacheFactory)
+            vcacheFactory, Integer cacheTimeInMinutes)
     {
-        if (JIM_CACHE_TIME <= 0) {
+        if (cacheTimeInMinutes == null)
+        {
+            cacheTimeInMinutes = Integer.valueOf(JIM_CACHE_TIME);
+        }
+
+        if (cacheTimeInMinutes <= 0)
+        {
             return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
                     MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
                     new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofSeconds(1)).build());
@@ -59,19 +66,25 @@ public class JIMCacheProvider
 
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
-                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(JIM_CACHE_TIME)).build());
+                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(cacheTimeInMinutes)).build());
     }
 
     /**
      * Creates new or returns an existent cache
      *
      * @param vcacheFactory {@link com.atlassian.vcache.VCacheFactory}
+     * @param cacheTimeInMinutes cache time setting
      * @return new <code>DirectExternalCache</code> or existent one (if was already created)
      */
     public static DirectExternalCache<JiraStringResponseHandler> getStringResponseHandlersCache(@Nonnull VCacheFactory
-            vcacheFactory)
+            vcacheFactory, Integer cacheTimeInMinutes)
     {
-        if (JIM_CACHE_TIME <= 0) {
+        if (cacheTimeInMinutes == null)
+        {
+            cacheTimeInMinutes = Integer.valueOf(JIM_CACHE_TIME);
+        }
+
+        if (cacheTimeInMinutes <= 0) {
             return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
                     MarshallerFactory.serializableMarshaller(JiraStringResponseHandler.class),
                     new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofSeconds(1)).build());

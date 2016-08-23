@@ -35,6 +35,7 @@ public class TestJiraCacheManager extends TestCase
     private DirectExternalCache<CompressingStringCache> responseCache;
     private DirectExternalCache<JiraChannelResponseHandler> responseChannelCache;
     private DirectExternalCache<JiraStringResponseHandler> responseStringCache;
+    private ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
 
     private JiraCacheManager jiraCacheManager;
 
@@ -42,6 +43,7 @@ public class TestJiraCacheManager extends TestCase
     {
         super.setUp();
         pluginAccessor = mock(PluginAccessor.class);
+        confluenceJiraPluginSettingManager = mock(ConfluenceJiraPluginSettingManager.class);
         getPluginVersionExpectations(pluginAccessor, PLUGIN_VERSION);
         cacheFactory = mockVCacheFactory();
         responseCache = getExternalCacheOnCall(cacheFactory, "com.atlassian.confluence.extra.jira.JiraIssuesMacro");
@@ -50,7 +52,7 @@ public class TestJiraCacheManager extends TestCase
         responseStringCache = getExternalCacheOnCall(cacheFactory,
                 "com.atlassian.confluence.extra.jira.JiraIssuesMacro.string");
         appLink = mock(ReadOnlyApplicationLink.class);
-        jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor);
+        jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor, confluenceJiraPluginSettingManager);
     }
 
     public void testClearExistingJiraIssuesCache()
