@@ -2,17 +2,32 @@ package com.atlassian.confluence.extra.jira.xwork;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.extra.jira.ConfluenceJiraPluginSettingManager;
+import com.atlassian.confluence.extra.jira.JiraCacheManager;
+import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 
 public class CacheSettingsAction extends ConfluenceActionSupport
 {
-    private static final String DEFAULT_CACHE_IN_MINUTES = "5";
+    private static final Integer JIM_CACHE_TIME = Integer.parseInt(System.getProperty("confluence.jim.cache.time", "5"));
     private ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
+    private JiraIssuesManager jiraIssuesManager;
+    private JiraCacheManager jiraCacheManager;
     private String timeOfCacheInMinutes;
     private boolean settingsUpdated;
 
     public String setCacheSettings()
     {
-        confluenceJiraPluginSettingManager.setTimeOfCacheInMinutes(Integer.valueOf(timeOfCacheInMinutes));
+        Integer newCacheTime;
+        try
+        {
+            newCacheTime = Integer.parseInt(timeOfCacheInMinutes);
+        }
+        catch (NumberFormatException nfe)
+        {
+            newCacheTime = JIM_CACHE_TIME;
+        }
+        confluenceJiraPluginSettingManager.setTimeOfCacheInMinutes(newCacheTime);
+        jiraIssuesManager.initializeCache();
+        jiraCacheManager.initializeCache();
         return SUCCESS;
     }
 
@@ -27,10 +42,10 @@ public class CacheSettingsAction extends ConfluenceActionSupport
 
         if (cacheInMinutes == null)
         {
-            return DEFAULT_CACHE_IN_MINUTES;
+            return String.valueOf(JIM_CACHE_TIME);
         }
 
-        return cacheInMinutes.toString();
+        return String.valueOf(cacheInMinutes);
     }
 
     public void setTimeOfCacheInMinutes(String timeOfCacheInMinutes)
@@ -44,5 +59,15 @@ public class CacheSettingsAction extends ConfluenceActionSupport
 
     public void setSettingsUpdated(boolean settingsUpdated) {
         this.settingsUpdated = settingsUpdated;
+    }
+
+    public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager)
+    {
+        this.jiraIssuesManager = jiraIssuesManager;
+    }
+
+    public void setJiraCacheManager(JiraCacheManager jiraCacheManager)
+    {
+        this.jiraCacheManager = jiraCacheManager;
     }
 }

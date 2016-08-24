@@ -102,6 +102,10 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager implements 
     private JiraResponseHandler tryToFindResponseHandlerInAllCaches(CacheKey mappedCacheKey, CacheKey
             unmappedCacheKey, boolean userIsMapped)
     {
+        if(responseChannelHandlerCache == null || responseStringHandlerCache == null)
+        {
+            this.initializeCache();
+        }
         JiraResponseHandler responseHandler = tryCache(mappedCacheKey, unmappedCacheKey, userIsMapped,
                 responseChannelHandlerCache);
         if(responseHandler == null)
@@ -132,6 +136,11 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager implements 
 
     private void populateCache(CacheKey cacheKey, JiraResponseHandler responseHandler)
     {
+        if(responseChannelHandlerCache == null || responseStringHandlerCache == null)
+        {
+            this.initializeCache();
+        }
+
         if (responseHandler instanceof JiraChannelResponseHandler)
         {
             fold(responseChannelHandlerCache.put(cacheKey.toKey(), (JiraChannelResponseHandler) responseHandler,
@@ -170,6 +179,16 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager implements 
     @EventListener
     public void onTenantArrived(TenantArrivedEvent event)
     {
+        this.initializeCache();
+    }
+
+    public void initializeCache()
+    {
+        if (this.responseChannelHandlerCache != null && this.responseStringHandlerCache != null)
+        {
+            this.responseChannelHandlerCache.removeAll();
+            this.responseStringHandlerCache.removeAll();
+        }
         this.responseChannelHandlerCache = JIMCacheProvider.getChannelResponseHandlersCache(this.vcacheFactory,
                 this.confluenceJiraPluginSettingManager.getTimeOfCacheInMinutes());
         this.responseStringHandlerCache = JIMCacheProvider.getStringResponseHandlersCache(this.vcacheFactory,

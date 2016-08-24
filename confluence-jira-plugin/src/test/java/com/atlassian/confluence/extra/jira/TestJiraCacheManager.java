@@ -55,7 +55,7 @@ public class TestJiraCacheManager extends TestCase
                 "com.atlassian.confluence.extra.jira.JiraIssuesMacro.string");
         appLink = mock(ReadOnlyApplicationLink.class);
         jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor, confluenceJiraPluginSettingManager, eventPublisher);
-        ((DefaultJiraCacheManager)jiraCacheManager).onTenantArrived(null);
+        jiraCacheManager.initializeCache();
     }
 
     public void testClearExistingJiraIssuesCache()

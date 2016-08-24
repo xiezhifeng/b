@@ -50,6 +50,7 @@ public class DefaultJiraCacheManager implements JiraCacheManager, InitializingBe
         this.version = Lazy.supplier(() -> pluginAccessor.getPlugin(JIRA_PLUGIN_KEY).getPluginInformation().getVersion());
     }
 
+    @Override
     public void clearJiraIssuesCache(final String url, List<String> columns, final ReadOnlyApplicationLink appLink,
             boolean forceAnonymous, boolean isAnonymous)
     {
@@ -62,6 +63,10 @@ public class DefaultJiraCacheManager implements JiraCacheManager, InitializingBe
         final CacheKey unmappedCacheKey = new CacheKey(url, appLink.getId().toString(), columns, false,
                 forceAnonymous, false, false, version.get());
 
+        if (channelResponseCache == null || stringResponseCache == null)
+        {
+            this.initializeCache();
+        }
         clean(mappedCacheKey, unmappedCacheKey, isAnonymous, responseCache);
         clean(mappedCacheKey, unmappedCacheKey, isAnonymous, channelResponseCache);
         clean(mappedCacheKey, unmappedCacheKey, isAnonymous, stringResponseCache);
@@ -112,6 +117,18 @@ public class DefaultJiraCacheManager implements JiraCacheManager, InitializingBe
     @EventListener
     public void onTenantArrived(TenantArrivedEvent event)
     {
+        this.initializeCache();
+    }
+
+    @Override
+    public void initializeCache()
+    {
+        if (this.channelResponseCache != null && this.stringResponseCache != null)
+        {
+            this.channelResponseCache.removeAll();
+            this.stringResponseCache.removeAll();
+        }
+
         this.channelResponseCache = JIMCacheProvider.getChannelResponseHandlersCache(vcacheFactory,
                 this.confluenceJiraPluginSettingManager.getTimeOfCacheInMinutes());
         this.stringResponseCache = JIMCacheProvider.getStringResponseHandlersCache(vcacheFactory,
