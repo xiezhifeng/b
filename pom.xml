@@ -89,7 +89,8 @@
         <jira.data.version>6.5-OD-03-002</jira.data.version>
 
         <jdkLevel>1.8</jdkLevel>
-        <jvmArgs>-Xmx1024m -XX:MaxPermSize=512m</jvmArgs>
+        <jvm.args.custom />
+        <jvmArgs>-Xmx1024m -XX:MaxPermSize=512m ${jvm.args.custom}</jvmArgs>
 
         <http.port>1990</http.port>
         <server>localhost</server>
