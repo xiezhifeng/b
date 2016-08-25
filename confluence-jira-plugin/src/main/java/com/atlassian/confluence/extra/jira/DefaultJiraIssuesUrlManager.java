@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

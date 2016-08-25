@@ -4,7 +4,7 @@ import com.atlassian.confluence.event.events.template.TemplateUpdateEvent;
 import com.atlassian.confluence.pages.templates.PageTemplate;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.util.regex.Matcher;

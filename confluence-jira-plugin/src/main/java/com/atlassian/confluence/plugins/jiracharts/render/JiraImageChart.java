@@ -7,7 +7,7 @@ import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.renderer.RenderContextOutputType;
 import com.atlassian.sal.api.net.ResponseException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

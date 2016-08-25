@@ -32,7 +32,7 @@ import com.atlassian.sal.api.net.ReturningResponseHandler;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;

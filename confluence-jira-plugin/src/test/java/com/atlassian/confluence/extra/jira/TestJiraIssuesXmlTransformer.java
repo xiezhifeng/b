@@ -2,7 +2,7 @@ package com.atlassian.confluence.extra.jira;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
