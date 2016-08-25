@@ -26,6 +26,8 @@ public class JIMCacheProvider
     private static final String JIM_CACHE_NAME = "com.atlassian.confluence.extra.jira.JiraIssuesMacro";
     private static final String JIM_CHANNEL_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".channel";
     private static final String JIM_STRING_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".string";
+    private static final Integer JIM_CACHE_TIME =
+            Integer.parseInt(System.getProperty("confluence.jim.cache.time", "5"));
 
     /**
      * Creates new or returns an existent cache
@@ -44,27 +46,53 @@ public class JIMCacheProvider
      * Creates new or returns an existent cache
      *
      * @param vcacheFactory {@link com.atlassian.vcache.VCacheFactory}
+     * @param cacheTimeoutInMinutes cache timeout want to set
      * @return new <code>DirectExternalCache</code> or existent one (if was already created)
      */
     public static DirectExternalCache<JiraChannelResponseHandler> getChannelResponseHandlersCache(@Nonnull VCacheFactory
-            vcacheFactory)
+            vcacheFactory, Integer cacheTimeoutInMinutes)
     {
+        if (cacheTimeoutInMinutes == null)
+        {
+            cacheTimeoutInMinutes = Integer.valueOf(JIM_CACHE_TIME);
+        }
+
+        if (cacheTimeoutInMinutes <= 0)
+        {
+            return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
+                    MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
+                    new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMillis(100)).build());
+        }
+
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
-                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(5)).build());
+                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(cacheTimeoutInMinutes)).build());
     }
 
     /**
      * Creates new or returns an existent cache
      *
      * @param vcacheFactory {@link com.atlassian.vcache.VCacheFactory}
+     * @param cacheTimeoutInMinutes cache timeout want to set
      * @return new <code>DirectExternalCache</code> or existent one (if was already created)
      */
     public static DirectExternalCache<JiraStringResponseHandler> getStringResponseHandlersCache(@Nonnull VCacheFactory
-            vcacheFactory)
+            vcacheFactory, Integer cacheTimeoutInMinutes)
     {
+        if (cacheTimeoutInMinutes == null)
+        {
+            cacheTimeoutInMinutes = Integer.valueOf(JIM_CACHE_TIME);
+        }
+
+        if (cacheTimeoutInMinutes <= 0)
+        {
+            return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
+                    MarshallerFactory.serializableMarshaller(JiraStringResponseHandler.class),
+                    new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMillis(100)).build());
+        }
+
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(JiraStringResponseHandler.class),
-                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(5)).build());
+                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(cacheTimeoutInMinutes)).build());
     }
 }

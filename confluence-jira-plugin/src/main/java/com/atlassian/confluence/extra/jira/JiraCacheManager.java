@@ -7,7 +7,10 @@ import java.util.List;
 public interface JiraCacheManager
 {
 
-    public void clearJiraIssuesCache(final String url, List<String> columns, final ReadOnlyApplicationLink appLink,
+    void clearJiraIssuesCache(final String url, List<String> columns, final ReadOnlyApplicationLink appLink,
             boolean forceAnonymous, boolean isAnonymous);
 
+    default void initializeCache()
+    {
+    }
 }

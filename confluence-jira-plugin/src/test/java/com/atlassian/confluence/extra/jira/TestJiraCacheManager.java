@@ -8,6 +8,7 @@ import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
 import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
+import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.PutPolicy;
@@ -30,11 +31,13 @@ public class TestJiraCacheManager extends TestCase
     private static final String PLUGIN_VERSION = "6.0.0";
 
     @Mock private ReadOnlyApplicationLink appLink;
+    @Mock private EventPublisher eventPublisher;
     private PluginAccessor pluginAccessor;
     private VCacheFactory cacheFactory;
     private DirectExternalCache<CompressingStringCache> responseCache;
     private DirectExternalCache<JiraChannelResponseHandler> responseChannelCache;
     private DirectExternalCache<JiraStringResponseHandler> responseStringCache;
+    private ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
 
     private JiraCacheManager jiraCacheManager;
 
@@ -42,6 +45,7 @@ public class TestJiraCacheManager extends TestCase
     {
         super.setUp();
         pluginAccessor = mock(PluginAccessor.class);
+        confluenceJiraPluginSettingManager = mock(ConfluenceJiraPluginSettingManager.class);
         getPluginVersionExpectations(pluginAccessor, PLUGIN_VERSION);
         cacheFactory = mockVCacheFactory();
         responseCache = getExternalCacheOnCall(cacheFactory, "com.atlassian.confluence.extra.jira.JiraIssuesMacro");
@@ -50,7 +54,8 @@ public class TestJiraCacheManager extends TestCase
         responseStringCache = getExternalCacheOnCall(cacheFactory,
                 "com.atlassian.confluence.extra.jira.JiraIssuesMacro.string");
         appLink = mock(ReadOnlyApplicationLink.class);
-        jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor);
+        jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor, confluenceJiraPluginSettingManager, eventPublisher);
+        jiraCacheManager.initializeCache();
     }
 
     public void testClearExistingJiraIssuesCache()

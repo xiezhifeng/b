@@ -496,6 +496,8 @@
                             com.atlassian.sal.api.features,
                             com.atlassian.sal.api.user,
                             com.atlassian.sal.api.net; version="2.10",
+                            com.atlassian.sal.api.pluginsettings,
+                            com.atlassian.tenancy.api.event;
                             com.atlassian.user,
                             com.atlassian.util.concurrent; version="2.4",
                             com.google.common.base,
