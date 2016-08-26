@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Type;

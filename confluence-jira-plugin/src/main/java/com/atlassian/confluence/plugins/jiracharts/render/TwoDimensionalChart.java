@@ -14,8 +14,7 @@ import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -23,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,13 +31,13 @@ import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper
 
 public class TwoDimensionalChart extends JiraHtmlChart
 {
-
     private static final String[] chartParameters = new String[]{"xstattype", "ystattype"};
     private static final String MAX_NUMBER_TO_SHOW_VALUE = "9999";
     private static final String IS_SHOW_MORE_PARAM = "isShowMore";
     private static final String STATUSES_PARAM_VALUE = "statuses";
     private static final String DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/twodimensional-chart-placeholder.png";
     private static final Pattern STATUS_IMG_SRC = Pattern.compile("<img src=\"(.*?)\"");
+    private static final Random RANDOM = new Random();
 
     private MacroMarshallingFactory macroMarshallingFactory;
 
@@ -117,7 +117,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
 
     private int getNextRefreshId()
     {
-        return RandomUtils.nextInt();
+        return RANDOM.nextInt();
     }
 
     private String getNumberToShow(ConversionContext context, String numberToShow)
@@ -157,11 +157,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
             out.writeTo(writer);
             contextMap.put("wikiMarkup", writer.toString());
         }
-        catch (XhtmlException e)
-        {
-            throw new MacroExecutionException("Unable to construct macro definition.", e);
-        }
-        catch (IOException e)
+        catch (XhtmlException | IOException e)
         {
             throw new MacroExecutionException("Unable to construct macro definition.", e);
         }

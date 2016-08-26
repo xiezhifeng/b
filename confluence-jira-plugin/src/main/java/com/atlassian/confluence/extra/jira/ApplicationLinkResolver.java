@@ -5,7 +5,7 @@ import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.google.common.base.Function;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.Map;

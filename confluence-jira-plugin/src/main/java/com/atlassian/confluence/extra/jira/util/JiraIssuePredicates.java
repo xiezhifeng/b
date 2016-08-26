@@ -4,7 +4,7 @@ import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 import java.util.regex.Pattern;
