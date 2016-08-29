@@ -14,9 +14,11 @@ import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.PutPolicy;
 import com.atlassian.vcache.VCacheFactory;
 
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import junit.framework.TestCase;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static com.atlassian.confluence.extra.jira.cache.CacheKeyTestHelper.getPluginVersionExpectations;
 import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getExternalCacheOnCall;
@@ -26,6 +28,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(PowerMockRunner.class)
 public class TestJiraCacheManager extends TestCase
 {
     private static final String PLUGIN_VERSION = "6.0.0";
