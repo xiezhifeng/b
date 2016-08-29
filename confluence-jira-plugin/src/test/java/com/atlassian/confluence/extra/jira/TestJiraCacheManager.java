@@ -32,20 +32,18 @@ public class TestJiraCacheManager extends TestCase
 
     @Mock private ReadOnlyApplicationLink appLink;
     @Mock private EventPublisher eventPublisher;
-    private PluginAccessor pluginAccessor;
+    @Mock private PluginAccessor pluginAccessor;
     private VCacheFactory cacheFactory;
     private DirectExternalCache<CompressingStringCache> responseCache;
     private DirectExternalCache<JiraChannelResponseHandler> responseChannelCache;
     private DirectExternalCache<JiraStringResponseHandler> responseStringCache;
-    private ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
+    @Mock private ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
 
     private JiraCacheManager jiraCacheManager;
 
     protected void setUp() throws Exception
     {
         super.setUp();
-        pluginAccessor = mock(PluginAccessor.class);
-        confluenceJiraPluginSettingManager = mock(ConfluenceJiraPluginSettingManager.class);
         getPluginVersionExpectations(pluginAccessor, PLUGIN_VERSION);
         cacheFactory = mockVCacheFactory();
         responseCache = getExternalCacheOnCall(cacheFactory, "com.atlassian.confluence.extra.jira.JiraIssuesMacro");
@@ -53,7 +51,6 @@ public class TestJiraCacheManager extends TestCase
                 "com.atlassian.confluence.extra.jira.JiraIssuesMacro.channel");
         responseStringCache = getExternalCacheOnCall(cacheFactory,
                 "com.atlassian.confluence.extra.jira.JiraIssuesMacro.string");
-        appLink = mock(ReadOnlyApplicationLink.class);
         jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor, confluenceJiraPluginSettingManager, eventPublisher);
         jiraCacheManager.initializeCache();
     }

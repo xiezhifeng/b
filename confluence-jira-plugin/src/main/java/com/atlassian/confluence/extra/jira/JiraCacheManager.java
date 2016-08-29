@@ -10,7 +10,5 @@ public interface JiraCacheManager
     void clearJiraIssuesCache(final String url, List<String> columns, final ReadOnlyApplicationLink appLink,
             boolean forceAnonymous, boolean isAnonymous);
 
-    default void initializeCache()
-    {
-    }
+    void initializeCache();
 }

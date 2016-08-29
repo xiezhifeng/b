@@ -61,7 +61,7 @@ public class JIMCacheProvider
         {
             return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
                     MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
-                    new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMillis(100)).build());
+                    new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofSeconds(1)).build());
         }
 
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
@@ -88,7 +88,7 @@ public class JIMCacheProvider
         {
             return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
                     MarshallerFactory.serializableMarshaller(JiraStringResponseHandler.class),
-                    new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMillis(100)).build());
+                    new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofSeconds(1)).build());
         }
 
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,

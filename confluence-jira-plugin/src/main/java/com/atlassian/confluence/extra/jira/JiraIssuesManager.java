@@ -202,7 +202,5 @@ public interface JiraIssuesManager
         }
     }
 
-    default void initializeCache()
-    {
-    }
+    void initializeCache();
 }

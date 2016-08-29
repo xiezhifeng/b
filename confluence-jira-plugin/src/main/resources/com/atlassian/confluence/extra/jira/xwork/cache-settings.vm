@@ -20,7 +20,7 @@
         <fieldset>
             <div class="field-group">
                 <label for="cacheTimeoutInMinutes">$i18n.getText('confluence.jiraissue.admin.set.cachetime.label')</label>
-                <input type="text" name="cacheTimeoutInMinutes" id="cacheTimeoutInMinutes" value="$cacheTimeoutInMinutes" class="text  short-field ">
+                <input type="text" name="cacheTimeoutInMinutes" id="cacheTimeoutInMinutes" value="$cacheTimeoutInMinutes" class="text  short-field">
                 <div class="description">$i18n.getText('confluence.jiraissue.admin.set.cachetime.description')</div>
             </div>
         </fieldset>

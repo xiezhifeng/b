@@ -40,7 +40,7 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager implements 
     private DirectExternalCache<JiraChannelResponseHandler> responseChannelHandlerCache;
     private DirectExternalCache<JiraStringResponseHandler> responseStringHandlerCache;
     private final Supplier<String> version;
-    private ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
+    private final ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
     private final EventPublisher eventPublisher;
     private final VCacheFactory vcacheFactory;
 

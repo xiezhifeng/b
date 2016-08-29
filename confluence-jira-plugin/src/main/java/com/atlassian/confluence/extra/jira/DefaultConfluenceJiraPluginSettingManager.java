@@ -3,7 +3,7 @@ package com.atlassian.confluence.extra.jira;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
-public class DefaultConfluenceJiraPluginSettingManager implements ConfluenceJiraPluginSettingManager
+public final class DefaultConfluenceJiraPluginSettingManager implements ConfluenceJiraPluginSettingManager
 {
     private final static String TIME_OF_CACHE_SETTING_IN_MINUTES = "com.atlassian.confluence.extra.jira.admin.cachesetting";
 
@@ -37,7 +37,7 @@ public class DefaultConfluenceJiraPluginSettingManager implements ConfluenceJira
         return Integer.valueOf(minutesString);
     }
 
-    public PluginSettings getSettings()
+    private PluginSettings getSettings()
     {
         if (settings == null)
         {
