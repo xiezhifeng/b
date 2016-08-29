@@ -14,7 +14,7 @@
             </div>
         </div>
     #end
-    <p class="cache-settings-description">$i18n.getText('confluence.jiraissue.admin.global.description')</p>
+    <h2 class="cache-settings-description">$i18n.getText('confluence.jiraissue.admin.global.description')</h2>
     <form id="cache-settings-form" action="setCacheSettings.action" method="POST" class="aui long-label">
         #form_xsrfToken()
         <fieldset>
