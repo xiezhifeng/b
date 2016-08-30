@@ -1,9 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
@@ -12,25 +8,34 @@ import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.PutPolicy;
 import com.atlassian.vcache.VCacheFactory;
-
+import com.atlassian.vcache.internal.core.ThreadLocalRequestContextSupplier;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import junit.framework.TestCase;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.atlassian.confluence.extra.jira.cache.CacheKeyTestHelper.getPluginVersionExpectations;
-import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getExternalCacheOnCall;
-import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockVCacheFactory;
+import static com.atlassian.vcache.internal.test.utils.VCacheTestHelper.getExternalCache;
+import static com.atlassian.vcache.internal.test.utils.VCacheTestHelper.getFactory;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class TestJiraCacheManager extends TestCase
+@RunWith(MockitoJUnitRunner.class)
+public class TestJiraCacheManager
 {
     private static final String PLUGIN_VERSION = "6.0.0";
+    public static final ThreadLocalRequestContextSupplier CONTEXT_SUPPLIER = ThreadLocalRequestContextSupplier.strictSupplier();
 
     @Mock private ReadOnlyApplicationLink appLink;
-    private PluginAccessor pluginAccessor;
+    @Mock private PluginAccessor pluginAccessor;
     private VCacheFactory cacheFactory;
     private DirectExternalCache<CompressingStringCache> responseCache;
     private DirectExternalCache<JiraChannelResponseHandler> responseChannelCache;
@@ -38,21 +43,27 @@ public class TestJiraCacheManager extends TestCase
 
     private JiraCacheManager jiraCacheManager;
 
-    protected void setUp() throws Exception
+    @BeforeClass
+    public static void initThread()
     {
-        super.setUp();
-        pluginAccessor = mock(PluginAccessor.class);
+        CONTEXT_SUPPLIER.initThread("myPartition");
+    }
+
+    @Before
+    public void setUp() throws Exception
+    {
         getPluginVersionExpectations(pluginAccessor, PLUGIN_VERSION);
-        cacheFactory = mockVCacheFactory();
-        responseCache = getExternalCacheOnCall(cacheFactory, "com.atlassian.confluence.extra.jira.JiraIssuesMacro");
-        responseChannelCache = getExternalCacheOnCall(cacheFactory,
-                "com.atlassian.confluence.extra.jira.JiraIssuesMacro.channel");
-        responseStringCache = getExternalCacheOnCall(cacheFactory,
-                "com.atlassian.confluence.extra.jira.JiraIssuesMacro.string");
+        cacheFactory = Mockito.spy(getFactory(CONTEXT_SUPPLIER));
+        responseCache = getExternalCache(cacheFactory, "com.atlassian.confluence.extra.jira.JiraIssuesMacro", CompressingStringCache.class);
+        responseChannelCache = getExternalCache(cacheFactory,
+                "com.atlassian.confluence.extra.jira.JiraIssuesMacro.channel", JiraChannelResponseHandler.class);
+        responseStringCache = getExternalCache(cacheFactory,
+                "com.atlassian.confluence.extra.jira.JiraIssuesMacro.string", JiraStringResponseHandler.class);
         appLink = mock(ReadOnlyApplicationLink.class);
         jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor);
     }
 
+    @Test
     public void testClearExistingJiraIssuesCache()
     {
         String url = "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC";
@@ -70,6 +81,7 @@ public class TestJiraCacheManager extends TestCase
         verify(responseCache).remove(cacheKey.toKey());
     }
 
+    @Test
     public void testClearJiraIssuesCacheAnonymously()
     {
         String url = "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC";

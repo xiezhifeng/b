@@ -1,5 +1,27 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ReadOnlyApplicationLink;
+import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
+import com.atlassian.confluence.extra.jira.cache.CacheKey;
+import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
+import com.atlassian.confluence.extra.jira.cache.JIMCacheProvider;
+import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.vcache.DirectExternalCache;
+import com.atlassian.vcache.PutPolicy;
+import com.atlassian.vcache.VCacheFactory;
+import com.atlassian.vcache.internal.core.ThreadLocalRequestContextSupplier;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -10,29 +32,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ReadOnlyApplicationLink;
-import com.atlassian.applinks.api.ReadOnlyApplicationLinkService;
-import com.atlassian.confluence.extra.jira.cache.CacheKey;
-import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
-import com.atlassian.plugin.PluginAccessor;
-import com.atlassian.vcache.DirectExternalCache;
-import com.atlassian.vcache.PutPolicy;
-import com.atlassian.vcache.VCacheFactory;
-
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import junit.framework.TestCase;
-
 import static com.atlassian.confluence.extra.jira.cache.CacheKeyTestHelper.getPluginVersionExpectations;
-import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.getExternalCacheOnCall;
-import static com.atlassian.confluence.extra.jira.cache.VCacheTestHelper.mockVCacheFactory;
 import static com.atlassian.vcache.VCacheUtils.join;
+import static com.atlassian.vcache.internal.test.utils.VCacheTestHelper.getExternalCache;
+import static com.atlassian.vcache.internal.test.utils.VCacheTestHelper.getFactory;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
@@ -44,10 +48,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class TestJiraIssuesServlet extends TestCase
+@RunWith(MockitoJUnitRunner.class)
+public class TestJiraIssuesServlet
 {
     private static final String PLUGIN_VERSION = "6.0.0";
     private static final String OLD_PLUGIN_VERSION = "5.0.0";
+    public static final ThreadLocalRequestContextSupplier CONTEXT_SUPPLIER = ThreadLocalRequestContextSupplier.strictSupplier();
 
     @Mock private JiraIssuesManager jiraIssuesManager;
 
@@ -73,15 +79,18 @@ public class TestJiraIssuesServlet extends TestCase
 
     private String[] columnNames;
 
-    @Override
-    protected void setUp() throws Exception
+    @BeforeClass
+    public static void initThread()
     {
-        super.setUp();
+        CONTEXT_SUPPLIER.initThread("myPartition");
+    }
 
-        MockitoAnnotations.initMocks(this);
+    @Before
+    public void setUp() throws Exception
+    {
         getPluginVersionExpectations(pluginAccessor, PLUGIN_VERSION);
-        vcacheFactory = mockVCacheFactory();
-        cache = getExternalCacheOnCall(vcacheFactory);
+        vcacheFactory = Mockito.spy(getFactory(CONTEXT_SUPPLIER));
+        cache = getExternalCache(vcacheFactory, JIMCacheProvider.JIM_CACHE_NAME, CompressingStringCache.class);
 
         url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=1000";
 
@@ -101,6 +110,7 @@ public class TestJiraIssuesServlet extends TestCase
         jiraIssuesServlet = new JiraIssuesServlet();
     }
 
+    @Test
     public void testJsonResponseCached() throws IOException
     {
         StringWriter firstWrite = new StringWriter();
@@ -130,6 +140,7 @@ public class TestJiraIssuesServlet extends TestCase
         assertEquals("foobarbaz", secondWrite.toString());
     }
 
+    @Test
     public void testJsonResultsCachedByPage() throws IOException
     {
         StringWriter firstWrite = new StringWriter();
@@ -167,6 +178,7 @@ public class TestJiraIssuesServlet extends TestCase
         assertEquals("foobarbaz2", secondWrite.toString());
     }
 
+    @Test
     public void testJsonResultsCacheNotUsedWhenUseCacheIsFalse() throws IOException
     {
         StringWriter firstWrite = new StringWriter();
@@ -199,6 +211,7 @@ public class TestJiraIssuesServlet extends TestCase
         assertEquals("foobarbaz", secondWrite.toString());
     }
 
+    @Test
     public void testCachedResponseDiscardedIfItWasStoredByAnOlderVersionOfThePlugin() throws IOException
     {
         StringWriter firstWriter = new StringWriter();
@@ -237,6 +250,7 @@ public class TestJiraIssuesServlet extends TestCase
     }
 
     // If applink rebase url to displayURL.
+    @Test
     public void testRebaseLinksToDisplayURLIfAppLink() throws Exception
     {
         String rpcUrl = "http://localhost:8080/jira";
