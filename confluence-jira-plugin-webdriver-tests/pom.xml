@@ -433,7 +433,7 @@
             use-java,8
             actions,ssh-tunnel(4990:4990)
         </od.testing.configuration>
-        <confluence-stateless-test-runner.version>2.0.1</confluence-stateless-test-runner.version>
+        <confluence-stateless-test-runner.version>3.0.13</confluence-stateless-test-runner.version>
         <greenhopper.version>6.6.68</greenhopper.version>
     </properties>
 
