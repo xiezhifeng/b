@@ -3,15 +3,14 @@ package com.atlassian.confluence.extra.jira.cache;
 import com.atlassian.annotations.Internal;
 import com.atlassian.confluence.extra.jira.JiraChannelResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraStringResponseHandler;
+import com.atlassian.marshalling.jdk.JavaSerializationMarshalling;
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.ExternalCacheSettingsBuilder;
 import com.atlassian.vcache.VCacheFactory;
-import com.atlassian.vcache.marshallers.MarshallerFactory;
-
-import java.time.Duration;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import java.time.Duration;
 
 import static java.util.Objects.requireNonNull;
 
@@ -23,7 +22,7 @@ import static java.util.Objects.requireNonNull;
 @ThreadSafe
 public class JIMCacheProvider
 {
-    private static final String JIM_CACHE_NAME = "com.atlassian.confluence.extra.jira.JiraIssuesMacro";
+    public static final String JIM_CACHE_NAME = "com.atlassian.confluence.extra.jira.JiraIssuesMacro";
     private static final String JIM_CHANNEL_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".channel";
     private static final String JIM_STRING_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".string";
 
@@ -36,7 +35,7 @@ public class JIMCacheProvider
     public static DirectExternalCache<CompressingStringCache> getResponseCache(@Nonnull VCacheFactory vcacheFactory)
     {
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CACHE_NAME,
-                MarshallerFactory.serializableMarshaller(CompressingStringCache.class),
+                JavaSerializationMarshalling.pair(CompressingStringCache.class),
                 new ExternalCacheSettingsBuilder().build());
     }
 
@@ -50,7 +49,7 @@ public class JIMCacheProvider
             vcacheFactory)
     {
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
-                MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
+                JavaSerializationMarshalling.pair(JiraChannelResponseHandler.class),
                 new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(5)).build());
     }
 
@@ -64,7 +63,7 @@ public class JIMCacheProvider
             vcacheFactory)
     {
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
-                MarshallerFactory.serializableMarshaller(JiraStringResponseHandler.class),
+                JavaSerializationMarshalling.pair(JiraStringResponseHandler.class),
                 new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(5)).build());
     }
 }
