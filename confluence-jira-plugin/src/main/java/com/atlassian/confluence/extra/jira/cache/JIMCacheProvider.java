@@ -9,6 +9,7 @@ import com.atlassian.vcache.VCacheFactory;
 import com.atlassian.vcache.marshallers.MarshallerFactory;
 
 import java.time.Duration;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -26,7 +27,7 @@ public class JIMCacheProvider
     private static final String JIM_CACHE_NAME = "com.atlassian.confluence.extra.jira.JiraIssuesMacro";
     private static final String JIM_CHANNEL_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".channel";
     private static final String JIM_STRING_RESPONSE_CACHE_NAME = JIM_CACHE_NAME + ".string";
-    private static final Integer JIM_CACHE_TIME =
+    private static final Integer DEFAULT_JIM_CACHE_TIMEOUT =
             Integer.parseInt(System.getProperty("confluence.jim.cache.time", "5"));
 
     /**
@@ -50,14 +51,20 @@ public class JIMCacheProvider
      * @return new <code>DirectExternalCache</code> or existent one (if was already created)
      */
     public static DirectExternalCache<JiraChannelResponseHandler> getChannelResponseHandlersCache(@Nonnull VCacheFactory
-            vcacheFactory, Integer cacheTimeoutInMinutes)
+            vcacheFactory, @Nonnull Optional<Integer> cacheTimeoutInMinutes)
     {
-        if (cacheTimeoutInMinutes == null)
+        Integer finalCacheTimeOutInMinutes = null;
+
+        if (cacheTimeoutInMinutes.isPresent())
         {
-            cacheTimeoutInMinutes = Integer.valueOf(JIM_CACHE_TIME);
+            finalCacheTimeOutInMinutes = cacheTimeoutInMinutes.get();
+        }
+        else
+        {
+            finalCacheTimeOutInMinutes = Integer.valueOf(DEFAULT_JIM_CACHE_TIMEOUT);
         }
 
-        if (cacheTimeoutInMinutes <= 0)
+        if (finalCacheTimeOutInMinutes <= 0)
         {
             return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
                     MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
@@ -66,7 +73,7 @@ public class JIMCacheProvider
 
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_CHANNEL_RESPONSE_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(JiraChannelResponseHandler.class),
-                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(cacheTimeoutInMinutes)).build());
+                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(finalCacheTimeOutInMinutes)).build());
     }
 
     /**
@@ -77,14 +84,20 @@ public class JIMCacheProvider
      * @return new <code>DirectExternalCache</code> or existent one (if was already created)
      */
     public static DirectExternalCache<JiraStringResponseHandler> getStringResponseHandlersCache(@Nonnull VCacheFactory
-            vcacheFactory, Integer cacheTimeoutInMinutes)
+            vcacheFactory, @Nonnull Optional<Integer> cacheTimeoutInMinutes)
     {
-        if (cacheTimeoutInMinutes == null)
+        Integer finalCacheTimeOutInMinutes = null;
+
+        if (cacheTimeoutInMinutes.isPresent())
         {
-            cacheTimeoutInMinutes = Integer.valueOf(JIM_CACHE_TIME);
+            finalCacheTimeOutInMinutes = cacheTimeoutInMinutes.get();
+        }
+        else
+        {
+            finalCacheTimeOutInMinutes = Integer.valueOf(DEFAULT_JIM_CACHE_TIMEOUT);
         }
 
-        if (cacheTimeoutInMinutes <= 0)
+        if (finalCacheTimeOutInMinutes <= 0)
         {
             return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
                     MarshallerFactory.serializableMarshaller(JiraStringResponseHandler.class),
@@ -93,6 +106,6 @@ public class JIMCacheProvider
 
         return requireNonNull(vcacheFactory).getDirectExternalCache(JIM_STRING_RESPONSE_CACHE_NAME,
                 MarshallerFactory.serializableMarshaller(JiraStringResponseHandler.class),
-                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(cacheTimeoutInMinutes)).build());
+                new ExternalCacheSettingsBuilder().defaultTtl(Duration.ofMinutes(finalCacheTimeOutInMinutes)).build());
     }
 }

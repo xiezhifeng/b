@@ -5,9 +5,11 @@ import com.atlassian.confluence.extra.jira.ConfluenceJiraPluginSettingManager;
 import com.atlassian.confluence.extra.jira.JiraCacheManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 
+import java.util.Optional;
+
 public class CacheSettingsAction extends ConfluenceActionSupport
 {
-    private static final Integer JIM_CACHE_TIME = Integer.parseInt(System.getProperty("confluence.jim.cache.time", "5"));
+    private static final Integer DEFAULT_JIM_CACHE_TIMEOUT = Integer.parseInt(System.getProperty("confluence.jim.cache.time", "5"));
 
     private ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
     private JiraIssuesManager jiraIssuesManager;
@@ -17,19 +19,27 @@ public class CacheSettingsAction extends ConfluenceActionSupport
 
     public String setCacheSettings()
     {
-        Integer newCacheTime;
+        Integer newCacheTimeout;
+        final Optional<Integer> cacheTimeOutInMinutesConfiguration = this.confluenceJiraPluginSettingManager.getCacheTimeoutInMinutes();
+        Integer currentCacheTimeout = null;
+
+        if (cacheTimeOutInMinutesConfiguration.isPresent())
+        {
+            currentCacheTimeout = cacheTimeOutInMinutesConfiguration.get();
+        }
+
         try
         {
-            newCacheTime = Integer.parseInt(cacheTimeoutInMinutes);
+            newCacheTimeout = Integer.parseInt(cacheTimeoutInMinutes);
         }
         catch (NumberFormatException nfe)
         {
-            newCacheTime = JIM_CACHE_TIME;
+            newCacheTimeout = DEFAULT_JIM_CACHE_TIMEOUT;
         }
 
-        if (!newCacheTime.equals(confluenceJiraPluginSettingManager.getCacheTimeoutInMinutes()))
+        if (!newCacheTimeout.equals(currentCacheTimeout))
         {
-            confluenceJiraPluginSettingManager.setCacheTimeoutInMinutes(newCacheTime);
+            confluenceJiraPluginSettingManager.setCacheTimeoutInMinutes(Optional.of(newCacheTimeout));
             jiraIssuesManager.initializeCache();
             jiraCacheManager.initializeCache();
         }
@@ -43,11 +53,17 @@ public class CacheSettingsAction extends ConfluenceActionSupport
 
     public String getCacheTimeoutInMinutes()
     {
-        Integer timeoutInMinutes = confluenceJiraPluginSettingManager.getCacheTimeoutInMinutes();
+        final Optional<Integer> cacheTimeOutInMinutesConfiguration = this.confluenceJiraPluginSettingManager.getCacheTimeoutInMinutes();
+        Integer timeoutInMinutes = null;
+
+        if (cacheTimeOutInMinutesConfiguration.isPresent())
+        {
+            timeoutInMinutes = cacheTimeOutInMinutesConfiguration.get();
+        }
 
         if (timeoutInMinutes == null)
         {
-            return String.valueOf(JIM_CACHE_TIME);
+            return String.valueOf(DEFAULT_JIM_CACHE_TIMEOUT);
         }
 
         return String.valueOf(timeoutInMinutes);
