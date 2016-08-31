@@ -7,12 +7,10 @@ import com.atlassian.marshalling.jdk.JavaSerializationMarshalling;
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.ExternalCacheSettingsBuilder;
 import com.atlassian.vcache.VCacheFactory;
-import com.atlassian.vcache.marshallers.MarshallerFactory;
-
-import java.time.Duration;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import java.time.Duration;
 
 import static java.util.Objects.requireNonNull;
 
