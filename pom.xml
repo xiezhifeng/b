@@ -86,10 +86,21 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- remove vcache and marshalling dependencyManagement entries once Confluence platform pom exports them -->
             <dependency>
                 <groupId>com.atlassian.vcache</groupId>
                 <artifactId>atlassian-vcache-internal-test-utils</artifactId>
                 <version>${vcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.marshalling</groupId>
+                <artifactId>atlassian-marshalling-api</artifactId>
+                <version>${marshalling.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.marshalling</groupId>
+                <artifactId>atlassian-marshalling-jdk</artifactId>
+                <version>${marshalling.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -103,6 +114,7 @@
         <jaxen.version>1.1.1</jaxen.version>
         <jira.integration.version>3.0.2</jira.integration.version>
         <servlet.version>3.0.1</servlet.version>
+        <marshalling.version>1.0.0</marshalling.version>
         <vcache.version>1.9.2</vcache.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>

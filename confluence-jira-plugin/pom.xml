@@ -111,6 +111,16 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>com.atlassian.marshalling</groupId>
+            <artifactId>atlassian-marshalling-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.marshalling</groupId>
+            <artifactId>atlassian-marshalling-jdk</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${servlet.version}</version>
@@ -265,6 +275,7 @@
         <dependency>
             <groupId>com.atlassian.vcache</groupId>
             <artifactId>atlassian-vcache-internal-test-utils</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -428,6 +439,8 @@
                             com.atlassian.applinks.application.jira,
                             com.atlassian.applinks.application.confluence,
                             com.atlassian.bandana,
+                            com.atlassian.marshalling.api,
+                            com.atlassian.marshalling.jdk,
                             com.atlassian.vcache,
                             com.atlassian.vcache.marshallers,
                             com.atlassian.config,
