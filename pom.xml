@@ -106,6 +106,9 @@
     </dependencyManagement>
 
     <properties>
+        <!-- remove when we've upgraded to a final version of Confluence -->
+        <failOnMilestoneOrReleaseCandidateDeps>false</failOnMilestoneOrReleaseCandidateDeps>
+
         <confluence.version>6.0.0-CONFDEV-44280-m03</confluence.version>
         <confluence.data.version>${confluence.version}</confluence.data.version>
 
