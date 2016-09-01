@@ -31,14 +31,13 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
 
 
     @After
-    public void tearDown() throws Exception
+    public void deleteAppLink() throws Exception
     {
         if (StringUtils.isNotEmpty(globalTestAppLinkId))
         {
             ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
         }
         globalTestAppLinkId = "";
-        super.tearDown();
     }
 
     protected JiraIssuesPage createPageWithTableJiraIssueMacro() throws Exception
@@ -213,9 +212,6 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
 
         Assert.assertEquals("TEST", jiraErrorLink.getText());
         Assert.assertEquals("http://test.jira.com/browse/TEST?src=confmacro", jiraErrorLink.getAttribute("href"));
-
-        ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
-        globalTestAppLinkId = null;
     }
 
     @Test
@@ -227,9 +223,6 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-table"));
         Assert.assertEquals("View these issues in JIRA", jiraErrorLink.getText());
         Assert.assertEquals("http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro", jiraErrorLink.getAttribute("href"));
-
-        ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
-        globalTestAppLinkId = null;
     }
 
     @Test
@@ -253,9 +246,6 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-table"));
         Assert.assertEquals("View these issues in JIRA", jiraErrorLink.getText());
         Assert.assertEquals("http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro", jiraErrorLink.getAttribute("href"));
-
-        ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
-        globalTestAppLinkId = null;
     }
 
      @Test
