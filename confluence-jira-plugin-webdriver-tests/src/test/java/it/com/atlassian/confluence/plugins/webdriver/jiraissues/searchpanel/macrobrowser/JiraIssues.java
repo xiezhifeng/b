@@ -25,10 +25,9 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
     protected PieChartDialog pieChartDialog;
 
     @After
-    public void tearDown() throws Exception
+    public void closePieChartDialog() throws Exception
     {
         closeDialog(pieChartDialog);
-        super.tearDown();
     }
 
     @Test
