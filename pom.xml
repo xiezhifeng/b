@@ -109,7 +109,7 @@
         <!-- remove when we've upgraded to a final version of Confluence -->
         <failOnMilestoneOrReleaseCandidateDeps>false</failOnMilestoneOrReleaseCandidateDeps>
 
-        <confluence.version>6.0.0-CONFDEV-44280-m03</confluence.version>
+        <confluence.version>6.0.0-beta3</confluence.version>
         <confluence.data.version>${confluence.version}</confluence.data.version>
 
         <atlassian.sal-api.version>3.0.5</atlassian.sal-api.version>
