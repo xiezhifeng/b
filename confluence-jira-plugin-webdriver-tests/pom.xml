@@ -59,7 +59,7 @@
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence-webdriver-pageobjects</artifactId>
-            <version>4.1.11</version>
+            <version>${pageobjects.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -68,6 +68,10 @@
             <version>${confluence-stateless-test-runner.version}</version>
             <scope>test</scope>
             <exclusions>
+                <exclusion>
+                    <groupId>com.atlassian.confluence</groupId>
+                    <artifactId>confluence-webdriver-pageobjects</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>httpclient</artifactId>
@@ -434,6 +438,7 @@
             actions,ssh-tunnel(4990:4990)
         </od.testing.configuration>
         <confluence-stateless-test-runner.version>3.0.13</confluence-stateless-test-runner.version>
+        <pageobjects.version>4.1.16</pageobjects.version>
         <greenhopper.version>6.6.68</greenhopper.version>
     </properties>
 
