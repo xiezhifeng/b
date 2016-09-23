@@ -57,7 +57,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     }
 
     @After
-    public void tearDown() throws Exception
+    public void closeJiraSearchDialog() throws Exception
     {
         closeDialog(jiraMacroSearchPanelDialog);
     }

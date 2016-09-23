@@ -23,14 +23,13 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
     private String globalTestAppLinkId;
 
     @After
-    public void tearDown() throws Exception
+    public void deleteAppLink() throws Exception
     {
         if (StringUtils.isNotEmpty(globalTestAppLinkId))
         {
             ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
         }
         globalTestAppLinkId = "";
-        super.tearDown();
     }
 
     @Test

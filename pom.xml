@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin-parent</artifactId>
-    <version>6.0.11-SNAPSHOT</version>
+    <version>7.0.1-SNAPSHOT</version>
 
     <organization>
         <name>Atlassian</name>
@@ -76,10 +76,49 @@
             </plugin>
         </plugins>
     </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.atlassian.confluence</groupId>
+                <artifactId>confluence-plugins-platform-pom</artifactId>
+                <version>${confluence.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- remove vcache and marshalling dependencyManagement entries once Confluence platform pom exports them -->
+            <dependency>
+                <groupId>com.atlassian.vcache</groupId>
+                <artifactId>atlassian-vcache-internal-test-utils</artifactId>
+                <version>${vcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.marshalling</groupId>
+                <artifactId>atlassian-marshalling-api</artifactId>
+                <version>${marshalling.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.marshalling</groupId>
+                <artifactId>atlassian-marshalling-jdk</artifactId>
+                <version>${marshalling.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <properties>
-        <confluence.version>6.0.0-OD-2016.11.1-1091</confluence.version>
+        <!-- remove when we've upgraded to a final version of Confluence -->
+        <failOnMilestoneOrReleaseCandidateDeps>false</failOnMilestoneOrReleaseCandidateDeps>
+
+        <confluence.version>6.0.0-CONFDEV-44280-m03</confluence.version>
         <confluence.data.version>${confluence.version}</confluence.data.version>
-        <junit.version>4.11</junit.version>
+
+        <atlassian.sal-api.version>3.0.5</atlassian.sal-api.version>
+        <guava.version>18.0</guava.version>
+        <jaxen.version>1.1.1</jaxen.version>
+        <jira.integration.version>3.0.2</jira.integration.version>
+        <servlet.version>3.0.1</servlet.version>
+        <marshalling.version>1.0.0</marshalling.version>
+        <vcache.version>1.9.2</vcache.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
@@ -88,9 +127,10 @@
         <jira.version>6.3.9</jira.version>
         <jira.data.version>6.5-OD-03-002</jira.data.version>
 
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdkLevel>1.8</jdkLevel>
         <jvm.args.custom />
-        <jvmArgs>-Xmx1024m -XX:MaxPermSize=512m ${jvm.args.custom}</jvmArgs>
+        <jvmArgs>-Xmx1024m ${jvm.args.custom}</jvmArgs>
 
         <http.port>1990</http.port>
         <server>localhost</server>
@@ -103,24 +143,17 @@
         <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
 
         <xvfb.enable>false</xvfb.enable>
-        <jaxen.version>1.1.1</jaxen.version>
-        <mockito.version>1.9.5</mockito.version>
+        <junit.version>4.12</junit.version>
+        <mockito.version>1.10.19</mockito.version>
+        <powermock.version>1.6.5</powermock.version>
         <atlassian-selenium-browsers-auto.version>2.3-m6</atlassian-selenium-browsers-auto.version>
-        <atlassian.sal-api.version>3.0.5</atlassian.sal-api.version>
-        <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
-        <amps.version>6.1.2</amps.version>
-        <servlet.version>2.4</servlet.version>
+
+        <amps.version>6.2.6</amps.version>
         <maven.surefire.plugin.version>2.16</maven.surefire.plugin.version>
         <maven.failsafe.plugin.version>2.16</maven.failsafe.plugin.version>
 
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <jira.integration.version>3.0.2</jira.integration.version>
-
         <maven.release.plugin.version>2.5.2</maven.release.plugin.version>
         <javadoc.version>2.8</javadoc.version>
-
-        <guava.version>11.0.2</guava.version>
     </properties>
 
     <distributionManagement>
