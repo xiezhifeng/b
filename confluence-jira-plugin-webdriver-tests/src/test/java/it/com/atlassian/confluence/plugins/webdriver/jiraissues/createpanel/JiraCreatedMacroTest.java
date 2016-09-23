@@ -51,6 +51,8 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         jiraMacroCreatePanelDialog.getSummaryElement().clear();
         jiraMacroCreatePanelDialog.submit();
 
+        Poller.waitUntilTrue("Create panel errors are not visible", jiraMacroCreatePanelDialog.areFieldErrorMessagesVisible());
+
         Iterable<PageElement> clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
 
         Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());

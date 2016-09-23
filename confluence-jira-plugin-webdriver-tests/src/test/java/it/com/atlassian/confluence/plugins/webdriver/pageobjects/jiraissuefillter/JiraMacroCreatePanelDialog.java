@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter;
 
+import com.atlassian.pageobjects.elements.query.TimedCondition;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.Select2Element;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.ElementBy;
@@ -115,6 +116,11 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
     public Iterable<PageElement> getFieldErrorMessages()
     {
         return pageElementFinder.findAll(By.cssSelector(".error"));
+    }
+
+    public TimedCondition areFieldErrorMessagesVisible()
+    {
+        return pageElementFinder.find(By.cssSelector(".error")).timed().isVisible();
     }
 
     public PageElement getComponents()
