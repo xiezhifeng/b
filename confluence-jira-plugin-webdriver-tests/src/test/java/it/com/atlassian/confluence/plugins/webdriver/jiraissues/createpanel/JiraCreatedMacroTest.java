@@ -6,6 +6,7 @@ import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlac
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.Iterables;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -42,6 +43,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
 
     }
 
+
     @Test
     public void testErrorMessageForRequiredFields() throws Exception
     {
@@ -51,6 +53,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         jiraMacroCreatePanelDialog.getSummaryElement().clear();
         jiraMacroCreatePanelDialog.submit();
 
+        jiraMacroCreatePanelDialog = pageBinder.bind(JiraMacroCreatePanelDialog.class);
         Poller.waitUntilTrue("Create panel errors are not visible", jiraMacroCreatePanelDialog.areFieldErrorMessagesVisible());
 
         Iterable<PageElement> clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
