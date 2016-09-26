@@ -115,7 +115,7 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
 
     public Iterable<PageElement> getFieldErrorMessages()
     {
-        return pageElementFinder.findAll(By.className("error"));
+        return pageElementFinder.findAll(By.cssSelector("#jira-connector .error"));
     }
 
     public TimedCondition areFieldErrorMessagesVisible()

@@ -52,7 +52,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         // the summary is cached from the previous section, TODO: clean dialog before closing it
         jiraMacroCreatePanelDialog.getSummaryElement().clear();
         jiraMacroCreatePanelDialog.submit();
-        
+
         Poller.waitUntilTrue("Create panel errors are not visible", jiraMacroCreatePanelDialog.areFieldErrorMessagesVisible());
 
         Iterable<PageElement> clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
