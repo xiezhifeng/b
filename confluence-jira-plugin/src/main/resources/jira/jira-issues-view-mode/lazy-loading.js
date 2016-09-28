@@ -62,7 +62,8 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     var ajaxHandlers = {
         handleAjaxSuccess: function(data, status, promise) {
             _.each(data, function(clientData) {
-                var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id="' + clientData.clientId + '"]');
+                //CONFDEV-47572: Table header DOM has been changed. Get it again.
+                var $elsGroupByServerKey = $(".wiki-content [data-jira-key][data-client-id='" + clientData.clientId + "']");
                 if (clientData.status === 200) {
                     ui.renderUISingleJIMFromMacroHTML(JSON.parse(clientData.data).htmlMacro, $elsGroupByServerKey);
                 } else if (clientData.status !== 202) {
