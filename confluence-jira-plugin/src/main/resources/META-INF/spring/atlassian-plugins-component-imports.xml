@@ -102,4 +102,10 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
           <beans:value>com.atlassian.confluence.spaces.SpaceLogoManager</beans:value>
       </osgi:interfaces>
   </osgi:reference>
+
+  <osgi:reference id="pluginSettingsFactory">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.sal.api.pluginsettings.PluginSettingsFactory</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
 </beans:beans>

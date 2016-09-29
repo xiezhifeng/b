@@ -4,6 +4,7 @@ import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ReadOnlyApplicationLink;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
 import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
+import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.vcache.DirectExternalCache;
 import com.atlassian.vcache.PutPolicy;
@@ -35,11 +36,13 @@ public class TestJiraCacheManager
     public static final ThreadLocalRequestContextSupplier CONTEXT_SUPPLIER = ThreadLocalRequestContextSupplier.strictSupplier();
 
     @Mock private ReadOnlyApplicationLink appLink;
+    @Mock private EventPublisher eventPublisher;
     @Mock private PluginAccessor pluginAccessor;
     private VCacheFactory cacheFactory;
     private DirectExternalCache<CompressingStringCache> responseCache;
     private DirectExternalCache<JiraChannelResponseHandler> responseChannelCache;
     private DirectExternalCache<JiraStringResponseHandler> responseStringCache;
+    @Mock private ConfluenceJiraPluginSettingManager confluenceJiraPluginSettingManager;
 
     private JiraCacheManager jiraCacheManager;
 
@@ -60,7 +63,8 @@ public class TestJiraCacheManager
         responseStringCache = getExternalCache(cacheFactory,
                 "com.atlassian.confluence.extra.jira.JiraIssuesMacro.string", JiraStringResponseHandler.class);
         appLink = mock(ReadOnlyApplicationLink.class);
-        jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor);
+        jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor, confluenceJiraPluginSettingManager, eventPublisher);
+        jiraCacheManager.initializeCache();
     }
 
     @Test

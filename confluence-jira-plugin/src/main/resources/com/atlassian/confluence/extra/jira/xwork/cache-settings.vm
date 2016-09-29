@@ -1,0 +1,35 @@
+<html>
+<head>
+    <title>$i18n.getText('confluence.jiraissue.admin.title')</title>
+</head>
+<body>
+<div class="tabs-pane active-pane" id="tab-content">
+    #if ( $settingsUpdated )
+        <div class="admin-setting-messages">
+            <div class="aui-message closeable shadowed success">
+                <p class="title">
+                    <span class="aui-icon icon-success"></span>
+                    <strong>$i18n.getText('confluence.jiraissue.admin.settings.updated')</strong>
+                </p>
+            </div>
+        </div>
+    #end
+    <h2 class="cache-settings-description">$i18n.getText('confluence.jiraissue.admin.global.description')</h2>
+    <form id="cache-settings-form" action="setCacheSettings.action" method="POST" class="aui long-label">
+        #form_xsrfToken()
+        <fieldset>
+            <div class="field-group">
+                <label for="cacheTimeoutInMinutes">$i18n.getText('confluence.jiraissue.admin.set.cachetime.label')</label>
+                <input type="text" name="cacheTimeoutInMinutes" id="cacheTimeoutInMinutes" value="$cacheTimeoutInMinutes" class="text  short-field">
+                <div class="description">$i18n.getText('confluence.jiraissue.admin.set.cachetime.description')</div>
+            </div>
+        </fieldset>
+        <div class="buttons-container">
+            <div class="buttons">
+                <input class="submit button" type="submit" value="$i18n.getText('save.name')">
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>

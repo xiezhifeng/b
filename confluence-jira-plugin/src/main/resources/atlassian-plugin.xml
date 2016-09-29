@@ -3,6 +3,7 @@
         <description>${project.description}</description>
         <vendor name="Atlassian Pty Ltd" url="http://atlassian.com"/>
         <version>${project.version}</version>
+        <param name="configure.url">/admin/jim/cachesettings.action</param>
     </plugin-info>
 
     <capability key="created-content-jira-remote-link-callback">
@@ -418,4 +419,20 @@
         <url-pattern>/rest/mobile/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </servlet-filter>
+
+    <xwork name="Confluence Jira Plugin Actions" key="jim-xwork">
+        <package name="Jira Issue Setting" extends="default" namespace="/admin/jim">
+            <action name="cachesettings"
+                    class="com.atlassian.confluence.extra.jira.xwork.CacheSettingsAction">
+                <interceptor-ref name="validatingStack"/>
+                <result name="success" type="velocity">/com/atlassian/confluence/extra/jira/xwork/cache-settings.vm</result>
+            </action>
+            <action name="setCacheSettings"
+                    class="com.atlassian.confluence.extra.jira.xwork.CacheSettingsAction" method="setCacheSettings">
+                <param name="RequireSecurityToken">true</param>
+                <interceptor-ref name="validatingStack"/>
+                <result name="success" type="redirect">/admin/jim/cachesettings.action?settingsUpdated=true</result>
+            </action>
+        </package>
+    </xwork>
 </atlassian-plugin>
