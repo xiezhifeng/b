@@ -20,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.atlassian.confluence.extra.jira.cache.CacheKeyTestHelper.getPluginVersionExpectations;
@@ -64,6 +65,7 @@ public class TestJiraCacheManager
                 "com.atlassian.confluence.extra.jira.JiraIssuesMacro.string", JiraStringResponseHandler.class);
         appLink = mock(ReadOnlyApplicationLink.class);
         jiraCacheManager = new DefaultJiraCacheManager(cacheFactory, pluginAccessor, confluenceJiraPluginSettingManager, eventPublisher);
+        when(confluenceJiraPluginSettingManager.getCacheTimeoutInMinutes()).thenReturn(Optional.empty());
         jiraCacheManager.initializeCache();
     }
 
