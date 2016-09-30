@@ -73,7 +73,7 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
         globalTestAppLinkId = appLinkId;
         ApplinkHelper.enableApplinkOauthMode(client, appLinkId, authArgs);
 
-        product.refresh();
+        editPage = gotoEditTestPage(user.get());
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
 
