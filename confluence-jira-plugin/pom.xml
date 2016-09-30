@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>7.1.0-SNAPSHOT</version>
+        <version>7.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -508,6 +508,8 @@
                             com.atlassian.sal.api.features,
                             com.atlassian.sal.api.user,
                             com.atlassian.sal.api.net; version="2.10",
+                            com.atlassian.sal.api.pluginsettings,
+                            com.atlassian.tenancy.api.event;
                             com.atlassian.user,
                             com.atlassian.util.concurrent; version="2.4",
                             com.google.common.base,

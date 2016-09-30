@@ -10,6 +10,7 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="jiratrustwarnings" autowire="default" class="com.atlassian.confluence.extra.jira.JiraTrustWarningsComponent"/>
   <beans:bean id="jiraIssuesColumnManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager"/>
   <beans:bean id="jiraIssuesUrlManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesUrlManager"/>
+  <beans:bean id="confluenceJiraPluginSettingManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultConfluenceJiraPluginSettingManager"/>
   <beans:bean id="jiraIssuesManager" autowire="default" class="com.atlassian.confluence.extra.jira.CacheJiraIssuesManager"/>
   <osgi:service id="jiraIssuesManager_osgiService" ref="jiraIssuesManager">
     <osgi:interfaces>
