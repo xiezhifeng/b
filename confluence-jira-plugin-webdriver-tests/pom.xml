@@ -432,7 +432,6 @@
 
     <properties>
         <testkit.version>7.0.98</testkit.version>
-        <pause.render.content.millis>10000</pause.render.content.millis>
         <confluence-stateless-test-runner.version>3.1.0</confluence-stateless-test-runner.version>
         <pageobjects.version>4.1.17</pageobjects.version>
         <greenhopper.version>6.6.68</greenhopper.version>
