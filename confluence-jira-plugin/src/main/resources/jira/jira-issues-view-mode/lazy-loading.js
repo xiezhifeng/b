@@ -13,11 +13,15 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     var WEB_RESOURCE_TABLE = "wr!confluence.extra.jira:refresh-resources";
     var jiraRefreshTableMacro;
 
-
-    // list of jQuery DOM object of all single JIM in page
-    var $jiraIssuesEls = null;
-
     var ui = {
+        /**
+         * CONF-39871: we can not cache these elements because they may be updated/replaced some times.
+         * @returns {jQuery} - List of jQuery DOM object of all single JIM in page
+         */
+        queryJiraIssuesEls: function() {
+            return $('.wiki-content [data-jira-key][data-client-id]');
+        },
+
         renderUISingleJIMFromMacroHTML: function(htmlMacros, $elsGroupByServerKey) {
             _.each(
                 htmlMacros,
@@ -61,6 +65,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
 
     var ajaxHandlers = {
         handleAjaxSuccess: function(data, status, promise) {
+            var $jiraIssuesEls = ui.queryJiraIssuesEls();
             _.each(data, function(clientData) {
                 var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id="' + clientData.clientId + '"]');
                 if (clientData.status === 200) {
@@ -78,6 +83,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          */
         handleAjaxError: function(promise, ajaxErrorMessage) {
             var clientIdErrors = promise.clientIds.split(',');
+            var $jiraIssuesEls = ui.queryJiraIssuesEls();
             _.each(clientIdErrors, function(clientId) {
                 var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id="' + clientId + '"]');
                 ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
@@ -91,6 +97,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @returns {Array}
          */
         findAllClientIdInPageContent: function() {
+            var $jiraIssuesEls = ui.queryJiraIssuesEls();
             var clientIds = _.map($jiraIssuesEls, function(item) {
                 var clientId = $(item).attr('data-client-id');
                 if (clientId) {
@@ -186,7 +193,6 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @return {Object} a Promise object
          */
         init: function($jiraIssuesElement) {
-            $jiraIssuesEls = $jiraIssuesElement;
             return $.when(jimResource.loadTableResourceIfNeeded())
                 .pipe(core.loadOneByOneJiraServerStrategy);
         }
