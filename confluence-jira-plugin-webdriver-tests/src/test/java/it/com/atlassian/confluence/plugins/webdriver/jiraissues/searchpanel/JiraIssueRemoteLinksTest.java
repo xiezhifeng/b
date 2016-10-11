@@ -1,8 +1,13 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
+import com.atlassian.confluence.util.TimeUtils;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.Editor;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
+import com.atlassian.pageobjects.elements.query.Conditions;
+import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedQuery;
+import com.google.common.base.Supplier;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -18,6 +23,7 @@ import org.mortbay.util.UrlEncoded;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -42,8 +48,18 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
     public void testCreateRemoteLinksForNewPage() throws Exception
     {
         ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
-        final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
-        assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+        Poller.waitUntilTrue("Page with id '" + viewPage.getPageId() + "' not found in remote links.", Conditions.forSupplier(
+                () -> {
+                    final JSONArray remoteLinks;
+                    try {
+                        remoteLinks = getJiraRemoteLinks("TP-1");
+                        return containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                }
+        ));
     }
 
     @Test
