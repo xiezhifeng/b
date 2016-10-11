@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.test.stateless.fixtures.PageFixture;
 import com.atlassian.jira.testkit.client.Backdoor;
 import com.atlassian.jira.testkit.client.util.TestKitLocalEnvironmentData;
 import com.atlassian.jira.testkit.client.util.TimeBombLicence;
@@ -140,7 +141,12 @@ public class AbstractJiraTest
             .permission(user, SpacePermission.VIEW, SpacePermission.PAGE_EDIT, SpacePermission.BLOG_EDIT)
             .build();
 
-    protected static Content testPageContent;
+    @Fixture
+    public static PageFixture page = PageFixture.pageFixture()
+            .author(user)
+            .title("Test page")
+            .space(space)
+            .build();
 
     @BeforeClass
     public static void start() throws Exception
@@ -189,8 +195,7 @@ public class AbstractJiraTest
 
     protected static EditContentPage gotoEditTestPage(UserWithDetails user)
     {
-        testPageContent = space.get().getHomepageRef().get();
-        EditContentPage editPage = product.loginAndEdit(user, testPageContent);
+        EditContentPage editPage = product.loginAndEdit(user, page.get());
 
         Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
         editPage.getEditor().getContent().clear();
