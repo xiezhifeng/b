@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntilFalse;
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
@@ -40,26 +42,14 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
     public void testDoNotCreateRemoteLinksForIssueTable() throws Exception
     {
         ViewPage viewPage = createPageWithJiraIssueMacro("key in (TP-1, TP-2)");
-        final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
-        assertTrue("Page with id '" + viewPage.getPageId() + "' found in " + remoteLinks, !containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+        waitUntilFalse("Page with id '" + viewPage.getPageId() + "' found in remote links.", remoteLinksCondition(viewPage));
     }
 
     @Test
     public void testCreateRemoteLinksForNewPage() throws Exception
     {
         ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
-        Poller.waitUntilTrue("Page with id '" + viewPage.getPageId() + "' not found in remote links.", Conditions.forSupplier(
-                () -> {
-                    final JSONArray remoteLinks;
-                    try {
-                        remoteLinks = getJiraRemoteLinks("TP-1");
-                        return containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                }
-        ));
+        waitUntilTrue("Page with id '" + viewPage.getPageId() + "' not found in remote links.", remoteLinksCondition(viewPage));
     }
 
     @Test
@@ -69,8 +59,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
         viewPage.edit();
 
         createPageWithJiraIssueMacro("TP-1");
-        final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
-        assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+        waitUntilTrue("Page with id '" + viewPage.getPageId() + "' not found in remote links.", remoteLinksCondition(viewPage));
     }
 
     @Test
@@ -84,7 +73,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
 
         // Check link was created
-        assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+        waitUntilTrue("Page with id '" + viewPage.getPageId() + "' not found in remote links.", remoteLinksCondition(viewPage));
 
         Editor editorPage = viewPage.edit().getEditor();
         editorPage.getContent().setContent("");
@@ -92,7 +81,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
 
         // Check link was deleted
         final JSONArray updatedRemoteLinks = getJiraRemoteLinks("TP-1");
-        assertFalse("Page with id '" + viewPage.getPageId() + "' should not be not found in " + updatedRemoteLinks, containsLinkWithPageId(updatedRemoteLinks, String.valueOf(viewPage.getPageId())));
+        waitUntilFalse("Page with id '" + viewPage.getPageId() + "' should not be found in remote links.", remoteLinksCondition(viewPage));
     }
 
     @Test
@@ -110,8 +99,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
         JiraIssuesPage viewPage = bindCurrentPageToJiraIssues();
 
         // Check link was created
-        final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
-        assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+        waitUntilTrue("Page with id '" + viewPage.getPageId() + "' not found in remote links.", remoteLinksCondition(viewPage));
 
         // Delete one of the macros
         Editor editorPage = viewPage.edit().getEditor();
@@ -120,8 +108,21 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
         editContentPage.getEditor().clickSaveAndWaitForPageChange();
 
         // Check link was deleted
-        final JSONArray updatedRemoteLinks = getJiraRemoteLinks("TP-1");
-        assertTrue("Page with id '" + viewPage.getPageId() + "' should not be found in " + updatedRemoteLinks, containsLinkWithPageId(updatedRemoteLinks, String.valueOf(viewPage.getPageId())));
+        waitUntilFalse("Page with id '" + viewPage.getPageId() + "' should not be found in remote links.", remoteLinksCondition(viewPage));
+    }
+
+    private TimedQuery<Boolean> remoteLinksCondition(ViewPage viewPage){
+        return Conditions.forSupplier(
+                () -> {
+                    final JSONArray remoteLinks;
+                    try {
+                        remoteLinks = getJiraRemoteLinks("TP-1");
+                        return containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                });
     }
 
 
