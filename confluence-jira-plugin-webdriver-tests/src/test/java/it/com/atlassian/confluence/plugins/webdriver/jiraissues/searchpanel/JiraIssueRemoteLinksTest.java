@@ -107,8 +107,8 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
         editorPage.getContent().replaceCurrentSelectionText("");
         editContentPage.getEditor().clickSaveAndWaitForPageChange();
 
-        // Check link was deleted
-        waitUntilFalse("Page with id '" + viewPage.getPageId() + "' should not be found in remote links.", remoteLinksCondition(viewPage));
+        // Check link was not deleted
+        waitUntilTrue("Page with id '" + viewPage.getPageId() + "' should not be found in remote links.", remoteLinksCondition(viewPage));
     }
 
     private TimedQuery<Boolean> remoteLinksCondition(ViewPage viewPage){
