@@ -28,6 +28,8 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -138,6 +140,27 @@ public class TestJiraIssuesServlet
 
         assertEquals("foobarbaz", firstWrite.toString());
         assertEquals("foobarbaz", secondWrite.toString());
+    }
+
+    public void testContentIsSetAsAttachment() throws IOException
+    {
+        StringWriter firstWrite = new StringWriter();
+
+        when(jiraIssuesResponseGenerator.generate(
+                (JiraIssuesManager.Channel) anyObject(),
+                eq(Arrays.asList(columnNames)),
+                eq(1),
+                eq(false),
+                eq(false)
+        )).thenReturn("foobarbaz");
+
+        Map<String, String> headers = new HashMap<>();
+        when(httpServletResponse.getWriter()).thenReturn(new PrintWriter(firstWrite));
+
+        jiraIssuesServlet.doGet(httpServletRequest, httpServletResponse);
+
+        verify(httpServletResponse).setHeader("Content-Disposition", "attachment");
+        assertEquals("foobarbaz", firstWrite.toString());
     }
 
     @Test
