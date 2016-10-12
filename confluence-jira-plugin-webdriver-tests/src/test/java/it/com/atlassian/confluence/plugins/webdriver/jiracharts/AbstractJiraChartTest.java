@@ -19,19 +19,6 @@ import static org.junit.Assert.assertTrue;
 
 public class AbstractJiraChartTest extends AbstractJiraTest
 {
-    @BeforeClass
-    public static void init() throws Exception
-    {
-        AbstractJiraTest.start();
-        editPage = gotoEditTestPage(user.get());
-    }
-
-    @Before
-    public void setup() throws Exception
-    {
-        editPage = gotoEditTestPage(user.get());
-    }
-
     protected void checkImageInDialog(boolean hasBorder)
     {
         dialogPieChart = openPieChartAndSearch();

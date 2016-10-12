@@ -28,24 +28,6 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     protected static final List<String> LIST_URL_TEST_COLUMN = ImmutableList.of("Summary", "Issue Type", "URL", "Key");
     protected static List<String> LIST_DEFAULT_COLUMN = ImmutableList.of("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
 
-    @Before
-    public void setup() throws Exception
-    {
-        editPage = gotoEditTestPage(user.get());
-    }
-
-    @After
-    public void closeJiraSearchDialog() throws Exception
-    {
-        product.logOut();
-        try {
-            product.getTester().getDriver().switchTo().alert().accept();
-        } catch( Exception e ){
-            //
-        }
-        //closeDialog(jiraMacroSearchPanelDialog);
-    }
-
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelAndStartSearch(String searchValue) throws Exception
     {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);

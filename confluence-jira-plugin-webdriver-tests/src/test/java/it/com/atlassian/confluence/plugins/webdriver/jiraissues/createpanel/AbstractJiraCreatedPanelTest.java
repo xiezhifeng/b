@@ -12,12 +12,6 @@ import org.junit.BeforeClass;
 
 public class AbstractJiraCreatedPanelTest extends AbstractJiraTest
 {
-    @BeforeClass
-    public static void init() throws Exception
-    {
-        editPage = gotoEditTestPage(user.get());
-    }
-
     @Before
     public void setup() throws Exception
     {

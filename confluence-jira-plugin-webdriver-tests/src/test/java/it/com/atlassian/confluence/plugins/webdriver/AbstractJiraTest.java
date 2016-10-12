@@ -41,7 +41,9 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillte
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
@@ -140,6 +142,25 @@ public class AbstractJiraTest
 
         //login once, so that we don't repeatedly login and waste time - this test doesn't need it
         product.login(user.get(), NoOpPage.class);
+    }
+
+
+    @Before
+    public void setup() throws Exception
+    {
+        editPage = gotoEditTestPage(user.get());
+    }
+
+    @After
+    public void closeJiraSearchDialog() throws Exception
+    {
+        product.logOut();
+        try {
+            product.getTester().getDriver().switchTo().alert().accept();
+        } catch( Exception e ){
+            //
+        }
+        //closeDialog(jiraMacroSearchPanelDialog);
     }
 
     protected String getProjectId(String projectName)
