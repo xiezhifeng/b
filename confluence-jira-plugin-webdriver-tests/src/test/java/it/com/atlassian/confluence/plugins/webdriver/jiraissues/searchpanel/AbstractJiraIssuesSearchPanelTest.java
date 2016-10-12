@@ -38,6 +38,11 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     public void closeJiraSearchDialog() throws Exception
     {
         product.logOut();
+        try {
+            product.getTester().getDriver().switchTo().alert().accept();
+        } catch( Exception e ){
+            //
+        }
         //closeDialog(jiraMacroSearchPanelDialog);
     }
 
