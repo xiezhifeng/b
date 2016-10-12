@@ -154,13 +154,8 @@ public class AbstractJiraTest
     @After
     public void closeJiraSearchDialog() throws Exception
     {
+        editPage.cancel();
         product.logOut();
-        try {
-            product.getTester().getDriver().switchTo().alert().accept();
-        } catch( Exception e ){
-            //
-        }
-        //closeDialog(jiraMacroSearchPanelDialog);
     }
 
     protected String getProjectId(String projectName)
