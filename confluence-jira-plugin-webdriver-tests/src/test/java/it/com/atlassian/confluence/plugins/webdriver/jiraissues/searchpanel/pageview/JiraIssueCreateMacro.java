@@ -90,10 +90,6 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
         ApplinkHelper.removeAllAppLink(client, authArg);
 
         doWebSudo(client);
-
-        if (!TestProperties.isOnDemandMode())
-        {
-            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, authArg, getBasicQueryString());
-        }
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, authArg, getBasicQueryString());
     }
 }

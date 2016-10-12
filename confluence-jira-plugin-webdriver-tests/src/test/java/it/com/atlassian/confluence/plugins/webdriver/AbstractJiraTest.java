@@ -1,31 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-
-import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.test.stateless.fixtures.PageFixture;
-import com.atlassian.jira.testkit.client.Backdoor;
-import com.atlassian.jira.testkit.client.util.TestKitLocalEnvironmentData;
-import com.atlassian.jira.testkit.client.util.TimeBombLicence;
-import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.model.JiraProjectModel;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraChartViewPage;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.TwoDimensionalChartDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.test.api.model.person.UserWithDetails;
-import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.confluence.test.rest.api.ConfluenceRestClient;
 import com.atlassian.confluence.test.rpc.api.ConfluenceRpcClient;
 import com.atlassian.confluence.test.rpc.api.permissions.GlobalPermission;
@@ -33,6 +9,7 @@ import com.atlassian.confluence.test.rpc.api.permissions.SpacePermission;
 import com.atlassian.confluence.test.stateless.ConfluenceStatelessTestRunner;
 import com.atlassian.confluence.test.stateless.fixtures.Fixture;
 import com.atlassian.confluence.test.stateless.fixtures.GroupFixture;
+import com.atlassian.confluence.test.stateless.fixtures.PageFixture;
 import com.atlassian.confluence.test.stateless.fixtures.SpaceFixture;
 import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
 import com.atlassian.confluence.webdriver.pageobjects.ConfluenceTestedProduct;
@@ -53,6 +30,13 @@ import com.atlassian.webdriver.utils.element.WebDriverPoller;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraChartViewPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.TwoDimensionalChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -68,12 +52,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static com.atlassian.confluence.test.properties.TestProperties.isOnDemandMode;
-import static com.atlassian.pageobjects.elements.query.Poller.by;
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -106,7 +89,7 @@ public class AbstractJiraTest
     });
 
     private final Logger log = LoggerFactory.getLogger(AbstractJiraTest.class);
-    
+
     @Inject protected static ConfluenceTestedProduct product;
     @Inject protected static PageBinder pageBinder;
     @Inject protected static ConfluenceRestClient restClient;
@@ -153,10 +136,7 @@ public class AbstractJiraTest
     {
         doWebSudo(client);
 
-        if (!TestProperties.isOnDemandMode())
-        {
-            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, getAuthQueryString(), getBasicQueryString());
-        }
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, getAuthQueryString(), getBasicQueryString());
 
         //login once, so that we don't repeatedly login and waste time - this test doesn't need it
         product.login(user.get(), NoOpPage.class);

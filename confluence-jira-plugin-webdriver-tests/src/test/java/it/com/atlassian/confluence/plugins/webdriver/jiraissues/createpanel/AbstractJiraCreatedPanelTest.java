@@ -21,37 +21,10 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraTest
     @Before
     public void setup() throws Exception
     {
-       if (editPage == null)
-        {
-            editPage = gotoEditTestPage(user.get());
-        }
-        else
-        {
-            if (editPage.getEditor().isCancelVisibleNow())
-            {
-                // in editor page.
-                editPage.getEditor().getContent().clear();
-            }
-            else
-            {
-                // in view page, and then need to go to edit page.
-                editPage = gotoEditTestPage(user.get());
-            }
-        }
+        editPage = gotoEditTestPage(user.get());
+
         jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        closeDialog(jiraMacroCreatePanelDialog);
-    }
-
-    @AfterClass
-    public static void clean() throws Exception
-    {
-        cancelEditPage(editPage);
     }
 
     protected String createJiraIssue(String project, String issueType, String summary,

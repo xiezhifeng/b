@@ -1,11 +1,10 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import com.atlassian.pageobjects.elements.query.Poller;
-
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import org.junit.Test;
 
-public class JiraMacroPlaceholderTest extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraMacroPlaceholderTest extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
     public void testPlaceHolderWhenMacroContainsOneIssue() throws Exception

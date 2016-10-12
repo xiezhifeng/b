@@ -4,7 +4,7 @@ import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
@@ -18,7 +18,7 @@ import static it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelpe
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
 {
     private String globalTestAppLinkId;
 
@@ -61,12 +61,6 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
     public void testSearchWithFilterEmptyJQL() throws Exception
     {
         String filterId = "10001";
-
-        if (TestProperties.isOnDemandMode())
-        {
-            filterId = createJiraFilter("All Open Bugs", "", "", client);
-            checkNotNull(filterId);
-        }
 
         openJiraIssueSearchPanelAndStartSearch(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));

@@ -1,34 +1,24 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
-import java.util.List;
-
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.test.categories.OnDemandAcceptanceTest;
-
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import org.hamcrest.Matchers;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
 {
     protected PieChartDialog pieChartDialog;
-
-    @After
-    public void closePieChartDialog() throws Exception
-    {
-        closeDialog(pieChartDialog);
-    }
 
     @Test
     public void testJiraChartMacroLink() throws Exception

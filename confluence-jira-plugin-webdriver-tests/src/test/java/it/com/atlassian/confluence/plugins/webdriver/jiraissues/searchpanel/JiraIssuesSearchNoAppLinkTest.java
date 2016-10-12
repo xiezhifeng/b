@@ -46,40 +46,14 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraTest
         String authArgs = getAuthQueryString();
         doWebSudo(client);
 
-        if (!TestProperties.isOnDemandMode()) {
-            ApplinkHelper.removeAllAppLink(client, authArgs);
-        }
-
+        ApplinkHelper.removeAllAppLink(client, authArgs);
         product.login(user.get(), NoOpPage.class);
     }
 
     @Before
     public void setup() throws Exception
     {
-        if (editPage == null)
-        {
-            editPage = gotoEditTestPage(user.get());
-        }
-        else
-        {
-            if (editPage.getEditor().isCancelVisibleNow())
-            {
-                // in editor page.
-                editPage.getEditor().getContent().clear();
-            }
-            else
-            {
-                // in view page, and then need to go to edit page.
-                editPage = gotoEditTestPage(user.get());
-            }
-        }
-    }
-
-    @After
-    public void clearUp() throws Exception
-    {
-        cancelEditPage(editPage);
-        closeDialog(warningAppLinkDialog);
+        editPage = gotoEditTestPage(user.get());
     }
 
     @Test

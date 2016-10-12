@@ -1,21 +1,20 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
-import java.util.List;
-
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.query.Poller;
-
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartWithoutSavingTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartTest;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.List;
 
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 
-public class JiraChart extends AbstractJiraChartWithoutSavingTest
+public class JiraChart extends AbstractJiraChartTest
 {
     @Test
     public void testStatType()

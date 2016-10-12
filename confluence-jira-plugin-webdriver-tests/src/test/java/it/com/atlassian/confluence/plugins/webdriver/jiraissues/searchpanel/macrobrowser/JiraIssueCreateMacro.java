@@ -1,13 +1,12 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import com.atlassian.pageobjects.elements.query.Poller;
-
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
 {
     private static String searchStr = "project = TP";
 

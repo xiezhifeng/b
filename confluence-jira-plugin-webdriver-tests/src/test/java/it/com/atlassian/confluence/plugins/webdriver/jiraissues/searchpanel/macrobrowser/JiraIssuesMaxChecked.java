@@ -1,15 +1,14 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
-
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesMaxChecked extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraIssuesMaxChecked extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
     public void checkMaxIssueValidNumber() throws Exception
