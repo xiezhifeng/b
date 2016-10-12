@@ -148,6 +148,8 @@ public class JiraIssuesServlet extends HttpServlet
                 response.setContentType("application/json");
             else
                 response.setContentType("application/xml");
+            //CONF-43756
+            response.setHeader("Content-Disposition", "attachment");
 
             out = response.getWriter();
             out.write(jiraResponse);
