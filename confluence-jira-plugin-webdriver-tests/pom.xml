@@ -321,6 +321,7 @@
                             <version>${confluence.version}</version>
                             <httpPort>${http.port}</httpPort>
                             <server>${server}</server>
+                            <jvmArgs>${jvmArgs}</jvmArgs>
                             <contextPath>/confluence</contextPath>
                             <dataVersion>${confluence.data.version}</dataVersion>
                             <installPlugin>false</installPlugin>
