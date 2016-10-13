@@ -49,7 +49,6 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
     @Test
     public void testCreateRemoteLinksForNewPage() throws Exception
     {
-        product.loginAndCreatePage(user.get(), space.get());
         ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
         waitUntilTrue("Page with id '" + viewPage.getPageId() + "' not found in remote links.", remoteLinksCondition(viewPage));
     }
