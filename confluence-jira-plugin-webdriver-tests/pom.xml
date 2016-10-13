@@ -295,6 +295,7 @@
                             <instanceId>jira</instanceId>
                             <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
+                            <contextPath>/jira</contextPath>
                             <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>${server}</server>
@@ -318,6 +319,9 @@
                             <containerId>tomcat8x</containerId>
                             <instanceId>confluence</instanceId>
                             <version>${confluence.version}</version>
+                            <httpPort>${http.port}</httpPort>
+                            <server>${server}</server>
+                            <contextPath>/confluence</contextPath>
                             <dataVersion>${confluence.data.version}</dataVersion>
                             <installPlugin>false</installPlugin>
                             <pluginArtifacts>
