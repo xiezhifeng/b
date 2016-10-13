@@ -298,7 +298,6 @@
                             <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>${server}</server>
-                            <log4jProperties>${project.build.testOutputDirectory}/amps/jira-log4j.properties</log4jProperties>
                             <installPlugin>false</installPlugin>
                             <pluginArtifacts>
                                 <pluginArtifact>
@@ -321,7 +320,6 @@
                             <version>${confluence.version}</version>
                             <dataVersion>${confluence.data.version}</dataVersion>
                             <installPlugin>false</installPlugin>
-                            <log4jProperties>${project.build.testOutputDirectory}/amps/confluence-log4j.properties</log4jProperties>
                             <pluginArtifacts>
                                 <pluginArtifact>
                                     <groupId>com.atlassian.confluence.plugins</groupId>
