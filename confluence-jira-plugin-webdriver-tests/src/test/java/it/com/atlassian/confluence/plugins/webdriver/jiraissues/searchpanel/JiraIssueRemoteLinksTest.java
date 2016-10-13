@@ -1,6 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import com.atlassian.confluence.util.TimeUtils;
+import com.atlassian.confluence.webdriver.pageobjects.page.content.CreatePage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.Editor;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
@@ -48,6 +49,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
     @Test
     public void testCreateRemoteLinksForNewPage() throws Exception
     {
+        product.loginAndCreatePage(user.get(), space.get());
         ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
         waitUntilTrue("Page with id '" + viewPage.getPageId() + "' not found in remote links.", remoteLinksCondition(viewPage));
     }
