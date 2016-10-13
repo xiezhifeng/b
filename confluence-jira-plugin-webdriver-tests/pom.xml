@@ -353,8 +353,8 @@
                         <testGroup>
                             <id>conf_jira</id>
                             <productIds>
-                                <productId>jira1</productId>
-                                <productId>conf1</productId>
+                                <productId>jira</productId>
+                                <productId>confluence</productId>
                             </productIds>
                             <includes>
                                 <include>it/com/**</include>
