@@ -322,7 +322,28 @@
                             <dataVersion>${confluence.data.version}</dataVersion>
                             <installPlugin>false</installPlugin>
                             <log4jProperties>${project.build.testOutputDirectory}/amps/confluence-log4j.properties</log4jProperties>
-                            <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-scriptsfinished-plugin:${confluence.version},com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version},com.atlassian.confluence.plugins:confluence-jira-plugin:${project.version}</pluginArtifactsString>
+                            <pluginArtifacts>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.confluence.plugins</groupId>
+                                    <artifactId>confluence-scriptsfinished-plugin</artifactId>
+                                    <version>${confluence.version}</version>
+                                </pluginArtifact>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.confluence.plugins</groupId>
+                                    <artifactId>confluence-functestrpc-plugin</artifactId>
+                                    <version>${confluence.version}</version>
+                                </pluginArtifact>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.integration.jira</groupId>
+                                    <artifactId>jira-integration-plugin</artifactId>
+                                    <version>${jira.integration.version}</version>
+                                </pluginArtifact>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.confluence.plugins</groupId>
+                                    <artifactId>confluence-jira-plugin</artifactId>
+                                    <version>${project.version}</version>
+                                </pluginArtifact>
+                            </pluginArtifacts>
                         </product>
                     </products>
                     <wait>true</wait>
