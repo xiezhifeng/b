@@ -277,6 +277,7 @@
                 </executions>
                 <configuration>
                     <systemPropertyVariables>
+                        <pause.render.content.millis>${pause.render.content.millis}</pause.render.content.millis>
                         <baseurl.jira>${baseurl.jira}</baseurl.jira>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <user.timezone>GMT</user.timezone>
