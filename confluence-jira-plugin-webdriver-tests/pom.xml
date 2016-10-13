@@ -263,7 +263,7 @@
             <!-- Configure AMPS to run Confluence when testing locally. -->
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-confluence-plugin</artifactId>
+                <artifactId>maven-amps-plugin</artifactId>
                 <version>${amps.version}</version>
                 <extensions>true</extensions>
                 <executions>
@@ -276,21 +276,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <containerId>tomcat8x</containerId>
-                    <jvmArgs>${jvmArgs}</jvmArgs>
-                    <productVersion>${confluence.version}</productVersion>
-                    <productDataVersion>${confluence.data.version}</productDataVersion>
-                    <server>localhost</server>
-                    <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-scriptsfinished-plugin:${confluence.version},com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version},com.atlassian.confluence.plugins:confluence-jira-plugin:${project.version}</pluginArtifactsString>
-
-                    <!-- Confluence Jira plugin -->
-                    <pluginDependencies>
-                        <pluginDependency>
-                            <groupId>com.atlassian.confluence.plugins</groupId>
-                            <artifactId>confluence-jira-plugin</artifactId>
-                        </pluginDependency>
-                    </pluginDependencies>
-
                     <systemPropertyVariables>
                         <baseurl.jira>${baseurl.jira}</baseurl.jira>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
@@ -305,12 +290,16 @@
                     <products>
                         <product>
                             <id>jira</id>
-                            <instanceId>jira1</instanceId>
+                            <output>${project.build.directory}/jira/target/output.log</output>
+                            <containerId>tomcat7x</containerId>
+                            <instanceId>jira</instanceId>
                             <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
                             <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>${server}</server>
+                            <log4jProperties>${project.build.testOutputDirectory}/amps/jira-log4j.properties</log4jProperties>
+                            <installPlugin>false</installPlugin>
                             <pluginArtifacts>
                                 <pluginArtifact>
                                     <groupId>com.atlassian.jira.plugins</groupId>
@@ -326,16 +315,17 @@
                         </product>
                         <product>
                             <id>confluence</id>
-                            <instanceId>conf1</instanceId>
+                            <output>${project.build.directory}/confluence/target/output.log</output>
+                            <containerId>tomcat8x</containerId>
+                            <instanceId>confluence</instanceId>
                             <version>${confluence.version}</version>
                             <dataVersion>${confluence.data.version}</dataVersion>
-                            <jvmArgs>${jvmArgs}</jvmArgs>
-                            <httpPort>${http.port}</httpPort>
-                            <server>${server}</server>
+                            <installPlugin>false</installPlugin>
+                            <log4jProperties>${project.build.testOutputDirectory}/amps/confluence-log4j.properties</log4jProperties>
+                            <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-scriptsfinished-plugin:${confluence.version},com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version},com.atlassian.confluence.plugins:confluence-jira-plugin:${project.version}</pluginArtifactsString>
                         </product>
                     </products>
                     <wait>true</wait>
-                    <!-- Starts the 2 apps in parallel -->
                     <parallel>true</parallel>
                     <testGroups>
                         <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
@@ -353,6 +343,13 @@
                             </excludes>
                         </testGroup>
                     </testGroups>
+                    <!-- Confluence Jira plugin -->
+                    <pluginDependencies>
+                        <pluginDependency>
+                            <groupId>com.atlassian.confluence.plugins</groupId>
+                            <artifactId>confluence-jira-plugin</artifactId>
+                        </pluginDependency>
+                    </pluginDependencies>
                 </configuration>
             </plugin>
 
