@@ -40,7 +40,8 @@ public class JiraChartNoAppLinkTest extends AbstractJiraChartTest
 
         // We need to refresh the editor so it can pick up the new applink configuration. We need to do
         // this now since the setUp() method already places us in the editor context
-        editPage.save().edit();
+        editPage.cancel();
+        editPage = gotoEditTestPage(user.get());
 
         dialogPieChart = openPieChartDialog(false);
 
