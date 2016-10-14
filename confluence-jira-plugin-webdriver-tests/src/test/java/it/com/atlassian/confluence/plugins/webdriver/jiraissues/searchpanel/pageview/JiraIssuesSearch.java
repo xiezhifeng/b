@@ -30,6 +30,43 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
+    public void testColumnNotSupportSortableInIssueTable() throws Exception
+    {
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog.inputJqlSearch("status = open");
+        jiraMacroSearchPanelDialog.clickSearchButton();
+        jiraMacroSearchPanelDialog.openDisplayOption();
+        jiraMacroSearchPanelDialog.getDisplayOptionPanel().addColumn("Linked Issues");
+        jiraMacroSearchPanelDialog.clickInsertDialog();
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().clickSaveAndWaitForPageChange();
+        JiraIssuesPage page = pageBinder.bind(JiraIssuesPage.class);
+        String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
+        page.clickColumnHeaderIssueTable("Linked Issues",null);
+        String keyAfterSort = page.getFirstRowValueOfSummay();
+        assertEquals(keyValueAtFirstTime, keyAfterSort);
+    }
+
+    @Test
+    public void testPasteXmlUrl() throws Exception
+    {
+        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/si/jira.issueviews:issue-xml/TST-1/TST-1.xml", true);
+        Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("Test bug"));
+    }
+
+    @Test
+    public void testPasteUrlWithJiraServer() throws Exception
+    {
+        //create another primary applink
+        String jiraURL = "http://jira.test.com";
+        String authArgs = getAuthQueryString();
+        globalTestAppLinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, true);
+
+        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/browse/TST-1", true);
+        Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("Test bug"));
+    }
+
+    @Test
     public void testPasteUrlWithJiraServerNoPermission() throws Exception
     {
         //create oath applink
@@ -39,9 +76,9 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
         globalTestAppLinkId = appLinkId;
         ApplinkHelper.enableApplinkOauthMode(client, appLinkId, authArgs);
         editPage.cancel();
-        TimeUtils.pause(2000L, TimeUnit.MILLISECONDS);
+        TimeUtils.pause(1000L, TimeUnit.MILLISECONDS);
         editPage = gotoEditTestPage(user.get());
-        
+
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
 

@@ -113,7 +113,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     private TimedQuery<Boolean> remoteLinksCondition(ViewPage viewPage){
-        return Conditions.forSupplier(5000L,
+        return Conditions.forSupplier(8000L,
                 () -> {
                     final JSONArray remoteLinks;
                     try {
