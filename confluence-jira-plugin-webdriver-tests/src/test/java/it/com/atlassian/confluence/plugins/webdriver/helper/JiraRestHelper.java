@@ -13,6 +13,13 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.codehaus.jackson.JsonNode;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -78,7 +85,7 @@ public class JiraRestHelper
         RestHelper.doDeleteJson(ISSUE_ENDPOINT + "/" + id, User.ADMIN);
     }
 
-    public static String createJiraFilter(String name, String jql, String description, HttpClient httpClient)
+    public static String createJiraFilter(String name, String jql, String description, CloseableHttpClient httpClient)
     {
         JsonObject filter = new JsonObject()
                 .setProperty("name", name)
@@ -88,13 +95,16 @@ public class JiraRestHelper
 
         try
         {
-            PostMethod method = new PostMethod(FILTER_ENDPOINT + "?" + getAuthenticationParams());
-            method.setRequestHeader("Accept", "application/json");
-            method.setRequestEntity(new StringRequestEntity(filter.serialize(), "application/json", "UTF-8"));
-            httpClient.executeMethod(method);
+            HttpPost method = new HttpPost(FILTER_ENDPOINT + "?" + getAuthenticationParams());
+            method.setHeader("Accept", "application/json");
 
-            JSONObject response = new JSONObject(method.getResponseBodyAsString());
-            return response.getString("id");
+            method.setEntity(new StringEntity(filter.serialize(), ContentType.APPLICATION_JSON));
+
+            try(CloseableHttpResponse response = httpClient.execute(method)){
+                String responseBodyString = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
+                JSONObject responseBody = new JSONObject(responseBodyString);
+                return responseBody.getString("id");
+            }
         }
         catch (Exception e)
         {
@@ -103,14 +113,16 @@ public class JiraRestHelper
         }
     }
 
-    public static int deleteJiraFilter(String filterId, HttpClient httpClient)
+    public static int deleteJiraFilter(String filterId, CloseableHttpClient httpClient)
     {
         int status = 0;
 
         try
         {
-            DeleteMethod method = new DeleteMethod(FILTER_ENDPOINT + "/" + filterId + "?" + getAuthenticationParams());
-            status = httpClient.executeMethod(method);
+            HttpDelete method = new HttpDelete(FILTER_ENDPOINT + "/" + filterId + "?" + getAuthenticationParams());
+            try(CloseableHttpResponse response = httpClient.execute(method)){
+                status = response.getStatusLine().getStatusCode();
+            }
         }
         catch (Exception e)
         {

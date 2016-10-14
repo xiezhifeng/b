@@ -42,6 +42,14 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillte
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -54,6 +62,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +119,7 @@ public class AbstractJiraTest
     protected static ViewPage viewPage;
     protected JiraMacroSearchPanelDialog dialogSearchPanel;
 
-    public static final HttpClient client = new HttpClient();
+    public static final CloseableHttpClient client = HttpClientBuilder.create().build();
 
     @Fixture
     public static GroupFixture group = GroupFixture.groupFixture()
@@ -171,11 +180,18 @@ public class AbstractJiraTest
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
 
-    protected static void doWebSudo(final HttpClient client) throws IOException
+    protected static void doWebSudo(final CloseableHttpClient client) throws IOException
     {
-        final PostMethod l = new PostMethod(System.getProperty("baseurl.confluence") + "/doauthenticate.action" + getAuthQueryString());
-        l.addParameter("password", User.ADMIN.getPassword());
-        final int status = client.executeMethod(l);
+        final HttpPost httpPost = new HttpPost(System.getProperty("baseurl.confluence") + "/doauthenticate.action" + getAuthQueryString());
+        List<NameValuePair> parameters = new ArrayList<>(1);
+        parameters.add(new BasicNameValuePair("password", User.ADMIN.getPassword()));
+        httpPost.setEntity(new UrlEncodedFormEntity(parameters, "UTF-8"));
+
+        int status;
+        try(CloseableHttpResponse response = client.execute(httpPost)){
+            status = response.getStatusLine().getStatusCode();
+        }
+
         assertThat("WebSudo auth returned unexpected status", ImmutableSet.of(SC_MOVED_TEMPORARILY, SC_OK), hasItem(status));
     }
 

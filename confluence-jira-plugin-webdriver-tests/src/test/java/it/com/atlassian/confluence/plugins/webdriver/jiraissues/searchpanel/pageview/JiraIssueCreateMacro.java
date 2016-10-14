@@ -12,6 +12,7 @@ import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.pageobjects.elements.PageElement;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -85,7 +86,7 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
         resetupAppLink(client, authArgs);
     }
 
-    private void resetupAppLink(HttpClient client, String authArg) throws JSONException, IOException
+    private void resetupAppLink(CloseableHttpClient client, String authArg) throws JSONException, IOException
     {
         ApplinkHelper.removeAllAppLink(client, authArg);
 

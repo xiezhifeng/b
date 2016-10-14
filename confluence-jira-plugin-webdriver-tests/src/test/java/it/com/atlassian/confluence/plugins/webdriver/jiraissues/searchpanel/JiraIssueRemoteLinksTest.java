@@ -12,6 +12,10 @@ import com.google.common.base.Supplier;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -137,11 +141,13 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
                 final JSONObject link = remoteLinks.getJSONObject(i);
                 final Long id = link.getLong("id");
                 final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink/" + id + getAuthQueryString();
-                DeleteMethod m = new DeleteMethod(url);
+                HttpDelete httpDelete = new HttpDelete(url);
 
-                int status = client.executeMethod(m);
+                int status;
+                try(CloseableHttpResponse response = client.execute(httpDelete)){
+                    status = response.getStatusLine().getStatusCode();
+                }
                 Assert.assertEquals("Got status " + status + " when retrieving " + url, 204, status);
-                m.releaseConnection();
             }
         }
         catch (JSONException e)
@@ -153,13 +159,15 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
     private JSONArray getJiraRemoteLinks(String issueKey) throws IOException
     {
         final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink" + getAuthQueryString();
-        GetMethod m = new GetMethod(url);
-        m.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        int status = client.executeMethod(m);
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("Accept", "application/json, text/javascript, */*");
+        int status;
+        String responseBody;
+        try(CloseableHttpResponse response = client.execute(httpGet)){
+            status = response.getStatusLine().getStatusCode();
+            responseBody = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
+        }
         Assert.assertEquals("Got status " + status + " when retrieving " + url, 200, status);
-
-        final String responseBody = m.getResponseBodyAsString();
-        m.releaseConnection();
         try
         {
             return new JSONArray(responseBody);
