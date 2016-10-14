@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
+import com.atlassian.confluence.util.TimeUtils;
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
@@ -9,6 +10,8 @@ import org.hamcrest.core.StringContains;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,13 +32,14 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
     @Test
     public void testPasteUrlWithJiraServerNoPermission() throws Exception
     {
-        editPage.cancel();
         //create oath applink
         String jiraURL = "http://jira.test.com";
         String authArgs = getAuthQueryString();
         String appLinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, false);
         globalTestAppLinkId = appLinkId;
         ApplinkHelper.enableApplinkOauthMode(client, appLinkId, authArgs);
+        editPage.cancel();
+        TimeUtils.pause(2000L, TimeUnit.MILLISECONDS);
         editPage = gotoEditTestPage(user.get());
         
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
