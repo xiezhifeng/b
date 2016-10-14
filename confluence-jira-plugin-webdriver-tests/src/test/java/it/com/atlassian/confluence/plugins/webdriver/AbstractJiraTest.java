@@ -13,6 +13,7 @@ import com.atlassian.confluence.test.stateless.fixtures.GroupFixture;
 import com.atlassian.confluence.test.stateless.fixtures.PageFixture;
 import com.atlassian.confluence.test.stateless.fixtures.SpaceFixture;
 import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
+import com.atlassian.confluence.util.TimeUtils;
 import com.atlassian.confluence.webdriver.pageobjects.ConfluenceTestedProduct;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
@@ -57,6 +58,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
@@ -179,7 +181,9 @@ public class AbstractJiraTest
 
     protected static EditContentPage gotoEditTestPage(UserWithDetails user)
     {
-        EditContentPage editPage = product.loginAndView(user, page.get()).edit();
+        ViewPage viewPage = product.loginAndView(user, page.get());
+        TimeUtils.pause(2000L, TimeUnit.MILLISECONDS);
+        EditContentPage editPage = viewPage.edit();
 
         Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
         editPage.getEditor().getContent().clear();
