@@ -179,7 +179,7 @@ public class AbstractJiraTest
 
     protected static EditContentPage gotoEditTestPage(UserWithDetails user)
     {
-        EditContentPage editPage = product.loginAndEdit(user, page.get());
+        EditContentPage editPage = product.loginAndView(user, page.get()).edit();
 
         Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
         editPage.getEditor().getContent().clear();
