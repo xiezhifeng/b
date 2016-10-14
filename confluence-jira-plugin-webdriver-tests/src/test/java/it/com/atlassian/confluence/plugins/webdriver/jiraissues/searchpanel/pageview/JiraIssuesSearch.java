@@ -67,13 +67,13 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
     @Test
     public void testPasteUrlWithJiraServerNoPermission() throws Exception
     {
+        editPage.cancel();
         //create oath applink
         String jiraURL = "http://jira.test.com";
         String authArgs = getAuthQueryString();
         String appLinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, false);
         globalTestAppLinkId = appLinkId;
         ApplinkHelper.enableApplinkOauthMode(client, appLinkId, authArgs);
-        editPage.cancel();
         editPage = gotoEditTestPage(user.get());
         
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
