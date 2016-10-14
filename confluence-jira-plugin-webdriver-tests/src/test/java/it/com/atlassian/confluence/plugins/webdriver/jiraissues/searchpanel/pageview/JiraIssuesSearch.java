@@ -76,7 +76,6 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
         globalTestAppLinkId = appLinkId;
         ApplinkHelper.enableApplinkOauthMode(client, appLinkId, authArgs);
         editPage.cancel();
-        TimeUtils.pause(1000L, TimeUnit.MILLISECONDS);
         editPage = gotoEditTestPage(user.get());
 
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);

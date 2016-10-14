@@ -1,6 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.helper;
 
 import com.atlassian.confluence.security.InvalidOperationException;
+import com.atlassian.confluence.util.TimeUtils;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 import org.junit.Assert;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class ApplinkHelper
 {
@@ -90,7 +92,7 @@ public class ApplinkHelper
         method.addRequestHeader("X-Atlassian-Token", "no-check");
         final int status = client.executeMethod(method);
         Assert.assertTrue("Cannot enable Basic AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_MOVED_TEMPORARILY);
-
+        TimeUtils.pause(2000L, TimeUnit.MILLISECONDS);
     }
 
     public static void enableApplinkOauthMode(HttpClient client, String applinkId, String authArgs) throws IOException
@@ -101,6 +103,7 @@ public class ApplinkHelper
 
         final int status = client.executeMethod(method);
         Assert.assertTrue("Cannot enable Oauth AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_OK);
+        TimeUtils.pause(2000L, TimeUnit.MILLISECONDS);
     }
 
     public static void enableApplinkTrustedMode(HttpClient client, String applinkId, String authArgs) throws IOException
@@ -110,6 +113,7 @@ public class ApplinkHelper
         method.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(method);
         Assert.assertTrue("Cannot enable Trusted AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_OK);
+        TimeUtils.pause(2000L, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -128,6 +132,7 @@ public class ApplinkHelper
             String applinkId = jsonArray.getJSONObject(i).getString("id");
             deleteApplink(client, applinkId, authArgs);
         }
+        TimeUtils.pause(2000L, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -143,6 +148,7 @@ public class ApplinkHelper
         method.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(method);
         Assert.assertEquals(HttpStatus.SC_OK, status);
+        TimeUtils.pause(2000L, TimeUnit.MILLISECONDS);
     }
 
     /**
