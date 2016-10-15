@@ -6,6 +6,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,6 +21,11 @@ public class JiraIssuesAnonymousViewTest extends AbstractJiraIssuesSearchPanelTe
         // enable anonymous access for each page, which is pretty slow. TODO: enable BeforeClass
         rpc.enableAnonymousAccess();
         rpc.executeOnCurrentNode("addAnonymousPermissionToSpace", SpacePermission.VIEW.getValue(), space.get().getKey());
+    }
+
+    @After
+    public void reLoginSoAbstractClassWorksUnhappyFace() {
+        product.loginAndView(user.get(), page.get());
     }
 
     @Test
@@ -41,6 +47,7 @@ public class JiraIssuesAnonymousViewTest extends AbstractJiraIssuesSearchPanelTe
 
         jiraIssuesPage = pageBinder.bind(JiraIssuesPage.class);
         Assert.assertEquals("Number of issues", "1 issue", jiraIssuesPage.getNumberOfIssuesText());
+
     }
 
     @Test

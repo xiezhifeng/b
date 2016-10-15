@@ -119,7 +119,7 @@ public class AbstractJiraTest
     protected static ViewPage viewPage;
     protected JiraMacroSearchPanelDialog dialogSearchPanel;
 
-    private static UserWithDetails currentUser = null;
+    protected static UserWithDetails currentUser = null;
 
     public static final CloseableHttpClient client = HttpClientBuilder.create().build();
 
