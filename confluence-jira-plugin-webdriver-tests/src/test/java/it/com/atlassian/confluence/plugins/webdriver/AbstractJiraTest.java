@@ -150,10 +150,7 @@ public class AbstractJiraTest
     {
         doWebSudo(client);
 
-        if (!TestProperties.isOnDemandMode())
-        {
-            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, getAuthQueryString(), getBasicQueryString());
-        }
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, getAuthQueryString(), getBasicQueryString());
 
         //login once, so that we don't repeatedly login and waste time - this test doesn't need it
         product.login(user.get(), NoOpPage.class);

@@ -30,43 +30,6 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <!-- Activated by the OD acceptance-tests-runner-->
-            <!-- These ATs / SLATs will run as part of the Manifesto pipeline for Confluence -->
-            <id>ondemand-acceptance-tests</id>
-            <properties>
-                <baseurl.crowd>${baseurl.confluence}/plugins/servlet/crowdproxy</baseurl.crowd>
-                <test.ondemand>true</test.ondemand>
-                <ldapMode>EXTERNAL_CROWD</ldapMode>
-                <sysadmin.password>sysadmin</sysadmin.password>
-            </properties>
-            <build>
-                <plugins>
-                    <!-- maven-surefire should not run the tests, but failsafe -->
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${maven.surefire.plugin.version}</version>
-                        <configuration>
-                            <skipTests>true</skipTests>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${maven.failsafe.plugin.version}</version>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <http.jira.url>${baseurl.jira}</http.jira.url>
-                                <baseurl.crowd>${baseurl.crowd}</baseurl.crowd>
-                                <test.ondemand>${test.ondemand}</test.ondemand>
-                                <ldapMode>${ldapMode}</ldapMode>
-                                <sysadmin.password>${sysadmin.password}</sysadmin.password>
-                            </systemPropertyVariables>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
     <dependencies>
         <dependency>

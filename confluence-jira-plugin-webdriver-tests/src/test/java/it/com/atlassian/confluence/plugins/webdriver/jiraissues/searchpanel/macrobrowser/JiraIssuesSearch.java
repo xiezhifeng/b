@@ -62,12 +62,6 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
     {
         String filterId = "10001";
 
-        if (TestProperties.isOnDemandMode())
-        {
-            filterId = createJiraFilter("All Open Bugs", "", "", client);
-            checkNotNull(filterId);
-        }
-
         openJiraIssueSearchPanelAndStartSearch(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-4"));

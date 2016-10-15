@@ -419,37 +419,6 @@
                 <skipTests>true</skipTests>
             </properties>
         </profile>
-        <profile>
-            <!-- This profile will be activated by the ODAT runner. -->
-            <id>ondemand-acceptance-tests</id>
-            <properties>
-                <pause.time.millis>1000</pause.time.millis>
-
-                <!-- During OD ATs, we talk to Crowd directly (via an SSH tunnel) -->
-                <baseurl.crowd>http://localhost:4990/crowd</baseurl.crowd>
-                <crowd.user>jira</crowd.user>
-                <crowd.password>foobar</crowd.password>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${maven.failsafe.plugin.version}</version>
-                        <configuration>
-                            <includes>
-                                <include>**/Test*.java</include>
-                                <include>**/*Test.java</include>
-                            </includes>
-                            <systemPropertyVariables>
-                                <crowd.user>${crowd.user}</crowd.user>
-                                <crowd.password>${crowd.password}</crowd.password>
-                            </systemPropertyVariables>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 
     <properties>
