@@ -119,6 +119,8 @@ public class AbstractJiraTest
     protected static ViewPage viewPage;
     protected JiraMacroSearchPanelDialog dialogSearchPanel;
 
+    private static UserWithDetails currentUser = null;
+
     public static final CloseableHttpClient client = HttpClientBuilder.create().build();
 
     @Fixture
@@ -197,7 +199,13 @@ public class AbstractJiraTest
 
     protected static EditContentPage gotoEditTestPage(UserWithDetails user)
     {
-        ViewPage viewPage = product.loginAndView(user, page.get());
+        ViewPage viewPage;
+        if(user.getUsername().equals(currentUser.getUsername())){
+            viewPage = product.viewPage(page.get());
+        } else {
+            currentUser = user;
+            viewPage = product.loginAndView(user, page.get());
+        }
         TimeUtils.pause(2000L, TimeUnit.MILLISECONDS);
         EditContentPage editPage = viewPage.edit();
 
