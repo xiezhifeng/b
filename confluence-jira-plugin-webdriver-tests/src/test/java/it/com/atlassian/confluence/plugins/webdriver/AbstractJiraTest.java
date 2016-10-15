@@ -200,7 +200,7 @@ public class AbstractJiraTest
     protected static EditContentPage gotoEditTestPage(UserWithDetails user)
     {
         ViewPage viewPage;
-        if(user.getUsername().equals(currentUser.getUsername())){
+        if(currentUser != null && user.getUsername().equals(currentUser.getUsername())){
             viewPage = product.viewPage(page.get());
         } else {
             currentUser = user;
