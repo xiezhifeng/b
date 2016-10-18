@@ -45,11 +45,7 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraTest
     {
         String authArgs = getAuthQueryString();
         doWebSudo(client);
-
-        if (!TestProperties.isOnDemandMode()) {
-            ApplinkHelper.removeAllAppLink(client, authArgs);
-        }
-
+        ApplinkHelper.removeAllAppLink(client, authArgs);
         product.login(user.get(), NoOpPage.class);
     }
 
