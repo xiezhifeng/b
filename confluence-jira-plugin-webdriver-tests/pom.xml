@@ -300,12 +300,6 @@
                         <baseurl.confluence>${baseurl.confluence}</baseurl.confluence>
                         <context.path>${context.confluence.path}</context.path>
                         <context.confluence.path>${context.confluence.path}</context.confluence.path>
-
-                        <atlassian.darkfeature.site-wide.synchrony>false</atlassian.darkfeature.site-wide.synchrony>
-                        <atlassian.darkfeature.site-wide.synchrony.disable>true</atlassian.darkfeature.site-wide.synchrony.disable>
-                        <atlassian.darkfeature.site-wide.shared-drafts>false</atlassian.darkfeature.site-wide.shared-drafts>
-                        <atlassian.darkfeature.site-wide.shared-drafts.disable>true</atlassian.darkfeature.site-wide.shared-drafts.disable>
-
                     </systemPropertyVariables>
 
                     <products>
