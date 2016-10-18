@@ -36,8 +36,6 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         return pageBinder.bind(JiraMacroPropertyPanel.class);
     }
 
-
-
     protected JiraIssuesPage bindCurrentPageToJiraIssues()
     {
         return pageBinder.bind(JiraIssuesPage.class);

@@ -1,38 +1,36 @@
 package it.com.atlassian.confluence.plugins.webdriver.pageobjects;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.atlassian.confluence.webdriver.pageobjects.component.ConfluenceAbstractPageComponent;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedCondition;
 import com.atlassian.webdriver.AtlassianWebDriver;
-
 import com.google.inject.Inject;
-
+import junit.framework.Assert;
 import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
-import junit.framework.Assert;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
 {
-    @Inject protected AtlassianWebDriver driver;
+    @Inject
+    private AtlassianWebDriver driver;
 
     @ElementBy(cssSelector = "#jiraMacroDlg > .jql-display-opts-inner")
-    protected PageElement displayOptionsPanel;
+    private PageElement displayOptionsPanel;
 
     @ElementBy(id = "s2id_jiraIssueColumnSelector")
-    protected PageElement columnContainer;
+    private PageElement columnContainer;
 
 
     @ElementBy(cssSelector = ".select2-input")
-    protected PageElement select2Input;
+    private PageElement select2Input;
 
-    protected PageElement getRadioBtn(String value)
+    private PageElement getRadioBtn(String value)
     {
         Poller.waitUntilTrue(displayOptionsPanel.timed().isEnabled());
         List<PageElement> elements = displayOptionsPanel.findAll(By.name("insert-advanced"));
@@ -92,12 +90,7 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
     public List<String> getSelectedColumns()
     {
         List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
-        List<String> selectedColumnNames = new ArrayList<String>();
-        for (PageElement selectedColumn :  selectedColumns)
-        {
-            selectedColumnNames.add(selectedColumn.getText());
-        }
-        return selectedColumnNames;
+        return selectedColumns.stream().map(PageElement::getText).collect(Collectors.toList());
     }
 
     public void removeSelectedColumn(String columnName)
@@ -139,15 +132,12 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
     public DisplayOptionPanel removeAllColumns()
     {
         List<String> selectedColumns = getSelectedColumns();
-        for (String selectedColumn : selectedColumns)
-        {
-            removeSelectedColumn(selectedColumn);
-        }
+        selectedColumns.forEach(this::removeSelectedColumn);
 
         return this;
     }
 
-    public PageElement clickSelected2Element()
+    private PageElement clickSelected2Element()
     {
         columnContainer.find(By.className("select2-choices")).click();
         return columnContainer;
@@ -176,7 +166,7 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
         return element.isEnabled();
     }
 
-    protected PageElement getSelectedColumn(String columnName)
+    private PageElement getSelectedColumn(String columnName)
     {
         List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
         for (PageElement selectedColumn :  selectedColumns)

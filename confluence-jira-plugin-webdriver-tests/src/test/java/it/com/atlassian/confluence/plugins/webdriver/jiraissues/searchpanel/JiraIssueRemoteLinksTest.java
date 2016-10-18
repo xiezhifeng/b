@@ -24,9 +24,10 @@ import static org.junit.Assert.assertTrue;
 public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
 {
     @After
-    public void resetRemoteLinks() throws Exception
+    public void clear() throws Exception
     {
         deleteRemoteLinks("TP-1");
+        super.clear();
     }
 
     @Test

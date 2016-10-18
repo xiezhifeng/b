@@ -15,7 +15,6 @@ import com.google.common.base.Supplier;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
@@ -170,17 +169,10 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return this;
     }
 
-    protected Supplier<Boolean> hasShowingDisplayOptionFull()
+    private Supplier<Boolean> hasShowingDisplayOptionFull()
     {
-        return new Supplier<Boolean>()
-        {
-            @Override
-            public Boolean get()
-            {
-                return getPanelBodyDialog().find(By.cssSelector("[data-js=\"display-option-wrapper\"]"))
-                        .javascript().execute("return jQuery(arguments[0]).css(\"bottom\")").equals("0px");
-            }
-        };
+        return () -> getPanelBodyDialog().find(By.cssSelector("[data-js=\"display-option-wrapper\"]"))
+                .javascript().execute("return jQuery(arguments[0]).css(\"bottom\")").equals("0px");
     }
 
     public void uncheckKey(String key)
@@ -190,7 +182,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         checkbox.click();
     }
 
-    public PageElement getJiraIssuesCheckBox(String key)
+    private PageElement getJiraIssuesCheckBox(String key)
     {
         return pageElementFinder.find(By.cssSelector(".issue-checkbox-column input[value='" + key + "']"));
     }
@@ -201,7 +193,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         getDialogMenu().find(By.cssSelector("li.page-menu-item:nth-child(" + index + ") > button.item-button")).click();
     }
 
-    public PageElement getDialogMenu()
+    private PageElement getDialogMenu()
     {
         return find(".dialog-page-menu");
     }
@@ -213,14 +205,14 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public abstract PageElement getPanelBodyDialog();
 
-    public PageElement queryPageElement(String cssSelector)
+    protected PageElement queryPageElement(String cssSelector)
     {
         PageElement pageElement = getPanelBodyDialog().find(By.cssSelector(cssSelector));
         Poller.waitUntilTrue(pageElement.timed().isVisible());
         return pageElement;
     }
 
-    public void triggerChangeEvent(PageElement element)
+    protected void triggerChangeEvent(PageElement element)
     {
         element.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
     }
