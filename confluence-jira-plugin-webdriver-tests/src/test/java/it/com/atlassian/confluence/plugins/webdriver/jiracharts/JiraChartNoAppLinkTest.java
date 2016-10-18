@@ -3,6 +3,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.pageobjects.elements.query.Poller;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import org.json.JSONException;
 import org.junit.BeforeClass;
@@ -10,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class JiraChartNoAppLinkTest extends AbstractJiraChartTest {
+public class JiraChartNoAppLinkTest extends AbstractJiraIssueMacroTest {
 
     @BeforeClass
     public static void start() throws Exception {

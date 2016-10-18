@@ -115,6 +115,10 @@ public abstract class AbstractJiraIssueMacroTest {
 
     @After
     public void clear() throws Exception {
+        closeDialog(dialogPieChart);
+        closeDialog(dialogCreatedVsResolvedChart);
+        closeDialog(dialogTwoDimensionalChart);
+        closeDialog(dialogSearchPanel);
         cancelEditPage(editPage);
     }
 
@@ -141,8 +145,7 @@ public abstract class AbstractJiraIssueMacroTest {
     }
 
     protected void closeDialog(final Dialog dialog) {
-        if (dialog != null && dialog.isVisible())
-        {
+        if (dialog != null && dialog.isVisible()) {
             dialog.clickCancel();
             dialog.waitUntilHidden();
         }
@@ -210,6 +213,15 @@ public abstract class AbstractJiraIssueMacroTest {
         if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
             ViewPage viewPage = editPage.cancel();
             viewPage.doWait();
+        }
+    }
+
+    protected void checkImageInDialog(boolean hasBorder) {
+        dialogPieChart = openPieChartAndSearch();
+        if (hasBorder) {
+            dialogPieChart.openDisplayOption();
+            dialogPieChart.clickBorderImage();
+            Assert.assertTrue(dialogPieChart.hadBorderImageInDialog());
         }
     }
 }

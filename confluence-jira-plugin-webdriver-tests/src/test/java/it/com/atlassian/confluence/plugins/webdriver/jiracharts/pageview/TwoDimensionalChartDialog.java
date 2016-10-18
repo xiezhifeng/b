@@ -1,18 +1,16 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts.pageview;
 
 
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraChartViewPage;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TwoDimensionalChartDialog extends AbstractJiraChartTest
-{
+public class TwoDimensionalChartDialog extends AbstractJiraIssueMacroTest {
+
     @Test
-    public void testTwoDimensionalChartShowMore() throws InterruptedException
-    {
+    public void testTwoDimensionalChartShowMore() throws InterruptedException {
         dialogTwoDimensionalChart = openTwoDimensionalChartDialog();
 
         dialogTwoDimensionalChart.openDisplayOption();

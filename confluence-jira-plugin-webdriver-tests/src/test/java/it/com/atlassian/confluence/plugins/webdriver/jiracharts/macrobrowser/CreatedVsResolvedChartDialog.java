@@ -2,8 +2,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 
 import com.atlassian.pageobjects.elements.query.Poller;
-
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartWithoutSavingTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -12,19 +11,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSavingTest
-{
+public class CreatedVsResolvedChartDialog extends AbstractJiraIssueMacroTest {
+
     @Test
-    public void testSwitchToCreatedVsResolvedChart()
-    {
+    public void testSwitchToCreatedVsResolvedChart() {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         assertNotNull(dialogCreatedVsResolvedChart.getSelectedForPeriodElement().getValue());
     }
 
     @Test
-    public void testDefaultValuesCreatedVsResolvedChart()
-    {
+    public void testDefaultValuesCreatedVsResolvedChart() {
         dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
 
@@ -34,8 +31,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     }
 
     @Test
-    public void testHourlyPeriodNamePreviousCreatedVsResolvedChart()
-    {
+    public void testHourlyPeriodNamePreviousCreatedVsResolvedChart() {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Hourly");
@@ -45,8 +41,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     }
 
     @Test
-    public void testDailyPeriodNameCreatedVsResolvedChartHasError()
-    {
+    public void testDailyPeriodNameCreatedVsResolvedChartHasError() {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Daily");
@@ -55,8 +50,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     }
 
     @Test
-    public void testWeeklyPeriodNameCreatedVsResolvedChartHasError()
-    {
+    public void testWeeklyPeriodNameCreatedVsResolvedChartHasError() {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Weekly");
@@ -65,8 +59,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     }
 
     @Test
-    public void testMonthlyPeriodNameCreatedVsResolvedHasError()
-    {
+    public void testMonthlyPeriodNameCreatedVsResolvedHasError() {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Monthly");
@@ -75,8 +68,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     }
 
     @Test
-    public void testQuarterlyPeriodNameCreatedVsResolved()
-    {
+    public void testQuarterlyPeriodNameCreatedVsResolved() {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Quarterly");
@@ -85,8 +77,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     }
 
     @Test
-    public void testQuarterlyPeriodNameCreatedVsResolvedHasError()
-    {
+    public void testQuarterlyPeriodNameCreatedVsResolvedHasError() {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Quarterly");
@@ -95,8 +86,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     }
 
     @Test
-    public void testYearlyPeriodNameCreatedVsResolvedHasError()
-    {
+    public void testYearlyPeriodNameCreatedVsResolvedHasError() {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Yearly");
@@ -105,8 +95,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     }
 
     @Test
-    public void checkInputValueCreatedVsResolvedChartInJQLSearchField()
-    {
+    public void checkInputValueCreatedVsResolvedChartInJQLSearchField() {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
 
         dialogCreatedVsResolvedChart.inputJqlSearch("TP-1");
@@ -116,8 +105,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     }
 
     @Test
-    public void checkBorderCreatedVsResolvedChart()
-    {
+    public void checkBorderCreatedVsResolvedChart() {
         dialogCreatedVsResolvedChart = openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.clickBorderImage();

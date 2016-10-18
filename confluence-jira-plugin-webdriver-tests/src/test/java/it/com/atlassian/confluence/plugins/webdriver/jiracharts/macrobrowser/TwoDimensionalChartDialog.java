@@ -2,27 +2,24 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 
 import com.atlassian.pageobjects.elements.query.Poller;
-
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartWithoutSavingTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class TwoDimensionalChartDialog extends AbstractJiraChartWithoutSavingTest
-{
+public class TwoDimensionalChartDialog extends AbstractJiraIssueMacroTest {
+
     @Test
-    public void testSwitchToTwoDimensionalDialog()
-    {
+    public void testSwitchToTwoDimensionalDialog() {
         dialogTwoDimensionalChart = openTwoDimensionalChartDialog();
         dialogTwoDimensionalChart.openDisplayOption();
         assertNotNull(dialogTwoDimensionalChart.getNumberOfResult().isPresent());
     }
 
     @Test
-    public void testDefaultValuesTwoDimensionalDialog()
-    {
+    public void testDefaultValuesTwoDimensionalDialog() {
         dialogTwoDimensionalChart = openTwoDimensionalChartDialog();
 
         dialogTwoDimensionalChart.openDisplayOption();
@@ -33,8 +30,7 @@ public class TwoDimensionalChartDialog extends AbstractJiraChartWithoutSavingTes
     }
 
     @Test
-    public void testValidateNumberOfResult()
-    {
+    public void testValidateNumberOfResult() {
         dialogTwoDimensionalChart = openTwoDimensionalChartDialog();
 
         dialogTwoDimensionalChart.openDisplayOption();
