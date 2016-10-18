@@ -137,6 +137,7 @@ public abstract class AbstractJiraTest
     @After
     public void clear() throws Exception {
         closeDialog(jiraMacroSearchPanelDialog);
+        closeDialog(jiraMacroCreatePanelDialog);
         cancelEditPage(editPage);
     }
 
