@@ -10,7 +10,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-public class AbstractJiraCreatedPanelTest extends AbstractJiraTest
+public abstract class AbstractJiraCreatedPanelTest extends AbstractJiraTest
 {
     @BeforeClass
     public static void init() throws Exception

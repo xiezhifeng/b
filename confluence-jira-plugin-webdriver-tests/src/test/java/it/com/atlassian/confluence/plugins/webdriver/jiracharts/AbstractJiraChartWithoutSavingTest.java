@@ -8,7 +8,7 @@ import org.junit.Before;
  * Any class inherits from this class `AbstractJiraChartWithoutSavingTest` will test for edit page only
  * and do not act saving page.
  */
-public class AbstractJiraChartWithoutSavingTest extends AbstractJiraChartTest
+public abstract class AbstractJiraChartWithoutSavingTest extends AbstractJiraChartTest
 {
     /**
      * Just clear content before running each test.

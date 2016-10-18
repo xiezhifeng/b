@@ -3,7 +3,6 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.ImmutableList;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
