@@ -6,6 +6,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import org.json.JSONException;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -16,24 +17,21 @@ public class JiraChartNoAppLinkTest extends AbstractJiraTest
     @BeforeClass
     public static void start() throws Exception
     {
-        String authArgs = getAuthQueryString();
         doWebSudo(client);
-        ApplinkHelper.removeAllAppLink(client, authArgs);
+        ApplinkHelper.removeAllAppLink(client, getAuthQueryString());
         product.login(user.get(), NoOpPage.class);
+    }
+
+    @Before
+    public void setup() throws Exception {
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH, client, getAuthQueryString(),  getBasicQueryString());
+        super.setup();
     }
 
     @Test
     public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
     {
-        String authArgs = getAuthQueryString();
-        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH, client, authArgs,  getBasicQueryString());
-
-        // We need to refresh the editor so it can pick up the new applink configuration. We need to do
-        // this now since the setUp() method already places us in the editor context
-        editPage.save().edit();
-
         dialogPieChart = openPieChartDialog(false);
-
         Poller.waitUntilTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().timed().isVisible());
     }
 
