@@ -2,14 +2,14 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 
 import com.atlassian.pageobjects.elements.query.Poller;
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class TwoDimensionalChartDialog extends AbstractJiraChartTest
+public class TwoDimensionalChartDialog extends AbstractJiraTest
 {
     @Test
     public void testSwitchToTwoDimensionalDialog()

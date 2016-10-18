@@ -1,8 +1,5 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
-import com.atlassian.confluence.it.TestProperties;
-import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.WarningAppLinkDialog;
 import com.atlassian.confluence.test.rpc.api.permissions.GlobalPermission;
 import com.atlassian.confluence.test.rpc.api.permissions.SpacePermission;
 import com.atlassian.confluence.test.stateless.fixtures.Fixture;
@@ -11,34 +8,32 @@ import com.atlassian.confluence.test.stateless.fixtures.SpaceFixture;
 import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
-
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.WarningAppLinkDialog;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 
 public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraTest
 {
     @Fixture
-    public static GroupFixture groupNonAdmin = GroupFixture.groupFixture()
+    private static GroupFixture groupNonAdmin = GroupFixture.groupFixture()
             .globalPermission(GlobalPermission.CAN_USE).build();
 
     @Fixture
-    public static UserFixture userNonAdmin = UserFixture.userFixture()
+    private static UserFixture userNonAdmin = UserFixture.userFixture()
             .group(groupNonAdmin)
             .build();
 
     @Fixture
-    public static SpaceFixture spaceNonAdmin = SpaceFixture.spaceFixture()
+    private static SpaceFixture spaceNonAdmin = SpaceFixture.spaceFixture()
             .permission(userNonAdmin, SpacePermission.VIEW, SpacePermission.PAGE_EDIT, SpacePermission.BLOG_EDIT)
             .build();
 
-    protected EditContentPage editPage;
-    protected WarningAppLinkDialog warningAppLinkDialog;
+
+    private WarningAppLinkDialog warningAppLinkDialog;
 
     @BeforeClass
     public static void init() throws Exception
@@ -49,33 +44,11 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraTest
         product.login(user.get(), NoOpPage.class);
     }
 
-    @Before
-    public void setup() throws Exception
-    {
-        if (editPage == null)
-        {
-            editPage = gotoEditTestPage(user.get());
-        }
-        else
-        {
-            if (editPage.getEditor().isCancelVisibleNow())
-            {
-                // in editor page.
-                editPage.getEditor().getContent().clear();
-            }
-            else
-            {
-                // in view page, and then need to go to edit page.
-                editPage = gotoEditTestPage(user.get());
-            }
-        }
-    }
-
     @After
-    public void clearUp() throws Exception
+    public void clear() throws Exception
     {
-        cancelEditPage(editPage);
         closeDialog(warningAppLinkDialog);
+        super.clear();
     }
 
     @Test
@@ -89,12 +62,11 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraTest
     {
         cancelEditPage(editPage);
         product.logOut();
-
         product.loginAndEdit(userNonAdmin.get(), spaceNonAdmin.get().getHomepageRef().get());
         validateWarningDialog("Contact admin");
     }
 
-    protected void validateWarningDialog(String buttonText)
+    private void validateWarningDialog(String buttonText)
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
         macroBrowserDialog.searchForFirst("embed jira issues").select();

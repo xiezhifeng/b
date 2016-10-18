@@ -2,7 +2,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 
 import com.atlassian.pageobjects.elements.query.Poller;
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class CreatedVsResolvedChartDialog extends AbstractJiraChartTest
+public class CreatedVsResolvedChartDialog extends AbstractJiraTest
 {
     @Test
     public void testSwitchToCreatedVsResolvedChart()

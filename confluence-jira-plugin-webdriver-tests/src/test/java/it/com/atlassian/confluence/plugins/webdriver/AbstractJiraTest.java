@@ -40,6 +40,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -138,7 +139,18 @@ public abstract class AbstractJiraTest
     public void clear() throws Exception {
         closeDialog(jiraMacroSearchPanelDialog);
         closeDialog(jiraMacroCreatePanelDialog);
+        closeDialog(dialogPieChart);
+        closeDialog(dialogCreatedVsResolvedChart);
+        closeDialog(dialogTwoDimensionalChart);
+        closeDialog(dialogSearchPanel);
         cancelEditPage(editPage);
+    }
+
+    @AfterClass
+    public static void teardown() throws Exception
+    {
+        String authArgs = getAuthQueryString();
+        ApplinkHelper.removeAllAppLink(client, authArgs);
     }
 
     protected String getProjectId(String projectName)
@@ -368,4 +380,14 @@ public abstract class AbstractJiraTest
         return pageBinder.bind(TwoDimensionalChartDialog.class);
     }
 
+    protected void checkImageInDialog(boolean hasBorder)
+    {
+        dialogPieChart = openPieChartAndSearch();
+        if (hasBorder)
+        {
+            dialogPieChart.openDisplayOption();
+            dialogPieChart.clickBorderImage();
+            Assert.assertTrue(dialogPieChart.hadBorderImageInDialog());
+        }
+    }
 }

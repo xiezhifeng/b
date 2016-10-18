@@ -1,35 +1,25 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
-import java.io.IOException;
-
-import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.pageobjects.elements.query.Poller;
-
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import org.json.JSONException;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class JiraChartNoAppLinkTest extends AbstractJiraChartTest
+import java.io.IOException;
+
+public class JiraChartNoAppLinkTest extends AbstractJiraTest
 {
     @BeforeClass
     public static void start() throws Exception
     {
         String authArgs = getAuthQueryString();
         doWebSudo(client);
-
         ApplinkHelper.removeAllAppLink(client, authArgs);
-
         product.login(user.get(), NoOpPage.class);
-    }
-
-    @AfterClass
-    public static void cleanup() throws Exception
-    {
-        String authArgs = getAuthQueryString();
-        ApplinkHelper.removeAllAppLink(client, authArgs);
     }
 
     @Test

@@ -3,7 +3,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.query.Poller;
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,7 +14,7 @@ import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 
-public class JiraChart extends AbstractJiraChartTest
+public class JiraChart extends AbstractJiraTest
 {
     @Test
     public void testStatType()
