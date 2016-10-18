@@ -27,7 +27,6 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 import com.atlassian.webdriver.utils.element.WebDriverPoller;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
@@ -40,14 +39,13 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillte
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -86,28 +84,27 @@ public abstract class AbstractJiraTest
         }
     });
 
-    private final Logger log = LoggerFactory.getLogger(AbstractJiraTest.class);
-    
     @Inject protected static ConfluenceTestedProduct product;
     @Inject protected static PageBinder pageBinder;
     @Inject protected static ConfluenceRestClient restClient;
     @Inject protected static ConfluenceRpcClient rpcClient;
     @Inject protected WebDriverPoller poller;
 
+    protected EditContentPage editPage;
     protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
-    protected static EditContentPage editPage;
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
     protected CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart = null;
     protected TwoDimensionalChartDialog dialogTwoDimensionalChart;
     protected PieChartDialog dialogPieChart;
+    protected JiraMacroSearchPanelDialog dialogSearchPanel;
+
     protected static JiraChartViewPage pageJiraChartView;
     protected static ViewPage viewPage;
-    protected JiraMacroSearchPanelDialog dialogSearchPanel;
 
     public static final HttpClient client = new HttpClient();
 
     @Fixture
-    public static GroupFixture group = GroupFixture.groupFixture()
+    private static GroupFixture group = GroupFixture.groupFixture()
             .globalPermission(GlobalPermission.CONFLUENCE_ADMIN)
             .build();
 
@@ -117,11 +114,9 @@ public abstract class AbstractJiraTest
             .build();
 
     @Fixture
-    public static SpaceFixture space = SpaceFixture.spaceFixture()
+    protected static SpaceFixture space = SpaceFixture.spaceFixture()
             .permission(user, SpacePermission.VIEW, SpacePermission.PAGE_EDIT, SpacePermission.BLOG_EDIT)
             .build();
-
-    protected static Content testPageContent;
 
     @BeforeClass
     public static void start() throws Exception
@@ -130,6 +125,13 @@ public abstract class AbstractJiraTest
         ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, getAuthQueryString(), getBasicQueryString());
         //login once, so that we don't repeatedly login and waste time - this test doesn't need it
         product.login(user.get(), NoOpPage.class);
+    }
+
+    @Before
+    public void setup() throws Exception {
+        editPage = (editPage == null || !editPage.getEditor().isCancelVisibleNow()) ? gotoEditTestPage(user.get()) : editPage;
+        Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
+        editPage.getEditor().getContent().clear();
     }
 
     protected String getProjectId(String projectName)
@@ -165,7 +167,7 @@ public abstract class AbstractJiraTest
 
     protected static EditContentPage gotoEditTestPage(UserWithDetails user)
     {
-        testPageContent = space.get().getHomepageRef().get();
+        Content testPageContent = space.get().getHomepageRef().get();
         EditContentPage editPage = product.loginAndEdit(user, testPageContent);
 
         Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
