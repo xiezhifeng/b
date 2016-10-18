@@ -15,19 +15,17 @@ import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 
-public class JiraChart extends AbstractJiraChartWithoutSavingTest
-{
+public class JiraChart extends AbstractJiraChartWithoutSavingTest {
+
     @Test
-    public void testStatType()
-    {
+    public void testStatType() {
         dialogPieChart = openPieChartDialog(true);
         dialogPieChart.openDisplayOption();
         checkNotNull(dialogPieChart.getSelectedStatType());
     }
 
     @Test
-    public void testJiraIssuesMacroLink()
-    {
+    public void testJiraIssuesMacroLink() {
         dialogPieChart = openPieChartDialog(true);
 
         checkNotNull(dialogPieChart.getJiraIssuesMacroAnchor());
@@ -38,8 +36,7 @@ public class JiraChart extends AbstractJiraChartWithoutSavingTest
     }
 
     @Test
-    public void testDefaultChart()
-    {
+    public void testDefaultChart() {
         dialogPieChart = openPieChartDialog(true);
         assertEquals("Pie Chart", dialogPieChart.getSelectedChart());
     }
@@ -48,8 +45,7 @@ public class JiraChart extends AbstractJiraChartWithoutSavingTest
      * Test Jira Chart Macro handle invalid JQL
      */
     @Test
-    public void checkInvalidJQL()
-    {
+    public void checkInvalidJQL() {
         dialogPieChart = openPieChartDialog(true);
         dialogPieChart.inputJqlSearch(" = unknown");
         dialogPieChart.clickPreviewButton();
@@ -62,8 +58,7 @@ public class JiraChart extends AbstractJiraChartWithoutSavingTest
      * check JQL search field when input value convert to JQL
      */
     @Test
-    public void checkPasteValueInJQLSearchField()
-    {
+    public void checkPasteValueInJQLSearchField() {
         dialogPieChart = openPieChartDialog(true);
         dialogPieChart.pasteJqlSearch("TP-1");
 
@@ -74,8 +69,7 @@ public class JiraChart extends AbstractJiraChartWithoutSavingTest
      * check draw image in dialog when click editorPreview button
      */
     @Test
-    public void checkImageInDialog()
-    {
+    public void checkImageInDialog() {
         checkImageInDialog(false);
     }
 
@@ -83,14 +77,12 @@ public class JiraChart extends AbstractJiraChartWithoutSavingTest
      * check border image when click check box border.
      */
     @Test
-    public void checkBorderImageInDialog()
-    {
+    public void checkBorderImageInDialog() {
         checkImageInDialog(true);
     }
 
     @Test
-    public void checkShowInfoInDialog()
-    {
+    public void checkShowInfoInDialog() {
         dialogPieChart = openPieChartAndSearch();
         dialogPieChart.openDisplayOption();
         dialogPieChart.clickShowInforCheckbox();
@@ -98,15 +90,10 @@ public class JiraChart extends AbstractJiraChartWithoutSavingTest
     }
 
     /**
-     * validate jira image in content page
-     */
-
-    /**
      * show warning if input wrong format value Width column
      */
     @Test
-    public void checkFormatWidthInDialog()
-    {
+    public void checkFormatWidthInDialog() {
         dialogPieChart = openPieChartDialog(true);
         dialogPieChart.inputJqlSearch("status = open");
         dialogPieChart.openDisplayOption();
@@ -120,23 +107,23 @@ public class JiraChart extends AbstractJiraChartWithoutSavingTest
      * check JQL search field when input value convert to JQL
      */
     @Test
-    public void checkInputValueInJQLSearchField()
-    {
+    public void checkInputValueInJQLSearchField() {
         dialogPieChart = openPieChartDialog(true);
         dialogPieChart.inputJqlSearch("TP-1");
         dialogPieChart.clickPreviewButton();
-        Poller.waitUntil(dialogPieChart.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase("key=TP-1"));
+        Poller.waitUntil(
+                dialogPieChart.getJqlSearchElement().timed().getValue(),
+                Matchers.equalToIgnoringCase("key=TP-1")
+        );
     }
 
     /**
      * validate jira chart macro in RTE
      */
     @Test
-    public void validateMacroInEditor()
-    {
+    public void validateMacroInEditor() {
         openPieChartAndSearch().clickInsertDialog();
         EditorContent editorContent = editPage.getEditor().getContent();
-
         editorContent.waitForInlineMacro(JIRA_CHART_MACRO_NAME);
 
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
@@ -144,4 +131,4 @@ public class JiraChart extends AbstractJiraChartWithoutSavingTest
 
         Poller.waitUntilTrue(editorContent.htmlContains("data-macro-name=\"jirachart\""));
     }
- }
+}

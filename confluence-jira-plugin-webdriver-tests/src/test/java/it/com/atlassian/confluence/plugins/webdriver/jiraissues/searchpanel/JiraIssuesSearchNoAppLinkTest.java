@@ -42,9 +42,9 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssueMacroTest {
     }
 
     @After
-    public void clearUp() throws Exception {
-        cancelEditPage(editPage);
+    public void clear() throws Exception {
         closeDialog(warningAppLinkDialog);
+        super.clear();
     }
 
     @Test
