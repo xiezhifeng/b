@@ -5,16 +5,15 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.JiraChartHelper;
 import com.atlassian.pageobjects.elements.PageElement;
 
-import com.google.common.base.Function;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+
+import java.util.function.Function;
 
 
 public class TwoDimensionalChartDialog extends AbstractJiraChartDialog
 {
-    protected static final String CSS_SELECTOR_TWO_DIMENSIONAL_PANEL = "#jira-chart-content-twodimensional";
-
+    private static final String CSS_SELECTOR_TWO_DIMENSIONAL_PANEL = "#jira-chart-content-twodimensional";
 
     @Override
     public PageElement getPanelBodyDialog()

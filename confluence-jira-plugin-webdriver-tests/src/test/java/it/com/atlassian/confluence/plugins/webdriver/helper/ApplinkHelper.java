@@ -15,7 +15,7 @@ import java.io.IOException;
 public class ApplinkHelper
 {
     private static final String TEST_APPLINK_NAME = "jiratest";
-    public static enum ApplinkMode { BASIC, OAUTH, TRUSTED }
+    public enum ApplinkMode { BASIC, OAUTH, TRUSTED }
 
     public static String setupAppLink(ApplinkMode applinkMode, HttpClient client, String authArgs, String basicAuthArgs) throws IOException, JSONException
     {
@@ -39,7 +39,7 @@ public class ApplinkHelper
         return applinkId;
     }
 
-    public static boolean isExistAppLink(HttpClient client, String authArgs) throws JSONException, IOException
+    private static boolean isExistAppLink(HttpClient client, String authArgs) throws JSONException, IOException
     {
         final JSONArray jsonArray = getListAppLink(client, authArgs);
         for(int i = 0; i< jsonArray.length(); i++)
@@ -84,7 +84,7 @@ public class ApplinkHelper
         return jsonObj.getJSONObject("applicationLink").getString("id");
     }
 
-    public static void enableApplinkBasicMode(HttpClient client, String applinkId, String authArgs) throws IOException
+    private static void enableApplinkBasicMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
         final PutMethod method = new PutMethod(System.getProperty("baseurl.confluence") + "/plugins/servlet/applinks/auth/conf/basic/" + applinkId + authArgs);
         method.addRequestHeader("X-Atlassian-Token", "no-check");
@@ -103,7 +103,7 @@ public class ApplinkHelper
         Assert.assertTrue("Cannot enable Oauth AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_OK);
     }
 
-    public static void enableApplinkTrustedMode(HttpClient client, String applinkId, String authArgs) throws IOException
+    private static void enableApplinkTrustedMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
         PostMethod method = new PostMethod(System.getProperty("baseurl.confluence") + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + applinkId + authArgs);
         method.addParameter("action", "ENABLE");

@@ -9,11 +9,11 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 
-import com.google.common.base.Function;
-
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+
+import java.util.function.Function;
 
 public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDialog
 {
@@ -42,14 +42,7 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
 
     public boolean isChartImageVisible()
     {
-        return getChartImage(new Function<WebElement, Boolean>()
-        {
-            @Override
-            public Boolean apply(WebElement element)
-            {
-                return element.isDisplayed();
-            }
-        });
+        return getChartImage(element -> element.isDisplayed());
     }
 
     /**
@@ -64,29 +57,18 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
 
     public boolean hasInfoBelowImage()
     {
-        return getChartImage(new Function<WebElement, Boolean>()
-        {
-            @Override
-            public Boolean apply(WebElement wrapper)
-            {
-                WebElement link = driver.findElement(By.cssSelector(".jira-chart-macro-wrapper .info a"));
-                String href = link.getAttribute("href");
-                return href.contains(JIRA_NAV_URL);
-            }
+        return getChartImage(wrapper -> {
+            WebElement link = driver.findElement(By.cssSelector(".jira-chart-macro-wrapper .info a"));
+            String href = link.getAttribute("href");
+            return href.contains(JIRA_NAV_URL);
         });
     }
 
     public boolean hadChartImage()
     {
-        return getChartImage(new Function<WebElement, Boolean>()
-        {
-
-            @Override
-            public Boolean apply(WebElement wrapper)
-            {
-                String imageSrc = wrapper.getAttribute("src");
-                return imageSrc.contains(JIRA_CHART_BASE_64_PREFIX);
-            }
+        return getChartImage(wrapper -> {
+            String imageSrc = wrapper.getAttribute("src");
+            return imageSrc.contains(JIRA_CHART_BASE_64_PREFIX);
         });
     }
 
@@ -111,15 +93,7 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
      */
     public boolean hasWarningOnIframe()
     {
-        return getFrameWarningMsg(new Function<WebElement, Boolean>()
-        {
-
-            @Override
-            public Boolean apply(WebElement element)
-            {
-                return element.isDisplayed();
-            }
-        });
+        return getFrameWarningMsg(element -> element.isDisplayed());
     }
 
     public boolean hasWarningValWidth()
@@ -129,16 +103,10 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
 
     public boolean hadImageInDialog()
     {
-        return getChartImage(new Function<WebElement, Boolean>()
-        {
-
-            @Override
-            public Boolean apply(WebElement pieImage)
-            {
-                // Note : currently don't know why image cannot display during testing session. Show will use 'src' attribute to check
-                String imageSrc = pieImage.getAttribute("src");
-                return imageSrc.contains(JIRA_CHART_BASE_64_PREFIX);
-            }
+        return getChartImage(pieImage -> {
+            // Note : currently don't know why image cannot display during testing session. Show will use 'src' attribute to check
+            String imageSrc = pieImage.getAttribute("src");
+            return imageSrc.contains(JIRA_CHART_BASE_64_PREFIX);
         });
     }
 
