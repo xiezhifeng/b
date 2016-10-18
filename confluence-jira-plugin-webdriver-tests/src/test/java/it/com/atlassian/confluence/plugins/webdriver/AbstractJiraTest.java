@@ -44,7 +44,9 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 
@@ -65,19 +67,20 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(ConfluenceStatelessTestRunner.class)
 @TestedProductClass(ConfluenceTestedProduct.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class AbstractJiraTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
     public static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
-    public static final String JIRA_CHART_MACRO_NAME = "jirachart";
-    public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
+    protected static final String JIRA_CHART_MACRO_NAME = "jirachart";
+    protected static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
 
     protected static final String PROJECT_TSTT = "Test Project";
     protected static final String PROJECT_TP = "Test Project 1";
-    protected static final String PROJECT_TST = "Test Project 2";
+    private static final String PROJECT_TST = "Test Project 2";
 
-    protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>() {
+    private Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>() {
         {
             put(PROJECT_TSTT, "10011");
             put(PROJECT_TP, "10000");
@@ -110,7 +113,7 @@ public abstract class AbstractJiraTest
             .build();
 
     @Fixture
-    public static UserFixture user = UserFixture.userFixture()
+    protected static UserFixture user = UserFixture.userFixture()
             .group(group)
             .build();
 
@@ -254,7 +257,7 @@ public abstract class AbstractJiraTest
 
     /**
      * Try to cancel Edit page in order to avoid browser modal dialog shows when navigating out out Edit page.
-     * @param editPage
+     * @param editPage edit content page
      */
     protected static void cancelEditPage(EditContentPage editPage)
     {
