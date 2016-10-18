@@ -58,6 +58,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -83,6 +84,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(ConfluenceStatelessTestRunner.class)
 @TestedProductClass(ConfluenceTestedProduct.class)
+@Ignore
 public class AbstractJiraTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
