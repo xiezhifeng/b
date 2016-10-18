@@ -134,6 +134,12 @@ public abstract class AbstractJiraTest
         editPage.getEditor().getContent().clear();
     }
 
+    @After
+    public void clear() throws Exception {
+        closeDialog(jiraMacroSearchPanelDialog);
+        cancelEditPage(editPage);
+    }
+
     protected String getProjectId(String projectName)
     {
         return internalJiraProjects.get(projectName);

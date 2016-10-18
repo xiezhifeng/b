@@ -1,19 +1,18 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import com.atlassian.pageobjects.elements.query.Poller;
-
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
 {
-    private static String searchStr = "project = TP";
 
     @Test
     public void testCreateLinkMacroWithDefault() throws Exception
     {
+        String searchStr = "project = TP";
         editPage = openJiraIssueSearchPanelAndStartSearch(searchStr).clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         Poller.waitUntilTrue(editPage.getEditor().getContent().htmlContains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));

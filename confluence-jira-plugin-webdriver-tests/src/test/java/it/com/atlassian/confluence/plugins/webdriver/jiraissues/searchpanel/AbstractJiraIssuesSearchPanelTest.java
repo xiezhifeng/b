@@ -11,7 +11,6 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraMacroPropertyPanel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.hamcrest.Matchers;
-import org.junit.After;
 
 import java.util.List;
 
@@ -23,13 +22,6 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     protected static final List<String> LIST_MULTIVALUE_COLUMN = ImmutableList.of("Summary", "Issue Type", "Key", "Component/s", "Fix Version/s");
     protected static final List<String> LIST_URL_TEST_COLUMN = ImmutableList.of("Summary", "Issue Type", "URL", "Key");
     protected static List<String> LIST_DEFAULT_COLUMN = ImmutableList.of("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
-
-    @After
-    public void closeJiraSearchDialog() throws Exception
-    {
-        closeDialog(jiraMacroSearchPanelDialog);
-        cancelEditPage(editPage);
-    }
 
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelAndStartSearch(String searchValue) throws Exception
     {

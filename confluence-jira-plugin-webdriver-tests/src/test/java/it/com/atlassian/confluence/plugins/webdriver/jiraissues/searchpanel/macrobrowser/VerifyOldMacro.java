@@ -2,17 +2,14 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.mac
 
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
-
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
-public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
     public void testConvertJiraIssueToJiraWithXML()

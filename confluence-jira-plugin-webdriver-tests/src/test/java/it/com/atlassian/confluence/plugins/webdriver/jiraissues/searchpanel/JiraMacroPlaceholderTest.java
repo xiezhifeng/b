@@ -5,7 +5,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 
 import org.junit.Test;
 
-public class JiraMacroPlaceholderTest extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraMacroPlaceholderTest extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
     public void testPlaceHolderWhenMacroContainsOneIssue() throws Exception
