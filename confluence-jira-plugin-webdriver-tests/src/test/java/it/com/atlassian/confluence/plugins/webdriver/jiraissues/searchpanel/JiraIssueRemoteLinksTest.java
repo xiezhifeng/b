@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mortbay.util.MultiMap;
 import org.mortbay.util.UrlEncoded;
@@ -17,7 +18,6 @@ import org.mortbay.util.UrlEncoded;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -139,29 +139,29 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssueMacroSearchPanelT
                 final JSONObject link = remoteLinks.getJSONObject(i);
                 final Long id = link.getLong("id");
                 final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink/" + id + getAuthQueryString();
-                DeleteMethod request = new DeleteMethod(url);
+                DeleteMethod m = new DeleteMethod(url);
 
-                int status = client.executeMethod(request);
-                assertEquals("Got status " + status + " when retrieving " + url, 204, status);
-                request.releaseConnection();
+                int status = client.executeMethod(m);
+                Assert.assertEquals("Got status " + status + " when retrieving " + url, 204, status);
+                m.releaseConnection();
             }
         }
-        catch (JSONException exception)
+        catch (JSONException e)
         {
-            throw new RuntimeException(exception);
+            throw new RuntimeException(e);
         }
     }
 
     private JSONArray getJiraRemoteLinks(String issueKey) throws IOException
     {
         final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink" + getAuthQueryString();
-        GetMethod request = new GetMethod(url);
-        request.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        int status = client.executeMethod(request);
-        assertEquals("Got status " + status + " when retrieving " + url, 200, status);
+        GetMethod m = new GetMethod(url);
+        m.setRequestHeader("Accept", "application/json, text/javascript, */*");
+        int status = client.executeMethod(m);
+        Assert.assertEquals("Got status " + status + " when retrieving " + url, 200, status);
 
-        final String responseBody = request.getResponseBodyAsString();
-        request.releaseConnection();
+        final String responseBody = m.getResponseBodyAsString();
+        m.releaseConnection();
         try
         {
             return new JSONArray(responseBody);

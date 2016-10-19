@@ -1,11 +1,11 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraIssueMacroChartTest;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -42,18 +42,18 @@ public class TwoDimensionalChartDialogTest extends AbstractJiraIssueMacroChartTe
                 .clear().type("text")
                 .javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         dialogTwoDimensionalChart.inputJqlSearch("status=open");
-        waitUntil(dialogTwoDimensionalChart.getNumberOfResultError().timed().getText(), Matchers.not(Matchers.isEmptyString()));
+        Poller.waitUntil(dialogTwoDimensionalChart.getNumberOfResultError().timed().getText(), Matchers.not(Matchers.isEmptyString()));
 
         dialogTwoDimensionalChart.getNumberOfResult()
                 .clear().type("10")
                 .javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         dialogTwoDimensionalChart.inputJqlSearch("status=open");
-        waitUntil(dialogTwoDimensionalChart.getNumberOfResultError().timed().getText(), Matchers.isEmptyString());
+        Poller.waitUntil(dialogTwoDimensionalChart.getNumberOfResultError().timed().getText(), Matchers.isEmptyString());
 
         dialogTwoDimensionalChart.getNumberOfResult()
                 .clear().type("0")
                 .javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         dialogTwoDimensionalChart.inputJqlSearch("status=open");
-        waitUntil(dialogTwoDimensionalChart.getNumberOfResultError().timed().getText(), Matchers.not(Matchers.isEmptyString()));
+        Poller.waitUntil(dialogTwoDimensionalChart.getNumberOfResultError().timed().getText(), Matchers.not(Matchers.isEmptyString()));
     }
 }

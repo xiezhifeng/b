@@ -1,6 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraIssueMacroChartTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import org.apache.commons.lang3.StringUtils;
@@ -8,7 +9,6 @@ import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
 
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -119,10 +119,9 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraIssueMacroChar
         dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.inputJqlSearch("TP-1");
         dialogCreatedVsResolvedChart.clickPreviewButton();
-        waitUntil(
+        Poller.waitUntil(
                 dialogCreatedVsResolvedChart.getJqlSearchElement().timed().getValue(),
-                Matchers.equalToIgnoringCase("key=TP-1")
-        );
+                Matchers.equalToIgnoringCase("key=TP-1"));
     }
 
     @Test

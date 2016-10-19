@@ -2,6 +2,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.Iterables;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper;
@@ -9,16 +10,13 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillte
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
 
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntilFalse;
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class JiraIssueMacroCreatePanelTest extends AbstractJiraIssueMacroTest {
@@ -50,7 +48,7 @@ public class JiraIssueMacroCreatePanelTest extends AbstractJiraIssueMacroTest {
             List<MacroPlaceholder> listMacroChart = editContentPage.getEditor()
                     .getContent()
                     .macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
-            assertEquals(1, listMacroChart.size());
+            Assert.assertEquals(1, listMacroChart.size());
         } finally {
             JiraRestHelper.deleteIssue(issueKey);
         }
@@ -63,22 +61,22 @@ public class JiraIssueMacroCreatePanelTest extends AbstractJiraIssueMacroTest {
         jiraMacroCreatePanelDialog.getSummaryElement().clear();
         jiraMacroCreatePanelDialog.submit();
 
-        waitUntilTrue(
+        Poller.waitUntilTrue(
                 "Create panel errors are not visible",
                 jiraMacroCreatePanelDialog.areFieldErrorMessagesVisible()
         );
 
         Iterable<PageElement> clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
 
-        assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
-        assertEquals("Due Date is required", Iterables.get(clientErrors, 1).getText());
+        Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
+        Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 1).getText());
 
         jiraMacroCreatePanelDialog.getSummaryElement().type("    ");
         jiraMacroCreatePanelDialog.setDuedate("zzz");
 
         jiraMacroCreatePanelDialog.submit();
         clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
-        assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
+        Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
 
         jiraMacroCreatePanelDialog.getSummaryElement().type("blah");
         jiraMacroCreatePanelDialog.submit();
@@ -86,7 +84,7 @@ public class JiraIssueMacroCreatePanelTest extends AbstractJiraIssueMacroTest {
         waitForAjaxRequest();
 
         Iterable<PageElement> serverErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
-        assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
+        Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
     }
 
     @Ignore("CONFDEV-38148 fails intermittently in JiraMacroCreatePanelDialog.selectIssueType when the expected project and issue type are already selected")
@@ -98,25 +96,19 @@ public class JiraIssueMacroCreatePanelTest extends AbstractJiraIssueMacroTest {
 
         // Check display unsupported fields message
         String unsupportedMessage = "The required field Flagged is not available in this form.";
-        waitUntil(jiraMacroCreatePanelDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage));
+        Poller.waitUntil(jiraMacroCreatePanelDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage));
 
-        waitUntilFalse(
-                "Insert button is disabled when there are unsupported fields",
-                jiraMacroCreatePanelDialog.isInsertButtonEnabled()
-        );
+        Poller.waitUntilFalse("Insert button is disabled when there are unsupported fields",
+                jiraMacroCreatePanelDialog.isInsertButtonEnabled());
 
         jiraMacroCreatePanelDialog.getSummaryElement().type("Test input summary");
-        waitUntilFalse(
-                "Insert button is still disabled when input summary",
-                jiraMacroCreatePanelDialog.isInsertButtonEnabled()
-        );
+        Poller.waitUntilFalse("Insert button is still disabled when input summary",
+                jiraMacroCreatePanelDialog.isInsertButtonEnabled());
 
         // Select a project which has not un supported field then Insert Button must be enabled.
         jiraMacroCreatePanelDialog.selectProject(PROJECT_TSTT);
-        waitUntilTrue(
-                "Insert button is enable when switch back to a project which hasn't unsupported fields",
-                jiraMacroCreatePanelDialog.isInsertButtonEnabled()
-        );
+        Poller.waitUntilTrue("Insert button is enable when switch back to a project which hasn't unsupported fields",
+                jiraMacroCreatePanelDialog.isInsertButtonEnabled());
     }
 
     private void openJiraMacroCreateNewIssuePanelFromMenu() throws Exception {

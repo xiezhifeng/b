@@ -2,19 +2,20 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraIssueMacroChartTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
+import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.util.List;
 
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -103,9 +104,9 @@ public class JiraPieChartTest extends AbstractJiraIssueMacroChartTest {
         dialogPieChart = openPieChartDialog(true);
         dialogPieChart.inputJqlSearch("TP-1");
         dialogPieChart.clickPreviewButton();
-        waitUntil(
+        Poller.waitUntil(
                 dialogPieChart.getJqlSearchElement().timed().getValue(),
-                equalToIgnoringCase("key=TP-1")
+                Matchers.equalToIgnoringCase("key=TP-1")
         );
     }
 
@@ -117,7 +118,7 @@ public class JiraPieChartTest extends AbstractJiraIssueMacroChartTest {
 
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
         assertEquals(1, listMacroChart.size());
-        waitUntilTrue(editorContent.htmlContains("data-macro-name=\"jirachart\""));
+        Poller.waitUntilTrue(editorContent.htmlContains("data-macro-name=\"jirachart\""));
     }
 
     private void checkImageInDialog(boolean hasBorder) {
@@ -126,7 +127,7 @@ public class JiraPieChartTest extends AbstractJiraIssueMacroChartTest {
             dialogPieChart.openDisplayOption();
             dialogPieChart.clickBorderImage();
 
-            assertTrue(dialogPieChart.hadBorderImageInDialog());
+            Assert.assertTrue(dialogPieChart.hadBorderImageInDialog());
         }
     }
 

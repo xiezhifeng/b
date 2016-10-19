@@ -1,6 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
@@ -10,8 +11,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -44,7 +43,7 @@ public class JiraIssueMacroBrowserTest extends AbstractJiraIssueMacroSearchPanel
         jiraMacroSearchPanelDialog.pasteJqlSearch("status = open");
         jiraMacroSearchPanelDialog.fillMaxIssues("20a");
         jiraMacroSearchPanelDialog.uncheckKey("TSTT-5");
-        waitUntilTrue(jiraMacroSearchPanelDialog.hasInsertButton());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInsertButton());
         assertFalse("Insert button is disabled", jiraMacroSearchPanelDialog.isInsertable());
     }
 
@@ -62,7 +61,7 @@ public class JiraIssueMacroBrowserTest extends AbstractJiraIssueMacroSearchPanel
         MacroPlaceholder macroPlaceholder = editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
         jiraMacroSearchPanelDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
 
-        waitUntilTrue(jiraMacroSearchPanelDialog.getDisplayOptionPanel().isColumnsDisabled());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getDisplayOptionPanel().isColumnsDisabled());
     }
 
     /**
@@ -76,11 +75,11 @@ public class JiraIssueMacroBrowserTest extends AbstractJiraIssueMacroSearchPanel
         String filterURL = "http://127.0.0.1:11990/jira/issues/?" + filterQuery;
         jiraMacroSearchPanelDialog.pasteJqlSearch(filterURL);
 
-        waitUntilTrue(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().isEnabled());
-        waitUntilTrue(jiraMacroSearchPanelDialog.getSearchButton().timed().isEnabled());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().isEnabled());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getSearchButton().timed().isEnabled());
         jiraMacroSearchPanelDialog.clickJqlSearch();
 
-        waitUntil(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
+        Poller.waitUntil(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
     }
 
     /**
@@ -93,18 +92,18 @@ public class JiraIssueMacroBrowserTest extends AbstractJiraIssueMacroSearchPanel
         String filterQuery = "filter=10001";
         jiraMacroSearchPanelDialog.pasteJqlSearch(filterQuery);
 
-        waitUntilTrue(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().isEnabled());
-        waitUntilTrue(jiraMacroSearchPanelDialog.getSearchButton().timed().isEnabled());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().isEnabled());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getSearchButton().timed().isEnabled());
         jiraMacroSearchPanelDialog.clickJqlSearch();
 
-        waitUntil(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
+        Poller.waitUntil(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
     }
 
     @Test
     public void checkColumnInDialog() throws Exception
     {
         insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
-        waitUntilTrue(editContentPage.getEditor().getContent().htmlContains("data-macro-parameters=\"columns=type,resolutiondate,summary,key"));
+        Poller.waitUntilTrue(editContentPage.getEditor().getContent().htmlContains("data-macro-parameters=\"columns=type,resolutiondate,summary,key"));
     }
 
     @Test
@@ -150,7 +149,7 @@ public class JiraIssueMacroBrowserTest extends AbstractJiraIssueMacroSearchPanel
 
         //back again search panel
         jiraMacroSearchPanelDialog.selectMenuItem(1);
-        waitUntilTrue(jiraMacroSearchPanelDialog.getInsertButton().timed().isEnabled());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getInsertButton().timed().isEnabled());
         jiraMacroSearchPanelDialog.clickInsertDialog();
         editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);

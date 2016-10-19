@@ -4,6 +4,7 @@ import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrow
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroForm;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
@@ -11,8 +12,6 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.TwoDi
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.openqa.selenium.By;
-
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
 
 public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueMacroTest {
 
@@ -39,7 +38,7 @@ public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueM
         searchFiled.clear();
 
         Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("jira chart");
-        waitUntil(searchFiled.timed().getValue(), Matchers.equalToIgnoringCase("jira chart"));
+        Poller.waitUntil(searchFiled.timed().getValue(), Matchers.equalToIgnoringCase("jira chart"));
 
         MacroForm macroForm = macroItems.iterator().next().select();
         macroForm.waitUntilHidden();

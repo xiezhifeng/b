@@ -5,6 +5,7 @@ import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlac
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
@@ -13,17 +14,15 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillte
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
 import java.io.IOException;
 
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class JiraIssuesTest extends AbstractJiraIssueMacroSearchPanelTest
@@ -140,12 +139,12 @@ public class JiraIssuesTest extends AbstractJiraIssueMacroSearchPanelTest
         MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
         JiraMacroSearchPanelDialog jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
         jiraIssuesDialog.clickSearchButton();
-        waitUntilTrue(jiraIssuesDialog.resultsTableIsVisible());
+        Poller.waitUntilTrue(jiraIssuesDialog.resultsTableIsVisible());
         jiraIssuesDialog.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         viewPage = editPage.save();
 
-        waitUntilTrue(
+        Poller.waitUntilTrue(
                 "Could not find issue summary. Content was: " + viewPage.getMainContent().getText() + ". Expected to find: " + issueSummary,
                 viewPage.getMainContent().timed().hasText(issueSummary)
         );
@@ -200,7 +199,7 @@ public class JiraIssuesTest extends AbstractJiraIssueMacroSearchPanelTest
         EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_DEFAULT_COLUMN, "status=open");
         editContentPage.save();
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        assertThat(jiraIssuesPage.getFirstRowValueOfAssignee(), containsString("<script>alert('Administrator')</script>admin"));
+        Assert.assertTrue(jiraIssuesPage.getFirstRowValueOfAssignee().contains("<script>alert('Administrator')</script>admin"));
     }
 
     @Test
@@ -209,8 +208,8 @@ public class JiraIssuesTest extends AbstractJiraIssueMacroSearchPanelTest
         JiraIssuesPage jiraIssuesPage = setupErrorEnv("key=TEST");
         PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
 
-        assertEquals("TEST", jiraErrorLink.getText());
-        assertEquals("http://test.jira.com/browse/TEST?src=confmacro", jiraErrorLink.getAttribute("href"));
+        Assert.assertEquals("TEST", jiraErrorLink.getText());
+        Assert.assertEquals("http://test.jira.com/browse/TEST?src=confmacro", jiraErrorLink.getAttribute("href"));
     }
 
     @Test
@@ -219,9 +218,9 @@ public class JiraIssuesTest extends AbstractJiraIssueMacroSearchPanelTest
         JiraIssuesPage jiraIssuesPage = setupErrorEnv("status=open");
         PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
 
-        assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-table"));
-        assertEquals("View these issues in JIRA", jiraErrorLink.getText());
-        assertEquals("http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro", jiraErrorLink.getAttribute("href"));
+        Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-table"));
+        Assert.assertEquals("View these issues in JIRA", jiraErrorLink.getText());
+        Assert.assertEquals("http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro", jiraErrorLink.getAttribute("href"));
     }
 
     @Test
@@ -233,7 +232,7 @@ public class JiraIssuesTest extends AbstractJiraIssueMacroSearchPanelTest
         editContentPage.save();
 
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        waitUntilTrue("JIM table contains an error", jiraIssuesPage.getErrorMessage().timed().hasClass("jim-error-message-table"));
+        Poller.waitUntilTrue("JIM table contains an error", jiraIssuesPage.getErrorMessage().timed().hasClass("jim-error-message-table"));
     }
 
     @Test
@@ -242,9 +241,9 @@ public class JiraIssuesTest extends AbstractJiraIssueMacroSearchPanelTest
         JiraIssuesPage jiraIssuesPage = setupErrorEnv("status=open|count=true");
         PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
 
-        assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-table"));
-        assertEquals("View these issues in JIRA", jiraErrorLink.getText());
-        assertEquals("http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro", jiraErrorLink.getAttribute("href"));
+        Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-table"));
+        Assert.assertEquals("View these issues in JIRA", jiraErrorLink.getText());
+        Assert.assertEquals("http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro", jiraErrorLink.getAttribute("href"));
     }
 
      @Test
@@ -257,8 +256,8 @@ public class JiraIssuesTest extends AbstractJiraIssueMacroSearchPanelTest
         checkNotNull(id);
 
         product.refresh();
-        waitUntilTrue(viewPage.contentVisibleCondition());
-        assertThat(viewPage.getMainContent().getText(), containsString(issueSummary));
+        Poller.waitUntilTrue(viewPage.contentVisibleCondition());
+        assertFalse("JIM table was not cached. Content was: " + viewPage.getMainContent().getText(), viewPage.getMainContent().getText().contains(issueSummary));
 
         JiraRestHelper.deleteIssue(id);
     }

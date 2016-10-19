@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
@@ -7,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Test;
 
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -49,7 +49,7 @@ public class JiraIssuesSearchTest extends AbstractJiraIssueMacroSearchPanelTest
     public void testPasteXmlUrl() throws Exception
     {
         JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/si/jira.issueviews:issue-xml/TST-1/TST-1.xml", true);
-        waitUntilTrue(jiraIssuesPage.isSingleContainText("Test bug"));
+        Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("Test bug"));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class JiraIssuesSearchTest extends AbstractJiraIssueMacroSearchPanelTest
         globalTestAppLinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, true);
 
         JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/browse/TST-1", true);
-        waitUntilTrue(jiraIssuesPage.isSingleContainText("Test bug"));
+        Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("Test bug"));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class JiraIssuesSearchTest extends AbstractJiraIssueMacroSearchPanelTest
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
 
-        waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
         assertThat(jiraMacroSearchPanelDialog.getInfoMessage(), containsString("Login & Approve to retrieve data from TEST"));
         assertFalse(jiraMacroSearchPanelDialog.getSearchButton().isEnabled());
     }

@@ -19,6 +19,7 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPa
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.PageBinder;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 import com.atlassian.webdriver.utils.element.WebDriverPoller;
 import com.google.common.collect.ImmutableSet;
@@ -43,8 +44,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
 import static org.hamcrest.Matchers.hasItem;
@@ -121,7 +120,7 @@ public abstract class AbstractJiraIssueMacroTest {
             Content content = space.get().getHomepageRef().get();
             editContentPage = product.loginAndEdit(user.get(), content);
         }
-        waitUntilTrue("Edit page is ready", editContentPage.getEditor().isEditorCurrentlyActive());
+        Poller.waitUntilTrue("Edit page is ready", editContentPage.getEditor().isEditorCurrentlyActive());
         editContentPage.getEditor().getContent().clear().focus();
     }
 
@@ -185,7 +184,7 @@ public abstract class AbstractJiraIssueMacroTest {
         PageElement searchFiled = macroBrowserDialog.getDialog().find(By.id("macro-browser-search"));
         searchFiled.clear();
         Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("embed jira issues");
-        waitUntil(
+        Poller.waitUntil(
                 searchFiled.timed().getValue(),
                 Matchers.equalToIgnoringCase("embed jira issues")
         );
