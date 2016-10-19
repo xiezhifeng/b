@@ -7,6 +7,7 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.TwoDimensionalChartDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -18,11 +19,13 @@ public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueM
 
     protected PieChartDialog dialogPieChart;
     protected JiraMacroSearchPanelDialog dialogSearchPanel;
+    protected TwoDimensionalChartDialog dialogTwoDimensionalChart;
 
     @After
     public void clear() {
         closeDialog(dialogPieChart);
         closeDialog(dialogSearchPanel);
+        closeDialog(dialogTwoDimensionalChart);
     }
 
     protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication) {
@@ -51,5 +54,12 @@ public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueM
             }
         }
         return dialogPieChart;
+    }
+
+    protected TwoDimensionalChartDialog openTwoDimensionalChartDialog() {
+        PieChartDialog pieChartDialog = openPieChartDialog(true);
+        pieChartDialog.selectMenuItem("Two Dimensional");
+
+        return pageBinder.bind(TwoDimensionalChartDialog.class);
     }
 }
