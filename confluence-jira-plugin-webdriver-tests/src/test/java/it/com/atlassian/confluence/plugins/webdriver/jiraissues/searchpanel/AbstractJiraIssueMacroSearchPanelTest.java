@@ -1,14 +1,16 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroForm;
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
-import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
+import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraMacroPropertyPanel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
-import org.hamcrest.Matchers;
-import org.openqa.selenium.By;
+
+import java.util.List;
+
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
 
 public class AbstractJiraIssueMacroSearchPanelTest extends AbstractJiraIssueMacroTest {
 
@@ -17,28 +19,28 @@ public class AbstractJiraIssueMacroSearchPanelTest extends AbstractJiraIssueMacr
 
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
 
-    protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelDialogFromMacroBrowser() throws Exception {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editContentPage);
-
-        // Although, `MacroBrowserDialog` has `searchFor` method to do search. But it's flaky test.
-        // Here we tried to clearn field search first then try to search the searching term.
-        PageElement searchFiled = macroBrowserDialog.getDialog().find(By.id("macro-browser-search"));
-        searchFiled.clear();
-        Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("embed jira issues");
-        Poller.waitUntil(
-                searchFiled.timed().getValue(),
-                Matchers.equalToIgnoringCase("embed jira issues")
-        );
-
-        MacroForm macroForm = macroItems.iterator().next().select();
-        macroForm.waitUntilHidden();
-
-        return pageBinder.bind(JiraMacroSearchPanelDialog.class);
-    }
-
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelAndStartSearch(String searchValue) throws Exception {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.inputJqlSearch(searchValue);
         return jiraMacroSearchPanelDialog.clickSearchButton();
+    }
+
+    protected MacroPlaceholder createMacroPlaceholderFromQueryString(String jiraIssuesMacro, String macroName) {
+        EditorContent content = editContentPage.getEditor().getContent();
+        content.type(jiraIssuesMacro);
+        content.waitForInlineMacro(macroName);
+        final List<MacroPlaceholder> macroPlaceholders = content.macroPlaceholderFor(macroName);
+        assertThat("No macro placeholder found", macroPlaceholders, hasSize(greaterThanOrEqualTo(1)));
+        return macroPlaceholders.iterator().next();
+    }
+
+    protected JiraMacroSearchPanelDialog openJiraIssuesDialogFromMacroPlaceholder(MacroPlaceholder macroPlaceholder) {
+        editContentPage.getEditor().getContent().doubleClickEditInlineMacro(macroPlaceholder.getAttribute("data-macro-name"));
+        return pageBinder.bind(JiraMacroSearchPanelDialog.class);
+    }
+
+    protected JiraMacroPropertyPanel getJiraMacroPropertyPanel(MacroPlaceholder macroPlaceholder) {
+        macroPlaceholder.click();
+        return pageBinder.bind(JiraMacroPropertyPanel.class);
     }
 }

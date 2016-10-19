@@ -12,17 +12,22 @@ import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
 import com.atlassian.confluence.webdriver.pageobjects.ConfluenceTestedProduct;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroForm;
+import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.PageBinder;
+import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 import com.atlassian.webdriver.utils.element.WebDriverPoller;
 import com.google.common.collect.ImmutableSet;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -30,6 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 
 import javax.inject.Inject;
@@ -168,5 +174,24 @@ public abstract class AbstractJiraIssueMacroTest {
         poller.waitUntil(
                 input -> (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;")
         );
+    }
+
+    protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelDialogFromMacroBrowser() throws Exception {
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editContentPage);
+
+        // Although, `MacroBrowserDialog` has `searchFor` method to do search. But it's flaky test.
+        // Here we tried to clearn field search first then try to search the searching term.
+        PageElement searchFiled = macroBrowserDialog.getDialog().find(By.id("macro-browser-search"));
+        searchFiled.clear();
+        Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("embed jira issues");
+        Poller.waitUntil(
+                searchFiled.timed().getValue(),
+                Matchers.equalToIgnoringCase("embed jira issues")
+        );
+
+        MacroForm macroForm = macroItems.iterator().next().select();
+        macroForm.waitUntilHidden();
+
+        return pageBinder.bind(JiraMacroSearchPanelDialog.class);
     }
 }

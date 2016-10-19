@@ -1,8 +1,5 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroForm;
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
@@ -11,12 +8,10 @@ import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.By;
 
 import java.util.List;
 
@@ -94,22 +89,6 @@ public class JiraIssueMacroCreatePanelTest extends AbstractJiraIssueMacroTest {
         JiraMacroSearchPanelDialog dialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         dialog.selectMenuItem("Create New Issue");
         jiraMacroCreatePanelDialog = pageBinder.bind(JiraMacroCreatePanelDialog.class);
-    }
-
-    private JiraMacroSearchPanelDialog openJiraIssueSearchPanelDialogFromMacroBrowser() throws Exception {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editContentPage);
-        // Although, `MacroBrowserDialog` has `searchFor` method to do search. But it's flaky test.
-        // Here we tried to clear field search first then try to search the searching term.
-        PageElement searchFiled = macroBrowserDialog.getDialog().find(By.id("macro-browser-search"));
-        searchFiled.clear();
-
-        Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("embed jira issues");
-        Poller.waitUntil(searchFiled.timed().getValue(), Matchers.equalToIgnoringCase("embed jira issues"));
-
-        MacroForm macroForm = macroItems.iterator().next().select();
-        macroForm.waitUntilHidden();
-
-        return pageBinder.bind(JiraMacroSearchPanelDialog.class);
     }
 
     private String createJiraIssue(String project, String issueType, String summary, String epicName) {
