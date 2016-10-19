@@ -14,7 +14,7 @@ import java.io.IOException;
 public class ApplinkHelper
 {
     private static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
-    public static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
+    private static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
     private static final String TEST_APPLINK_NAME = "jiratest";
     public enum ApplinkMode { BASIC, OAUTH, TRUSTED }
 
