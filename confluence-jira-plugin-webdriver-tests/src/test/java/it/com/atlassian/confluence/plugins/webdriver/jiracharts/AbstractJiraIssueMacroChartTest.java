@@ -6,12 +6,15 @@ import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.TwoDimensionalChartDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.openqa.selenium.By;
+
+import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueMacroTest {
 
@@ -20,6 +23,7 @@ public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueM
     protected PieChartDialog dialogPieChart;
     protected JiraMacroSearchPanelDialog dialogSearchPanel;
     protected TwoDimensionalChartDialog dialogTwoDimensionalChart;
+    protected CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart;
 
     @After
     public void clear() {
@@ -61,5 +65,20 @@ public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueM
         pieChartDialog.selectMenuItem("Two Dimensional");
 
         return pageBinder.bind(TwoDimensionalChartDialog.class);
+    }
+
+    protected CreatedVsResolvedChartDialog openJiraChartCreatedVsResolvedPanelDialog() {
+        PieChartDialog pieChartDialog = openPieChartDialog(true);
+        pieChartDialog.selectMenuItem("Created vs Resolved");
+
+        return pageBinder.bind(CreatedVsResolvedChartDialog.class);
+    }
+
+    protected CreatedVsResolvedChartDialog openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor() {
+        dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
+        dialogCreatedVsResolvedChart.inputJqlSearch("status = open");
+        dialogCreatedVsResolvedChart.clickPreviewButton();
+        assertTrue(dialogCreatedVsResolvedChart.hadChartImage());
+        return dialogCreatedVsResolvedChart;
     }
 }

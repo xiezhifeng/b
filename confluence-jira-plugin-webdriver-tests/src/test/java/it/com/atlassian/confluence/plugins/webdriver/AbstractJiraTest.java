@@ -360,15 +360,6 @@ public class AbstractJiraTest
         return dialogPieChart;
     }
 
-    protected CreatedVsResolvedChartDialog openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor()
-    {
-        dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
-        dialogCreatedVsResolvedChart.inputJqlSearch("status = open");
-        dialogCreatedVsResolvedChart.clickPreviewButton();
-        assertTrue(dialogCreatedVsResolvedChart.hadChartImage());
-        return dialogCreatedVsResolvedChart;
-    }
-
     protected CreatedVsResolvedChartDialog openJiraChartCreatedVsResolvedPanelDialog()
     {
         PieChartDialog pieChartDialog = openPieChartDialog(true);
