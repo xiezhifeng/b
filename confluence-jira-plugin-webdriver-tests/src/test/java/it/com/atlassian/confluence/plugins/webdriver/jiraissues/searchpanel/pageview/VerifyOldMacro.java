@@ -55,7 +55,4 @@ public class VerifyOldMacro extends AbstractJiraIssueMacroSearchPanelTest
         Poller.waitUntil(viewPage.getRenderedContent().getTextTimed(), Matchers.not(Matchers.containsString("Bug 01")));
     }
 
-    private JiraIssuesPage bindCurrentPageToJiraIssues() {
-        return pageBinder.bind(JiraIssuesPage.class);
-    }
 }

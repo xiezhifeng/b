@@ -21,7 +21,7 @@ public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueM
     protected TwoDimensionalChartDialog dialogTwoDimensionalChart;
 
     @After
-    public void clear() {
+    public final void clear() {
         closeDialog(dialogPieChart);
         closeDialog(dialogTwoDimensionalChart);
     }

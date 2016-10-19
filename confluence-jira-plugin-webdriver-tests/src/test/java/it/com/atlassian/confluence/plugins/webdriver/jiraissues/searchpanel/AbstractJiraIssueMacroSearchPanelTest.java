@@ -3,8 +3,10 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraMacroPropertyPanel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
+import org.junit.After;
 
 import java.util.List;
 
@@ -14,11 +16,16 @@ import static org.junit.Assert.assertThat;
 
 public class AbstractJiraIssueMacroSearchPanelTest extends AbstractJiraIssueMacroTest {
 
-    private static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
+    protected static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
     protected static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
     protected static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
 
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
+
+    @After
+    public final void clear() {
+        closeDialog(jiraMacroSearchPanelDialog);
+    }
 
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelAndStartSearch(String searchValue) throws Exception {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
@@ -43,5 +50,9 @@ public class AbstractJiraIssueMacroSearchPanelTest extends AbstractJiraIssueMacr
     protected JiraMacroPropertyPanel getJiraMacroPropertyPanel(MacroPlaceholder macroPlaceholder) {
         macroPlaceholder.click();
         return pageBinder.bind(JiraMacroPropertyPanel.class);
+    }
+
+    protected JiraIssuesPage bindCurrentPageToJiraIssues() {
+        return pageBinder.bind(JiraIssuesPage.class);
     }
 }

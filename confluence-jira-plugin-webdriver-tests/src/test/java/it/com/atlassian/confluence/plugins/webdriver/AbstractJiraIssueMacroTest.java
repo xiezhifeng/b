@@ -99,12 +99,12 @@ public abstract class AbstractJiraIssueMacroTest {
     }
 
     @Before
-    public void alwaysSetup() throws Exception {
+    public final void alwaysSetup() throws Exception {
         setupEditPage();
     }
 
     @After
-    public void alwaysClear() throws Exception {
+    public final void alwaysClear() throws Exception {
         cancelEditPage();
     }
 

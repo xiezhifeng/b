@@ -1,22 +1,21 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
+import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
+import org.json.JSONException;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.util.List;
 
-import com.atlassian.pageobjects.elements.query.Poller;
-import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
-import com.atlassian.confluence.test.properties.TestProperties;
-import com.atlassian.pageobjects.elements.PageElement;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.json.JSONException;
-import org.junit.Assert;
-import org.junit.Test;
-
-public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssueCreateMacro extends AbstractJiraIssueMacroSearchPanelTest
 {
     private static String searchStr = "project = TP";
 
@@ -28,12 +27,12 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
         DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
         displayOptionPanel.clickDisplayTotalCount();
 
-        editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        editPage.save();
+        editContentPage = jiraMacroSearchPanelDialog.clickInsertDialog();
+        editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        editContentPage.save();
 
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        Assert.assertEquals(2, jiraIssuesPage.getIssueCount());
+        assertEquals(2, jiraIssuesPage.getIssueCount());
     }
 
     @Test
@@ -45,26 +44,26 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
         displayOptionPanel.removeAllColumns();
         displayOptionPanel.addColumn("Key", "Summary");
 
-        editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        editPage.save();
+        editContentPage = jiraMacroSearchPanelDialog.clickInsertDialog();
+        editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        editContentPage.save();
 
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         List<PageElement> columns = jiraIssuesPage.getIssuesTableColumns();
 
-        Assert.assertEquals(2, columns.size());
-        Assert.assertTrue(columns.get(0).getText().contains("Key"));
-        Assert.assertTrue(columns.get(1).getText().contains("Summary"));
+        assertEquals(2, columns.size());
+        assertTrue(columns.get(0).getText().contains("Key"));
+        assertTrue(columns.get(1).getText().contains("Summary"));
     }
 
     @Test
     public void testUserViewIssueWhenNotHavePermission() throws InterruptedException
     {
-        editPage.getEditor().getContent().setContent("{jira:key=TP-10|cache=off}");
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        editPage.save();
+        editContentPage.getEditor().getContent().setContent("{jira:key=TP-10|cache=off}");
+        editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        editContentPage.save();
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-single"));
+        assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-single"));
     }
 
     @Test
@@ -72,23 +71,23 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
     {
         String authArgs = getAuthQueryString();
         ApplinkHelper.removeAllAppLink(client, authArgs);
-        String applinkId = ApplinkHelper.createAppLink(client, "jiratest", authArgs, JIRA_BASE_URL, JIRA_DISPLAY_URL, true);
-        ApplinkHelper.enableApplinkOauthMode(client, applinkId, authArgs);
+        String appLinkId = ApplinkHelper.createAppLink(client, "jiratest", authArgs, JIRA_BASE_URL, JIRA_DISPLAY_URL, true);
+        ApplinkHelper.enableApplinkOauthMode(client, appLinkId, authArgs);
 
-        editPage.getEditor().getContent().setContent("{jira:key=TP-10|cache=off}");
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        editPage.save();
+        editContentPage.getEditor().getContent().setContent("{jira:key=TP-10|cache=off}");
+        editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        editContentPage.save();
 
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("TP-10 - Authenticate to see issue details"));
 
-        resetupAppLink(client, authArgs);
+        resetUpAppLink();
     }
 
-    private void resetupAppLink(HttpClient client, String authArg) throws JSONException, IOException
+    private void resetUpAppLink() throws JSONException, IOException
     {
-        ApplinkHelper.removeAllAppLink(client, authArg);
-        doWebSudo(client);
-        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, authArg, getBasicQueryString());
+        ApplinkHelper.removeAllAppLink(client, getAuthQueryString());
+        webSudo();
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, getAuthQueryString(), getBasicQueryString());
     }
 }

@@ -26,7 +26,7 @@ public class JiraPieChartTest extends AbstractJiraIssueMacroChartTest {
     private JiraMacroSearchPanelDialog dialogSearchPanel;
 
     @After
-    public void clear() {
+    public void clearSearchDialog() {
         closeDialog(dialogSearchPanel);
     }
 

@@ -20,7 +20,7 @@ public class JiraIssuesSearch extends AbstractJiraIssueMacroSearchPanelTest
     private String globalTestAppLinkId;
 
     @After
-    public void clear() throws Exception
+    public void clearAppLink() throws Exception
     {
         if (StringUtils.isNotEmpty(globalTestAppLinkId))
         {

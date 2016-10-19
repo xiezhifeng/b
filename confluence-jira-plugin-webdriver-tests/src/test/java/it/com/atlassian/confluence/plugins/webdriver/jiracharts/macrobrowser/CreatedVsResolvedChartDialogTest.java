@@ -19,7 +19,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraIssueMacroChar
     private CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart;
 
     @After
-    public void clear() {
+    public void clearCreatedDialog() {
         closeDialog(dialogCreatedVsResolvedChart);
     }
 

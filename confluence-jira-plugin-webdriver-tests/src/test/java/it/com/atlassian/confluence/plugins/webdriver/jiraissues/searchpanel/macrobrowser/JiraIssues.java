@@ -25,7 +25,7 @@ public class JiraIssues extends AbstractJiraIssueMacroSearchPanelTest
     private PieChartDialog pieChartDialog;
 
     @After
-    public void clear() throws Exception
+    public void clearChartDialog() throws Exception
     {
         closeDialog(pieChartDialog);
     }
