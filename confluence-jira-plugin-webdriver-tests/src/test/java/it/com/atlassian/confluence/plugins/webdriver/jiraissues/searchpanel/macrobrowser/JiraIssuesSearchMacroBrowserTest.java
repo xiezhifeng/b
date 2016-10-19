@@ -15,7 +15,7 @@ import static it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelpe
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesSearch extends AbstractJiraIssueMacroSearchPanelTest
+public class JiraIssuesSearchMacroBrowserTest extends AbstractJiraIssueMacroSearchPanelTest
 {
     private String globalTestAppLinkId;
 

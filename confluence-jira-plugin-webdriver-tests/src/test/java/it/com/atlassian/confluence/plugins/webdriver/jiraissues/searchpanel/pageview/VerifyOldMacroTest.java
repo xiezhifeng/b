@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 
-public class VerifyOldMacro extends AbstractJiraIssueMacroSearchPanelTest
+public class VerifyOldMacroTest extends AbstractJiraIssueMacroSearchPanelTest
 {
     @Test
     public void testVerifyJiraIssuesWithRenderDynamic()

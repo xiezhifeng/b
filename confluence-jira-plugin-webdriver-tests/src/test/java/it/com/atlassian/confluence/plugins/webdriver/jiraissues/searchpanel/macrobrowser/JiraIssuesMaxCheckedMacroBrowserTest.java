@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesMaxChecked extends AbstractJiraIssueMacroSearchPanelTest
+public class JiraIssuesMaxCheckedMacroBrowserTest extends AbstractJiraIssueMacroSearchPanelTest
 {
     @Test
     public void checkMaxIssueValidNumber() throws Exception

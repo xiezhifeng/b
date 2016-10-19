@@ -6,7 +6,7 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPa
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JiraIssueCreateMacro extends AbstractJiraIssueMacroSearchPanelTest
+public class JiraIssueCreateMacroBrowserTest extends AbstractJiraIssueMacroSearchPanelTest
 {
 
     @Test
