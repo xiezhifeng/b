@@ -12,7 +12,10 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class JiraIssueCreateMacroTest extends AbstractJiraIssueMacroSearchPanelTest
@@ -52,8 +55,8 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssueMacroSearchPanelT
         List<PageElement> columns = jiraIssuesPage.getIssuesTableColumns();
 
         assertEquals(2, columns.size());
-        assertTrue(columns.get(0).getText().contains("Key"));
-        assertTrue(columns.get(1).getText().contains("Summary"));
+        assertThat(columns.get(0).getText(), containsString("Key"));
+        assertThat(columns.get(1).getText(), containsString("Summary"));
     }
 
     @Test
@@ -79,7 +82,7 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssueMacroSearchPanelT
         editContentPage.save();
 
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("TP-10 - Authenticate to see issue details"));
+        waitUntilTrue(jiraIssuesPage.isSingleContainText("TP-10 - Authenticate to see issue details"));
 
         resetUpAppLink();
     }

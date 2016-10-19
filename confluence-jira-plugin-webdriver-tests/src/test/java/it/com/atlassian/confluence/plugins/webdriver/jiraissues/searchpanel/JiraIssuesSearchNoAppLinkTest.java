@@ -12,9 +12,10 @@ import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.WarningAppLinkDialog;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssueMacroTest
 {
@@ -69,8 +70,8 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssueMacroTest
         macroBrowserDialog.searchForFirst("embed jira issues").select();
 
         warningAppLinkDialog = pageBinder.bind(WarningAppLinkDialog.class);
-        Assert.assertEquals("Connect Confluence To JIRA", warningAppLinkDialog.getDialogTitle());
-        Assert.assertEquals(buttonText, warningAppLinkDialog.getDialogButtonText());
+        assertEquals("Connect Confluence To JIRA", warningAppLinkDialog.getDialogTitle());
+        assertEquals(buttonText, warningAppLinkDialog.getDialogButtonText());
 
         warningAppLinkDialog.clickCancel();
         warningAppLinkDialog.waitUntilHidden();

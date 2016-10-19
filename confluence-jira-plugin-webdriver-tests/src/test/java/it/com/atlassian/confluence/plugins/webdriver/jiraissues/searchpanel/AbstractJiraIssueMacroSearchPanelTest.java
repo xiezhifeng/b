@@ -71,7 +71,6 @@ public class AbstractJiraIssueMacroSearchPanelTest extends AbstractJiraIssueMacr
 
     protected JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction) throws Exception {
         EditContentPage editContentPage = addJiraIssueMacroToPage(jql, withPasteAction);
-
         editContentPage.save();
         return bindCurrentPageToJiraIssues();
     }

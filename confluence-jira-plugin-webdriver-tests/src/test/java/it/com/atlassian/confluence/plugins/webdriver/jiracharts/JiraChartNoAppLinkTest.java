@@ -2,13 +2,14 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
-import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import org.json.JSONException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 
 public class JiraChartNoAppLinkTest extends AbstractJiraIssueMacroChartTest
 {
@@ -28,7 +29,7 @@ public class JiraChartNoAppLinkTest extends AbstractJiraIssueMacroChartTest
         // this now since the setUp() method already places us in the editor context
         editContentPage.save().edit();
         dialogPieChart = openPieChartDialog(false);
-        Poller.waitUntilTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().timed().isVisible());
+        waitUntilTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().timed().isVisible());
     }
 
 }

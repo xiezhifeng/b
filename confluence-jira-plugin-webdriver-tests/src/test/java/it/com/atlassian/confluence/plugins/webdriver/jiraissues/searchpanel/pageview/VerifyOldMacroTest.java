@@ -3,13 +3,14 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pag
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 public class VerifyOldMacroTest extends AbstractJiraIssueMacroSearchPanelTest
 {
@@ -33,7 +34,7 @@ public class VerifyOldMacroTest extends AbstractJiraIssueMacroSearchPanelTest
         showSummary.click();
 
         ViewPage viewPage = editContentPage.save();
-        Poller.waitUntil(viewPage.getRenderedContent().getTextTimed(), Matchers.containsString("Bug 01"));
+        waitUntil(viewPage.getRenderedContent().getTextTimed(), containsString("Bug 01"));
     }
 
     @Test
@@ -42,7 +43,7 @@ public class VerifyOldMacroTest extends AbstractJiraIssueMacroSearchPanelTest
         createMacroPlaceholderFromQueryString("{jiraissues:key=TP-1|showSummary=true}", OLD_JIRA_ISSUE_MACRO_NAME);
 
         ViewPage viewPage = editContentPage.save();
-        Poller.waitUntil(viewPage.getRenderedContent().getTextTimed(), Matchers.containsString("Bug 01"));
+        waitUntil(viewPage.getRenderedContent().getTextTimed(), containsString("Bug 01"));
     }
 
     @Test
@@ -51,8 +52,8 @@ public class VerifyOldMacroTest extends AbstractJiraIssueMacroSearchPanelTest
         createMacroPlaceholderFromQueryString("{jiraissues:key=TP-1|showSummary=false}", OLD_JIRA_ISSUE_MACRO_NAME);
 
         ViewPage viewPage = editContentPage.save();
-        Poller.waitUntil(viewPage.getRenderedContent().getTextTimed(), Matchers.containsString("OPEN"));
-        Poller.waitUntil(viewPage.getRenderedContent().getTextTimed(), Matchers.not(Matchers.containsString("Bug 01")));
+        waitUntil(viewPage.getRenderedContent().getTextTimed(), containsString("OPEN"));
+        waitUntil(viewPage.getRenderedContent().getTextTimed(), not(containsString("Bug 01")));
     }
 
 }

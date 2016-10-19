@@ -2,15 +2,15 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.mac
 
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class VerifyOldMacroBrowserTest extends AbstractJiraIssueMacroSearchPanelTest
 {
@@ -34,7 +34,7 @@ public class VerifyOldMacroBrowserTest extends AbstractJiraIssueMacroSearchPanel
     {
         MacroPlaceholder macroPlaceholder = createMacroPlaceholderFromQueryString("{jiraissues:status=open}", OLD_JIRA_ISSUE_MACRO_NAME);
         PageElement showSummary = getJiraMacroPropertyPanel(macroPlaceholder).getPropertyPanel(".macro-property-panel-show-summary");
-        Assert.assertTrue(!showSummary.isPresent() || showSummary.hasClass("hidden"));
+        assertTrue(!showSummary.isPresent() || showSummary.hasClass("hidden"));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class VerifyOldMacroBrowserTest extends AbstractJiraIssueMacroSearchPanel
 
         JiraMacroSearchPanelDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
         dialog.clickSearchButton();
-        Poller.waitUntil(dialog.getJqlSearchElement().timed().getValue(), Matchers.containsString(jql));
+        waitUntil(dialog.getJqlSearchElement().timed().getValue(), Matchers.containsString(jql));
         dialog.clickInsertDialog();
     }
 
