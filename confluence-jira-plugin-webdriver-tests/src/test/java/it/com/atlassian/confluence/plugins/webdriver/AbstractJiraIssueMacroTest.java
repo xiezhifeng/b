@@ -115,7 +115,7 @@ public abstract class AbstractJiraIssueMacroTest {
             editContentPage = product.loginAndEdit(user.get(), content);
         }
         Poller.waitUntilTrue("Edit page is ready", editContentPage.getEditor().isEditorCurrentlyActive());
-        editContentPage.getEditor().getContent().clear();
+        editContentPage.getEditor().getContent().clear().focus();
     }
 
     protected void cancelEditPage() {
