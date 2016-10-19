@@ -11,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mortbay.util.MultiMap;
 import org.mortbay.util.UrlEncoded;
@@ -19,10 +18,10 @@ import org.mortbay.util.UrlEncoded;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssueRemoteLinksTest extends AbstractJiraIssueMacroSearchPanelTest
 {
     @After
     public void resetRemoteLinks() throws Exception
@@ -35,7 +34,10 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
     {
         ViewPage viewPage = createPageWithJiraIssueMacro("key in (TP-1, TP-2)");
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
-        assertTrue("Page with id '" + viewPage.getPageId() + "' found in " + remoteLinks, !containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+        assertTrue(
+                "Page with id '" + viewPage.getPageId() + "' found in " + remoteLinks,
+                !containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId()))
+        );
     }
 
     @Test
@@ -43,32 +45,41 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
     {
         ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
-        assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+        assertTrue(
+                "Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks,
+                containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId()))
+        );
     }
 
     @Test
     public void testCreateRemoteLinksForUpdatedPage() throws Exception
     {
-        ViewPage viewPage = editPage.save();
+        ViewPage viewPage = editContentPage.save();
         viewPage.edit();
 
         createPageWithJiraIssueMacro("TP-1");
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
-        assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+        assertTrue(
+                "Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks,
+                containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId()))
+        );
     }
 
     @Test
     public void testRemoteLinksAreDeletedWhenMacroIsRemoved() throws Exception
     {
         // Reset the page from any previous tests
-        editPage.getEditor().clickSaveAndWaitForPageChange();
-        gotoEditTestPage(user.get());
+        editContentPage.getEditor().clickSaveAndWaitForPageChange();
+        setupEditPage();
 
         final ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
 
         // Check link was created
-        assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+        assertTrue(
+                "Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks,
+                containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId()))
+        );
 
         Editor editorPage = viewPage.edit().getEditor();
         editorPage.getContent().setContent("");
@@ -76,15 +87,18 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
 
         // Check link was deleted
         final JSONArray updatedRemoteLinks = getJiraRemoteLinks("TP-1");
-        assertFalse("Page with id '" + viewPage.getPageId() + "' should not be not found in " + updatedRemoteLinks, containsLinkWithPageId(updatedRemoteLinks, String.valueOf(viewPage.getPageId())));
+        assertFalse(
+                "Page with id '" + viewPage.getPageId() + "' should not be not found in " + updatedRemoteLinks,
+                containsLinkWithPageId(updatedRemoteLinks, String.valueOf(viewPage.getPageId()))
+        );
     }
 
     @Test
     public void testRemoteLinksAreNotDeletedWhenOnlyOneMacroIsRemoved() throws Exception
     {
         // Reset the page from any previous tests
-        editPage.getEditor().clickSaveAndWaitForPageChange();
-        gotoEditTestPage(user.get());
+        editContentPage.getEditor().clickSaveAndWaitForPageChange();
+        setupEditPage();
 
         // Add two macros to the page
         addJiraIssueMacroToPage("TP-1", false);
@@ -95,7 +109,10 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
 
         // Check link was created
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
-        assertTrue("Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId())));
+        assertTrue(
+                "Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks,
+                containsLinkWithPageId(remoteLinks, String.valueOf(viewPage.getPageId()))
+        );
 
         // Delete one of the macros
         Editor editorPage = viewPage.edit().getEditor();
@@ -105,7 +122,10 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelTest
 
         // Check link was deleted
         final JSONArray updatedRemoteLinks = getJiraRemoteLinks("TP-1");
-        assertTrue("Page with id '" + viewPage.getPageId() + "' should not be found in " + updatedRemoteLinks, containsLinkWithPageId(updatedRemoteLinks, String.valueOf(viewPage.getPageId())));
+        assertTrue(
+                "Page with id '" + viewPage.getPageId() + "' should not be found in " + updatedRemoteLinks,
+                containsLinkWithPageId(updatedRemoteLinks, String.valueOf(viewPage.getPageId()))
+        );
     }
 
 

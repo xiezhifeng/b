@@ -77,25 +77,4 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         return pageBinder.bind(JiraIssuesPage.class);
     }
 
-    protected EditContentPage insertJiraIssueMacroWithEditColumn(List<String> columnNames, String jql) throws Exception
-    {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.inputJqlSearch(jql);
-        jiraMacroSearchPanelDialog.clickSearchButton();
-        jiraMacroSearchPanelDialog.openDisplayOption();
-
-        //clean all column default and add new list column
-        jiraMacroSearchPanelDialog.cleanAllOptionColumn();
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
-        columnNames.forEach(displayOptionPanel::addColumn);
-
-        EditContentPage editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        EditorContent editorContent = editPage.getEditor().getContent();
-        List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
-        assertEquals(1, listMacroChart.size());
-
-        return editPage;
-    }
-
 }

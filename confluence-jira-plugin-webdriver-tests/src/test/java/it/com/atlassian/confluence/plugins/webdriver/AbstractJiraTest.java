@@ -17,8 +17,6 @@ import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroForm;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
-import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
-import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
@@ -41,23 +39,19 @@ import org.openqa.selenium.By;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.List;
 
 import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 @RunWith(ConfluenceStatelessTestRunner.class)
 @TestedProductClass(ConfluenceTestedProduct.class)
-public class AbstractJiraTest
+public abstract class AbstractJiraTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
     public static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
-    protected static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
 
     protected static final String PROJECT_TSTT = "Test Project";
 
@@ -79,7 +73,7 @@ public class AbstractJiraTest
             .build();
 
     @Fixture
-    public static UserFixture user = UserFixture.userFixture()
+    protected static UserFixture user = UserFixture.userFixture()
             .group(group)
             .build();
 
@@ -108,14 +102,14 @@ public class AbstractJiraTest
         return "?os_username=" + User.ADMIN.getUsername() + "&os_password=" + User.ADMIN.getPassword();
     }
 
-    protected static String getBasicQueryString()
+    private static String getBasicQueryString()
     {
         final String adminUserName = User.ADMIN.getUsername();
         final String adminPassword = User.ADMIN.getPassword();
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
 
-    protected static void doWebSudo(final HttpClient client) throws IOException
+    private static void doWebSudo(final HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(System.getProperty("baseurl.confluence") + "/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());
@@ -141,22 +135,6 @@ public class AbstractJiraTest
             dialog.clickCancel();
             dialog.waitUntilHidden();
         }
-    }
-
-    protected MacroPlaceholder createMacroPlaceholderFromQueryString(EditContentPage editPage, String jiraIssuesMacro, String macroName)
-    {
-        EditorContent content = editPage.getEditor().getContent();
-        content.type(jiraIssuesMacro);
-        content.waitForInlineMacro(macroName);
-        final List<MacroPlaceholder> macroPlaceholders = content.macroPlaceholderFor(macroName);
-        assertThat("No macro placeholder found", macroPlaceholders, hasSize(greaterThanOrEqualTo(1)));
-        return macroPlaceholders.iterator().next();
-    }
-
-    protected JiraMacroSearchPanelDialog openJiraIssuesDialogFromMacroPlaceholder(EditContentPage editPage, MacroPlaceholder macroPlaceholder)
-    {
-        editPage.getEditor().getContent().doubleClickEditInlineMacro(macroPlaceholder.getAttribute("data-macro-name"));
-        return pageBinder.bind(JiraMacroSearchPanelDialog.class);
     }
 
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelDialogFromMacroBrowser(EditContentPage editPage) throws Exception
@@ -207,7 +185,7 @@ public class AbstractJiraTest
         return bindCurrentPageToJiraIssues();
     }
 
-    protected EditContentPage addJiraIssueMacroToPage(String jql, boolean withPasteAction) throws Exception
+    private EditContentPage addJiraIssueMacroToPage(String jql, boolean withPasteAction) throws Exception
     {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         if (withPasteAction)

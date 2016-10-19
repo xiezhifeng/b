@@ -8,7 +8,7 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper;
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.apache.commons.lang3.StringUtils;
@@ -25,10 +25,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssuesTest extends AbstractJiraIssueMacroSearchPanelTest
 {
-    protected String globalTestAppLinkId;
-
+    private String globalTestAppLinkId;
 
     @After
     public void deleteAppLink() throws Exception
@@ -40,38 +39,37 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         globalTestAppLinkId = "";
     }
 
-    protected JiraIssuesPage createPageWithTableJiraIssueMacro() throws Exception
+    private JiraIssuesPage createPageWithTableJiraIssueMacro() throws Exception
     {
         return createPageWithJiraIssueMacro("status=open");
     }
 
-    protected JiraIssuesPage createPageWithCountJiraIssueMacro(String jql) throws Exception
+    private JiraIssuesPage createPageWithCountJiraIssueMacro(String jql) throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.inputJqlSearch(jql);
         jiraMacroSearchPanelDialog.clickSearchButton();
         jiraMacroSearchPanelDialog.openDisplayOption();
         jiraMacroSearchPanelDialog.getDisplayOptionPanel().clickDisplayTotalCount();
         EditContentPage editContentPage = jiraMacroSearchPanelDialog.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();
         return bindCurrentPageToJiraIssues();
     }
 
-    protected JiraIssuesPage gotoPage(Long pageId)
+    private JiraIssuesPage gotoPage(Long pageId)
     {
         product.viewPage(String.valueOf(pageId));
         return bindCurrentPageToJiraIssues();
     }
 
-    protected JiraIssuesPage setupErrorEnv(String jql) throws IOException, JSONException
+    private JiraIssuesPage setupErrorEnv(String jql) throws IOException, JSONException
     {
         String authArgs = getAuthQueryString();
         String applinkId = ApplinkHelper.createAppLink(client, "jira_applink", authArgs, "http://test.jira.com", "http://test.jira.com", false);
         globalTestAppLinkId = applinkId;
-        createMacroPlaceholderFromQueryString(editPage, "{jiraissues:" + jql + "|serverId=" + applinkId + "}", OLD_JIRA_ISSUE_MACRO_NAME);
-        editPage.save();
-
+        createMacroPlaceholderFromQueryString("{jiraissues:" + jql + "|serverId=" + applinkId + "}", OLD_JIRA_ISSUE_MACRO_NAME);
+        editContentPage.save();
         return bindCurrentPageToJiraIssues();
     }
 
@@ -139,7 +137,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
 
         MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
-        JiraMacroSearchPanelDialog jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
+        JiraMacroSearchPanelDialog jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
         jiraIssuesDialog.clickSearchButton();
         Poller.waitUntilTrue(jiraIssuesDialog.resultsTableIsVisible());
         jiraIssuesDialog.clickInsertDialog();
@@ -161,15 +159,15 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         String applinkId = ApplinkHelper.getPrimaryApplinkId(client, authArgs);
         String jimMarkup = "{jira:jqlQuery=status\\=open||serverId="+applinkId+"||server=oldInvalidName}";
 
-        editPage.getEditor().getContent().setContent(jimMarkup);
-        editPage.save();
+        editContentPage.getEditor().getContent().setContent(jimMarkup);
+        editContentPage.save();
         assertTrue(bindCurrentPageToJiraIssues().getNumberOfIssuesInTable() > 0);
     }
 
     @Test
     public void testInsertTableByKeyQuery() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.inputJqlSearch("key = TP-1");
         jiraMacroSearchPanelDialog.clickSearchButton();
 
@@ -177,8 +175,8 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         jiraMacroSearchPanelDialog.getDisplayOptionPanel().clickDisplayTable();
 
         jiraMacroSearchPanelDialog.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        editPage.save();
+        editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        editContentPage.save();
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
 
         assertTrue(jiraIssuesPage.getIssuesTableElement().isPresent());
@@ -228,7 +226,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
     @Test
     public void testJIMTableErrorWithWrongJQL() throws Exception
     {
-        EditContentPage editContentPage = gotoEditTestPage(user.get());
+        setupEditPage();
         editContentPage.getEditor().getContent().setContent("{jira:project = TSTTTTT}");
         editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();

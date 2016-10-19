@@ -115,7 +115,7 @@ public abstract class AbstractJiraIssueMacroTest {
         product.logOutFast();
     }
 
-    private void setupEditPage() {
+    protected void setupEditPage() {
         if (editContentPage == null || !editContentPage.getEditor().isCancelVisibleNow()) {
             Content content = space.get().getHomepageRef().get();
             editContentPage = product.loginAndEdit(user.get(), content);

@@ -1,10 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
-import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.google.common.collect.ImmutableList;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
@@ -19,9 +16,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssues extends AbstractJiraIssueMacroSearchPanelTest
+public class JiraIssueMacroTest extends AbstractJiraIssueMacroSearchPanelTest
 {
-    private static final List<String> LIST_TEST_COLUMN = ImmutableList.of("Issue Type", "Resolved", "Summary", "Key");
     private PieChartDialog pieChartDialog;
 
     @After
@@ -181,23 +177,4 @@ public class JiraIssues extends AbstractJiraIssueMacroSearchPanelTest
         assertFalse(displayOptionPanel.isInsertSingleIssueEnable());
     }
 
-    private EditContentPage insertJiraIssueMacroWithEditColumn(List<String> columnNames, String jql) throws Exception {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
-        jiraMacroSearchPanelDialog.inputJqlSearch(jql);
-        jiraMacroSearchPanelDialog.clickSearchButton();
-        jiraMacroSearchPanelDialog.openDisplayOption();
-
-        //clean all column default and add new list column
-        jiraMacroSearchPanelDialog.cleanAllOptionColumn();
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
-        columnNames.forEach(displayOptionPanel::addColumn);
-
-        EditContentPage editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        EditorContent editorContent = editPage.getEditor().getContent();
-        List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
-        assertEquals(1, listMacroChart.size());
-
-        return editPage;
-    }
 }
