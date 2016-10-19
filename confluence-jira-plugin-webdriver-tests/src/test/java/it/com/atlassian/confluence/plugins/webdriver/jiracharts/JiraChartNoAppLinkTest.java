@@ -1,16 +1,14 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
-import java.io.IOException;
-
-import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.pageobjects.elements.query.Poller;
-
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import org.json.JSONException;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.IOException;
 
 public class JiraChartNoAppLinkTest extends AbstractJiraIssueMacroChartTest
 {
@@ -20,12 +18,6 @@ public class JiraChartNoAppLinkTest extends AbstractJiraIssueMacroChartTest
         webSudo();
         ApplinkHelper.removeAllAppLink(client, getAuthQueryString());
         product.login(user.get(), NoOpPage.class);
-    }
-
-    @AfterClass
-    public static void teardown() throws Exception
-    {
-        ApplinkHelper.removeAllAppLink(client, getAuthQueryString());
     }
 
     @Test

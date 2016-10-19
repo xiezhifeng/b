@@ -80,7 +80,7 @@ public abstract class AbstractJiraIssueMacroTest {
         }
     });
 
-    protected static EditContentPage editContentPage;
+    protected EditContentPage editContentPage;
 
 
     @BeforeClass
@@ -104,13 +104,15 @@ public abstract class AbstractJiraIssueMacroTest {
 
     @AfterClass
     public static void teardown() throws Exception {
-
+        webSudo();
+        ApplinkHelper.removeAllAppLink(client, getAuthQueryString());
+        product.logOutFast();
     }
 
     private void setupEditPage() {
         if (editContentPage == null || !editContentPage.getEditor().isCancelVisibleNow()) {
             Content content = space.get().getHomepageRef().get();
-            editContentPage = product.viewPage(content).edit();
+            editContentPage = product.loginAndEdit(user.get(), content);
         }
         Poller.waitUntilTrue("Edit page is ready", editContentPage.getEditor().isEditorCurrentlyActive());
         editContentPage.getEditor().getContent().clear();

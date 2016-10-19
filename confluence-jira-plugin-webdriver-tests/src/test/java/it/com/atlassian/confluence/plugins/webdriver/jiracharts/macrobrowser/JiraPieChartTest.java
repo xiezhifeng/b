@@ -5,9 +5,13 @@ import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlac
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraIssueMacroChartTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.util.List;
 
@@ -16,7 +20,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class JiraPieChartTest extends AbstractJiraIssueMacroChartTest {
+
+    private JiraMacroSearchPanelDialog dialogSearchPanel;
+
+    @After
+    public void clear() {
+        closeDialog(dialogSearchPanel);
+    }
 
     @Test
     public void testStatType() {

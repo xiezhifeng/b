@@ -3,8 +3,10 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraIssueMacroChartTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -12,8 +14,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class CreatedVsResolvedChartDialog extends AbstractJiraIssueMacroChartTest
+public class CreatedVsResolvedChartDialogTest extends AbstractJiraIssueMacroChartTest
 {
+    private CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart;
+
+    @After
+    public void clear() {
+        closeDialog(dialogCreatedVsResolvedChart);
+    }
+
     @Test
     public void testSwitchToCreatedVsResolvedChart()
     {
@@ -112,8 +121,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraIssueMacroChartTes
         dialogCreatedVsResolvedChart.clickPreviewButton();
         Poller.waitUntil(
                 dialogCreatedVsResolvedChart.getJqlSearchElement().timed().getValue(),
-                Matchers.equalToIgnoringCase("key=TP-1")
-        );
+                Matchers.equalToIgnoringCase("key=TP-1"));
     }
 
     @Test
@@ -125,4 +133,11 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraIssueMacroChartTes
         assertTrue(dialogCreatedVsResolvedChart.hadBorderImageInDialog());
     }
 
+    private CreatedVsResolvedChartDialog openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor() {
+        dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
+        dialogCreatedVsResolvedChart.inputJqlSearch("status = open");
+        dialogCreatedVsResolvedChart.clickPreviewButton();
+        assertTrue(dialogCreatedVsResolvedChart.hadChartImage());
+        return dialogCreatedVsResolvedChart;
+    }
 }
