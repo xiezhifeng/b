@@ -1,25 +1,24 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
-import java.util.List;
-
 import com.atlassian.pageobjects.elements.PageElement;
-
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class JiraIssuesMaxCheckedTest extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssuesMaxCheckedTest extends AbstractJiraIssueMacroSearchPanelTest
 {
     @Test
     public void checkMaxIssueHappyCase() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.showDisplayOption();
         jiraMacroSearchPanelDialog.fillMaxIssues("1");
-        List<PageElement> issuses = jiraMacroSearchPanelDialog.insertAndSave();
-        assertNotNull(issuses);
-        assertEquals(1, issuses.size());
+        List<PageElement> issues = jiraMacroSearchPanelDialog.insertAndSave();
+        assertNotNull(issues);
+        assertEquals(1, issues.size());
     }
 }

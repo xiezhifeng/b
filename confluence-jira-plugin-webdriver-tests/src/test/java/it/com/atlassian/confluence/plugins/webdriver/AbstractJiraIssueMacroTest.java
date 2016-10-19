@@ -69,7 +69,7 @@ public abstract class AbstractJiraIssueMacroTest {
 
 
     @Fixture
-    private static SpaceFixture space = SpaceFixture.spaceFixture()
+    protected static SpaceFixture space = SpaceFixture.spaceFixture()
             .permission(user, SpacePermission.VIEW, SpacePermission.PAGE_EDIT, SpacePermission.BLOG_EDIT)
             .build();
 

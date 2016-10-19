@@ -1,25 +1,26 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
-import com.atlassian.confluence.it.SpacePermission;
-import com.atlassian.confluence.it.rpc.ConfluenceRpc;
+import com.atlassian.confluence.test.rpc.api.ConfluenceRpcClient;
+import com.atlassian.confluence.test.rpc.api.permissions.SpacePermission;
+import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class JiraIssuesAnonymousViewTest extends AbstractJiraIssuesSearchPanelTest
+import javax.inject.Inject;
+
+public class JiraIssuesAnonymousViewTest extends AbstractJiraIssueMacroSearchPanelTest
 {
-    protected static ConfluenceRpc rpc = ConfluenceRpc.newInstance(System.getProperty("baseurl.confluence"), ConfluenceRpc.Version.V2_WITH_WIKI_MARKUP);
+    @Inject private static ConfluenceRpcClient rpcClient;
 
     @BeforeClass
-    public static void init() throws Exception
+    public static void start() throws Exception
     {
-        // enable anonymous access for each page, which is pretty slow. TODO: enable BeforeClass
-        rpc.enableAnonymousAccess();
-        rpc.executeOnCurrentNode("addAnonymousPermissionToSpace", SpacePermission.VIEW.getValue(), space.get().getKey());
+        AbstractJiraIssueMacroSearchPanelTest.start();
+        rpcClient.getAdminSession().getSystemComponent().enableAnonymousAccess();
+        rpcClient.getAdminSession().getPermissionsComponent().grantAnonymousPermission(SpacePermission.VIEW, space.get());
     }
 
     @Test
@@ -51,7 +52,7 @@ public class JiraIssuesAnonymousViewTest extends AbstractJiraIssuesSearchPanelTe
         Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("Test bug"));
     }
 
-    protected JiraIssuesPage setupSingleIssuePage(String key) throws Exception
+    private JiraIssuesPage setupSingleIssuePage(String key) throws Exception
     {
         ViewPage viewPage = createPageWithJiraIssueMacro(key);
         String pageId = String.valueOf(viewPage.getPageId());

@@ -177,7 +177,7 @@ public abstract class AbstractJiraTest
         return createPageWithJiraIssueMacro(jql, false);
     }
 
-    protected JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction) throws Exception
+    private JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction) throws Exception
     {
         EditContentPage editContentPage = addJiraIssueMacroToPage(jql, withPasteAction);
 

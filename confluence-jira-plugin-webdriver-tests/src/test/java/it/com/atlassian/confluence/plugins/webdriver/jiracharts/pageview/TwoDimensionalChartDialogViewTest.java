@@ -5,6 +5,8 @@ import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraIssu
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraChartViewPage;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class TwoDimensionalChartDialogViewTest extends AbstractJiraIssueMacroChartTest
@@ -27,20 +29,18 @@ public class TwoDimensionalChartDialogViewTest extends AbstractJiraIssueMacroCha
         editContentPage.getEditor().clickSaveAndWaitForPageChange();
 
         JiraChartViewPage pageJiraChartView = pageBinder.bind(JiraChartViewPage.class);
-        assertTrue(
-                pageJiraChartView.getChartSummary().getText(),
-                pageJiraChartView.getChartSummary().getText().contains("Showing 1 of 2 statistics")
-        );
+        assertThat(pageJiraChartView.getChartSummary().getText(), containsString("Showing 1 of 2 statistics"));
         assertTrue(pageJiraChartView.getXAxis().equals("Status"));
         assertTrue(pageJiraChartView.getYAxis().equals("Issue Type"));
-        assertTrue(pageJiraChartView.getShowLink().getText().contains("Show more"));
+
+        assertThat(pageJiraChartView.getShowLink().getText(), containsString("Show more"));
 
         pageJiraChartView.clickShowLink();
-        assertTrue(pageJiraChartView.getChartSummary().getText().contains("Showing 2 of 2 statistics"));
-        assertTrue(pageJiraChartView.getShowLink().getText().contains("Show less"));
+        assertThat(pageJiraChartView.getChartSummary().getText(), containsString("Showing 2 of 2 statistics"));
+        assertThat(pageJiraChartView.getShowLink().getText(), containsString("Show less"));
 
         pageJiraChartView.clickShowLink();
-        assertTrue(pageJiraChartView.getChartSummary().getText().contains("Showing 1 of 2 statistics"));
+        assertThat(pageJiraChartView.getChartSummary().getText(), containsString("Showing 1 of 2 statistics"));
     }
 
 }

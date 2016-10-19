@@ -6,6 +6,9 @@ import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPa
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertThat;
+
 public class JiraIssueCreateMacroBrowserTest extends AbstractJiraIssueMacroSearchPanelTest
 {
 
@@ -23,7 +26,7 @@ public class JiraIssueCreateMacroBrowserTest extends AbstractJiraIssueMacroSearc
     {
         openJiraIssueSearchPanelAndStartSearch("InvalidValue");
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
-        Assert.assertTrue(jiraMacroSearchPanelDialog.getInfoMessage().contains("No search results found."));
+        assertThat(jiraMacroSearchPanelDialog.getInfoMessage(), containsString("No search results found."));
     }
 
     @Test
