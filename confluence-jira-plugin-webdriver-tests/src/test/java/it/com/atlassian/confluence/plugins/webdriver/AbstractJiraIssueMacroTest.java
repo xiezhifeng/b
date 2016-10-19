@@ -103,7 +103,7 @@ public abstract class AbstractJiraIssueMacroTest {
     }
 
     @AfterClass
-    public static void teardown() {
+    public static void teardown() throws Exception {
 
     }
 
@@ -140,7 +140,7 @@ public abstract class AbstractJiraIssueMacroTest {
         return "?os_username=" + User.ADMIN.getUsername() + "&os_password=" + User.ADMIN.getPassword();
     }
 
-    private static String getBasicQueryString() {
+    protected static String getBasicQueryString() {
         final String adminUserName = User.ADMIN.getUsername();
         final String adminPassword = User.ADMIN.getPassword();
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
