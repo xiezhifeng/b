@@ -14,8 +14,6 @@ import static org.junit.Assert.assertThat;
 
 public class VerifyOldMacroBrowserTest extends AbstractJiraIssueMacroSearchPanelTest
 {
-    private static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
-
     @Test
     public void testConvertJiraIssueToJiraWithXML()
     {

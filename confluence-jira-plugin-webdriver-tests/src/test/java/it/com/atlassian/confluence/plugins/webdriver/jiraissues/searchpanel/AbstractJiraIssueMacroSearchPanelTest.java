@@ -16,6 +16,7 @@ public class AbstractJiraIssueMacroSearchPanelTest extends AbstractJiraIssueMacr
 
     private static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
     protected static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
+    protected static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
 
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
 

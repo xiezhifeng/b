@@ -70,7 +70,6 @@ public class AbstractJiraTest
     protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
     protected static EditContentPage editPage;
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
-    protected static ViewPage viewPage;
 
     public static final HttpClient client = new HttpClient();
 

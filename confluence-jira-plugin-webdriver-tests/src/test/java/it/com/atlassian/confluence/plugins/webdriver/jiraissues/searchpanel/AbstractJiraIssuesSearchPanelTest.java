@@ -3,14 +3,11 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
-import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.ImmutableList;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraMacroPropertyPanel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -74,13 +71,6 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         return jiraMacroSearchPanelDialog.clickSearchButton();
     }
 
-    protected JiraMacroPropertyPanel getJiraMacroPropertyPanel(MacroPlaceholder macroPlaceholder)
-    {
-        macroPlaceholder.click();
-        return pageBinder.bind(JiraMacroPropertyPanel.class);
-    }
-
-
 
     protected JiraIssuesPage bindCurrentPageToJiraIssues()
     {
@@ -97,10 +87,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         //clean all column default and add new list column
         jiraMacroSearchPanelDialog.cleanAllOptionColumn();
         DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
-        for(String columnName : columnNames)
-        {
-            displayOptionPanel.addColumn(columnName);
-        }
+        columnNames.forEach(displayOptionPanel::addColumn);
 
         EditContentPage editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
@@ -111,14 +98,4 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         return editPage;
     }
 
-    protected void convertJiraIssuesToJiraMacro(EditContentPage editPage, String jiraIssuesMacro, String jql, String macroName)
-    {
-        MacroPlaceholder macroPlaceholder = createMacroPlaceholderFromQueryString(editPage, jiraIssuesMacro, macroName);
-
-        JiraMacroSearchPanelDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
-        dialog.clickSearchButton();
-        Poller.waitUntil(dialog.getJqlSearchElement().timed().getValue(), Matchers.containsString(jql));
-
-        dialog.clickInsertDialog();
-    }
 }
