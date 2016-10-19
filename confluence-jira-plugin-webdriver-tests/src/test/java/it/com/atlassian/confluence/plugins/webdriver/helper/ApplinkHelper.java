@@ -1,7 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.helper;
 
 import com.atlassian.confluence.security.InvalidOperationException;
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.*;
@@ -14,15 +13,17 @@ import java.io.IOException;
 
 public class ApplinkHelper
 {
+    private static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
+    public static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
     private static final String TEST_APPLINK_NAME = "jiratest";
-    public static enum ApplinkMode { BASIC, OAUTH, TRUSTED }
+    public enum ApplinkMode { BASIC, OAUTH, TRUSTED }
 
     public static String setupAppLink(ApplinkMode applinkMode, HttpClient client, String authArgs, String basicAuthArgs) throws IOException, JSONException
     {
         String applinkId = null;
         if(!isExistAppLink(client, authArgs))
         {
-            applinkId = createAppLink(client, TEST_APPLINK_NAME, authArgs, AbstractJiraTest.JIRA_BASE_URL, AbstractJiraTest.JIRA_DISPLAY_URL, true);
+            applinkId = createAppLink(client, TEST_APPLINK_NAME, authArgs, JIRA_BASE_URL, JIRA_DISPLAY_URL, true);
 
             switch (applinkMode)
             {
@@ -39,14 +40,14 @@ public class ApplinkHelper
         return applinkId;
     }
 
-    public static boolean isExistAppLink(HttpClient client, String authArgs) throws JSONException, IOException
+    private static boolean isExistAppLink(HttpClient client, String authArgs) throws JSONException, IOException
     {
         final JSONArray jsonArray = getListAppLink(client, authArgs);
         for(int i = 0; i< jsonArray.length(); i++)
         {
             final String url = jsonArray.getJSONObject(i).getString("rpcUrl");
             Assert.assertNotNull(url);
-            if (url.equals(AbstractJiraTest.JIRA_BASE_URL))
+            if (url.equals(JIRA_BASE_URL))
             {
                 return true;
             }
@@ -84,7 +85,7 @@ public class ApplinkHelper
         return jsonObj.getJSONObject("applicationLink").getString("id");
     }
 
-    public static void enableApplinkBasicMode(HttpClient client, String applinkId, String authArgs) throws IOException
+    private static void enableApplinkBasicMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
         final PutMethod method = new PutMethod(System.getProperty("baseurl.confluence") + "/plugins/servlet/applinks/auth/conf/basic/" + applinkId + authArgs);
         method.addRequestHeader("X-Atlassian-Token", "no-check");
@@ -103,7 +104,7 @@ public class ApplinkHelper
         Assert.assertTrue("Cannot enable Oauth AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_OK);
     }
 
-    public static void enableApplinkTrustedMode(HttpClient client, String applinkId, String authArgs) throws IOException
+    private static void enableApplinkTrustedMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
         PostMethod method = new PostMethod(System.getProperty("baseurl.confluence") + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + applinkId + authArgs);
         method.addParameter("action", "ENABLE");
