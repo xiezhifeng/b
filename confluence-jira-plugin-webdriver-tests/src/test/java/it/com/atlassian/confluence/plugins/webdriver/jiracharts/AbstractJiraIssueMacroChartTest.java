@@ -7,20 +7,25 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.openqa.selenium.By;
 
 public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueMacroTest {
 
-    PieChartDialog dialogPieChart;
+    protected static final String JIRA_CHART_MACRO_NAME = "jirachart";
+
+    protected PieChartDialog dialogPieChart;
+    protected JiraMacroSearchPanelDialog dialogSearchPanel;
 
     @After
     public void clear() {
         closeDialog(dialogPieChart);
+        closeDialog(dialogSearchPanel);
     }
 
-    PieChartDialog openPieChartDialog(boolean isAutoAuthentication) {
+    protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication) {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editContentPage);
 
         // "searchForFirst" method is flaky test. It types and search too fast.
