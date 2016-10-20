@@ -27,7 +27,7 @@ public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueM
     }
 
     protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication) {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editContentPage);
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
 
         // "searchForFirst" method is flaky test. It types and search too fast.
         // macroBrowserDialog.searchForFirst("jira chart").select();

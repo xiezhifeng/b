@@ -65,7 +65,7 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssueMacroTest
 
     private void validateWarningDialog(String buttonText)
     {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editContentPage);
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("embed jira issues").select();
 
         warningAppLinkDialog = pageBinder.bind(WarningAppLinkDialog.class);

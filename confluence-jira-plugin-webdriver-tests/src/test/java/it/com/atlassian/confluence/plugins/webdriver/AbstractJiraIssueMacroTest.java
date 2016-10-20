@@ -161,9 +161,9 @@ public abstract class AbstractJiraIssueMacroTest {
         }
     }
 
-    protected MacroBrowserDialog openMacroBrowser(final EditContentPage editPage) {
-        editPage.doWaitUntilTinyMceIsInit();
-        return editPage.getEditor().openMacroBrowser();
+    protected MacroBrowserDialog openMacroBrowser() {
+        editContentPage.doWaitUntilTinyMceIsInit();
+        return editContentPage.getEditor().openMacroBrowser();
     }
 
     protected String getProjectId(String projectName) {
@@ -177,7 +177,7 @@ public abstract class AbstractJiraIssueMacroTest {
     }
 
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelDialogFromMacroBrowser() throws Exception {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editContentPage);
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
 
         // Although, `MacroBrowserDialog` has `searchFor` method to do search. But it's flaky test.
         // Here we tried to clearn field search first then try to search the searching term.
