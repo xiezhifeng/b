@@ -276,7 +276,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <containerId>tomcat8x</containerId>
+                    <containerId>tomcat7x</containerId>
                     <jvmArgs>${jvmArgs}</jvmArgs>
                     <productVersion>${confluence.version}</productVersion>
                     <productDataVersion>${confluence.data.version}</productDataVersion>
