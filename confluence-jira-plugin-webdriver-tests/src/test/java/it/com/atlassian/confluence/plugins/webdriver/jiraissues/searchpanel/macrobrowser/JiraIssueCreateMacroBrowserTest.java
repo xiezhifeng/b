@@ -1,22 +1,24 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import com.atlassian.pageobjects.elements.query.Poller;
-
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertThat;
+
+public class JiraIssueCreateMacroBrowserTest extends AbstractJiraIssueMacroSearchPanelTest
 {
-    private static String searchStr = "project = TP";
 
     @Test
     public void testCreateLinkMacroWithDefault() throws Exception
     {
-        editPage = openJiraIssueSearchPanelAndStartSearch(searchStr).clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        Poller.waitUntilTrue(editPage.getEditor().getContent().htmlContains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
+        String searchStr = "project = TP";
+        editContentPage = openJiraIssueSearchPanelAndStartSearch(searchStr).clickInsertDialog();
+        editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        Poller.waitUntilTrue(editContentPage.getEditor().getContent().htmlContains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
     }
 
     @Test
@@ -24,7 +26,7 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelWithoutSa
     {
         openJiraIssueSearchPanelAndStartSearch("InvalidValue");
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
-        Assert.assertTrue(jiraMacroSearchPanelDialog.getInfoMessage().contains("No search results found."));
+        assertThat(jiraMacroSearchPanelDialog.getInfoMessage(), containsString("No search results found."));
     }
 
     @Test

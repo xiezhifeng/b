@@ -1,10 +1,9 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
-import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
@@ -12,18 +11,16 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper.createJiraFilter;
 import static it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper.deleteJiraFilter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraIssuesSearchMacroBrowserTest extends AbstractJiraIssueMacroSearchPanelTest
 {
     private String globalTestAppLinkId;
 
     @After
-    public void deleteAppLink() throws Exception
+    public void clearAppLink() throws Exception
     {
         if (StringUtils.isNotEmpty(globalTestAppLinkId))
         {
@@ -35,7 +32,7 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
     @Test
     public void testSearchWithEnter() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.inputJqlSearch("test");
         jiraMacroSearchPanelDialog.sendReturnKeyToJqlSearch();
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-1"));
@@ -61,17 +58,9 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
     public void testSearchWithFilterEmptyJQL() throws Exception
     {
         String filterId = "10001";
-
-        if (TestProperties.isOnDemandMode())
-        {
-            filterId = createJiraFilter("All Open Bugs", "", "", client);
-            checkNotNull(filterId);
-        }
-
         openJiraIssueSearchPanelAndStartSearch(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-4"));
-
         assertEquals(deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
     }
 
@@ -85,7 +74,7 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
     @Test
     public void testPasteUrlWithNoJiraServer() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.pasteJqlSearch("http://anotherserver.com/jira/browse/TST-1");
 
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());

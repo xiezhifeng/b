@@ -2,18 +2,27 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 
 import com.atlassian.pageobjects.elements.query.Poller;
-
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartWithoutSavingTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraIssueMacroChartTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSavingTest
+public class CreatedVsResolvedChartDialogTest extends AbstractJiraIssueMacroChartTest
 {
+    private CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart;
+
+    @After
+    public void clearCreatedDialog() {
+        closeDialog(dialogCreatedVsResolvedChart);
+    }
+
     @Test
     public void testSwitchToCreatedVsResolvedChart()
     {
@@ -40,7 +49,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Hourly");
         dialogCreatedVsResolvedChart.setDaysPrevious("30");
-        assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
+        assertFalse(dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
 
     }
 
@@ -51,7 +60,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Daily");
         dialogCreatedVsResolvedChart.setDaysPrevious("500");
-        assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
+        assertFalse(dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
@@ -61,7 +70,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Weekly");
         dialogCreatedVsResolvedChart.setDaysPrevious("1751");
-        assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
+        assertFalse(dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
@@ -71,7 +80,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Monthly");
         dialogCreatedVsResolvedChart.setDaysPrevious("7501");
-        assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
+        assertFalse(dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
@@ -81,7 +90,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Quarterly");
         dialogCreatedVsResolvedChart.setDaysPrevious("22500");
-        assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
+        assertFalse(dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
@@ -91,7 +100,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Quarterly");
         dialogCreatedVsResolvedChart.setDaysPrevious("22501");
-        assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
+        assertFalse(dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
@@ -107,12 +116,12 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
     @Test
     public void checkInputValueCreatedVsResolvedChartInJQLSearchField()
     {
-        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
-
+        dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.inputJqlSearch("TP-1");
         dialogCreatedVsResolvedChart.clickPreviewButton();
-
-        Poller.waitUntil(dialogCreatedVsResolvedChart.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase("key=TP-1"));
+        Poller.waitUntil(
+                dialogCreatedVsResolvedChart.getJqlSearchElement().timed().getValue(),
+                Matchers.equalToIgnoringCase("key=TP-1"));
     }
 
     @Test
@@ -124,4 +133,11 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSaving
         assertTrue(dialogCreatedVsResolvedChart.hadBorderImageInDialog());
     }
 
+    private CreatedVsResolvedChartDialog openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor() {
+        dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
+        dialogCreatedVsResolvedChart.inputJqlSearch("status = open");
+        dialogCreatedVsResolvedChart.clickPreviewButton();
+        assertTrue(dialogCreatedVsResolvedChart.hadChartImage());
+        return dialogCreatedVsResolvedChart;
+    }
 }

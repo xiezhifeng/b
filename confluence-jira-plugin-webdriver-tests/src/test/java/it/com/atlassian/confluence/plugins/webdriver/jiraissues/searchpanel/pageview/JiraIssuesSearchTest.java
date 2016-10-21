@@ -2,17 +2,18 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pag
 
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.core.StringContains;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 
-public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssuesSearchTest extends AbstractJiraIssueMacroSearchPanelTest
 {
     private String globalTestAppLinkId;
 
@@ -29,14 +30,14 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
     @Test
     public void testColumnNotSupportSortableInIssueTable() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.inputJqlSearch("status = open");
         jiraMacroSearchPanelDialog.clickSearchButton();
         jiraMacroSearchPanelDialog.openDisplayOption();
         jiraMacroSearchPanelDialog.getDisplayOptionPanel().addColumn("Linked Issues");
         jiraMacroSearchPanelDialog.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        editPage.getEditor().clickSaveAndWaitForPageChange();
+        editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        editContentPage.getEditor().clickSaveAndWaitForPageChange();
         JiraIssuesPage page = pageBinder.bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
         page.clickColumnHeaderIssueTable("Linked Issues",null);
@@ -73,12 +74,13 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
         globalTestAppLinkId = appLinkId;
         ApplinkHelper.enableApplinkOauthMode(client, appLinkId, authArgs);
 
-        editPage = gotoEditTestPage(user.get());
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        editContentPage = null;
+        setupEditPage();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
 
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
-        Assert.assertThat(jiraMacroSearchPanelDialog.getInfoMessage(), StringContains.containsString("Login & Approve to retrieve data from TEST"));
-        Assert.assertFalse(jiraMacroSearchPanelDialog.getSearchButton().isEnabled());
+        assertThat(jiraMacroSearchPanelDialog.getInfoMessage(), containsString("Login & Approve to retrieve data from TEST"));
+        assertFalse(jiraMacroSearchPanelDialog.getSearchButton().isEnabled());
     }
 }

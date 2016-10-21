@@ -1,21 +1,20 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
-
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssueMacroSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesMaxChecked extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraIssuesMaxCheckedMacroBrowserTest extends AbstractJiraIssueMacroSearchPanelTest
 {
     @Test
     public void checkMaxIssueValidNumber() throws Exception
     {
         // Invalid number
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.fillMaxIssues("100kdkdkd");
         assertTrue(jiraMacroSearchPanelDialog.hasMaxIssuesErrorMsg());
     }
@@ -24,7 +23,7 @@ public class JiraIssuesMaxChecked extends AbstractJiraIssuesSearchPanelWithoutSa
     public void checkMaxIssueAboveRange() throws Exception
     {
         // Out of range
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.fillMaxIssues("1000000");
         assertTrue(jiraMacroSearchPanelDialog.hasMaxIssuesErrorMsg());
     }
@@ -33,7 +32,7 @@ public class JiraIssuesMaxChecked extends AbstractJiraIssuesSearchPanelWithoutSa
     public void checkMaxIssueBelowRange() throws Exception
     {
         // Out of range
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.fillMaxIssues("-10");
         assertTrue(jiraMacroSearchPanelDialog.hasMaxIssuesErrorMsg());
     }
@@ -42,7 +41,7 @@ public class JiraIssuesMaxChecked extends AbstractJiraIssuesSearchPanelWithoutSa
     public void checkMaxIssueDisplayOption() throws Exception
     {
         // behaviour when click difference display option
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.fillMaxIssues("-10");
         assertTrue(jiraMacroSearchPanelDialog.hasMaxIssuesErrorMsg());
         DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
@@ -55,20 +54,20 @@ public class JiraIssuesMaxChecked extends AbstractJiraIssuesSearchPanelWithoutSa
     @Test
     public void checkMaxIssueNumberKeeping() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.fillMaxIssues("5");
         jiraMacroSearchPanelDialog.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        editContentPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
 
-        MacroPlaceholder macroPlaceholder  = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
-        jiraMacroSearchPanelDialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
+        MacroPlaceholder macroPlaceholder  = editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
+        jiraMacroSearchPanelDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
         assertEquals(jiraMacroSearchPanelDialog.getMaxIssuesTxt().getValue(), "5");
     }
 
     @Test
     public void checkDefaultValue() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.showDisplayOption();
         String value = jiraMacroSearchPanelDialog.getMaxIssuesTxt().getValue();
         assertEquals("20", value);
@@ -77,7 +76,7 @@ public class JiraIssuesMaxChecked extends AbstractJiraIssuesSearchPanelWithoutSa
     @Test
     public void checkEmptyDefaultValue() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser();
         jiraMacroSearchPanelDialog.showDisplayOption();
         jiraMacroSearchPanelDialog.getMaxIssuesTxt().clear();
         jiraMacroSearchPanelDialog.getMaxIssuesTxt().javascript().execute("jQuery(arguments[0]).trigger('blur')");

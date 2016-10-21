@@ -1,12 +1,13 @@
 package it.com.atlassian.confluence.plugins.webdriver.helper;
 
 import com.atlassian.webdriver.AtlassianWebDriver;
-import com.google.common.base.Function;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.util.function.Function;
 
 public class JiraChartHelper
 {
@@ -19,17 +20,11 @@ public class JiraChartHelper
      */
     public static  <R> R getElementOnFrame(final By elementBy, final Function<WebElement, R> checker, AtlassianWebDriver driver)
     {
-        return changeToFrameContext(new Function<WebDriverWait, R>()
-        {
+        return changeToFrameContext(innerWaiter -> {
+            WebElement returnElement = innerWaiter.until(ExpectedConditions
+                    .presenceOfElementLocated(elementBy));
 
-            @Override
-            public R apply(WebDriverWait innerWaiter)
-            {
-                WebElement returnElement = innerWaiter.until(ExpectedConditions
-                        .presenceOfElementLocated(elementBy));
-
-                return checker.apply(returnElement);
-            }
+            return checker.apply(returnElement);
         }, driver);
     }
 
@@ -39,7 +34,7 @@ public class JiraChartHelper
      * @param runner abtract functionality which need to be run on IFrame context
      * @return the result of runner
      */
-    public static  <R> R changeToFrameContext(Function<WebDriverWait, R> runner, AtlassianWebDriver driver)
+    private static  <R> R changeToFrameContext(Function<WebDriverWait, R> runner, AtlassianWebDriver driver)
     {
         String parentPage = driver.getWindowHandle();
         try
