@@ -103,7 +103,7 @@ public class ClientId
         }
         if (StringUtils.isNotEmpty(columnNames))
         {
-            params.add(columnNames);
+            params.add(new String(Base64.encodeBase64(columnNames.getBytes())));
         }
         return StringUtils.join(params, SEPARATOR);
     }
