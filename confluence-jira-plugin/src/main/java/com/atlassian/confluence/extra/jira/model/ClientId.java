@@ -14,6 +14,9 @@ import java.util.Map;
 public class ClientId
 {
     private static final String SEPARATOR = "_";
+    public static final int NO_JQL_OR_COLUMNS = 4;
+    public static final int NO_COLUMNS = 5;
+    public static final int INCL_JQL_AND_COLUMNS = 6;
 
     private String serverId;
     private String pageId;
@@ -49,17 +52,17 @@ public class ClientId
     public static ClientId fromClientId(String clientId)
     {
         String[] elements = clientId.split(SEPARATOR);
-        if (elements.length == 4)
+        if (elements.length == NO_JQL_OR_COLUMNS)
         {
             return new ClientId(JiraIssuesType.valueOf(elements[0]), elements[1], elements[2], elements[3], null, null);
         }
-        else if (elements.length == 5)
+        else if (elements.length == NO_COLUMNS)
         {
             return new ClientId(JiraIssuesType.valueOf(elements[0]), elements[1], elements[2], elements[3], new String(Base64.decodeBase64(elements[4])), null);
         }
-        else if (elements.length == 6)
+        else if (elements.length == INCL_JQL_AND_COLUMNS)
         {
-            return new ClientId(JiraIssuesType.valueOf(elements[0]), elements[1], elements[2], elements[3], new String(Base64.decodeBase64(elements[4])), elements[5]);
+            return new ClientId(JiraIssuesType.valueOf(elements[0]), elements[1], elements[2], elements[3], new String(Base64.decodeBase64(elements[4])), new String(Base64.decodeBase64(elements[5])));
         }
         throw new IllegalArgumentException("Wrong clientId format=" + clientId);
     }
