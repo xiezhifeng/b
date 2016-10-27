@@ -300,9 +300,9 @@ public class TestJiraIssuesMacro extends TestCase
 
     private ConversionContext createPlaceholderConversionContext()
     {
-        Page page = new Page();
+        final Page page = new Page();
         page.setId(1l);
-        DefaultConversionContext conversionContext = new DefaultConversionContext(new PageContext(page));
+        final DefaultConversionContext conversionContext = new DefaultConversionContext(new PageContext(page));
         conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, Boolean.FALSE);
         conversionContext.setProperty(JiraIssuesMacro.PARAM_PLACEHOLDER, Boolean.TRUE);
         return conversionContext;
@@ -343,7 +343,7 @@ public class TestJiraIssuesMacro extends TestCase
 
     public void testMultipleTableMacrosWithDifferentColumns() throws Exception
     {
-        List<String> columnList=Lists.newArrayList("type","summary","key","priority");
+        final List<String> columnList=Lists.newArrayList("type","summary","key","priority");
 
         final Map<String, String> params1 = new HashMap<String, String>();
         params1.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&returnMax=true&jqlQuery=status+%3D+open");
@@ -369,7 +369,7 @@ public class TestJiraIssuesMacro extends TestCase
 
         mockRestApi(appLink);
 
-        ImmutableMap<String, ImmutableSet<String>> mocki18nColumnNames = mockGetI18nColumnNames();
+        final ImmutableMap<String, ImmutableSet<String>> mocki18nColumnNames = mockGetI18nColumnNames();
 
         jiraIssuesMacro.createContextMapFromParams(params1, macroVelocityContext, params1.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createPlaceholderConversionContext(), mocki18nColumnNames);
         final ClientId clientID1 = (ClientId) macroVelocityContext.get("clientId");
