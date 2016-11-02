@@ -38,6 +38,7 @@ import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchServi
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.extra.jira.model.ClientId;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.services.DefaultJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
@@ -104,6 +105,7 @@ import junit.framework.TestCase;
 
 import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.SINGLE;
 import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.TABLE;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
@@ -296,6 +298,16 @@ public class TestJiraIssuesMacro extends TestCase
         return conversionContext;
     }
 
+    private ConversionContext createPlaceholderConversionContext()
+    {
+        final Page page = new Page();
+        page.setId(1l);
+        final DefaultConversionContext conversionContext = new DefaultConversionContext(new PageContext(page));
+        conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, Boolean.FALSE);
+        conversionContext.setProperty(JiraIssuesMacro.PARAM_PLACEHOLDER, Boolean.TRUE);
+        return conversionContext;
+    }
+
     public void testCallClearCacheWhenIssueTypeIsStaticTable() throws Exception
     {
         List<String> columnList=Lists.newArrayList("type","summary");
@@ -327,6 +339,45 @@ public class TestJiraIssuesMacro extends TestCase
 
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createDefaultConversionContext(true), mocki18nColumnNames);
         verify(jiraCacheManager, times(1)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ReadOnlyApplicationLink.class), anyBoolean(), anyBoolean());
+    }
+
+    public void testMultipleTableMacrosWithDifferentColumns() throws Exception
+    {
+        final List<String> columnList=Lists.newArrayList("type","summary","key","priority");
+
+        final Map<String, String> params1 = new HashMap<String, String>();
+        params1.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&returnMax=true&jqlQuery=status+%3D+open");
+        params1.put("columns", "type,summary");
+        final Map<String, String> params2 = new HashMap<String, String>();
+        params2.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&returnMax=true&jqlQuery=status+%3D+open");
+        params2.put("columns", "key,priority");
+
+        final ReadOnlyApplicationLink appLink = mock(ReadOnlyApplicationLink.class);
+        final ApplicationId applicationId = mock(ApplicationId.class);
+        when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
+        when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
+        when(appLink.getId()).thenReturn(applicationId);
+        when(applicationId.get()).thenReturn("123");
+
+        when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
+        when(jiraIssuesManager.retrieveXMLAsChannel(params1.get("url"), columnList, appLink, false, true)).thenReturn(
+                new MockChannel(params1.get("url")));
+        when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
+        when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
+        when(localeManager.getLocale(any(User.class))).thenReturn(defaultLocale);
+        when(formatSettingsManager.getDateFormat()).thenReturn(DEFAULT_DATE_FORMAT);
+
+        mockRestApi(appLink);
+
+        final ImmutableMap<String, ImmutableSet<String>> mocki18nColumnNames = mockGetI18nColumnNames();
+
+        jiraIssuesMacro.createContextMapFromParams(params1, macroVelocityContext, params1.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createPlaceholderConversionContext(), mocki18nColumnNames);
+        final ClientId clientID1 = (ClientId) macroVelocityContext.get("clientId");
+
+        jiraIssuesMacro.createContextMapFromParams(params2, macroVelocityContext, params2.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, TABLE, createPlaceholderConversionContext(), mocki18nColumnNames);
+        final ClientId clientID2 = (ClientId) macroVelocityContext.get("clientId");
+
+        assertNotEquals("Client ids are the same, but should be different.", clientID2, clientID1);
     }
 
     private void mockRestApi(ReadOnlyApplicationLink appLink)

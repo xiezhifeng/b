@@ -969,7 +969,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             else
             {
                 ClientId clientId = ClientId.fromElement(JiraIssuesType.TABLE, appLink.getId().get(), conversionContext.getEntity().getIdAsString(),
-                        JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get()), String.valueOf(macroParams.get("jqlQuery")));
+                        JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get()), String.valueOf(macroParams.get("jqlQuery")),
+                        String.valueOf(macroParams.get("columns")).replace(",", ""));
                 contextMap.put("clientId", clientId);
                 asyncJiraIssueBatchService.processRequestWithJql(clientId, macroParams, conversionContext, appLink);
 
@@ -1075,7 +1076,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         if (isAsyncSupport(conversionContext))
         {
             ClientId clientId = ClientId.fromElement(JiraIssuesType.COUNT, appLink.getId().get(), conversionContext.getEntity().getIdAsString(),
-                    JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get()), String.valueOf(macroParams.get("jqlQuery")));
+                    JiraIssueUtil.getUserKey(AuthenticatedUserThreadLocal.get()), String.valueOf(macroParams.get("jqlQuery")),
+                    String.valueOf(macroParams.get("columns")).replace(",", ""));
             contextMap.put("clientId", clientId);
             asyncJiraIssueBatchService.processRequestWithJql(clientId, macroParams, conversionContext, appLink);
         }

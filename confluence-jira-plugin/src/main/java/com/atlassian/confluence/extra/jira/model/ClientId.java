@@ -6,6 +6,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Generate clientId
@@ -13,46 +14,55 @@ import java.util.List;
 public class ClientId
 {
     private static final String SEPARATOR = "_";
+    public static final int NO_JQL_OR_COLUMNS = 4;
+    public static final int NO_COLUMNS = 5;
+    public static final int INCL_JQL_AND_COLUMNS = 6;
 
     private String serverId;
     private String pageId;
     private String userId;
     private String jqlQuery;
     private JiraIssuesType jiraIssuesType;
+    private String columnNames;
 
-    private ClientId(JiraIssuesType jiraIssuesType, String serverId, String pageId, String userId, String jqlQuery)
+    private ClientId(JiraIssuesType jiraIssuesType, String serverId, String pageId, String userId, String jqlQuery, String columnNames)
     {
         this.serverId = serverId;
         this.pageId = pageId;
         this.userId = userId;
         this.jqlQuery = jqlQuery;
         this.jiraIssuesType = jiraIssuesType;
+        this.columnNames = columnNames;
     }
 
-    public static ClientId fromElement(JiraIssuesType jiraIssuesType, String serverId, String pageId, String userId, String jqlQuery)
+    public static ClientId fromElement(JiraIssuesType jiraIssuesType, String serverId, String pageId, String userId, String jqlQuery, String columnNames)
     {
         if (StringUtils.isEmpty(serverId) || StringUtils.isEmpty(pageId) || StringUtils.isEmpty(userId))
         {
             throw new IllegalArgumentException("Wrong ClientId data");
         }
-        return new ClientId(jiraIssuesType, serverId, pageId, userId, jqlQuery);
+        return new ClientId(jiraIssuesType, serverId, pageId, userId, jqlQuery, columnNames);
     }
 
     public static ClientId fromElement(JiraIssuesType jiraIssuesType, String serverId, String pageId, String userId)
     {
-        return fromElement(jiraIssuesType, serverId, pageId, userId, null);
+        return fromElement(jiraIssuesType, serverId, pageId, userId, null, null);
     }
 
     public static ClientId fromClientId(String clientId)
     {
         String[] elements = clientId.split(SEPARATOR);
-        if (elements.length == 4)
+        if (elements.length == NO_JQL_OR_COLUMNS)
         {
-            return new ClientId(JiraIssuesType.valueOf(elements[0]), elements[1], elements[2], elements[3], null);
+            return new ClientId(JiraIssuesType.valueOf(elements[0]), elements[1], elements[2], elements[3], null, null);
         }
-        else if (elements.length == 5)
+        else if (elements.length == NO_COLUMNS)
         {
-            return new ClientId(JiraIssuesType.valueOf(elements[0]), elements[1], elements[2], elements[3], new String(Base64.decodeBase64(elements[4])));
+            return new ClientId(JiraIssuesType.valueOf(elements[0]), elements[1], elements[2], elements[3], new String(Base64.decodeBase64(elements[4])), null);
+        }
+        else if (elements.length == INCL_JQL_AND_COLUMNS)
+        {
+            return new ClientId(JiraIssuesType.valueOf(elements[0]), elements[1], elements[2], elements[3], new String(Base64.decodeBase64(elements[4])), new String(Base64.decodeBase64(elements[5])));
         }
         throw new IllegalArgumentException("Wrong clientId format=" + clientId);
     }
@@ -77,6 +87,11 @@ public class ClientId
         return jqlQuery;
     }
 
+    public String getColumnNames()
+    {
+        return columnNames;
+    }
+
     public JiraIssuesType getJiraIssuesType()
     {
         return jiraIssuesType;
@@ -89,6 +104,10 @@ public class ClientId
         {
             params.add(Base64.encodeBase64String(jqlQuery.getBytes()));
         }
+        if (StringUtils.isNotEmpty(columnNames))
+        {
+            params.add(new String(Base64.encodeBase64(columnNames.getBytes())));
+        }
         return StringUtils.join(params, SEPARATOR);
     }
 
@@ -100,6 +119,7 @@ public class ClientId
         result = 31 * result + (userId != null ? userId.hashCode() : 0);
         result = 31 * result + (jqlQuery != null ? jqlQuery.hashCode() : 0);
         result = 31 * result + (jiraIssuesType != null ? jiraIssuesType.hashCode() : 0);
+        result = 31 * result + (columnNames != null ? columnNames.hashCode() : 0);
         return result;
     }
 
@@ -132,6 +152,11 @@ public class ClientId
         }
 
         if (!StringUtils.equals(this.jqlQuery, that.jqlQuery))
+        {
+            return false;
+        }
+
+        if (!StringUtils.equals(this.columnNames, that.columnNames))
         {
             return false;
         }
