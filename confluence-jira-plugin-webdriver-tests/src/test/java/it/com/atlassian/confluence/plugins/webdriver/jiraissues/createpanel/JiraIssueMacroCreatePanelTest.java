@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openqa.selenium.TimeoutException;
 
 import java.util.List;
 
@@ -81,7 +82,11 @@ public class JiraIssueMacroCreatePanelTest extends AbstractJiraIssueMacroTest {
         jiraMacroCreatePanelDialog.getSummaryElement().type("blah");
         jiraMacroCreatePanelDialog.submit();
 
-        waitForAjaxRequest();
+        try {
+            waitForAjaxRequest();
+        } catch (TimeoutException e) {
+            // Did not receive ajax request.
+        }
 
         Iterable<PageElement> serverErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
@@ -120,7 +125,11 @@ public class JiraIssueMacroCreatePanelTest extends AbstractJiraIssueMacroTest {
     private String createJiraIssue(String project, String issueType, String summary, String epicName) {
         jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
         jiraMacroCreatePanelDialog.selectProject(project);
-        waitForAjaxRequest();
+        try {
+            waitForAjaxRequest();
+        } catch(TimeoutException e) {
+            // Failed to wait for AJAX request.
+        }
         jiraMacroCreatePanelDialog.selectIssueType(issueType);
         jiraMacroCreatePanelDialog.getSummaryElement().type(summary);
         jiraMacroCreatePanelDialog.setEpicName(epicName);
