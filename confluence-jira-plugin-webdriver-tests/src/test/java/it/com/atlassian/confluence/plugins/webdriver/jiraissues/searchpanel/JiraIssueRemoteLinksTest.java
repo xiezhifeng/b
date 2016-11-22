@@ -3,6 +3,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.Editor;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -44,6 +45,7 @@ public class JiraIssueRemoteLinksTest extends AbstractJiraIssueMacroSearchPanelT
     public void testCreateRemoteLinksForNewPage() throws Exception
     {
         ViewPage viewPage = createPageWithJiraIssueMacro("TP-1");
+        Poller.waitUntilTrue("Page is visible, to give jira time to update.", viewPage.contentVisibleCondition());
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
         assertTrue(
                 "Page with id '" + viewPage.getPageId() + "' not found in " + remoteLinks,

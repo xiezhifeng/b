@@ -82,7 +82,11 @@ public class JiraIssueMacroCreatePanelTest extends AbstractJiraIssueMacroTest {
         jiraMacroCreatePanelDialog.getSummaryElement().type("blah");
         jiraMacroCreatePanelDialog.submit();
 
-        waitForAjaxRequest();
+        try {
+            waitForAjaxRequest();
+        } catch (TimeoutException e) {
+            // Did not receive ajax request.
+        }
 
         Iterable<PageElement> serverErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
