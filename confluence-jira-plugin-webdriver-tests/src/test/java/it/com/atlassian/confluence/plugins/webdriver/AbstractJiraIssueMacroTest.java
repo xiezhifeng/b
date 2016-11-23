@@ -162,6 +162,15 @@ public abstract class AbstractJiraIssueMacroTest {
     }
 
     protected MacroBrowserDialog openMacroBrowser(final EditContentPage editPage) {
+        // CONFDEV-50207: Here because editor loading in 6.0 is slow.
+        // Can be removed when editor loading becomes faster, or the pom version
+        // is >= 6.1.x
+        try {
+            editPage.wait(5000);
+        } catch (InterruptedException e) {
+            // Do nothing.
+        }
+
         editPage.doWaitUntilTinyMceIsInit();
         return editPage.getEditor().openMacroBrowser();
     }
