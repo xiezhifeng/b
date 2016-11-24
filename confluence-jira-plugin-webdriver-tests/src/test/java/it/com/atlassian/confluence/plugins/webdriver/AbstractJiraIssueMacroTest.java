@@ -20,7 +20,6 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.PageBinder;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.user.util.Assert;
 import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 import com.atlassian.webdriver.utils.element.WebDriverPoller;
 import com.google.common.collect.ImmutableSet;
@@ -163,15 +162,6 @@ public abstract class AbstractJiraIssueMacroTest {
     }
 
     protected MacroBrowserDialog openMacroBrowser(final EditContentPage editPage) {
-        // CONFDEV-50207: Here because editor loading in 6.0 is slow.
-        // Can be removed when editor loading becomes faster, or the pom version
-        // is >= 6.1.x
-        try {
-            editPage.doWaitUntilTinyMceIsInit();
-        } catch (AssertionError e) {
-            editPage.doWaitUntilTinyMceIsInit();
-        }
-
         editPage.doWaitUntilTinyMceIsInit();
         return editPage.getEditor().openMacroBrowser();
     }
