@@ -130,8 +130,13 @@ public abstract class AbstractJiraIssueMacroTest {
 
     protected void cancelEditPage() {
         if (editContentPage != null && editContentPage.getEditor().isCancelVisibleNow()) {
-            ViewPage viewPage = editContentPage.cancel();
-            viewPage.doWait();
+            try {
+                ViewPage viewPage = editContentPage.cancel();
+                viewPage.doWait();
+            } catch(IllegalArgumentException e) {
+                // The editContentPage id is sometimes null when the editor is in the process of being
+                // cancelled already.
+            }
         }
     }
 
