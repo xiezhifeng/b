@@ -28,13 +28,7 @@ public class JiraChartNoAppLinkTest extends AbstractJiraIssueMacroChartTest
         // We need to refresh the editor so it can pick up the new applink configuration. We need to do
         // this now since the setUp() method already places us in the editor context
         ViewPage viewPage = editContentPage.save();
-        Poller.waitUntilTrue(viewPage.contentVisibleCondition());
-        try {
-            HipchatIntegrationDialog hipchatDialog = pageBinder.bind(HipchatIntegrationDialog.class);
-            hipchatDialog.dismiss();
-        } catch (Throwable e) {
-            // No dialog to dismiss
-        }
+        viewPageLoadedCondition(viewPage);
         editContentPage = viewPage.edit();
         dialogPieChart = openPieChartDialog(false);
         Poller.waitUntilTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().timed().isVisible());

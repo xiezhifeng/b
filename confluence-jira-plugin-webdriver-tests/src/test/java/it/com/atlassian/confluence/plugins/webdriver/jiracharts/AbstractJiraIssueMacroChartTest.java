@@ -3,8 +3,10 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroForm;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
+import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedCondition;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraIssueMacroTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
@@ -67,5 +69,4 @@ public abstract class AbstractJiraIssueMacroChartTest extends AbstractJiraIssueM
 
         return pageBinder.bind(CreatedVsResolvedChartDialog.class);
     }
-
 }

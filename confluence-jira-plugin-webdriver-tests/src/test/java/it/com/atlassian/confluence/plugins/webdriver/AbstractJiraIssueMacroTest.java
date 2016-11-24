@@ -20,10 +20,12 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.PageBinder;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedCondition;
 import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 import com.atlassian.webdriver.utils.element.WebDriverPoller;
 import com.google.common.collect.ImmutableSet;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.jiracharts.HipchatIntegrationDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -118,7 +120,9 @@ public abstract class AbstractJiraIssueMacroTest {
     protected void setupEditPage() {
         if (editContentPage == null || !editContentPage.getEditor().isCancelVisibleNow()) {
             Content content = space.get().getHomepageRef().get();
-            editContentPage = product.loginAndEdit(user.get(), content);
+            ViewPage viewPage = product.loginAndView(user.get(), content);
+            viewPageLoadedCondition(viewPage);
+            editContentPage = viewPage.edit();
         }
         Poller.waitUntilTrue("Edit page is ready", editContentPage.getEditor().isEditorCurrentlyActive());
         editContentPage.getEditor().getContent().clear().focus();
@@ -193,5 +197,15 @@ public abstract class AbstractJiraIssueMacroTest {
         macroForm.waitUntilHidden();
 
         return pageBinder.bind(JiraMacroSearchPanelDialog.class);
+    }
+
+    protected void viewPageLoadedCondition(ViewPage viewPage) {
+        Poller.waitUntilTrue(viewPage.contentVisibleCondition());
+        try {
+            HipchatIntegrationDialog hipchatDialog = pageBinder.bind(HipchatIntegrationDialog.class);
+            hipchatDialog.dismiss();
+        } catch (Throwable e) {
+            // No dialog to dismiss
+        }
     }
 }
