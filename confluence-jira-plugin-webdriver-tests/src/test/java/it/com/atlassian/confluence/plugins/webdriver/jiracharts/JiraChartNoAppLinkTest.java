@@ -35,7 +35,7 @@ public class JiraChartNoAppLinkTest extends AbstractJiraIssueMacroChartTest
         } catch (Throwable e) {
             // No dialog to dismiss
         }
-        editContentPage.edit();
+        editContentPage = viewPage.edit();
         dialogPieChart = openPieChartDialog(false);
         Poller.waitUntilTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().timed().isVisible());
     }
